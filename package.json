@@ -1,0 +1,39 @@
+{
+  "name": "tutor-compass",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tutor Compass: AI-assisted administrative decisions for small tutoring businesses (INFS3605 alpha)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "seed:users": "node --env-file=.env.local scripts/seed-users.mjs",
+    "smoke": "node --env-file=.env.local scripts/smoke-test.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "seed:generate": "tsx scripts/generate-seed.ts",
+    "sql:bundle": "node scripts/bundle-sql.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.134.0",
+    "@supabase/supabase-js": "^2.117.3",
+    "next": "16.3.8",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "server-only": "^0.0.1",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tsx": "^4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20.9"
+  }
+}
