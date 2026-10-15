@@ -20,7 +20,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       )}
       <LoginForm next={safeNext} />
       <div className="notice info">
-        <p>Two fictional demo accounts exist: an administrator (Sarah) and the owner. Their passwords are set by whoever ran <code>npm run seed:users</code> and are not stored in the code.</p>
+        <p>Two fictional demo accounts exist: an administrator (Sarah) and the owner. Whoever set up this copy of the app chose their passwords, either in Supabase (Authentication &gt; Users) or with <code>npm run seed:users</code>. Passwords are not stored in the code.</p>
       </div>
     </div>
   );
