@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Approvals · Traffic Lights{% endblock %}
+{% block content %}
+<h1>Good to see you, {{ g.user.name }}</h1>
+<div class="stats">
+  <div class="stat red"><b>{{ waiting|length }}</b><span>need you</span></div>
+  <div class="stat amber"><b>{{ needs_info|length }}</b><span>staff are checking</span></div>
+  <div class="stat green"><b>{{ handled|length }}</b><span>recently handled without you</span></div>
+</div>
+
+<section class="card">
+  <h2>Waiting for your decision</h2>
+  {% for r in waiting %}
+    <a class="queue-item" href="{{ url_for('view_request', request_id=r.id) }}">
+      <span class="dot red"></span>
+      <span class="grow">
+        <strong>{{ category_label(r.category) }}</strong> · from {{ r.created_by }} · {{ r.created_at }}<br>
+        {{ r.escalation.summary if r.escalation else r.description }}
+      </span>
+      <span class="go">Review</span>
+    </a>
+  {% else %}
+    <p class="muted">Nothing needs you right now.</p>
+  {% endfor %}
+</section>
+
+{% if stale %}
+<section class="card">
+  <h2>Rules to review</h2>
+  <p class="muted">These green rules haven't been reviewed in over six months, so the app shows amber instead of green until you confirm them.</p>
+  {% for rule in stale %}
+    <div class="row spread">
+      <a href="{{ url_for('edit_rule', rule_id=rule.id) }}">{{ rule.title }}</a>
+      <form method="post" action="{{ url_for('mark_reviewed', rule_id=rule.id) }}"><button class="small">Still correct</button></form>
+    </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>Handled by staff</h2>
+  {% for r in handled %}
+    <a class="queue-item" href="{{ url_for('view_request', request_id=r.id) }}">
+      <span class="dot {{ r.colour }}"></span>
+      <span class="grow"><strong>{{ category_label(r.category) }}</strong> · {{ r.created_by }} · {{ r.closed_at }}<br>{{ r.action_taken }}</span>
+    </a>
+  {% else %}
+    <p class="muted">Nothing yet.</p>
+  {% endfor %}
+</section>
+{% endblock %}

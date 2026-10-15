@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ rule.title }} · Traffic Lights{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('rules') }}">← All rules</a></p>
+<h1>{{ rule.title }}</h1>
+<p class="muted">{{ category_label(rule.category) }} · version {{ rule.version }} · last reviewed {{ rule.last_reviewed or 'never' }}
+  {% if stale %}<span class="pill small amber">Needs review</span>{% endif %}</p>
+
+{% if g.user.role == 'owner' %}
+<section class="card">
+  <form method="post">
+    <label class="field"><span>Title</span><input name="title" value="{{ rule.title }}" required></label>
+    <div class="row">
+      <label class="field"><span>Result when it matches</span>
+        <select name="outcome">{% for o in ['green', 'amber', 'red'] %}<option {% if o == rule.outcome %}selected{% endif %}>{{ o }}</option>{% endfor %}</select></label>
+      <label class="field"><span>Lowest role that can act</span>
+        <select name="min_role">{% for r in roles %}<option value="{{ r }}" {% if r == rule.min_role %}selected{% endif %}>{{ ROLE_LABELS[r] }}</option>{% endfor %}</select></label>
+      <label class="field"><span>Order (lower is checked first)</span><input type="number" name="priority" value="{{ rule.priority }}"></label>
+    </div>
+    <label><input type="checkbox" name="requires_owner" value="1" {% if rule.requires_owner %}checked{% endif %}> Always needs owner approval</label>
+    <label><input type="checkbox" name="active" value="1" {% if rule.active %}checked{% endif %}> Active</label>
+
+    <label class="field"><span>Conditions (all must match)</span>
+      <textarea name="conditions" rows="4" class="mono">{{ rule.conditions|tojson }}</textarea></label>
+    <p class="muted small">Question ids for this type:
+      {% for q in questions %}<code>{{ q.id }}</code>{% if not loop.last %}, {% endif %}{% endfor %}.
+      Operators: == != &lt; &lt;= &gt; &gt;= in. Example: [{"q": "amount", "op": "&lt;=", "value": 50}]</p>
+
+    <label class="field"><span>Why (shown to staff)</span><textarea name="note" rows="2">{{ rule.note }}</textarea></label>
+    <label class="field"><span>Steps for staff (one per line)</span><textarea name="procedure" rows="4">{{ rule.procedure }}</textarea></label>
+    <label class="field"><span>Source</span><input name="source" value="{{ rule.source }}"></label>
+    <button class="primary">Save new version</button>
+  </form>
+  {% if stale %}
+  <form method="post" action="{{ url_for('mark_reviewed', rule_id=rule.id) }}"><button>Mark as still correct</button></form>
+  {% endif %}
+</section>
+{% else %}
+<section class="card">
+  <p><strong>When:</strong> {{ describe_conditions(rule) }}</p>
+  <p><strong>Result:</strong> {{ 'Owner approval' if rule.requires_owner else rule.outcome }} · lowest role: {{ ROLE_LABELS[rule.min_role] }}</p>
+  {% if rule.note %}<p>{{ rule.note }}</p>{% endif %}
+  {% if rule.procedure %}<ol>{% for line in rule.procedure.splitlines() if line.strip() %}<li>{{ line }}</li>{% endfor %}</ol>{% endif %}
+  <p class="muted small">Source: {{ rule.source or 'not recorded' }}. Only the owner can change rules.</p>
+</section>
+{% endif %}
+
+{% if history %}
+<section class="card">
+  <h2>Previous versions</h2>
+  {% for h in history %}
+    <details>
+      <summary>Version {{ h.version }} · changed by {{ h.changed_by }} on {{ h.changed_at }}</summary>
+      <p>{{ h.snapshot.title }} → {{ h.snapshot.outcome }}{% if h.snapshot.requires_owner %} (owner){% endif %}</p>
+      <p class="muted small">{{ describe_conditions(h.snapshot) }}</p>
+      <p class="small">{{ h.snapshot.note }}</p>
+    </details>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

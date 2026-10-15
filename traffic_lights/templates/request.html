@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Request #{{ req.id }} · Traffic Lights{% endblock %}
+{% block content %}
+<ol class="steps"><li class="done">Describe</li><li class="done">Confirm details</li><li class="on">Result</li></ol>
+
+<section class="banner {{ req.colour }}">
+  <div class="light"><i></i><i></i><i></i></div>
+  <div>
+    <p class="banner-label">{{ req.colour|upper }}</p>
+    <h1>{{ req.headline }}</h1>
+    <ul>{% for r in req.reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+  </div>
+</section>
+
+<div class="grid">
+  <div>
+    <section class="card">
+      <div class="row spread">
+        <h2>Request #{{ req.id }}</h2>
+        <span class="status">{{ STATUS_LABELS[req.status] }}</span>
+      </div>
+      <p class="quote">"{{ req.description }}"</p>
+      <p class="muted">{{ category_label(req.category) }} · raised by {{ req.created_by }} ({{ ROLE_LABELS[req.created_role] }}) · {{ req.created_at }}</p>
+      <table class="answers">
+        {% for q in CATEGORIES.get(req.category, {}).get('questions', []) %}
+          <tr><td>{{ q.text }}</td><td>{{ format_answer(req.answers.get(q.id)) or '—' }}</td></tr>
+        {% endfor %}
+      </table>
+      {% if req.ai_used %}<p class="muted small">The AI pre-filled some answers from the description. Staff confirmed them before the check.</p>{% endif %}
+    </section>
+
+    {% if rule %}
+    <section class="card">
+      <h2>Rule applied</h2>
+      <h3>{{ rule.title }}</h3>
+      <p class="muted small">{{ describe_conditions(rule) }} · Source: {{ rule.source or 'not recorded' }} · Last reviewed {{ rule.last_reviewed or 'never' }}</p>
+      {% if rule.procedure %}
+        <h4>Steps</h4>
+        <ol>{% for line in rule.procedure.splitlines() if line.strip() %}<li>{{ line }}</li>{% endfor %}</ol>
+      {% endif %}
+      <a href="{{ url_for('edit_rule', rule_id=rule.id) }}" class="small">View rule</a>
+    </section>
+    {% endif %}
+
+    {# ---- what happens next depends on the colour and status ---- #}
+
+    {% if req.status == 'ready' %}
+    <section class="card">
+      <h2>Record what you did</h2>
+      <form method="post" action="{{ url_for('record_action', request_id=req.id) }}">
+        <label class="field"><span>Action taken</span><input name="action_taken" required placeholder="e.g. Refunded $40 to card, sent confirmation email"></label>
+        <label class="field"><span>Outcome (optional)</span><input name="outcome" placeholder="e.g. Parent happy, closed"></label>
+        <button class="primary">Save to the decision log</button>
+      </form>
+      <p class="muted small">Something not right? <a href="#escalate">Send it to the owner instead</a>.</p>
+    </section>
+    {% endif %}
+
+    {% if req.status == 'needs_info' %}
+    <section class="card">
+      <h2>What to do now</h2>
+      {% if missing %}
+        <p>Find out:</p>
+        <ul>{% for m in missing %}<li>{{ m }}</li>{% endfor %}</ul>
+      {% endif %}
+      <form method="post" action="{{ url_for('edit_request', request_id=req.id) }}">
+        <button class="primary">Update the answers and check again</button>
+      </form>
+      <p class="muted small">If you still can't resolve it, send it to the owner below.</p>
+    </section>
+    {% endif %}
+
+    {% if req.status in ('ready', 'needs_info', 'to_owner') %}
+    <section class="card" id="escalate">
+      <h2>Send to the owner</h2>
+      <p class="muted">The AI agent will pack this up with the rule, the answers and similar past decisions so the owner can decide quickly.</p>
+      <form method="post" action="{{ url_for('escalate', request_id=req.id) }}">
+        <label class="field"><span>Anything else the owner should know?</span>
+          <textarea name="staff_note" rows="3" placeholder="e.g. Parent sounded upset on the phone, has been with us 3 years"></textarea></label>
+        <button class="{{ 'primary' if req.colour == 'red' else '' }}">Send to the owner</button>
+      </form>
+    </section>
+    {% endif %}
+
+    {% if req.escalation %}
+    <section class="card brief">
+      <div class="row spread"><h2>Brief for the owner</h2>
+        <span class="tag">{{ 'Drafted by AI' if req.escalation.source == 'ai' else 'Auto summary' }}</span></div>
+      <p>{{ req.escalation.summary }}</p>
+      {% if req.escalation.key_facts %}<h4>Key facts</h4><ul>{% for f in req.escalation.key_facts %}<li>{{ f }}</li>{% endfor %}</ul>{% endif %}
+      {% if req.escalation.options %}
+        <h4>Options</h4>
+        <ul>{% for o in req.escalation.options %}<li><strong>{{ o.option }}</strong>: {{ o.consequence }}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if req.escalation.suggested %}<p><strong>Suggested:</strong> {{ req.escalation.suggested }}</p>{% endif %}
+      {% if req.escalation.questions_for_owner %}<h4>Questions for you</h4><ul>{% for qq in req.escalation.questions_for_owner %}<li>{{ qq }}</li>{% endfor %}</ul>{% endif %}
+      {% if req.staff_note %}<p class="muted"><strong>Staff note:</strong> {{ req.staff_note }}</p>{% endif %}
+    </section>
+    {% endif %}
+
+    {% if req.status == 'awaiting_owner' or (req.status == 'to_owner' and g.user.role == 'owner') %}
+      {% if g.user.role == 'owner' %}
+      <section class="card decide">
+        <h2>Your decision</h2>
+        <form method="post" action="{{ url_for('decide', request_id=req.id) }}">
+          <div class="choices big">
+            <label><input type="radio" name="decision" value="approve" required> Approve</label>
+            <label><input type="radio" name="decision" value="modify"> Approve with changes</label>
+            <label><input type="radio" name="decision" value="reject"> Reject</label>
+          </div>
+          <label class="field"><span>Comment or conditions for staff</span>
+            <textarea name="comment" rows="3" placeholder="e.g. Offer a credit instead of a cash refund"></textarea></label>
+          <fieldset>
+            <label><input type="checkbox" name="save_rule" value="1"> Save this as a rule so staff don't need to ask next time</label>
+            <label class="indent"><input type="checkbox" name="staff_can_handle" value="1"> Staff can handle this themselves next time (green)</label>
+            <label class="field indent"><span>Rule name</span><input name="rule_title" placeholder="e.g. Refund for injury, unused lessons"></label>
+          </fieldset>
+          <button class="primary">Save decision</button>
+        </form>
+      </section>
+      {% else %}
+      <section class="card waiting">
+        <h2>Waiting on the owner</h2>
+        <p>Don't act on this yet. It isn't approved until the owner responds. You'll see their decision here.</p>
+      </section>
+      {% endif %}
+    {% endif %}
+
+    {% if req.owner_decision %}
+    <section class="card decision {{ req.owner_decision }}">
+      <h2>Owner's decision: {{ STATUS_LABELS[req.status] }}</h2>
+      {% if req.owner_comment %}<p>{{ req.owner_comment }}</p>{% endif %}
+      <p class="muted small">Decided by {{ req.decided_by }} · {{ req.closed_at }}</p>
+      {% if req.status in ('approved', 'modified') and not req.action_taken %}
+        <form method="post" action="{{ url_for('record_action', request_id=req.id) }}">
+          <label class="field"><span>Record what you did</span><input name="action_taken" required></label>
+          <label class="field"><span>Outcome (optional)</span><input name="outcome"></label>
+          <button>Save</button>
+        </form>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if req.action_taken %}
+    <section class="card">
+      <h2>What was done</h2>
+      <p>{{ req.action_taken }}</p>
+      {% if req.outcome %}<p class="muted">Outcome: {{ req.outcome }}</p>{% endif %}
+    </section>
+    {% endif %}
+  </div>
+
+  <aside>
+    <section class="card">
+      <h2>Similar past decisions</h2>
+      {% for s in similar %}
+        <a class="past {{ s.colour }}" href="{{ url_for('view_request', request_id=s.id) }}">
+          <span class="dot {{ s.colour }}"></span>
+          <span><strong>{{ STATUS_LABELS[s.status] }}</strong><br>{{ s.description }}
+            {% if s.owner_comment %}<br><em>"{{ s.owner_comment }}"</em>{% elif s.action_taken %}<br><em>{{ s.action_taken }}</em>{% endif %}</span>
+        </a>
+      {% else %}
+        <p class="muted">No similar cases yet.</p>
+      {% endfor %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

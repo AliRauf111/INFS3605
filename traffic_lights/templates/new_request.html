@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}New request · Traffic Lights{% endblock %}
+{% block content %}
+<ol class="steps"><li class="on">Describe</li><li>Confirm details</li><li>Result</li></ol>
+
+<section class="card">
+  <h1>What's the request?</h1>
+  <p class="muted">Describe it the way you'd explain it to the owner. Use first names or initials only, not full names or contact details.</p>
+  <form method="post">
+    <textarea name="description" rows="5" required
+      placeholder="e.g. Parent wants a $40 refund after 1 lesson this term because they're moving interstate"></textarea>
+    <div class="row">
+      <button name="mode" value="ai" class="primary">{% if ai_on %}Read my request{% else %}Match my request{% endif %}</button>
+      <span class="muted">or pick the type yourself:</span>
+      <select name="category">
+        {% for cid, cat in CATEGORIES.items() %}<option value="{{ cid }}">{{ cat.label }}</option>{% endfor %}
+      </select>
+      <button name="mode" value="manual">Use this type</button>
+    </div>
+  </form>
+</section>
+
+<section class="examples">
+  <h3>Try one of these</h3>
+  <ul>
+    <li>Parent wants a $40 refund after 1 lesson this term because they're moving interstate</li>
+    <li>Mum is unhappy with the Year 11 chemistry tutor and wants to switch, she says he's always late</li>
+    <li>Tutor is sick tomorrow, there's a make-up slot on Saturday</li>
+    <li>Dad came to collect the exam booklet but forgot the bubble sheet</li>
+    <li>Family asking for a 15% discount for paying the whole year up front</li>
+  </ul>
+</section>
+{% endblock %}

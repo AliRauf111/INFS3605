@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Rules · Traffic Lights{% endblock %}
+{% block content %}
+<h1>Business rules</h1>
+<p class="muted">The owner's rules, checked from the top of each group down. The first rule that matches decides the colour.</p>
+<form class="filters" method="get">
+  <input name="q" value="{{ q }}" placeholder="Search rules and procedures">
+  <button>Search</button>
+</form>
+
+{% set ns = namespace(cat=None) %}
+{% for rule in rules %}
+  {% if rule.category != ns.cat %}
+    {% if ns.cat %}</section>{% endif %}
+    {% set ns.cat = rule.category %}
+    <section class="card"><h2>{{ category_label(rule.category) }}</h2>
+  {% endif %}
+  <a class="rule-row {% if not rule.active %}inactive{% endif %}" href="{{ url_for('edit_rule', rule_id=rule.id) }}">
+    <span class="dot {{ 'red' if rule.requires_owner else rule.outcome }}"></span>
+    <span class="grow"><strong>{{ rule.title }}</strong><br><span class="muted small">{{ describe_conditions(rule) }}</span></span>
+    <span class="small">
+      {% if not rule.active %}Inactive{% elif is_stale(rule) %}<span class="pill small amber">Needs review</span>{% else %}v{{ rule.version }}{% endif %}
+    </span>
+  </a>
+{% else %}
+  <p class="muted">No rules found.</p>
+{% endfor %}
+{% if ns.cat %}</section>{% endif %}
+{% endblock %}

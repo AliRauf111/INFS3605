@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Traffic Lights{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}">
+      <span class="dots"><i class="g"></i><i class="a"></i><i class="r"></i></span>
+      Traffic Lights
+    </a>
+    {% if g.user %}
+    <nav>
+      <a href="{{ url_for('new_request') }}">New request</a>
+      {% if g.user.role == 'owner' %}
+        <a href="{{ url_for('owner_home') }}">Approvals{% if owner_queue_count %} <span class="badge">{{ owner_queue_count }}</span>{% endif %}</a>
+      {% endif %}
+      <a href="{{ url_for('decision_log') }}">Decision log</a>
+      <a href="{{ url_for('rules') }}">Rules</a>
+    </nav>
+    <div class="who">
+      {{ g.user.name }} · {{ ROLE_LABELS[g.user.role] }}
+      <a href="{{ url_for('logout') }}">Switch user</a>
+    </div>
+    {% endif %}
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for kind, msg in messages %}
+        <div class="flash {{ kind }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    {% if ai_on %}AI agent: connected to Claude{% else %}AI agent: offline mode (keyword matching). Set ANTHROPIC_API_KEY to turn on Claude.{% endif %}
+    · The AI suggests answers. Only the owner's rules decide the colour.
+  </footer>
+</body>
+</html>
