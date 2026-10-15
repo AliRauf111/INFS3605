@@ -12,7 +12,7 @@ function urlHint(raw: string | undefined): string {
     const u = new URL(raw.trim());
     if (u.protocol !== "https:" && u.hostname !== "127.0.0.1" && u.hostname !== "localhost") return "should start with https://";
     if (u.hostname.endsWith("supabase.com")) return "this is the dashboard address, use the Project URL from Project Settings > Data API";
-    if (u.pathname !== "/" && u.pathname !== "") return "remove everything after .supabase.co";
+    if (u.pathname !== "/" && u.pathname !== "") return "has extra text after .supabase.co (the app ignores it, but tidy it when you can)";
     return "looks right";
   } catch {
     return "not a valid web address";

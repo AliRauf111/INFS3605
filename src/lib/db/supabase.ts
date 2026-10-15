@@ -15,7 +15,19 @@ function settings() {
   if (!url || !key) {
     throw new ConfigError("SUPABASE_URL and SUPABASE_SECRET_KEY must be set on the server. See .env.example.");
   }
-  return { url, key };
+  return { url: projectOrigin(url), key: key.trim() };
+}
+
+/**
+ * People often paste the Project URL with extra parts such as "/rest/v1/". Supabase
+ * clients add their own paths, so keep only the scheme and host.
+ */
+export function projectOrigin(raw: string): string {
+  try {
+    return new URL(raw.trim()).origin;
+  } catch {
+    return raw.trim();
+  }
 }
 
 export function supabaseConfigured(): boolean {
