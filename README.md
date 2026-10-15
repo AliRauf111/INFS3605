@@ -41,7 +41,8 @@ You need Node 22 and a Supabase project (hosted, or local through the Supabase C
    - `DEMO_ADMIN_PASSWORD` and `DEMO_OWNER_PASSWORD`: choose two new passwords of 10+ characters
    - `ANTHROPIC_API_KEY`: optional. Without it the AI features run in a clearly labelled simulated mode.
 3. Create the tables and fictional data. Either:
-   - **Supabase dashboard**: open SQL Editor and run these files in order: `supabase/migrations/20261015000001_requests.sql`, `..._workflow_schema.sql`, `..._workflow_functions.sql`, then `supabase/seed.sql`. Optionally run `supabase/demo-history.sql` for extra past cases on the coverage screen.
+   - **Supabase dashboard, one paste**: create the two demo users first (Authentication > Users > Add user, tick Auto confirm), then paste all of `supabase/setup-everything.sql` into SQL Editor and click Run. It contains every migration, the seed data and the role assignments. Regenerate it with `npm run sql:bundle` after changing a migration or seed file.
+   - **Supabase dashboard, file by file**: open SQL Editor and run these files in order: `supabase/migrations/20261015000001_requests.sql`, `..._workflow_schema.sql`, `..._workflow_functions.sql`, then `supabase/seed.sql`. Optionally run `supabase/demo-history.sql` for extra past cases on the coverage screen.
    - **Supabase CLI**: `npx supabase init` (first time only, if there is no `supabase/config.toml`), `npx supabase link --project-ref <your-ref>`, then `npx supabase db push --include-seed`.
 4. Create the two demo accounts: `npm run seed:users`
 5. Start the app: `npm run dev` and open http://localhost:3000
@@ -69,6 +70,7 @@ Put the printed API URL and secret (service role) key into `.env.local`, then ru
 | `npm run typecheck` | TypeScript check |
 | `npm run build` | Production build |
 | `npm run smoke` | End-to-end checks against a running app and its database (47 checks). Creates new fictional requests each run, so only use it on a demo database. |
+| `npm run sql:bundle` | Rebuilds `supabase/setup-everything.sql` from the migrations and seed files |
 | `npm run check:secrets` | Looks for keys in Git files and the browser bundle. Run after `npm run build`. |
 
 ## Deploy to Vercel

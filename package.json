@@ -13,7 +13,8 @@
     "seed:users": "node --env-file=.env.local scripts/seed-users.mjs",
     "smoke": "node --env-file=.env.local scripts/smoke-test.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
-    "seed:generate": "tsx scripts/generate-seed.ts"
+    "seed:generate": "tsx scripts/generate-seed.ts",
+    "sql:bundle": "node scripts/bundle-sql.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.134.0",
