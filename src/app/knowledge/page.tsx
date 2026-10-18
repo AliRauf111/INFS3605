@@ -1,17 +1,18 @@
 import { requirePageUser } from "@/lib/auth/page";
-import { knowledgeHub } from "@/lib/data/queries";
+import { knowledgeHub, listPolicyVersions } from "@/lib/data/queries";
 import { formatAud } from "@/lib/domain/money";
 import { isStale } from "@/lib/context/mappers";
 import { DataBadge, LoadError, formatDateTime } from "@/components/ui";
+import { RulesSection } from "@/app/rules/RulesSection";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Knowledge hub" };
 
 export default async function KnowledgePage() {
-  await requirePageUser();
-  let k;
+  const user = await requirePageUser();
+  let k, versions;
   try {
-    k = await knowledgeHub();
+    [k, versions] = await Promise.all([knowledgeHub(), listPolicyVersions()]);
   } catch (e) {
     return <LoadError error={e} />;
   }
@@ -22,7 +23,9 @@ export default async function KnowledgePage() {
   return (
     <div className="stack">
       <h1>Knowledge hub</h1>
-      <p className="muted">Bookings, payments, tutor availability and procedures in one place. The rule engine reads these records by confirmed ID. Every record here is fictional demonstration data; no outside system is connected.</p>
+      <p className="muted">The owner's rules, bookings, payments, tutor availability and procedures in one place. The rule engine reads these records by confirmed ID. Every record here is fictional demonstration data; no outside system is connected.</p>
+
+      <RulesSection user={user} versions={versions} />
 
       <section>
         <h2>Bookings</h2>

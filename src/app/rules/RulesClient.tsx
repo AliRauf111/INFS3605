@@ -241,7 +241,7 @@ export function RuleEditor({ versionId, initial, version }: { versionId: string;
   const remove = () => act(async () => {
     if (!window.confirm("Delete this draft? Active and archived versions are not affected.")) return;
     await post(`/api/policies/${versionId}`, {}, "DELETE");
-    router.push("/rules");
+    router.push("/knowledge#rules");
   });
 
   return (

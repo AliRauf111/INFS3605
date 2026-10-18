@@ -33,7 +33,7 @@ export default async function RuleVersionPage({ params }: { params: Promise<{ id
           </p>
           {v.change_note && <p>Note: {v.change_note}</p>}
         </div>
-        <Link className="btn secondary small" href="/rules">All rules</Link>
+        <Link className="btn secondary small" href="/knowledge#rules">All rules</Link>
       </div>
       {editable ? (
         <RuleEditor versionId={v.id} initial={def} version={v.version} />
