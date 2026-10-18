@@ -8,7 +8,7 @@ export type Message = { tone: "error" | "info" | "success"; text: string } | nul
 
 const HEADINGS: Record<Mode, { title: string; sub: string }> = {
   signin: { title: "Welcome Back!", sub: "" },
-  signup: { title: "Create your account", sub: "The owner approves new accounts before you can sign in." },
+  signup: { title: "Create Your Account!", sub: "" },
   forgot: { title: "Reset your password", sub: "We'll email you a link to choose a new one." },
 };
 
