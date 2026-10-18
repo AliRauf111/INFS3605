@@ -44,10 +44,7 @@ export function QueueTable({ rows, now }: { rows: RequestRow[]; now: Date }) {
                     <div className="sub">{REQUEST_TYPE_LABELS[r.request_type]}</div>
                   </td>
                   <td className="num">{r.amount_cents === null ? <span className="muted" aria-label="No amount">–</span> : formatAud(r.amount_cents)}</td>
-                  <td>
-                    <RuleTag row={r} />
-                    <div className="sub mono">{r.matched_rule_id} · {r.policy_version}</div>
-                  </td>
+                  <td><RuleTag row={r} /></td>
                   <td><strong>{next.title}</strong><div className="sub">{next.detail}</div></td>
                   <td>{friendlyTime(r.created_at, now)}</td>
                   <td className="chev" aria-hidden="true">›</td>
