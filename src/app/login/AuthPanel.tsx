@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PROVIDERS, type ProviderId } from "@/lib/auth/providers";
 import { LoginForm } from "./LoginForm";
 
@@ -20,6 +20,16 @@ export function AuthPanel({ next, initialMode, message, demo }: { next: string; 
     setNote(null);
   };
   const h = HEADINGS[mode];
+
+  // A message from a link or a sign-in attempt shows once. Take it out of the address so a
+  // reload (or a bookmark) doesn't bring it back.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const keys = ["error", "notice", "provider"].filter((k) => url.searchParams.has(k));
+    if (keys.length === 0) return;
+    keys.forEach((k) => url.searchParams.delete(k));
+    window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+  }, []);
 
   return (
     <>
