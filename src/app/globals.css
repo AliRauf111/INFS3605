@@ -84,8 +84,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--surface-
 .nav a[aria-current="page"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
 .nav a:not([aria-current="page"]):hover { background: var(--surface-2); color: var(--heading); }
 .user-box { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; flex-wrap: wrap; }
-/* Bottom padding keeps the last content clear of the Compass AI launcher */
-main { max-width: 1100px; margin: 0 auto; padding: 1.75rem 16px 8rem; }
+main { max-width: 1100px; margin: 0 auto; padding: 1.75rem 16px 4rem; }
 .demo-strip { background: rgba(230, 240, 252, 0.85); color: var(--info-fg); font-size: 0.8rem; text-align: center; padding: 0.3rem 16px; }
 
 .page-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.75rem; margin-bottom: 1.25rem; }
@@ -398,4 +397,67 @@ details > summary { cursor: pointer; color: var(--accent); font-weight: 500; }
   .queue { grid-template-columns: 1fr; }
   .queue-tile { border-left: none; }
   .queue-tile + .queue-tile { border-top: 1px solid var(--border); }
+}
+
+/* ---------------------------------------------------------------------------
+   Site footer. Dark, like the reference, with the accent blue kept for small
+   interactive details. The bottom padding leaves room for the Compass AI launcher,
+   so it never sits on top of the copyright row or a link when scrolled to the end. */
+body { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+main { width: 100%; flex: 1 0 auto; }
+.site-footer {
+  --f-bg: #0b1220; --f-head: #ffffff; --f-text: #b7c3d6; --f-muted: #8f9db3; --f-line: rgba(255, 255, 255, 0.12); --f-accent: #6cb4ff;
+  background: var(--f-bg); color: var(--f-text); margin-top: 2rem;
+}
+.footer-inner { max-width: 1100px; margin: 0 auto; padding: 3.5rem 16px 120px; }
+.footer-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 2.5rem 2rem; }
+.footer-logo { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--f-head); text-decoration: none; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; }
+.footer-logo:hover { color: var(--f-head); }
+.footer-compass { width: 44px; height: 44px; color: var(--f-head); flex: none; }
+.footer-needle { transform-origin: 24px 24px; transform-box: view-box; }
+.footer-tagline { color: var(--f-head); font-weight: 600; font-size: 1.05rem; margin: 1.1rem 0 0.5rem; }
+.footer-about { margin: 0; max-width: 36ch; line-height: 1.6; }
+.footer-col h2 { color: var(--f-head); font-size: 1rem; font-weight: 700; margin: 0.4rem 0 0.9rem; letter-spacing: 0; }
+.footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
+.footer-link {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0; background: none; border: none; cursor: pointer;
+  font: inherit; font-weight: 500; color: var(--f-text); text-align: left;
+  text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; text-decoration-thickness: 1.5px;
+  transition: color 0.18s ease, text-decoration-color 0.18s ease;
+}
+.footer-link:hover { color: var(--f-head); text-decoration-color: var(--f-accent); }
+.site-footer a:focus-visible, .site-footer button:focus-visible { outline: 3px solid var(--f-accent); outline-offset: 3px; border-radius: 6px; }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--f-line); font-size: 0.9rem; color: var(--f-muted); }
+.footer-bottom p { margin: 0; }
+.footer-motto { color: var(--f-text); font-weight: 500; }
+
+/* Motion: a gentle fade-up and one small swing of the needle, only once. */
+.site-footer[data-reveal="pending"] .footer-grid,
+.site-footer[data-reveal="pending"] .footer-bottom { opacity: 0; transform: translateY(14px); }
+.site-footer[data-reveal="in"] .footer-grid,
+.site-footer[data-reveal="in"] .footer-bottom { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.6s ease; }
+.site-footer[data-reveal="in"] .footer-bottom { transition-delay: 0.12s; }
+.site-footer[data-reveal="in"] .footer-needle { animation: needle-settle 1.4s cubic-bezier(0.3, 0.7, 0.3, 1) 0.25s 1 both; }
+@keyframes needle-settle {
+  0% { transform: rotate(-35deg); }
+  45% { transform: rotate(14deg); }
+  70% { transform: rotate(-6deg); }
+  100% { transform: rotate(0); }
+}
+
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .footer-inner { padding-top: 2.5rem; padding-bottom: 112px; }
+  .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 1.25rem; }
+  .footer-bottom { flex-direction: column; margin-top: 2rem; }
+}
+@media (max-width: 360px) {
+  .footer-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-footer .footer-grid, .site-footer .footer-bottom { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .footer-needle { animation: none !important; }
 }

@@ -164,6 +164,14 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       scrollToEnd();
     }, 60);
   };
+  // Other parts of the page (the footer link, for example) open the panel with this event.
+  const openRef = useRef(openPanel);
+  openRef.current = openPanel;
+  useEffect(() => {
+    const onOpen = () => openRef.current();
+    window.addEventListener("compass:open", onOpen);
+    return () => window.removeEventListener("compass:open", onOpen);
+  }, []);
   const minimise = () => {
     setOpen(false);
     setMenuOpen(false);

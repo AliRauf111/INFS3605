@@ -60,7 +60,7 @@ export default async function KnowledgePage() {
         </table></div>
       </section>
 
-      <section className="stack">
+      <section id="procedures" className="stack">
         <h2>Procedures</h2>
         {k.articles.map((a) => (
           <details key={a.id} id={`article-${a.id}`} className="card">

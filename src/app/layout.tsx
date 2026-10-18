@@ -5,6 +5,7 @@ import { supabaseConfigured } from "@/lib/db/supabase";
 import { NavLinks } from "@/components/NavLinks";
 import { Assistant } from "@/components/assistant/Assistant";
 import { aiConfigured } from "@/lib/ai/client";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: { default: "Tutor Compass", template: "%s | Tutor Compass" },
@@ -40,6 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </header>
         <main id="main">{children}</main>
+        <SiteFooter signedIn={Boolean(user)} />
         {user && <Assistant firstName={user.displayName.split(" ")[0]} aiLive={aiConfigured()} />}
       </body>
     </html>
