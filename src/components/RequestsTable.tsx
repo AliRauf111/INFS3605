@@ -37,7 +37,6 @@ export function RequestsTable({ rows }: { rows: RequestRow[] }) {
             <th scope="col">Amount</th>
             <th scope="col">Reference</th>
             <th scope="col">Decision</th>
-            <th scope="col">Rule</th>
             <th scope="col">Status</th>
           </tr>
         </thead>
@@ -49,7 +48,6 @@ export function RequestsTable({ rows }: { rows: RequestRow[] }) {
               <td>{r.amount_cents === null ? <span className="muted">None</span> : formatAud(r.amount_cents)}</td>
               <td>{r.reference_id ?? <span className="muted">None</span>}</td>
               <td><ColourBadge colour={r.decision} /></td>
-              <td><code>{r.matched_rule_id}</code><br /><small>{r.policy_version}</small></td>
               <td><StatusBadge status={r.status} /></td>
             </tr>
           ))}
