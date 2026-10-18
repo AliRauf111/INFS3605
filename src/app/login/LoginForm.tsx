@@ -4,6 +4,7 @@ import { useState } from "react";
 export function LoginForm({ next }: { next: string }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [show, setShow] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,17 +27,22 @@ export function LoginForm({ next }: { next: string }) {
   }
 
   return (
-    <form className="card" onSubmit={onSubmit} noValidate>
+    <form className="login-form" onSubmit={onSubmit} noValidate>
       {error && <div className="notice error" role="alert">{error}</div>}
       <div className="field">
         <label htmlFor="email">Email</label>
-        <input id="email" name="email" type="email" autoComplete="username" required />
+        <input id="email" name="email" type="email" autoComplete="username" placeholder="you@tutoringcentre.com.au" required />
       </div>
       <div className="field">
         <label htmlFor="password">Password</label>
-        <input id="password" name="password" type="password" autoComplete="current-password" required />
+        <div className="password-wrap">
+          <input id="password" name="password" type={show ? "text" : "password"} autoComplete="current-password" required />
+          <button type="button" className="password-toggle" onClick={() => setShow((v) => !v)} aria-pressed={show} aria-controls="password">
+            {show ? "Hide" : "Show"}<span className="sr-only"> password</span>
+          </button>
+        </div>
       </div>
-      <button className="btn" type="submit" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
+      <button className="btn login-btn" type="submit" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
     </form>
   );
 }

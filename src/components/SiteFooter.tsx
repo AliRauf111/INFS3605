@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { Logo } from "./Logo";
 
-// The site footer. Every link goes to a page or section that exists; nothing points
-// to "#". Signed-out visitors (the login page) only see the brand and the bottom row,
-// because every other page needs a sign-in.
+// The site footer, shown to signed-in staff. Every link goes to a page or section that
+// exists; nothing points to "#".
 
 type FooterLink = { label: string; href?: string; assistant?: boolean };
 
@@ -12,33 +12,33 @@ const GROUPS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Product",
     links: [
-      { label: "Guided decisions", href: "/requests/new/wizard" },
-      { label: "Paste a message", href: "/requests/new/intake" },
-      { label: "AI assistant", assistant: true },
+      { label: "Guided Decisions", href: "/requests/new/wizard" },
+      { label: "Paste a Message", href: "/requests/new/intake" },
+      { label: "AI Assistant", assistant: true },
       { label: "Knowledge Hub", href: "/knowledge" },
-      { label: "Owner approvals", href: "/owner" },
+      { label: "Owner Approvals", href: "/owner" },
     ],
   },
   {
-    title: "For your team",
+    title: "For Your Team",
     links: [
-      { label: "Business owners", href: "/owner" },
-      { label: "Admin teams", href: "/requests" },
-      { label: "Today's queue", href: "/" },
+      { label: "Business Owners", href: "/owner" },
+      { label: "Admin Teams", href: "/requests" },
+      { label: "Today's Queue", href: "/" },
     ],
   },
   {
-    title: "Rules and support",
+    title: "Rules and Support",
     links: [
-      { label: "Owner rules", href: "/knowledge#rules" },
-      { label: "Staff procedures", href: "/knowledge#procedures" },
-      { label: "Coverage and gaps", href: "/coverage" },
+      { label: "Owner Rules", href: "/knowledge#rules" },
+      { label: "Staff Procedures", href: "/knowledge#procedures" },
+      { label: "Coverage and Gaps", href: "/coverage" },
       { label: "Integrations", href: "/coverage#integrations" },
     ],
   },
 ];
 
-export function SiteFooter({ signedIn }: { signedIn: boolean }) {
+export function SiteFooter() {
   const ref = useRef<HTMLElement>(null);
 
   // Fade in once when the footer first scrolls into view. Without scripts, or with
@@ -70,23 +70,13 @@ export function SiteFooter({ signedIn }: { signedIn: boolean }) {
         <div className="footer-grid">
           <div className="footer-brand">
             <Link href="/" className="footer-logo">
-              <svg className="footer-compass" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-                <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeOpacity="0.35" strokeWidth="2" />
-                <circle cx="24" cy="24" r="17" fill="#0066cc" />
-                <g className="footer-needle">
-                  <path d="M24 9l5 15-5 15-5-15z" fill="#ffffff" />
-                  <path d="M24 9l5 15h-10z" fill="#7cc8ff" />
-                </g>
-                <circle cx="24" cy="24" r="2.4" fill="#0066cc" />
-              </svg>
-              <span>Tutor Compass</span>
+              <Logo variant="light" />
             </Link>
             <p className="footer-tagline">A clearer direction for your tutoring business.</p>
             <p className="footer-about">Bring your business knowledge together, support your team and keep everyday decisions moving, with you in control.</p>
           </div>
 
-          {signedIn &&
-            GROUPS.map((g) => (
+          {GROUPS.map((g) => (
               <nav key={g.title} className="footer-col" aria-label={g.title}>
                 <h2>{g.title}</h2>
                 <ul>
