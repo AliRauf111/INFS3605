@@ -119,3 +119,14 @@ Each person should commit under their own GitHub account so the history shows wh
 6. If you used an AI tool, add the prompt, what you kept and what you changed to PROMPTS.md in the same pull request.
 
 Never commit using someone else's name or email.
+
+## 21st.dev UI components in Claude Code
+
+`.mcp.json` registers the [21st.dev](https://21st.dev) MCP server for anyone who opens this repo in Claude Code. The API key is not in the file. It is read from the `TWENTYFIRST_API_KEY` environment variable, so each person uses their own key.
+
+1. Make a key at 21st.dev (your account's API keys page).
+2. Set it before starting Claude Code: `export TWENTYFIRST_API_KEY=your_key_here` (add that line to `~/.zshrc` or `~/.bashrc` to keep it).
+3. Start `claude` in the repo and approve the `21st` server when asked.
+4. Run `claude mcp list` and check that `21st` shows as connected.
+
+Never paste the key into a commit, an issue or a chat.
