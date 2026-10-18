@@ -5,6 +5,7 @@ import { FACT_TEXT, RULE_REASON_LABELS } from "@/lib/coverage/logic";
 import { REQUEST_TYPE_LABELS, type RequestType } from "@/lib/domain/types";
 import { EmptyState, LoadError, formatDateTime } from "@/components/ui";
 import { SuggestionControls, RefreshSuggestions } from "./SuggestionControls";
+import { IntegrationsSection } from "@/app/settings/integrations/IntegrationsSection";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Coverage" };
@@ -79,6 +80,8 @@ export default async function CoveragePage() {
           </article>
         ))}
       </section>
+
+      <IntegrationsSection />
     </div>
   );
 }

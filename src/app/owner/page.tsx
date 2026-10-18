@@ -6,7 +6,7 @@ import { REQUEST_TYPE_LABELS, TRI_STATE_LABELS } from "@/lib/domain/types";
 import { ColourBadge, EmptyState, LoadError, StatusBadge, formatDateTime } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Owner queue" };
+export const metadata = { title: "Approval Alley" };
 
 const PRIORITY = (p: number) => (p < 10 ? "Urgent: welfare" : p < 20 ? "High: complaint" : p < 30 ? "High: red" : "Normal");
 
@@ -22,7 +22,7 @@ export default async function OwnerQueuePage() {
   const other = items.filter((i) => i.request.status !== "awaiting_owner");
   return (
     <div className="stack">
-      <h1>Owner queue</h1>
+      <h1>Approval Alley</h1>
       {user.role !== "owner" && <p className="notice info">You can see the queue, but only the owner can approve, decline or ask for more information.</p>}
       <h2>Waiting for a decision ({waiting.length})</h2>
       {waiting.length === 0 && <EmptyState title="Nothing is waiting for the owner"><p>Requests appear here when an admin sends them for review.</p></EmptyState>}

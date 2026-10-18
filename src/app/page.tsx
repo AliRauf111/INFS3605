@@ -28,7 +28,7 @@ export default async function Dashboard() {
         <Link className="btn" href="/requests">Start a new request</Link>
       </div>
       <div className="grid grid-3">
-        <div className="card"><div className="stat">{awaiting}</div><div>Waiting for the owner</div>{user.role === "owner" && awaiting > 0 && <Link href="/owner">Open the owner queue</Link>}</div>
+        <div className="card"><div className="stat">{awaiting}</div><div>Waiting for the owner</div>{user.role === "owner" && awaiting > 0 && <Link href="/owner">Open Approval Alley</Link>}</div>
         <div className="card"><div className="stat">{clarify}</div><div>Need clarification</div></div>
         <div className="card"><div className="stat">{ready}</div><div>Ready for the admin to act on and record</div></div>
       </div>

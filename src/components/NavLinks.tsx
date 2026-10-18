@@ -6,10 +6,9 @@ import type { Role } from "@/lib/domain/types";
 const LINKS: Array<{ href: string; label: string; owner?: boolean }> = [
   { href: "/", label: "Dashboard" },
   { href: "/requests", label: "Requests" },
-  { href: "/owner", label: "Owner queue" },
+  { href: "/owner", label: "Approval Alley" },
   { href: "/knowledge", label: "Knowledge Hub" },
   { href: "/coverage", label: "Coverage" },
-  { href: "/settings/integrations", label: "Integrations" },
 ];
 
 export function NavLinks({ role }: { role: Role }) {
