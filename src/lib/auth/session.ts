@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { authClient, db } from "@/lib/db/supabase";
 import type { Role } from "@/lib/domain/types";
@@ -13,10 +14,18 @@ import { ACCESS_COOKIE } from "./cookies";
 
 export type SessionUser = { id: string; email: string; displayName: string; role: Role };
 
-export async function signInWithPassword(email: string, password: string) {
+export type SignInResult =
+  | { ok: true; session: Session }
+  | { ok: false; reason: "wrong_details" | "not_confirmed" | "server_setup" };
+
+export async function signInWithPassword(email: string, password: string): Promise<SignInResult> {
   const { data, error } = await authClient().auth.signInWithPassword({ email, password });
-  if (error || !data.session) return null;
-  return data.session;
+  if (!error && data.session) return { ok: true, session: data.session };
+  // Log the code only, never the email or password, so set-up problems can be found in the host's logs.
+  console.warn("[auth] sign-in failed", error?.code ?? error?.status ?? "no_session");
+  if (error?.code === "email_not_confirmed") return { ok: false, reason: "not_confirmed" };
+  if (error?.code === "invalid_credentials" || error?.status === 400) return { ok: false, reason: "wrong_details" };
+  return { ok: false, reason: "server_setup" };
 }
 
 /** Who is making this request? Checked against Supabase Auth every time. */

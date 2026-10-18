@@ -12,7 +12,11 @@ async function refresh(refreshToken: string) {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) return null;
-  const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  let origin = url.trim();
+  try {
+    origin = new URL(origin).origin; // ignore any extra path pasted after the project address
+  } catch {}
+  const client = createClient(origin, key.trim(), { auth: { persistSession: false, autoRefreshToken: false } });
   const { data, error } = await client.auth.refreshSession({ refresh_token: refreshToken });
   return error || !data.session ? null : data.session;
 }
