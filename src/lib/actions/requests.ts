@@ -86,7 +86,7 @@ export async function submitRequest(user: SessionUser, body: unknown) {
   });
   if (error) throw toDbError(error);
   const saved = data as { id: string; duplicate: boolean };
-  return { id: saved.id, duplicate: saved.duplicate, colour: result.colour };
+  return { id: saved.id, duplicate: saved.duplicate, colour: result.colour, status: result.suggestedStatus };
 }
 
 const ReevaluateSchema = z.object({ expectedDecisionId: z.uuid(), facts: z.unknown(), note: z.string().max(2000).optional() }).strict();

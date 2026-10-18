@@ -90,6 +90,8 @@ Put the printed API URL and secret (service role) key into `.env.local`, then ru
 | AI intake, drafts and "Describe a rule" | Live when `ANTHROPIC_API_KEY` is set. Otherwise simulated with keyword rules and templates, and labelled as such on screen. Live AI has not been tested in this build because no key was available. |
 | Bookings, payments, tutor availability | Fictional rows in Supabase. No real systems are connected. |
 | Email, SMS, payments, booking changes | Not connected, on purpose. The app only prepares drafts. |
+| Compass AI chat assistant | Live AI when `ANTHROPIC_API_KEY` is set (optional `ANTHROPIC_MODEL`). Without it the chat runs in demo mode with keyword rules, and the panel says "Demo mode" in the welcome screen, the menu and each reply. Either way the colour comes from the rule engine, and nothing is saved until the person confirms a preview. |
+| Compass AI voice | Uses the browser's own Web Speech API, so there is no key to set. Works in Chrome, Edge and Safari (Chrome sends the audio to Google's speech service). Firefox doesn't support it, and the panel says so. Spoken replies are off by default. |
 | Coverage suggestions | Deterministic pattern counts over saved requests. No AI is used. Suggestions stay inactive until the owner reviews and activates a rule. |
 
 Known limits:
@@ -98,6 +100,15 @@ Known limits:
 - There is no password reset flow. Change passwords in the Supabase dashboard or re-run `npm run seed:users`.
 - AI calls have a 45 second timeout. If the AI is slow or down, the screen falls back to the simulated mode and says so.
 - The smoke test has not been run against a hosted Supabase project or a Vercel deployment yet.
+
+## Compass AI
+
+Compass AI is the robot in the bottom right corner of every signed-in page. Staff can ask it to check a refund, change a lesson or find a policy, by typing or by voice.
+
+- The browser only talks to `/api/assistant`. The AI key stays on the server and is never sent to the page.
+- The AI only reads the message and pulls out facts. The rule engine decides green, amber or red, the same as the wizard.
+- Every action shows a preview first. Saving creates a request, and "Submit for owner review" uses the normal workflow, so the server checks permissions as usual. Compass never moves money, changes bookings or sends messages.
+- To turn on live AI, add `ANTHROPIC_API_KEY` in Vercel under Settings > Environment Variables and redeploy.
 
 ## 60-second demo
 

@@ -63,7 +63,7 @@ export default async function KnowledgePage() {
       <section className="stack">
         <h2>Procedures</h2>
         {k.articles.map((a) => (
-          <details key={a.id} className="card">
+          <details key={a.id} id={`article-${a.id}`} className="card">
             <summary><strong>{a.title}</strong> ({a.id}, v{a.version}) {a.owner_approved && <span className="badge green">Owner approved</span>} <DataBadge label={a.data_label} /></summary>
             <pre>{a.body}</pre>
           </details>

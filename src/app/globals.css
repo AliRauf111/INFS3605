@@ -84,7 +84,8 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--surface-
 .nav a[aria-current="page"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
 .nav a:not([aria-current="page"]):hover { background: var(--surface-2); color: var(--heading); }
 .user-box { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; flex-wrap: wrap; }
-main { max-width: 1100px; margin: 0 auto; padding: 1.75rem 16px 3rem; }
+/* Bottom padding keeps the last content clear of the Compass AI launcher */
+main { max-width: 1100px; margin: 0 auto; padding: 1.75rem 16px 8rem; }
 .demo-strip { background: rgba(230, 240, 252, 0.85); color: var(--info-fg); font-size: 0.8rem; text-align: center; padding: 0.3rem 16px; }
 
 .page-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.75rem; margin-bottom: 1.25rem; }
