@@ -17,7 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en-AU">
       <body>
         <a href="#main" className="skip-link">Skip to content</a>
-        <div className="demo-strip">University alpha. All people, bookings and payments are fictional. Nothing is paid, sent or booked.</div>
+        <div className="demo-strip">One place to plan, teach and grow.</div>
         <header className="site-header">
           <div className="header-inner">
             <a href="/" className="brand">

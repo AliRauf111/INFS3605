@@ -6,7 +6,7 @@ import { DataBadge, LoadError, formatDateTime } from "@/components/ui";
 import { RulesSection } from "@/app/rules/RulesSection";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Knowledge hub" };
+export const metadata = { title: "Knowledge Hub" };
 
 export default async function KnowledgePage() {
   const user = await requirePageUser();
@@ -22,7 +22,7 @@ export default async function KnowledgePage() {
   const stale = (iso: string) => isStale(iso, now) ? <span className="badge amber">! May be out of date</span> : null;
   return (
     <div className="stack">
-      <h1>Knowledge hub</h1>
+      <h1>Knowledge Hub</h1>
       <p className="muted">The owner's rules, bookings, payments, tutor availability and procedures in one place. The rule engine reads these records by confirmed ID. Every record here is fictional demonstration data; no outside system is connected.</p>
 
       <RulesSection user={user} versions={versions} />

@@ -7,7 +7,7 @@ import { NewDraftButton } from "./RulesClient";
 
 type Versions = Awaited<ReturnType<typeof listPolicyVersions>>;
 
-// The owner's rules, shown at the top of the Knowledge hub
+// The owner's rules, shown at the top of the Knowledge Hub
 export function RulesSection({ user, versions }: { user: Pick<SessionUser, "role">; versions: Versions }) {
   return (
     <section id="rules" className="stack" aria-labelledby="rules-heading">
