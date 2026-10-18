@@ -523,6 +523,7 @@ main.main-bare { max-width: none; padding: 0; }
 .landing-form-logo { display: none; margin-bottom: 2rem; }
 .landing-form h2 { font-size: 2rem; letter-spacing: -0.025em; margin: 0 0 0.35rem; color: #121a2a; }
 .landing-sub { color: #4b5b73; margin: 0 0 1.75rem; }
+.landing-sub-gap { height: 1.25rem; }
 .login-form { display: grid; gap: 0.25rem; }
 .login-form input { background: #ffffff; border-color: #c3ccd9; border-radius: 10px; }
 .login-form input:focus { border-color: #233b63; }

@@ -7,7 +7,7 @@ export type Mode = "signin" | "signup" | "forgot";
 export type Message = { tone: "error" | "info" | "success"; text: string } | null;
 
 const HEADINGS: Record<Mode, { title: string; sub: string }> = {
-  signin: { title: "Welcome back", sub: "Sign in to check and act on requests." },
+  signin: { title: "Welcome Back!", sub: "" },
   signup: { title: "Create your account", sub: "The owner approves new accounts before you can sign in." },
   forgot: { title: "Reset your password", sub: "We'll email you a link to choose a new one." },
 };
@@ -24,7 +24,7 @@ export function AuthPanel({ next, initialMode, message, demo }: { next: string; 
   return (
     <>
       <h2 id="signin-heading">{h.title}</h2>
-      <p className="landing-sub">{h.sub}</p>
+      {h.sub ? <p className="landing-sub">{h.sub}</p> : <div className="landing-sub-gap" />}
 
       {mode !== "forgot" && (
         <div className="auth-tabs" role="tablist" aria-label="Sign in or create an account">
