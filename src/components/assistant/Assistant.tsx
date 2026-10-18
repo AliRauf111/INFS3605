@@ -76,16 +76,19 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const voice = useVoice();
   const speech = useSpeech();
 
-  // Restore this tab's conversation, and greet once per session.
+  // Restore this tab's conversation, and greet once per session. Reloading the page
+  // starts a fresh, empty chat; only the read-aloud setting is kept.
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORE);
       const saved = raw ? (JSON.parse(raw) as Stored) : null;
-      setItems(saved?.items ?? []);
-      setConv(saved?.state ?? EMPTY_STATE);
-      setSessionKey(saved?.sessionKey || uid());
+      const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+      const fresh = nav?.type === "reload";
+      setItems(fresh ? [] : saved?.items ?? []);
+      setConv(fresh ? EMPTY_STATE : saved?.state ?? EMPTY_STATE);
+      setSessionKey((!fresh && saved?.sessionKey) || uid());
       setReadAloud(Boolean(saved?.readAloud));
-      setDraft(saved?.draft ?? "");
+      setDraft(fresh ? "" : saved?.draft ?? "");
     } catch {
       setSessionKey(uid());
     }
