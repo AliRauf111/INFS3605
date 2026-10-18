@@ -25,7 +25,7 @@ export default async function Dashboard() {
           <h1>Hello, {user.displayName.split(" ")[0]}</h1>
           <p className="muted">Check a request against the owner&apos;s rules before acting on it.</p>
         </div>
-        <Link className="btn" href="/requests/new">Start a new request</Link>
+        <Link className="btn" href="/requests">Start a new request</Link>
       </div>
       <div className="grid grid-3">
         <div className="card"><div className="stat">{awaiting}</div><div>Waiting for the owner</div>{user.role === "owner" && awaiting > 0 && <Link href="/owner">Open the owner queue</Link>}</div>
@@ -35,7 +35,7 @@ export default async function Dashboard() {
       <section>
         <h2>Recent requests</h2>
         <RequestsTable rows={rows.slice(0, 8)} />
-        <p><Link href="/requests">See the full request log</Link></p>
+        <p><Link href="/requests">See all requests</Link></p>
       </section>
     </div>
   );

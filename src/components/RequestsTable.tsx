@@ -8,7 +8,7 @@ export function RequestsTable({ rows }: { rows: RequestRow[] }) {
   if (rows.length === 0) {
     return (
       <EmptyState title="No requests yet">
-        <p>Requests appear here once they are saved. <Link href="/requests/new">Create the first one</Link>.</p>
+        <p>Requests appear here once they are saved. <Link href="/requests/new/wizard">Create the first one</Link>.</p>
       </EmptyState>
     );
   }

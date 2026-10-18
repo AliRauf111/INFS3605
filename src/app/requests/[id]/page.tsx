@@ -85,7 +85,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
             {r.intake_method === "ai_intake" ? "From a pasted message" : r.intake_method === "seed" ? "Seed data" : "From the wizard"} · <DataBadge label={r.data_label} />
           </p>
         </div>
-        <Link href="/requests" className="btn secondary small">Back to the log</Link>
+        <Link href="/requests" className="btn secondary small">Back to requests</Link>
       </div>
 
       <DecisionBanner colour={r.decision} title={result?.outcomeLabel} explanation={r.decision_reason} />
