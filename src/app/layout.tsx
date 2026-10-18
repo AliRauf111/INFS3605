@@ -20,7 +20,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className="demo-strip">University alpha. All people, bookings and payments are fictional. Nothing is paid, sent or booked.</div>
         <header className="site-header">
           <div className="header-inner">
-            <a href="/" className="brand"><span aria-hidden="true">🧭</span> Tutor Compass</a>
+            <a href="/" className="brand">
+              <svg aria-hidden="true" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="#0066cc" /><path d="M16 5l4 11-4 11-4-11z" fill="#fff" /><circle cx="16" cy="16" r="2" fill="#0066cc" /></svg>
+              Tutor Compass
+            </a>
             {user && <NavLinks role={user.role} />}
             {user && (
               <div className="user-box">
