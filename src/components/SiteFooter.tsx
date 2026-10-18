@@ -97,7 +97,10 @@ export function SiteFooter() {
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} Tutor Compass. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Tutor Compass. All rights reserved.
+            <span className="footer-legal"> <Link href="/privacy">Privacy</Link> · <Link href="/terms">Terms</Link> · <Link href="/support">Support</Link></span>
+          </p>
           <p className="footer-motto">A clearer direction. Every day.</p>
         </div>
       </div>

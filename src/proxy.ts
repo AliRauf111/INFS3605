@@ -6,7 +6,8 @@ import { ACCESS_COOKIE, REFRESH_COOKIE, REFRESH_MAX_AGE, cookieOptions, tokenExp
 // session and sends signed-out visitors to the login page. Permission checks still
 // happen inside every API route; this is only the front door.
 
-const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/auth/logout", "/api/health"];
+// Pages anyone can open. API routes are never redirected here; each one checks access itself.
+const PUBLIC_PATHS = ["/login", "/reset-password", "/support", "/privacy", "/terms", "/api/auth/login", "/api/auth/logout", "/api/health"];
 
 async function refresh(refreshToken: string) {
   const url = process.env.SUPABASE_URL;

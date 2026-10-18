@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     console.warn("[auth] could not read app_users", profileError.code ?? "unknown");
     return NextResponse.json({ error: "Sign-in is not working on the server. Check SUPABASE_URL and SUPABASE_SECRET_KEY in the hosting settings, and that the setup SQL has been run." }, { status: 503 });
   }
-  if (!profile) return NextResponse.json({ error: "This account has not been given access to Tutor Compass. Run the role query from the setup guide in the Supabase SQL Editor." }, { status: 403 });
+  if (!profile) return NextResponse.json({ error: "This account doesn't have access yet. The owner can give it access in Approval Alley." }, { status: 403 });
   const res = NextResponse.json({ ok: true, role: profile.role });
   res.cookies.set(ACCESS_COOKIE, session.access_token, cookieOptions(session.expires_in));
   res.cookies.set(REFRESH_COOKIE, session.refresh_token, cookieOptions(REFRESH_MAX_AGE));

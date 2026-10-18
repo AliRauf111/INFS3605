@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { supabaseConfigured } from "@/lib/db/supabase";
 import { Logo } from "@/components/Logo";
-import { LoginForm } from "./LoginForm";
+import Link from "next/link";
+import { safeNext } from "@/lib/auth/cookies";
+import { providerLabel } from "@/lib/auth/providers";
+import { AuthPanel, type Message, type Mode } from "./AuthPanel";
 
 export const metadata = { title: "Sign in" };
 
@@ -10,11 +13,28 @@ export const metadata = { title: "Sign in" };
 // does on the left, and the sign-in form on the right. The request cards are fictional
 // examples drawn in the same style as the dashboard, not live data.
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+type Search = { next?: string; mode?: string; error?: string; notice?: string; provider?: string };
+
+// Messages for people coming back from an email link or a social sign-in.
+function messageFor({ error, notice, provider }: Search): Message {
+  if (error === "provider_off") {
+    const name = providerLabel(provider ?? "") ?? "that service";
+    return { tone: "info", text: `Sign-in with ${name} isn't switched on for this copy of Tutor Compass yet. Use your email instead, or ask the owner to turn it on.` };
+  }
+  if (error === "provider") return { tone: "error", text: "That sign-in option didn't work. Try again or use your email." };
+  if (error === "link") return { tone: "error", text: "That link has expired or was already used. Ask for a new one." };
+  if (notice === "pending") return { tone: "info", text: "Your account is set up, but the owner hasn't given it access yet. Ask them to approve you in Approval Alley, then sign in again." };
+  if (notice === "confirmed") return { tone: "success", text: "Your email is confirmed. The owner now needs to give you access before you can sign in." };
+  if (notice === "other_browser") return { tone: "info", text: "Open the link in the same browser you used to ask for it. If you were confirming your email, that part is done." };
+  if (notice === "password_updated") return { tone: "success", text: "Your password has been changed. Sign in with the new one." };
+  return null;
+}
+
+export default async function LoginPage({ searchParams }: { searchParams: Promise<Search> }) {
   const configured = supabaseConfigured();
   if (configured && (await getSessionUser().catch(() => null))) redirect("/");
-  const { next } = await searchParams;
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const search = await searchParams;
+  const mode: Mode = search.mode === "signup" || search.mode === "forgot" ? search.mode : "signin";
   return (
     <div className="landing">
       <section className="landing-story" aria-labelledby="landing-heading">
@@ -57,25 +77,24 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </section>
 
       <section className="landing-form" aria-labelledby="signin-heading">
+        <p className="landing-help">Need help? <Link href="/support">Contact support</Link></p>
         <div className="landing-form-inner">
           <Logo className="landing-form-logo" />
-          <h2 id="signin-heading">Welcome back</h2>
-          <p className="landing-sub">Sign in to check and act on requests.</p>
           {!configured && (
             <div className="notice error" role="alert">
               The server has no Supabase settings yet. Add SUPABASE_URL and SUPABASE_SECRET_KEY as described in README.md.
             </div>
           )}
-          <LoginForm next={safeNext} />
-          <details className="landing-demo">
-            <summary>Trying the demo?</summary>
-            <p>
-              Two fictional demo accounts exist: an administrator (Sarah) and the owner (Alex). Whoever set up this copy of the app chose their passwords,
-              so ask them for the details. Passwords are not stored in the code.
-            </p>
-            <p>Forgotten a password? The owner can reset it in the Supabase dashboard.</p>
-          </details>
-          <p className="landing-copy">© {new Date().getFullYear()} Tutor Compass</p>
+          <AuthPanel next={safeNext(search.next)} initialMode={mode} message={messageFor(search)} demo={
+            <details className="landing-demo">
+              <summary>Trying the demo?</summary>
+              <p>
+                Two fictional demo accounts exist: an administrator (Sarah) and the owner (Alex). Whoever set up this copy of the app chose their passwords,
+                so ask them for the details. Passwords are not stored in the code.
+              </p>
+            </details>
+          } />
+          <p className="landing-copy"><Link href="/privacy">Privacy</Link> · <Link href="/terms">Terms</Link> · © {new Date().getFullYear()} Tutor Compass</p>
         </div>
       </section>
     </div>

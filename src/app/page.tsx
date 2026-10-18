@@ -54,7 +54,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <div className="page-head">
         <div>
           <h1>Dashboard</h1>
-          <p className="muted">Hi {user.displayName.split(" ")[0]}. {today}. Check each request against the owner&apos;s rules before acting on it.</p>
+          <p className="muted">Hi {user.displayName.split(" ")[0]}. {today}.</p>
         </div>
         <Link className="btn" href="/requests"><span aria-hidden="true">+</span> New request</Link>
       </div>

@@ -52,6 +52,7 @@ export function apiRoute<P = Record<string, never>>(handler: (req: NextRequest, 
         throw new ApiError(403, "Requests must come from the Tutor Compass app.");
       }
       const body = await handler(req, ctx);
+      if (body instanceof NextResponse) return body; // routes that also set cookies
       return NextResponse.json(body ?? { ok: true });
     } catch (error) {
       if (error instanceof ApiError) return NextResponse.json({ error: error.message, details: error.details }, { status: error.status });

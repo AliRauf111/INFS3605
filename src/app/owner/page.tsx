@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requirePageUser } from "@/lib/auth/page";
 import { ownerQueue } from "@/lib/data/queries";
+import { pendingAccounts, type PendingAccount } from "@/lib/data/access";
+import { AccessRequests } from "./AccessRequests";
 import { formatAud } from "@/lib/domain/money";
 import { REQUEST_TYPE_LABELS, TRI_STATE_LABELS } from "@/lib/domain/types";
 import { ColourBadge, EmptyState, LoadError, StatusBadge, formatDateTime } from "@/components/ui";
@@ -18,6 +20,9 @@ export default async function OwnerQueuePage() {
   } catch (e) {
     return <LoadError error={e} />;
   }
+  // Only the owner sees new accounts. If the list can't load, the rest of the page still works.
+  let accounts: PendingAccount[] = [];
+  if (user.role === "owner") accounts = await pendingAccounts().catch(() => []);
   const waiting = items.filter((i) => i.request.status === "awaiting_owner");
   const other = items.filter((i) => i.request.status !== "awaiting_owner");
   return (
@@ -44,6 +49,13 @@ export default async function OwnerQueuePage() {
           <p style={{ marginTop: "0.75rem" }}><Link className="btn small" href={`/requests/${r.id}`}>{user.role === "owner" ? "Review and decide" : "View request"}</Link></p>
         </article>
       ))}
+      {accounts.length > 0 && (
+        <section className="card" aria-labelledby="access-heading">
+          <h2 id="access-heading" style={{ marginTop: 0 }}>New accounts waiting for access ({accounts.length})</h2>
+          <p className="hint">These people created an account on the sign-in page. Give access to let them sign in as an admin.</p>
+          <AccessRequests accounts={accounts} />
+        </section>
+      )}
       <h2>Prepared but not yet sent ({other.length})</h2>
       <p className="hint">Amber and red requests the admin is still clarifying or has not sent yet.</p>
       {other.length === 0 ? <p className="muted">None.</p> : (

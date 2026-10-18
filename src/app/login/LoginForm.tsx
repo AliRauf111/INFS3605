@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-export function LoginForm({ next }: { next: string }) {
+export function LoginForm({ next, onForgot }: { next: string; onForgot: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [show, setShow] = useState(false);
@@ -34,7 +34,10 @@ export function LoginForm({ next }: { next: string }) {
         <input id="email" name="email" type="email" autoComplete="username" placeholder="you@tutoringcentre.com.au" required />
       </div>
       <div className="field">
-        <label htmlFor="password">Password</label>
+        <div className="label-row">
+          <label htmlFor="password">Password</label>
+          <button type="button" className="link-btn" onClick={onForgot}>Forgot password?</button>
+        </div>
         <div className="password-wrap">
           <input id="password" name="password" type={show ? "text" : "password"} autoComplete="current-password" required />
           <button type="button" className="password-toggle" onClick={() => setShow((v) => !v)} aria-pressed={show} aria-controls="password">

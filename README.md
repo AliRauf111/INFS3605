@@ -96,10 +96,21 @@ Put the printed API URL and secret (service role) key into `.env.local`, then ru
 
 Known limits:
 
-- Only one admin and one owner account are created. There is no screen to invite users.
-- There is no password reset flow. Change passwords in the Supabase dashboard or re-run `npm run seed:users`.
+- New people can create an account on the sign-in page, but only as admins, and only after the owner gives them access in Approval Alley. Owners are still added through `npm run seed:users` or the SQL setup.
+- Password reset and confirmation links must be opened in the same browser that asked for them.
 - AI calls have a 45 second timeout. If the AI is slow or down, the screen falls back to the simulated mode and says so.
 - The smoke test has not been run against a hosted Supabase project or a Vercel deployment yet.
+
+## Accounts, password reset and social sign-in
+
+The sign-in page has Sign in and Create account tabs, Forgot password, and Continue with Apple, Google or Microsoft.
+
+- Creating an account (or signing in with Apple, Google or Microsoft for the first time) does not give access. The person appears under "New accounts waiting for access" in Approval Alley, and the owner chooses Give access (as an admin) or Decline.
+- Email links and social sign-in come back to `/api/auth/callback`. In Supabase, go to Authentication > URL Configuration, set Site URL to your Vercel address, and add `https://<your-app>.vercel.app/**` under Redirect URLs. Add `http://localhost:3000/**` for local testing.
+- Apple, Google and Microsoft only work once each one is switched on in Supabase under Authentication > Sign In / Providers (Microsoft is listed as Azure). Until then the button tells people it isn't switched on yet.
+- Supabase's built-in email sender is limited to a few emails an hour. For real use, add your own SMTP settings in Supabase.
+- `SUPPORT_EMAIL` (optional) adds a contact address to the Support page. Without it, the page tells people to contact the owner.
+- The Support, Privacy and Terms pages can be opened without signing in.
 
 ## Compass AI
 
