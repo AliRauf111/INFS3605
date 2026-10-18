@@ -32,6 +32,8 @@ export function RequestActions(props: {
   currentDecisionId: string | null;
   facts: ConfirmedFacts;
   escalationDraft: string;
+  /** The page title. The action buttons sit beside it, and their forms open underneath. */
+  children: React.ReactNode;
 }) {
   const router = useRouter();
   const [panel, setPanel] = useState<"none" | "facts" | "send" | "owner" | "close">("none");
@@ -81,21 +83,20 @@ export function RequestActions(props: {
 
   return (
     <div className="stack">
-      {done && <p className="notice success" role="status">{done}</p>}
-      <div className="row">
-        {canClarify && <button className="btn secondary" type="button" aria-expanded={panel === "facts"} onClick={() => open("facts")}>Update facts</button>}
-        {canSend && (
-          <button className="btn" type="button" aria-expanded={panel === "send"} onClick={() => open("send", props.escalationDraft)}>
-            Send to the owner
-          </button>
-        )}
-        {ownerCanDecide && <button className="btn" type="button" aria-expanded={panel === "owner"} onClick={() => open("owner")}>Make a decision</button>}
-        {canClose && <button className="btn" type="button" aria-expanded={panel === "close"} onClick={() => open("close")}>Record what you did</button>}
+      <div className="rq-head">
+        <div className="rq-title">{props.children}</div>
+        <div className="rq-actions">
+          {canClarify && <button className="btn secondary" type="button" aria-expanded={panel === "facts"} onClick={() => open("facts")}>Update facts</button>}
+          {canSend && (
+            <button className="btn" type="button" aria-expanded={panel === "send"} onClick={() => open("send", props.escalationDraft)}>
+              Send to owner <span aria-hidden="true">→</span>
+            </button>
+          )}
+          {ownerCanDecide && <button className="btn" type="button" aria-expanded={panel === "owner"} onClick={() => open("owner")}>Make a decision</button>}
+          {canClose && <button className="btn" type="button" aria-expanded={panel === "close"} onClick={() => open("close")}>Record what you did</button>}
+        </div>
       </div>
-      {props.status === "awaiting_owner" && props.role !== "owner" && (
-        <p className="muted">Waiting for the owner. Only the owner can approve, decline or ask for more information.</p>
-      )}
-      {props.status === "closed" && <p className="muted">This request is closed. Its history stays below.</p>}
+      {done && <p className="notice success" role="status">{done}</p>}
 
       {panel === "facts" && props.currentDecisionId && (
         <Wizard
