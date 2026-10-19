@@ -51,7 +51,7 @@ export default async function KnowledgePage() {
       </section>
 
       <section>
-        <h2>Tutor availability</h2>
+        <h2>Tutor Availability</h2>
         <div className="table-wrap"><table>
           <thead><tr><th>Slot</th><th>Tutor</th><th>Starts</th><th>Status</th><th>Source</th></tr></thead>
           <tbody>{k.slots.map((s) => (
