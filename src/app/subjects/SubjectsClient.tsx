@@ -263,7 +263,7 @@ export function OfferToggle({ courseId, year, offered }: { courseId: string; yea
         disabled={busy}
         onClick={() => run({ action: "offer", courseId, year, offered: !offered }, () => (offered ? `${name} switched off.` : `${name} switched on.`))}
       >
-        {offered ? "Offered" : "Not offered"}
+        {offered ? "Offered" : "Not Offered"}
       </button>
       {note}
     </span>

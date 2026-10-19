@@ -180,7 +180,7 @@ export default async function SubjectsPage() {
                             ) : owner && data.ready ? (
                               <OfferToggle courseId={c.id} year={y} offered={on} />
                             ) : (
-                              <span className={`badge ${on ? "green" : ""}`}>{on ? "Offered" : "Not offered"}</span>
+                              <span className={`badge ${on ? "green" : ""}`}>{on ? "Offered" : "Not Offered"}</span>
                             )}
                           </td>
                         );
