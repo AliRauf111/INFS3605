@@ -455,7 +455,7 @@ main:has(+ .site-footer) { padding-bottom: 2.25rem; }
 .footer-legal a:hover, .footer-legal a:focus-visible { color: var(--f-head); }
 .footer-motto { color: var(--f-text); font-weight: 500; }
 
-/* Soft entrance, once per page visit (SiteFooter sets data-reveal). Only the content
+/* Soft entrance each time the footer comes into view (SiteFooter sets data-reveal). Only the content
    inside the footer moves, so the footer's height and the rest of the page stay put.
    Brand at 0ms, link columns at 90ms, copyright row at 180ms, each 0.6s: about 0.8s. */
 .site-footer[data-reveal="pending"] :is(.footer-brand, .footer-col, .footer-bottom) { opacity: 0; transform: translateY(14px); }

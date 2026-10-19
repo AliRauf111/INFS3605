@@ -43,34 +43,47 @@ export function SiteFooter() {
   const ref = useRef<HTMLElement>(null);
   const pathname = usePathname();
 
-  // A soft entrance, once per page visit: when about a fifth of the footer scrolls into
-  // view, the brand, then the link columns, then the copyright row fade up (see
-  // globals.css), the compass needle settles and the Compass companion waves once.
-  // Without scripts, with reduced motion, or if the footer is already on screen when the
-  // page opens, the footer is simply shown.
+  // A soft entrance each time the footer comes into view: the brand, then the link
+  // columns, then the copyright row fade up (see globals.css), the compass needle settles
+  // and the Compass companion waves. It plays when about a fifth of the footer is showing
+  // and resets only once the footer has left the screen completely, so small scrolls near
+  // the edge never restart it. The footer element itself never moves, so it is what we
+  // watch. The layout keeps this component mounted between pages; each page change starts
+  // a fresh observer. Without scripts or with reduced motion the footer is simply shown.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     delete el.dataset.reveal;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
-    if (el.getBoundingClientRect().top < window.innerHeight) return;
-    el.dataset.reveal = "pending";
-    let done = false;
-    const reveal = () => {
-      if (done) return;
-      done = true;
-      io.disconnect();
-      el.removeEventListener("focusin", reveal);
+    // Already on screen as the page opens: leave it showing rather than hide and replay it.
+    let shown = el.getBoundingClientRect().top < window.innerHeight;
+    if (!shown) el.dataset.reveal = "pending";
+    const play = () => {
+      if (shown) return;
+      shown = true;
       el.dataset.reveal = "in";
       window.dispatchEvent(new Event("compass:footer-seen"));
     };
-    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) reveal(); }, { threshold: 0.18 });
+    const io = new IntersectionObserver(
+      (entries) => {
+        const e = entries[entries.length - 1];
+        if (!e.isIntersecting) {
+          // Completely out of view: hide the content again, ready for the next entrance.
+          // Nothing is visible at this point, so the reset can't be seen.
+          shown = false;
+          el.dataset.reveal = "pending";
+        } else if (e.intersectionRatio >= 0.18) {
+          play();
+        }
+      },
+      { threshold: [0, 0.18] },
+    );
     io.observe(el);
     // Tabbing into the footer shows it straight away, so focus never lands on hidden links.
-    el.addEventListener("focusin", reveal);
+    el.addEventListener("focusin", play);
     return () => {
       io.disconnect();
-      el.removeEventListener("focusin", reveal);
+      el.removeEventListener("focusin", play);
     };
   }, [pathname]);
 

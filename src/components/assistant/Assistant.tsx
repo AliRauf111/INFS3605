@@ -149,7 +149,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     moodTimer.current = setTimeout(() => setMood(null), ms);
   }, []);
 
-  // A small hello when the footer first comes into view: one wave, then back to rest.
+  // A small hello each time the footer comes into view: one wave, then back to rest.
   // Skipped with reduced motion, while the panel is open or while Compass is busy.
   const quietRef = useRef(true);
   quietRef.current = !open && !busy && voice.phase === "idle" && !speech.speaking;
