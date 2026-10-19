@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { requirePageUser } from "@/lib/auth/page";
 import { listRequests, type RequestRow } from "@/lib/data/queries";
+import { classesForRequests, type RequestClass } from "@/lib/data/catalogue";
 import { QueueTable } from "@/components/QueueTable";
 import { EmptyState, LoadError } from "@/components/ui";
 import type { RequestStatus } from "@/lib/domain/types";
+import { friendlyTime } from "@/lib/domain/progress";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +50,18 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   ];
   const startHere = tiles.find((t) => t.mine && t.count > 0)?.key;
   const shown = inTab(active).slice(0, SHOW);
+  let classes: Map<string, RequestClass>;
+  try {
+    classes = await classesForRequests(shown);
+  } catch (e) {
+    return <LoadError error={e} />;
+  }
+  // When the newest change to any request happened, from the saved data itself.
+  const latest = rows.reduce<string | null>((max, r) => {
+    const t = r.updated_at && r.updated_at > r.created_at ? r.updated_at : r.created_at;
+    return !max || t > max ? t : max;
+  }, null);
+  const updated = latest ? friendlyTime(latest, now).replace(/^Today, /, "").replace(/^Yesterday/, "yesterday") : null;
 
   return (
     <div className="stack dash">
@@ -83,10 +97,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
       <section id="recent" aria-labelledby="recent-heading">
         <div className="section-row">
-          <h2 id="recent-heading" className="section-title">Recent requests</h2>
-          <span className="hint">Updated {now.toLocaleTimeString("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit" })}</span>
+          <h2 id="recent-heading" className="section-title">Recent Requests</h2>
+          {updated && latest && <span className="hint">Updated <time dateTime={latest}>{updated}</time></span>}
         </div>
-        <div className="card queue-card">
+        <div className="card queue-card" data-compass-avoid="">
           <nav className="tabs" aria-label="Filter recent requests">
             {TABS.map((t) => (
               <Link key={t.key} href={t.key === "all" ? "/#recent" : `/?tab=${t.key}#recent`} aria-current={t.key === active.key ? "page" : undefined} className="tab">
@@ -99,7 +113,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               {rows.length === 0 && <p><Link href="/requests">Start the first request</Link>.</p>}
             </EmptyState>
           ) : (
-            <QueueTable rows={shown} now={now} />
+            <QueueTable rows={shown} now={now} classes={classes} />
           )}
           <div className="queue-foot">
             <span className="hint">Showing {shown.length} of {inTab(active).length} {active.key === "all" ? "requests" : `“${active.label.toLowerCase()}” requests`}</span>
