@@ -39,7 +39,7 @@ export function nextStep(status: RequestStatus): { title: string; detail: string
     case "needs_clarification":
       return { title: "Needs Clarification", detail: "Missing details", pending: "Waiting for the missing facts. Use Update facts above." };
     case "review_required":
-      return { title: "Send to Owner", detail: "Owner review required", pending: "Not sent yet. Use Send to Owner above." };
+      return { title: "Send to Owner", detail: "Owner Review Required", pending: "Not sent yet. Use Send to Owner above." };
     case "awaiting_owner":
       return { title: "Waiting for Owner", detail: "Owner decides first", pending: "Sent. Waiting for the owner's decision." };
     case "more_info_requested":
@@ -47,7 +47,7 @@ export function nextStep(status: RequestStatus): { title: string; detail: string
     case "ready":
       return { title: "Record Outcome", detail: "Inside the rules", pending: "Not recorded yet. Use Record what you did above." };
     case "approved":
-      return { title: "Record Outcome", detail: "Approved by owner", pending: "Not recorded yet. Use Record what you did above." };
+      return { title: "Record Outcome", detail: "Approved by Owner", pending: "Not recorded yet. Use Record what you did above." };
     case "declined":
       return { title: "Record Outcome", detail: "Declined by owner", pending: "Not recorded yet. Use Record what you did above." };
     case "closed":

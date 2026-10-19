@@ -331,7 +331,7 @@ export function taskToForm(task: Task): FactsForm {
 
 export function decisionTitle(colour: Colour, needsInfo: boolean): string {
   if (colour === "green") return "Within your authority";
-  if (colour === "red") return "Owner review required";
+  if (colour === "red") return "Owner Review Required";
   return needsInfo ? "More information needed" : "Owner approval required";
 }
 

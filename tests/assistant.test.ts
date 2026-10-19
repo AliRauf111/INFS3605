@@ -120,7 +120,7 @@ describe("decision wording", () => {
     expect(decisionTitle("green", false)).toBe("Within your authority");
     expect(decisionTitle("amber", false)).toBe("Owner approval required");
     expect(decisionTitle("amber", true)).toBe("More information needed");
-    expect(decisionTitle("red", false)).toBe("Owner review required");
+    expect(decisionTitle("red", false)).toBe("Owner Review Required");
     expect(decisionAction("green", "refund")).toBe("Prepare refund");
     expect(decisionAction("amber", "refund")).toBe("Prepare approval request");
     expect(decisionAction("red", "lesson_change")).toBe("Prepare owner review");

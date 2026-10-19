@@ -52,12 +52,12 @@ export const STATUSES = [
 export type RequestStatus = (typeof STATUSES)[number];
 
 export const STATUS_LABELS: Record<RequestStatus, string> = {
-  ready: "Ready for admin",
+  ready: "Ready for Admin",
   needs_clarification: "Needs Clarification",
-  review_required: "Owner review required",
+  review_required: "Owner Review Required",
   awaiting_owner: "Waiting for Owner",
   more_info_requested: "Owner asked for more information",
-  approved: "Approved by owner",
+  approved: "Approved by Owner",
   declined: "Declined by owner",
   closed: "Closed",
 };
