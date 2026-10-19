@@ -114,7 +114,7 @@ The sign-in page has Sign in and Create account tabs, Forgot password, and Conti
 
 ## Remove from list
 
-Each request page has a red "Remove from list" button under What happens next. It asks first, then hides the request from the dashboard, Requests and Approval Alley. Nothing is deleted: the full record stays, the change is written to the request's history, and "Show removed requests" on the Requests page lists them so they can be put back. Admins can't remove a request that is waiting for the owner or raises a welfare concern.
+Each request page has a red "Remove" button under What happens next. It asks first, then hides the request from the dashboard, Requests and Approval Alley. Nothing is deleted: the full record stays, the change is written to the request's history, and "Show removed requests" on the Requests page lists them so they can be put back. Admins can't remove a request that is waiting for the owner or raises a welfare concern.
 
 Existing databases need `supabase/migrations/20261019000001_remove_from_list.sql` run once in the Supabase SQL Editor. Until then the lists work as before and the button explains what to run.
 

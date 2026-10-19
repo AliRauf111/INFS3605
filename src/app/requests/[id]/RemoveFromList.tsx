@@ -53,7 +53,7 @@ export function RemoveFromList({ requestId, removed, locked }: { requestId: stri
           </div>
         </div>
       ) : (
-        <button type="button" className="btn danger remove-btn" onClick={() => setConfirming(true)}>Remove from list</button>
+        <button type="button" className="btn danger remove-btn" onClick={() => setConfirming(true)}>Remove</button>
       )}
     </div>
   );
