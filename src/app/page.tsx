@@ -13,9 +13,9 @@ export const dynamic = "force-dynamic";
 const TABS: { key: string; label: string; statuses: RequestStatus[] | null }[] = [
   { key: "all", label: "All", statuses: null },
   { key: "record", label: "Ready to record", statuses: ["ready", "approved", "declined"] },
-  { key: "send", label: "Send to owner", statuses: ["review_required"] },
-  { key: "owner", label: "Waiting for owner", statuses: ["awaiting_owner"] },
-  { key: "clarify", label: "Needs clarification", statuses: ["needs_clarification", "more_info_requested"] },
+  { key: "send", label: "Send to Owner", statuses: ["review_required"] },
+  { key: "owner", label: "Waiting for Owner", statuses: ["awaiting_owner"] },
+  { key: "clarify", label: "Needs Clarification", statuses: ["needs_clarification", "more_info_requested"] },
 ];
 const SHOW = 8;
 
@@ -37,12 +37,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const owner = user.role === "owner";
   const tiles = [
     { key: "record", icon: "ok", title: "Ready to record", count: count("record"), text: "Inside the rules or decided. Act on them and log the outcome.", mine: !owner },
-    { key: "send", icon: "send", title: "Send to owner", count: count("send"), text: "The rules say the owner must see these first.", mine: !owner },
-    { key: "clarify", icon: "warn", title: "Needs clarification", count: count("clarify"), text: "Missing details. Ask the family before it moves on.", mine: !owner },
+    { key: "send", icon: "send", title: "Send to Owner", count: count("send"), text: "The rules say the owner must see these first.", mine: !owner },
+    { key: "clarify", icon: "warn", title: "Needs Clarification", count: count("clarify"), text: "Missing details. Ask the family before it moves on.", mine: !owner },
     {
       key: "owner",
       icon: "wait",
-      title: "Waiting for the owner",
+      title: "Waiting for Owner",
       count: count("owner"),
       text: owner ? "Waiting on your decision in Approval Alley." : "Nothing to do yet. You'll see the decision here.",
       mine: owner,

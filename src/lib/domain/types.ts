@@ -53,9 +53,9 @@ export type RequestStatus = (typeof STATUSES)[number];
 
 export const STATUS_LABELS: Record<RequestStatus, string> = {
   ready: "Ready for admin",
-  needs_clarification: "Needs clarification",
+  needs_clarification: "Needs Clarification",
   review_required: "Owner review required",
-  awaiting_owner: "Waiting for owner",
+  awaiting_owner: "Waiting for Owner",
   more_info_requested: "Owner asked for more information",
   approved: "Approved by owner",
   declined: "Declined by owner",

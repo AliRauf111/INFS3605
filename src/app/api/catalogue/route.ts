@@ -27,7 +27,10 @@ const Body = z.discriminatedUnion("action", [
   z.object({ action: z.literal("student_add"), familyId: z.string().max(20), studentName: z.string().trim().min(1).max(80), pick: Pick }).strict(),
   z.object({ action: z.literal("student_remove"), id: z.string().uuid() }).strict(),
   z.object({ action: z.literal("booking_set"), bookingId: z.string().max(20), pick: Pick.nullable() }).strict(),
+  z.object({ action: z.literal("request_class_set"), requestId: z.string().regex(/^[0-9a-f-]{36}$/i), pick: Pick.nullable() }).strict(),
 ]);
+
+const CLASS_NOT_SET_UP = "The database needs a quick update first. Run supabase/migrations/20261019000004_request_classes.sql in the Supabase SQL Editor.";
 
 const NOT_SET_UP = "The database needs the subject catalogue update first. Run supabase/migrations/20261019000002_hsc_catalogue.sql and then supabase/catalogue.sql in the Supabase SQL Editor.";
 
@@ -121,6 +124,43 @@ export const POST = apiRoute(async (req) => {
         .update({ course_id: v.courseId, year_level: v.year, course_level: v.level ?? "", qualification: v.qualification })
         .eq("id", body.bookingId);
       if (res.error) fail(res.error, "booking");
+      return { ok: true, label };
+    }
+    case "request_class_set": {
+      // Only says which class a request is about. It never changes the request's facts,
+      // decision, status or money, and the change is written to the request's history.
+      const current = await db().from("requests").select("id, status, course_id").eq("id", body.requestId).maybeSingle();
+      if (current.error) {
+        if (/course_id/.test(current.error.message)) throw new ApiError(503, CLASS_NOT_SET_UP);
+        throw new ApiError(503, "The request couldn't be loaded. Try again.");
+      }
+      if (!current.data) throw new ApiError(404, "That request doesn't exist.");
+      const v = body.pick ? valid(body.pick) : null;
+      const label = v ? formatSelection(v) : "";
+      const res = await db()
+        .from("requests")
+        .update({
+          course_id: v?.courseId ?? null,
+          year_level: v?.year ?? null,
+          course_level: v?.level ?? "",
+          qualification: v?.qualification ?? "",
+          class_set_by: user.id,
+          class_set_at: new Date().toISOString(),
+        })
+        .eq("id", body.requestId);
+      if (res.error) {
+        if (/class_set|course_id/.test(res.error.message) && !/invalid_input/.test(res.error.message)) throw new ApiError(503, CLASS_NOT_SET_UP);
+        fail(res.error, "class");
+      }
+      await db().from("request_events").insert({
+        request_id: body.requestId,
+        event_type: "class_changed",
+        actor_id: user.id,
+        actor_role: user.role,
+        from_status: current.data.status,
+        to_status: current.data.status,
+        note: v ? `Class set to ${label}` : "Class removed",
+      });
       return { ok: true, label };
     }
   }

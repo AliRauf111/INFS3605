@@ -19,6 +19,8 @@ import { friendlyTime, nextStep, progressHeading, requestProgress, ruleHeading, 
 import { RequestActions } from "./RequestActions";
 import { DraftsEditor } from "./DraftsEditor";
 import { RemoveFromList } from "./RemoveFromList";
+import { RequestClass } from "./RequestClass";
+import { classesForRequests, savedRequestClass } from "@/lib/data/catalogue";
 import { removalNeedsOwner } from "@/lib/domain/progress";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +42,7 @@ const EVENT_TEXT: Record<string, string> = {
   restored_to_list: "Put back in the list",
   archived: "Archived",
   unarchived: "Restored from the archive",
+  class_changed: "Class changed",
 };
 
 const DRAFTS_FOR_ACTION: Partial<Record<string, DraftKind>> = {
@@ -56,9 +59,14 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
   const { saved } = await searchParams;
   let detail;
   let visibility: ListVisibility = "not_set_up";
+  let savedClass: Awaited<ReturnType<typeof savedRequestClass>> = null;
+  let bookingClass: Awaited<ReturnType<typeof classesForRequests>> = new Map();
   try {
     detail = await getRequestDetail(id);
-    if (detail) visibility = await requestVisibility(id);
+    if (detail) {
+      [visibility, savedClass] = await Promise.all([requestVisibility(id), savedRequestClass(id)]);
+      if (!savedClass || savedClass === "not_set_up") bookingClass = await classesForRequests([detail.request]);
+    }
   } catch (e) {
     return <LoadError error={e} />;
   }
@@ -213,6 +221,15 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
             <dl className="details">
               <dt>Reference</dt><dd>{r.reference_id ?? "Not provided"}</dd>
               <dt>Type</dt><dd>{REQUEST_TYPE_LABELS[r.request_type]}</dd>
+              <dt>Class</dt>
+              <dd>
+                <RequestClass
+                  requestId={r.id}
+                  saved={savedClass === "not_set_up" ? null : savedClass}
+                  fromBooking={bookingClass.get(r.id) ? { bookingId: r.booking_id ?? r.reference_id ?? "", label: bookingClass.get(r.id)! } : null}
+                  notSetUp={savedClass === "not_set_up"}
+                />
+              </dd>
               {r.amount_cents !== null && <><dt>Amount</dt><dd>{formatAud(r.amount_cents)}</dd></>}
               <dt>Status</dt><dd><StatusBadge status={r.status} /></dd>
               <dt>Created</dt><dd>{formatDateTime(r.created_at)}</dd>

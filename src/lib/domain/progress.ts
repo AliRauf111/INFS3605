@@ -37,19 +37,19 @@ export function progressHeading(steps: ProgressStep[]): { title: string; aside: 
 export function nextStep(status: RequestStatus): { title: string; detail: string; pending: string } {
   switch (status) {
     case "needs_clarification":
-      return { title: "Needs clarification", detail: "Missing details", pending: "Waiting for the missing facts. Use Update facts above." };
+      return { title: "Needs Clarification", detail: "Missing details", pending: "Waiting for the missing facts. Use Update facts above." };
     case "review_required":
-      return { title: "Send to owner", detail: "Owner review required", pending: "Not sent yet. Use Send to owner above." };
+      return { title: "Send to Owner", detail: "Owner review required", pending: "Not sent yet. Use Send to Owner above." };
     case "awaiting_owner":
-      return { title: "Waiting for owner", detail: "Owner decides first", pending: "Sent. Waiting for the owner's decision." };
+      return { title: "Waiting for Owner", detail: "Owner decides first", pending: "Sent. Waiting for the owner's decision." };
     case "more_info_requested":
       return { title: "Reply to owner", detail: "Owner asked for more", pending: "The owner needs more information. Update the facts, then send it back." };
     case "ready":
-      return { title: "Record outcome", detail: "Inside the rules", pending: "Not recorded yet. Use Record what you did above." };
+      return { title: "Record Outcome", detail: "Inside the rules", pending: "Not recorded yet. Use Record what you did above." };
     case "approved":
-      return { title: "Record outcome", detail: "Approved by owner", pending: "Not recorded yet. Use Record what you did above." };
+      return { title: "Record Outcome", detail: "Approved by owner", pending: "Not recorded yet. Use Record what you did above." };
     case "declined":
-      return { title: "Record outcome", detail: "Declined by owner", pending: "Not recorded yet. Use Record what you did above." };
+      return { title: "Record Outcome", detail: "Declined by owner", pending: "Not recorded yet. Use Record what you did above." };
     case "closed":
       return { title: "Done", detail: "Recorded and closed", pending: "" };
   }

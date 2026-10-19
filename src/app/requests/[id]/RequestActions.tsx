@@ -89,7 +89,7 @@ export function RequestActions(props: {
           {canClarify && <button className="btn secondary" type="button" aria-expanded={panel === "facts"} onClick={() => open("facts")}>Update facts</button>}
           {canSend && (
             <button className="btn" type="button" aria-expanded={panel === "send"} onClick={() => open("send", props.escalationDraft)}>
-              Send to owner <span aria-hidden="true">→</span>
+              Send to Owner <span aria-hidden="true">→</span>
             </button>
           )}
           {ownerCanDecide && <button className="btn" type="button" aria-expanded={panel === "owner"} onClick={() => open("owner")}>Make a decision</button>}

@@ -98,33 +98,62 @@ export async function catalogueData(): Promise<CatalogueData> {
   };
 }
 
-/** The class a request is about, read from the course its booking covers. */
+/** The class a request is about. */
 export type RequestClass = { code: string; subject: string; year: YearLevel };
 
+type CourseCols = { course_id: string | null; year_level: number | null; course_level: string | null; category_code: string | null };
+
+function toClass(c: CourseCols): RequestClass | null {
+  const crs = c.course_id ? course(c.course_id) : undefined;
+  if (!crs || !isYearLevel(c.year_level)) return null;
+  const subject = [crs.name, crs.kind === "language" ? levelName(c.course_level) : ""].filter(Boolean).join(" ");
+  return { code: c.category_code ?? categoryCode(crs.areaId, c.year_level) ?? "", subject, year: c.year_level };
+}
+
+const COURSE_COLS = "course_id, year_level, course_level, category_code";
+
 /**
- * The class for each request, keyed by request id. A request's class comes from its
- * booking (or its reference, when that is a booking number), so changing the booking's
- * course on the Subjects page changes what every request for that booking shows.
- * Requests with no booking, or a booking with no course, are left out.
+ * The class for each request, keyed by request id. A class saved on the request itself
+ * comes first. Otherwise the class of its booking (or of its reference, when that is a
+ * booking number) is used. Requests with neither are left out and show "No class linked".
+ * Everything is read fresh on each page load, so a saved change shows after a refresh.
  */
 export async function classesForRequests(rows: Array<{ id: string; booking_id: string | null; reference_id: string | null }>): Promise<Map<string, RequestClass>> {
-  const bookingOf = (r: (typeof rows)[number]) => r.booking_id ?? (r.reference_id && /^BK-\d+$/.test(r.reference_id) ? r.reference_id : null);
-  const ids = [...new Set(rows.map(bookingOf).filter((x): x is string => Boolean(x)))];
   const out = new Map<string, RequestClass>();
-  if (ids.length === 0) return out;
-  const res = await db().from("bookings").select("id, course_id, year_level, course_level, category_code").in("id", ids);
-  if (catalogueMissing(res.error)) return out; // the catalogue update hasn't been run yet
-  const bookings = check(res, "booking classes") as Array<{ id: string; course_id: string | null; year_level: number | null; course_level: string; category_code: string | null }>;
-  const byBooking = new Map<string, RequestClass>();
-  for (const b of bookings) {
-    const crs = b.course_id ? course(b.course_id) : undefined;
-    if (!crs || !isYearLevel(b.year_level)) continue;
-    const subject = [crs.name, crs.kind === "language" ? levelName(b.course_level) : ""].filter(Boolean).join(" ");
-    byBooking.set(b.id, { code: b.category_code ?? categoryCode(crs.areaId, b.year_level) ?? "", subject, year: b.year_level });
+  if (rows.length === 0) return out;
+
+  const own = await db().from("requests").select(`id, ${COURSE_COLS}`).in("id", rows.map((r) => r.id));
+  if (!catalogueMissing(own.error)) {
+    for (const r of check(own, "request classes") as Array<CourseCols & { id: string }>) {
+      const c = toClass(r);
+      if (c) out.set(r.id, c);
+    }
   }
-  for (const r of rows) {
+
+  const bookingOf = (r: (typeof rows)[number]) => r.booking_id ?? (r.reference_id && /^BK-\d+$/.test(r.reference_id) ? r.reference_id : null);
+  const rest = rows.filter((r) => !out.has(r.id));
+  const ids = [...new Set(rest.map(bookingOf).filter((x): x is string => Boolean(x)))];
+  if (ids.length === 0) return out;
+  const res = await db().from("bookings").select(`id, ${COURSE_COLS}`).in("id", ids);
+  if (catalogueMissing(res.error)) return out; // the catalogue update hasn't been run yet
+  const byBooking = new Map<string, RequestClass>();
+  for (const b of check(res, "booking classes") as Array<CourseCols & { id: string }>) {
+    const c = toClass(b);
+    if (c) byBooking.set(b.id, c);
+  }
+  for (const r of rest) {
     const c = byBooking.get(bookingOf(r) ?? "");
     if (c) out.set(r.id, c);
   }
   return out;
+}
+
+/** The class saved on one request, for its own page. "not_set_up" until the database update is run. */
+export async function savedRequestClass(id: string): Promise<{ courseId: string; year: YearLevel; level: string; qualification: string; label: RequestClass } | null | "not_set_up"> {
+  const res = await db().from("requests").select(`${COURSE_COLS}, qualification`).eq("id", id).maybeSingle();
+  if (catalogueMissing(res.error)) return "not_set_up";
+  const row = check(res, "request class") as (CourseCols & { qualification: string }) | null;
+  const label = row ? toClass(row) : null;
+  if (!row || !label) return null;
+  return { courseId: row.course_id!, year: label.year, level: row.course_level ?? "", qualification: row.qualification ?? "", label };
 }

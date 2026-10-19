@@ -739,3 +739,10 @@ main.main-bare { max-width: none; padding: 0; }
   .bulk-bar .bulk-btn { flex: 1 1 auto; width: auto; }
   .confirm-actions .btn { flex: 1 1 auto; width: auto; }
 }
+
+/* The class on a request's own page. */
+.rq-class .class-code { margin-bottom: 0.1rem; }
+.rq-class .class-subject { margin-top: 0.25rem; }
+.rq-class-actions { margin-top: 0.3rem; gap: 0.25rem 0.75rem; }
+.rq-class-actions .link-btn { padding-left: 0; font-size: 0.9rem; }
+.rq-class-form { margin-top: 0.6rem; }
