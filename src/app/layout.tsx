@@ -7,6 +7,7 @@ import { Assistant } from "@/components/assistant/Assistant";
 import { aiConfigured } from "@/lib/ai/client";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Logo } from "@/components/Logo";
+import { BOOT_SCRIPT, BootLoader } from "@/components/loader/BootLoader";
 
 export const metadata: Metadata = {
   title: { default: "Tutor Compass", template: "%s | Tutor Compass" },
@@ -18,8 +19,17 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = supabaseConfigured() ? await getSessionUser().catch(() => null) : null;
   return (
-    <html lang="en-AU">
+    // suppressHydrationWarning: the boot script below may set data-boot on <html> before React starts.
+    <html lang="en-AU" suppressHydrationWarning>
+      <head>
+        {/* In <head> so it is listening before the app's script files start to load. */}
+        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
+      </head>
       <body>
+        <noscript>
+          <style>{`.boot-loader{display:none!important}body>*{visibility:visible!important}`}</style>
+        </noscript>
+        <BootLoader />
         {user && (
           <>
             <a href="#main" className="skip-link">Skip to content</a>

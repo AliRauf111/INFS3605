@@ -46,7 +46,7 @@ export function CompassAvatar({ state = "idle", size = 72, className = "" }: { s
           <rect x="91" y="86" width="9" height="20" rx="4.5" fill={`url(#shell-${id})`} stroke="#b9cdea" strokeWidth="1" />
           <circle cx="95.5" cy="86" r="4.5" fill={`url(#blue-${id})`} />
         </g>
-        <rect x="20" y="88" width="9" height="18" rx="4.5" fill={`url(#shell-${id})`} stroke="#b9cdea" strokeWidth="1" />
+        <rect className="ca-arm-left" x="20" y="88" width="9" height="18" rx="4.5" fill={`url(#shell-${id})`} stroke="#b9cdea" strokeWidth="1" />
 
         <g className="ca-head">
           {/* Antenna */}

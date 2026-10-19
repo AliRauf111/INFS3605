@@ -133,6 +133,10 @@ Database: run `supabase/migrations/20261019000002_hsc_catalogue.sql`, then `supa
 
 Not yet confirmed (also shown on the Subjects page): which languages have Beginners or Extension courses, the split of Studies of Religion into I and II, VET qualifications, and Year 11 to Year 12 eligibility rules, which are noted but not enforced.
 
+## Loading screen
+
+When the website first opens, a blue screen with Compass dancing covers the page until the app has started in the browser and the first page's data has arrived, then fades out. Fast loads never show it, and moving between pages only shows the small "Loading…" line. If the app's code can't be downloaded, or start-up takes more than 20 seconds, it stops and shows an error with a Try again button. It respects reduced-motion settings. Files: `src/components/loader/` (the screen and its start-up logic), `src/app/layout.tsx` and `src/app/loading.tsx`.
+
 ## Compass AI
 
 Compass AI is the robot in the bottom right corner of every signed-in page. Staff can ask it to check a refund, change a lesson or find a policy, by typing or by voice.

@@ -1,0 +1,106 @@
+/* Full-screen loading screen. Uses the same blue as the Ask Compass button (--accent). */
+
+.loading-screen {
+  position: fixed; inset: 0; z-index: 1000;
+  color: #ffffff; font-family: inherit;
+  overflow: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+/* Fades in after a short pause, so a fast load never flashes blue. */
+.ls-fade {
+  position: absolute; inset: 0; background: var(--accent, #0066cc);
+  display: flex; flex-direction: column; overflow-y: auto;
+  animation: ls-in 0.25s ease-out 0.2s both;
+}
+.ls-logo { padding: clamp(1rem, 3vw, 1.75rem) clamp(1rem, 3.5vw, 2.25rem); flex: none; }
+.ls-logo .logo-mark { width: 1.9rem; height: 1.9rem; }
+.ls-logo .logo-word { font-size: 1.25rem; }
+.ls-centre {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 1.25rem clamp(3rem, 10vh, 6rem); gap: 0.25rem;
+}
+
+/* Compass and its shadow */
+.ls-stage { position: relative; display: grid; justify-items: center; margin-bottom: 1.5rem; }
+.ls-dancer { transform-origin: 50% 100%; animation: ls-dance 1.6s ease-in-out infinite; }
+.ls-avatar { display: block; width: clamp(128px, 32vw, 176px); height: auto; filter: drop-shadow(0 10px 18px rgba(0, 30, 80, 0.25)); }
+.ls-shadow {
+  width: 96px; height: 14px; margin-top: 0.4rem; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 25, 70, 0.45), rgba(0, 25, 70, 0));
+  animation: ls-shadow 0.8s ease-in-out infinite;
+}
+.loading-screen .ca-arm, .loading-screen .ca-arm-left { transform-box: fill-box; transform-origin: 50% 0%; }
+.loading-screen .ca-arm { animation: ls-arm-right 1.6s ease-in-out infinite; }
+.loading-screen .ca-arm-left { animation: ls-arm-left 1.6s ease-in-out infinite; }
+.loading-screen .ca-eye { transform-box: fill-box; transform-origin: center; animation: ls-blink 4.8s ease-in-out infinite; }
+.loading-screen .ca-sparkle { display: none; }
+
+/* Words */
+.ls-title { margin: 0; font-size: clamp(1.35rem, 4.5vw, 1.9rem); font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; color: #ffffff; }
+.ls-sub { margin: 0.5rem 0 0; font-size: clamp(0.95rem, 2.6vw, 1.05rem); color: rgba(255, 255, 255, 0.85); max-width: 34ch; }
+.ls-loading, .ls-failed { display: flex; flex-direction: column; align-items: center; }
+.ls-dots { display: flex; gap: 0.5rem; margin-top: 1.4rem; height: 14px; align-items: flex-end; }
+.ls-dots span { width: 8px; height: 8px; border-radius: 50%; background: #ffffff; animation: ls-dot 1.2s ease-in-out infinite; }
+.ls-dots span:nth-child(2) { animation-delay: 0.16s; }
+.ls-dots span:nth-child(3) { animation-delay: 0.32s; }
+
+/* Failed: stop dancing and show the error with a retry button */
+.ls-failed { display: none; }
+.loading-screen[data-state="failed"] .ls-loading, html[data-boot="failed"] .boot-loader .ls-loading { display: none; }
+.loading-screen[data-state="failed"] .ls-failed, html[data-boot="failed"] .boot-loader .ls-failed { display: flex; }
+.loading-screen[data-state="failed"] *, html[data-boot="failed"] .boot-loader * { animation: none !important; }
+.loading-screen[data-state="failed"] .ca-eye, html[data-boot="failed"] .boot-loader .ca-eye { transform: scaleY(0.55); }
+.ls-retry {
+  margin-top: 1.4rem; min-height: 48px; padding: 0.6rem 1.6rem; border-radius: 999px;
+  border: 2px solid #ffffff; background: #ffffff; color: var(--accent, #0066cc);
+  font: inherit; font-weight: 650; cursor: pointer;
+}
+.ls-retry:hover { background: rgba(255, 255, 255, 0.9); }
+.ls-retry:focus-visible { outline: 3px solid #ffffff; outline-offset: 3px; }
+
+/* The start-up copy of the screen: hide the page under it until the app is ready, then fade out. */
+html:not([data-boot="ready"]) body > :not(.boot-loader):not(script):not(noscript) { visibility: hidden; }
+html[data-boot="ready"] .boot-loader { opacity: 0; visibility: hidden; pointer-events: none; }
+
+@keyframes ls-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ls-dance {
+  0%, 100% { transform: translate(-5px, 0) rotate(-4deg); }
+  25% { transform: translate(0, -16px) rotate(0deg); }
+  50% { transform: translate(5px, 0) rotate(4deg); }
+  75% { transform: translate(0, -16px) rotate(0deg); }
+}
+@keyframes ls-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 1; }
+  50% { transform: scaleX(0.72); opacity: 0.55; }
+}
+@keyframes ls-arm-right {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-38deg); }
+  50% { transform: rotate(-6deg); }
+}
+@keyframes ls-arm-left {
+  0%, 50%, 100% { transform: rotate(6deg); }
+  75% { transform: rotate(38deg); }
+}
+@keyframes ls-blink {
+  0%, 90%, 96%, 100% { transform: scaleY(1); }
+  93% { transform: scaleY(0.12); }
+}
+@keyframes ls-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.55; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Short screens, such as a phone on its side */
+@media (max-height: 560px) {
+  .ls-logo { padding-block: 0.75rem; }
+  .ls-avatar { width: 104px; }
+  .ls-stage { margin-bottom: 0.75rem; }
+  .ls-centre { padding-bottom: 1.25rem; }
+  .ls-dots, .ls-retry { margin-top: 0.9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen *, .loading-screen { animation: none !important; transition: none !important; }
+  .ls-dots span { opacity: 0.85; }
+}
