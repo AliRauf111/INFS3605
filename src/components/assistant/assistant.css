@@ -175,13 +175,19 @@
 .cp-voice-stage { position: relative; display: grid; place-items: center; width: 190px; height: 190px; }
 .cp-halo { position: absolute; inset: 8px; border-radius: 50%; background: radial-gradient(circle, rgba(61, 139, 255, 0.22), rgba(61, 139, 255, 0) 70%); opacity: 0.35; transition: opacity 0.3s ease; }
 .cp-voice-stage.live .cp-halo { opacity: 1; animation: cp-halo 2.4s ease-in-out infinite; }
-.cp-wave { display: flex; align-items: center; justify-content: center; gap: 3px; height: 40px; width: 100%; max-width: 260px; }
-.cp-wave span { width: 4px; height: 100%; border-radius: 2px; background: var(--cp-blue); transform-origin: center; transition: transform 0.08s linear; }
+.cp-wave { flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 3px; height: 40px; width: 100%; max-width: 260px; }
+.cp-wave span { width: 4px; height: 100%; border-radius: 2px; background: var(--cp-blue); transform-origin: center; transform: scaleY(0.08); opacity: 0.55; }
+.cp-wave.live span { opacity: 1; animation: cp-bar 1.2s ease-in-out infinite; }
+.cp-wave.live.hearing span { animation-name: cp-bar-loud; animation-duration: 0.6s; }
 .cp-voice-status { margin: 0; font-weight: 700; color: var(--cp-navy); font-size: 1.05rem; }
 .cp-transcript { width: 100%; border-radius: 16px; background: #fff; text-align: center; font-size: 1rem; color: var(--cp-navy); min-height: 76px; }
 .cp-voice-actions { display: flex; align-items: center; justify-content: center; gap: 1.2rem; flex-wrap: wrap; margin-top: 0.2rem; }
 .cp-voice-side { display: flex; flex-direction: column; gap: 0.45rem; }
 .cp-mic-btn { width: 78px; height: 78px; border-radius: 50%; border: 3px solid #fff; background: var(--cp-blue); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font: inherit; font-size: 0.78rem; font-weight: 700; cursor: pointer; box-shadow: 0 0 0 1px var(--cp-line), 0 10px 22px rgba(0, 102, 204, 0.28); }
+.cp-mic-btn svg { width: 28px; height: 28px; }
+.cp-mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+.cp-mic-caption { font-size: 0.78rem; font-weight: 700; color: var(--cp-navy); text-align: center; max-width: 110px; }
+.cp-mic-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .cp-mic-btn.on { background: var(--red-edge); box-shadow: 0 0 0 1px var(--cp-line), 0 10px 22px rgba(194, 57, 43, 0.3); }
 .cp-toggle { display: flex; align-items: center; gap: 0.6rem; font-weight: 500; color: var(--cp-navy); cursor: pointer; margin: 0.3rem 0 0; min-height: 44px; }
 .cp-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
@@ -228,6 +234,8 @@
 @keyframes ca-talk { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.9) scaleX(0.85); } }
 @keyframes ca-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 @keyframes ca-sparkle { 0% { opacity: 0; transform: scale(0.4) rotate(0); } 40% { opacity: 1; transform: scale(1.1) rotate(20deg); } 100% { opacity: 0; transform: scale(0.8) rotate(45deg); } }
+@keyframes cp-bar { 0%, 100% { transform: scaleY(0.12); } 50% { transform: scaleY(0.38); } }
+@keyframes cp-bar-loud { 0%, 100% { transform: scaleY(0.2); } 50% { transform: scaleY(0.95); } }
 @keyframes cp-halo { 0%, 100% { transform: scale(0.94); } 50% { transform: scale(1.06); } }
 @keyframes cp-dot { 0%, 80%, 100% { opacity: 0.3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
 @keyframes cp-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

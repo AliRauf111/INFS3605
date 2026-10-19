@@ -44,6 +44,8 @@ function Svg({ name, label }: { name: keyof typeof Icon; label?: string }) {
   );
 }
 
+const WAVE = Array.from({ length: 28 }, (_, i) => i);
+
 export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: boolean }) {
   const [hydrated, setHydrated] = useState(false);
   const [open, setOpen] = useState(false);
@@ -123,12 +125,13 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     return () => document.removeEventListener("visibilitychange", f);
   }, []);
 
-  // The microphone is only ever on while voice mode is open and visible.
-  const voiceStop = voice.stop;
-  const voiceStatus = voice.status;
+  // The microphone is only ever on while voice mode is open. Closing or minimising the
+  // panel, or leaving voice mode any other way, releases it.
+  const voiceRelease = voice.release;
+  const voiceActive = voice.active;
   useEffect(() => {
-    if ((!open || mode !== "voice") && voiceStatus !== "idle") voiceStop();
-  }, [open, mode, voiceStatus, voiceStop]);
+    if ((!open || mode !== "voice") && voiceActive) voiceRelease();
+  }, [open, mode, voiceActive, voiceRelease]);
 
   // Keep the panel above the on-screen keyboard on phones.
   useEffect(() => {
@@ -216,6 +219,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     return () => window.removeEventListener("compass:open", onOpen);
   }, []);
   const minimise = () => {
+    voice.release();
     setOpen(false);
     setMenuOpen(false);
     speech.cancel();
@@ -327,36 +331,40 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   };
 
   // Voice mode
+  // Starts only from a press of a microphone button, never on its own.
   const enterVoice = () => {
     speech.cancel();
+    voice.release();
     voice.setTranscript("");
-    voice.setError(null);
     setMode("voice");
-    setAnnounce("Voice mode. Listening.");
-    void voice.start();
+    setAnnounce("Voice mode.");
+    voice.start();
   };
-  const backToTyping = () => {
-    voice.stop();
+  const leaveVoice = (keepWords: boolean) => {
+    voice.release();
     const t = voice.transcript.trim();
-    if (t) setDraft((d) => (d ? `${d} ${t}` : t));
+    if (keepWords && t) setDraft((d) => (d ? `${d} ${t}` : t));
     voice.setTranscript("");
-    voice.setError(null);
     setMode("chat");
     setTimeout(() => inputRef.current?.focus(), 0);
   };
-  const sendVoice = () => {
+  // Type Instead keeps the words heard so far. Cancel throws away this voice input only;
+  // anything already typed in the message box stays.
+  const backToTyping = () => leaveVoice(true);
+  const cancelVoice = () => leaveVoice(false);
+  const sendVoice = async () => {
     const t = voice.transcript.trim();
-    if (!t) return;
-    voice.stop();
+    if (!t || busy) return;
+    // Give the microphone back before waiting for Compass to reply.
+    voice.release();
     voice.setTranscript("");
-    voice.setError(null);
+    await send({ message: t }, t);
     setMode("chat");
-    void send({ message: t }, t);
   };
 
   const avatarState: AvatarState = !available && !busy
     ? "error"
-    : voice.status === "listening"
+    : voice.phase === "listening"
       ? "listening"
       : busy
         ? "thinking"
@@ -365,6 +373,18 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
           : mood ?? "idle";
 
   const showWelcome = items.length === 0;
+
+  const voiceLabel = busy
+    ? "Processing…"
+    : voice.phase === "requesting"
+      ? "Waiting for Microphone Permission"
+      : voice.phase === "listening"
+        ? "Listening…"
+        : voice.phase === "finishing"
+          ? "Processing…"
+          : voice.transcript.trim() && !voice.error
+            ? "Microphone Off. Check your words, then send."
+            : "Microphone Off";
 
   return (
     <div className="compass-root" data-paused={paused ? "true" : undefined}>
@@ -505,7 +525,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={onKeyDown}
                 />
-                <button type="button" className="cp-icon-btn" aria-label="Speak instead of typing" onClick={enterVoice} disabled={busy}><Svg name="mic" /></button>
+                <button type="button" className="cp-icon-btn" aria-label="Start Voice Input" title="Start Voice Input" onClick={enterVoice} disabled={busy}><Svg name="mic" /></button>
                 {busy ? (
                   <button type="button" className="cp-send stop" aria-label="Stop the reply" onClick={() => abortRef.current?.abort()}><Svg name="stop" /></button>
                 ) : (
@@ -517,16 +537,15 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
           </>
         ) : (
           <div className="cp-voice">
-            <div className={`cp-voice-stage${voice.status === "listening" ? " live" : ""}`}>
+            <div className={`cp-voice-stage${voice.phase === "listening" ? " live" : ""}`}>
               <div className="cp-halo" aria-hidden="true" />
               <CompassAvatar state={avatarState} size={150} />
             </div>
-            <div className="cp-wave" aria-hidden="true">
-              {voice.levels.map((l, i) => <span key={i} style={{ transform: `scaleY(${0.08 + l * 0.92})` }} />)}
+            {/* Moves only while the microphone is actually capturing, and more when it hears sound. */}
+            <div className={`cp-wave${voice.phase === "listening" ? " live" : ""}${voice.hearing ? " hearing" : ""}`} aria-hidden="true">
+              {WAVE.map((i) => <span key={i} style={{ animationDelay: `${(i % 7) * -0.13 - i * 0.03}s` }} />)}
             </div>
-            <p className="cp-voice-status" role="status">
-              {voice.status === "listening" ? "Listening…" : voice.status === "starting" ? "Starting the microphone…" : voice.transcript ? "Stopped listening." : "Microphone off."}
-            </p>
+            <p className="cp-voice-status" role="status">{voiceLabel}</p>
             {voice.error && <p className="cp-error" role="alert">{voice.error}</p>}
             <label htmlFor="compass-transcript" className="sr-only">Your words</label>
             <textarea
@@ -534,19 +553,28 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
               className="cp-transcript"
               rows={3}
               value={voice.transcript}
-              placeholder={voice.status === "listening" ? "Start speaking…" : "Your words will appear here."}
+              placeholder={voice.phase === "listening" ? "Start speaking…" : "Your words will appear here."}
               onChange={(e) => voice.setTranscript(e.target.value)}
+              readOnly={busy}
             />
             <p className="cp-small center">Review your words before sending.</p>
             <div className="cp-voice-actions">
-              {voice.status === "listening" || voice.status === "starting" ? (
-                <button type="button" className="cp-mic-btn on" onClick={voice.stop} aria-label="Stop listening"><Svg name="stop" /><span>Stop</span></button>
-              ) : (
-                <button type="button" className="cp-mic-btn" onClick={() => void voice.start()} aria-label={voice.transcript ? "Listen again" : "Start listening"}><Svg name="mic" /><span>{voice.transcript ? "Again" : "Speak"}</span></button>
-              )}
+              <div className="cp-mic-wrap">
+                {voice.active ? (
+                  <button type="button" className="cp-mic-btn on" onClick={voice.stop} aria-label={voice.phase === "requesting" ? "Stop Waiting for Microphone" : "Stop Voice Input"}>
+                    <Svg name="stop" />
+                  </button>
+                ) : (
+                  <button type="button" className="cp-mic-btn" onClick={voice.start} disabled={busy || !voice.supported} aria-label={voice.error ? "Try Voice Input Again" : "Start Voice Input"}>
+                    <Svg name="mic" />
+                  </button>
+                )}
+                <span className="cp-mic-caption" aria-hidden="true">{voice.active ? (voice.phase === "requesting" ? "Stop Waiting" : "Stop Voice Input") : voice.error ? "Try Again" : "Start Voice Input"}</span>
+              </div>
               <div className="cp-voice-side">
-                <button type="button" className="cp-btn" onClick={sendVoice} disabled={!voice.transcript.trim() || busy}>Send</button>
-                <button type="button" className="cp-btn secondary" onClick={backToTyping}><Svg name="keyboard" /> Back to typing</button>
+                <button type="button" className="cp-btn" onClick={() => void sendVoice()} disabled={!voice.transcript.trim() || busy}>Send</button>
+                <button type="button" className="cp-btn secondary" onClick={backToTyping} disabled={busy}><Svg name="keyboard" /> Type Instead</button>
+                <button type="button" className="cp-btn secondary" onClick={cancelVoice} disabled={busy}>Cancel</button>
               </div>
             </div>
             <label className="cp-toggle">
