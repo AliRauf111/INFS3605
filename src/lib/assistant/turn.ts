@@ -12,6 +12,8 @@ import { formatAud } from "@/lib/domain/money";
 import { REQUEST_TYPE_LABELS, TRI_STATE_LABELS, type RequestType } from "@/lib/domain/types";
 import { policyVersionLabel } from "@/lib/engine/policy";
 import { validateFactsForm } from "@/lib/validation/facts";
+import { catalogueData } from "@/lib/data/catalogue";
+import { courseAnswer, isCourseQuestion } from "./courses";
 import {
   AssistantStateSchema,
   TASK_FIELDS,
@@ -134,6 +136,9 @@ export async function assistantTurn(user: SessionUser, body: unknown): Promise<T
     const direct = directAnswer(state.awaiting, text);
     if (direct !== null) return advance(ctx, applyAnswer(state.task, state.awaiting as Exclude<typeof state.awaiting, "policy_query">, direct));
   }
+
+  // "Who teaches Maths Advanced Year 12?" is answered from the subject catalogue.
+  if (!state.task && isCourseQuestion(text)) return answerCourses(ctx, text);
 
   const understood = await understand(ctx, text);
   if (understood.intent === "policy_question" && !state.task) return answerPolicy(ctx, text);
@@ -391,6 +396,14 @@ async function decide(ctx: Ctx, task: Task): Promise<TurnResponse> {
 
 // ---------------------------------------------------------------------------
 // Policy questions, answered only from owner-approved procedures
+
+async function answerCourses(ctx: Ctx, text: string): Promise<TurnResponse> {
+  const data = await catalogueData();
+  ctx.steps.push({ label: "Checking the subject catalogue and tutors' courses", state: data.ready ? "done" : "blocked" });
+  ctx.blocks.push(...courseAnswer(text, data));
+  ctx.modeNote = "Answered from the subject catalogue and tutor records. No AI was used for this reply.";
+  return finish(ctx, { task: null, awaiting: null }, data.ready ? "success" : "clarify");
+}
 
 async function answerPolicy(ctx: Ctx, question: string): Promise<TurnResponse> {
   const { data } = await db().from("knowledge_articles").select("id, title, category, body, owner_approved").eq("owner_approved", true).order("id");

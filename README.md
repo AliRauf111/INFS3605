@@ -118,6 +118,21 @@ Each request page has a red "Remove" button under What happens next. It asks fir
 
 Existing databases need `supabase/migrations/20261019000001_remove_from_list.sql` run once in the Supabase SQL Editor. Until then the lists work as before and the button explains what to run.
 
+## HSC subjects (Years 11 and 12)
+
+The NSW HSC course list lives in one file: `src/lib/catalogue/hsc.ts`. It holds the ten subject areas, their Tutor Compass category codes (ENG1011 to VET1012, our own codes, not NESA course numbers), every course, the years each course runs in and the rules for checking a choice. Everything else reads from it: the course picker, the Subjects page, the server checks and Compass AI.
+
+- Each record stores the year, subject area, category code and course separately. Languages also store a level (Beginners, Continuers or Extension) and VET streams store the qualification as free text.
+- A tutor only matches when they teach the exact course and year (and level, for languages). Sharing a category code is never enough.
+- The Subjects page has Find a tutor, each tutor's courses, students' courses, bookings linked to a course and the full catalogue. The owner switches courses on or off for the business and edits what each tutor teaches. Admins and the owner record students' courses and link bookings. A booking can only be linked to a course the business offers and its tutor teaches.
+- Compass AI answers questions such as "who teaches Maths Advanced Year 12?" from the same data. This is a lookup, not AI.
+
+To change the catalogue, edit `hsc.ts`, then run `npm run catalogue:generate` and `npm run sql:bundle`. A test fails if `supabase/catalogue.sql` is out of date.
+
+Database: run `supabase/migrations/20261019000002_hsc_catalogue.sql`, then `supabase/catalogue.sql`, in the SQL Editor. Both are safe to run again: they keep the owner's choices and add no duplicates. A database trigger fills in the subject area and category code and rejects course and year pairs that don't exist.
+
+Not yet confirmed (also shown on the Subjects page): which languages have Beginners or Extension courses, the split of Studies of Religion into I and II, VET qualifications, and Year 11 to Year 12 eligibility rules, which are noted but not enforced.
+
 ## Compass AI
 
 Compass AI is the robot in the bottom right corner of every signed-in page. Staff can ask it to check a refund, change a lesson or find a policy, by typing or by voice.

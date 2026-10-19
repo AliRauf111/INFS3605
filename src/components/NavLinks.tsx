@@ -8,6 +8,7 @@ const LINKS: Array<{ href: string; label: string; owner?: boolean }> = [
   { href: "/requests", label: "Requests" },
   { href: "/owner", label: "Approval Alley" },
   { href: "/knowledge", label: "Knowledge Hub" },
+  { href: "/subjects", label: "Subjects" },
   { href: "/coverage", label: "Coverage" },
 ];
 
