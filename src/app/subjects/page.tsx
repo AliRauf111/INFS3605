@@ -47,7 +47,7 @@ export default async function SubjectsPage() {
       )}
 
       <section className="card stack" aria-labelledby="find-h">
-        <h2 id="find-h" style={{ margin: 0 }}>Find a tutor</h2>
+        <h2 id="find-h" style={{ margin: 0 }}>Find a Tutor</h2>
         <p className="hint">Choose the student&rsquo;s course. Sharing a category code is not enough: a tutor for Mathematics Standard 2 is not a match for Mathematics Advanced.</p>
         <FindTutor tutors={data.tutors} tutorCourses={data.tutorCourses} offered={data.offered} freeSlots={data.freeSlots} />
       </section>
@@ -118,7 +118,7 @@ export default async function SubjectsPage() {
         <div className="table-wrap">
           <table>
             <thead>
-              <tr><th>Booking</th><th>Subject on file</th><th>Tutor</th><th>Exact course</th><th>Tutor check</th></tr>
+              <tr><th>Booking</th><th>Subject on File</th><th>Tutor</th><th>Course</th><th>Tutor Check</th></tr>
             </thead>
             <tbody>
               {data.bookings.map((b) => {

@@ -86,7 +86,7 @@ export function SubjectPicker({
 
       <div className="picker-grid">
         <div className="field">
-          <span className="label" id={`${id}-year`}>Year level</span>
+          <span className="label" id={`${id}-year`}>Year Level</span>
           <div className="choices" role="radiogroup" aria-labelledby={`${id}-year`}>
             {YEAR_LEVELS.map((y) => (
               <label key={y} className="choice">
@@ -98,7 +98,7 @@ export function SubjectPicker({
         </div>
 
         <div className="field">
-          <label htmlFor={`${id}-area`}>Subject area</label>
+          <label htmlFor={`${id}-area`}>Subject Area</label>
           <select id={`${id}-area`} value={value.areaId ?? ""} onChange={(e) => update({ areaId: (e.target.value || null) as Selection["areaId"] })}>
             <option value="">Choose a subject area</option>
             {SUBJECT_AREAS.map((a) => (

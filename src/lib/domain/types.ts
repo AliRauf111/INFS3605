@@ -6,8 +6,8 @@ export type RequestType = (typeof REQUEST_TYPES)[number];
 
 export const REQUEST_TYPE_LABELS: Record<RequestType, string> = {
   refund: "Refund",
-  lesson_change: "Lesson change",
-  payment_extension: "Payment extension",
+  lesson_change: "Lesson Change",
+  payment_extension: "Payment Extension",
   other: "Something else",
 };
 

@@ -280,7 +280,7 @@ export function questionFor(field: TaskField, task: Task): { text: string; choic
         text: "What does the family need?",
         choices: [
           { label: "Refund", value: "refund" },
-          { label: "Lesson change", value: "lesson_change" },
+          { label: "Lesson Change", value: "lesson_change" },
           { label: "More time to pay", value: "payment_extension" },
           { label: "Something else", value: "other" },
         ],

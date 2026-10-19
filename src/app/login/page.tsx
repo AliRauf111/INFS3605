@@ -50,7 +50,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             <div className="lc-tag amber"><span className="lc-icon" />Amber · owner approves first</div>
           </div>
           <div className="lc lc-mid">
-            <div className="lc-row"><span className="lc-ref">BK-1043</span><span>Lesson change</span></div>
+            <div className="lc-row"><span className="lc-ref">BK-1043</span><span>Lesson Change</span></div>
             <div className="lc-tag red"><span className="lc-icon" />Red · send to the owner</div>
           </div>
           <div className="lc lc-front">
