@@ -29,7 +29,7 @@ export default async function OwnerQueuePage() {
     <div className="stack">
       <h1>Approval Alley</h1>
       {user.role !== "owner" && <p className="notice info">You can see the queue, but only the owner can approve, decline or ask for more information.</p>}
-      <h2>Waiting for a decision ({waiting.length})</h2>
+      <h2>Waiting for a Decision ({waiting.length})</h2>
       {waiting.length === 0 && <EmptyState title="Nothing is waiting for the owner"><p>Requests appear here when an admin sends them for review.</p></EmptyState>}
       {waiting.map(({ request: r, priority, summary, events }) => (
         <article key={r.id} className="card">
