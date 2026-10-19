@@ -23,7 +23,7 @@ export default async function KnowledgePage() {
   return (
     <div className="stack">
       <h1>Knowledge Hub</h1>
-      <p className="muted">The owner's rules, bookings, payments, tutor availability and procedures in one place. The rule engine reads these records by confirmed ID. Every record here is fictional demonstration data; no outside system is connected.</p>
+      <p className="muted">The owner's rules, bookings, payments, tutor availability and procedures in one place.</p>
 
       <RulesSection user={user} versions={versions} />
 
