@@ -410,69 +410,89 @@ details > summary { cursor: pointer; color: var(--accent); font-weight: 500; }
 }
 
 /* ---------------------------------------------------------------------------
-   Site footer. Dark, like the reference, with the accent blue kept for small
-   interactive details. The bottom padding leaves room for the Compass AI launcher,
-   so it never sits on top of the copyright row or a link when scrolled to the end. */
+   Site footer. Navy, with rounded top corners so it reads as the end of the page
+   rather than a separate block. The accent blue is kept for small interactive details.
+   Where the Compass AI launcher could sit over the last row, the bottom padding leaves
+   room for it, and each block is marked data-compass-avoid so the launcher moves aside
+   while scrolling past. */
 body { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 main { width: 100%; flex: 1 0 auto; }
+main:has(+ .site-footer) { padding-bottom: 2.25rem; }
 .site-footer {
   --f-bg: #0b1220; --f-head: #ffffff; --f-text: #b7c3d6; --f-muted: #8f9db3; --f-line: rgba(255, 255, 255, 0.12); --f-accent: #6cb4ff;
-  background: var(--f-bg); color: var(--f-text); margin-top: 2rem;
+  --f-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  background: var(--f-bg); color: var(--f-text); border-radius: 28px 28px 0 0;
 }
-.footer-inner { max-width: 1100px; margin: 0 auto; padding: 3.5rem 16px 120px; }
-.footer-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 2.5rem 2rem; }
+.footer-inner { max-width: 1100px; margin: 0 auto; padding: 2.5rem 16px 1.75rem; }
+.footer-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 2rem; }
 .footer-logo { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--f-head); text-decoration: none; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; }
 .footer-logo:hover { color: var(--f-head); }
 .footer-logo .logo { gap: 0.6rem; }
 .footer-logo .logo-mark { width: 44px; height: 44px; }
 .footer-logo .logo-word { font-size: 1.4rem; }
-.footer-tagline { color: var(--f-head); font-weight: 600; font-size: 1.05rem; margin: 1.1rem 0 0.5rem; }
+.footer-tagline { color: var(--f-head); font-weight: 600; font-size: 1.05rem; margin: 0.9rem 0 0.4rem; }
 .footer-about { margin: 0; max-width: 36ch; line-height: 1.6; }
-.footer-col h2 { color: var(--f-head); font-size: 1rem; font-weight: 700; margin: 0.4rem 0 0.9rem; letter-spacing: 0; }
-.footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
+.footer-col h2 { color: var(--f-head); font-size: 1rem; font-weight: 700; margin: 0.4rem 0 0.6rem; letter-spacing: 0; }
+.footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.1rem; }
+/* Hover or focus brightens the link and draws a thin blue line under it from the left.
+   Only colour and the line change, so neighbouring links never move. */
 .footer-link {
-  display: inline-flex; align-items: center; min-height: 40px; padding: 0; background: none; border: none; cursor: pointer;
-  font: inherit; font-weight: 500; color: var(--f-text); text-align: left;
-  text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; text-decoration-thickness: 1.5px;
-  transition: color 0.18s ease, text-decoration-color 0.18s ease;
+  position: relative; display: inline-flex; align-items: center; min-height: 38px; padding: 0; background: none; border: none; cursor: pointer;
+  font: inherit; font-weight: 500; color: var(--f-text); text-align: left; text-decoration: none;
+  transition: color 0.18s ease;
 }
-.footer-link:hover { color: var(--f-head); text-decoration-color: var(--f-accent); }
+.footer-link::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 7px; height: 2px; border-radius: 1px; background: var(--f-accent);
+  transform: scaleX(0); transform-origin: left center; transition: transform 0.18s var(--f-ease);
+}
+.footer-link:hover, .footer-link:focus-visible { color: var(--f-head); }
+.footer-link:hover::after, .footer-link:focus-visible::after { transform: scaleX(1); }
 .site-footer a:focus-visible, .site-footer button:focus-visible { outline: 3px solid var(--f-accent); outline-offset: 3px; border-radius: 6px; }
-.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--f-line); font-size: 0.9rem; color: var(--f-muted); }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; margin-top: 2rem; padding-top: 1.1rem; border-top: 1px solid var(--f-line); font-size: 0.9rem; color: var(--f-muted); }
 .footer-bottom p { margin: 0; }
 .footer-legal { margin-left: 0.75rem; }
-.footer-legal a { color: var(--f-muted); text-underline-offset: 3px; }
-.footer-legal a:hover { color: var(--f-text); }
+.footer-legal a { color: var(--f-muted); text-underline-offset: 3px; transition: color 0.18s ease; }
+.footer-legal a:hover, .footer-legal a:focus-visible { color: var(--f-head); }
 .footer-motto { color: var(--f-text); font-weight: 500; }
 
-/* Motion: a gentle fade-up and one small swing of the needle, only once. */
-.site-footer[data-reveal="pending"] .footer-grid,
-.site-footer[data-reveal="pending"] .footer-bottom { opacity: 0; transform: translateY(14px); }
-.site-footer[data-reveal="in"] .footer-grid,
-.site-footer[data-reveal="in"] .footer-bottom { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.6s ease; }
-.site-footer[data-reveal="in"] .footer-bottom { transition-delay: 0.12s; }
-.site-footer[data-reveal="in"] .logo-needle { animation: needle-settle 1.4s cubic-bezier(0.3, 0.7, 0.3, 1) 0.25s 1 both; }
+/* Soft entrance, once per page visit (SiteFooter sets data-reveal). Only the content
+   inside the footer moves, so the footer's height and the rest of the page stay put.
+   Brand at 0ms, link columns at 90ms, copyright row at 180ms, each 0.6s: about 0.8s. */
+.site-footer[data-reveal="pending"] :is(.footer-brand, .footer-col, .footer-bottom) { opacity: 0; transform: translateY(14px); }
+.site-footer[data-reveal="in"] :is(.footer-brand, .footer-col, .footer-bottom) { transition: opacity 0.6s var(--f-ease), transform 0.6s var(--f-ease); }
+.site-footer[data-reveal="in"] .footer-col { transition-delay: 90ms; }
+.site-footer[data-reveal="in"] .footer-bottom { transition-delay: 180ms; }
+/* Only the needle turns: a small swing, then it settles where it started. */
+.site-footer[data-reveal="in"] .logo-needle { animation: needle-settle 0.85s var(--f-ease) 1 both; }
 @keyframes needle-settle {
-  0% { transform: rotate(-35deg); }
-  45% { transform: rotate(14deg); }
-  70% { transform: rotate(-6deg); }
+  0% { transform: rotate(-18deg); }
+  55% { transform: rotate(6deg); }
+  80% { transform: rotate(-2deg); }
   100% { transform: rotate(0); }
 }
 
+/* Below this width the launcher can sit over the right-hand column or the last row, so
+   leave room for it under the copyright row. */
+@media (max-width: 1340px) {
+  .footer-inner { padding-bottom: 104px; }
+}
 @media (max-width: 900px) {
   .footer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .footer-brand { grid-column: 1 / -1; }
 }
 @media (max-width: 600px) {
-  .footer-inner { padding-top: 2.5rem; padding-bottom: 112px; }
-  .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 1.25rem; }
-  .footer-bottom { flex-direction: column; margin-top: 2rem; }
+  .site-footer { border-radius: 24px 24px 0 0; }
+  .footer-inner { padding-top: 2rem; padding-bottom: 100px; }
+  .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1.25rem; }
+  .footer-bottom { flex-direction: column; margin-top: 1.5rem; }
+  .footer-legal { display: block; margin: 0.35rem 0 0; }
 }
 @media (max-width: 360px) {
   .footer-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-footer .footer-grid, .site-footer .footer-bottom { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .site-footer :is(.footer-brand, .footer-col, .footer-bottom) { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .footer-link, .footer-link::after, .footer-legal a { transition: none !important; }
   .logo-needle { animation: none !important; }
 }
 

@@ -149,6 +149,19 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     moodTimer.current = setTimeout(() => setMood(null), ms);
   }, []);
 
+  // A small hello when the footer first comes into view: one wave, then back to rest.
+  // Skipped with reduced motion, while the panel is open or while Compass is busy.
+  const quietRef = useRef(true);
+  quietRef.current = !open && !busy && voice.phase === "idle" && !speech.speaking;
+  useEffect(() => {
+    const onSeen = () => {
+      if (!quietRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      flash("wave", 1300);
+    };
+    window.addEventListener("compass:footer-seen", onSeen);
+    return () => window.removeEventListener("compass:footer-seen", onSeen);
+  }, [flash]);
+
   const scrollToEnd = useCallback(() => {
     const el = listRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
