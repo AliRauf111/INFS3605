@@ -644,3 +644,15 @@ main.main-bare { max-width: none; padding: 0; }
 .offer-toggle { min-height: 36px; padding: 0.2rem 0.75rem; font-size: 0.85rem; }
 .area-block { margin-top: 1rem; }
 .area-block h3 { margin: 0 0 0.4rem; font-size: 1rem; }
+
+/* Requests page: the two ways to start a request. A shared subgrid keeps the headings,
+   descriptions and buttons on the same lines in both cards. */
+.entry-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, auto); column-gap: 1rem; }
+.entry-card { grid-row: span 4; display: grid; grid-template-rows: subgrid; row-gap: 0.6rem; align-items: start; }
+.entry-card h2, .entry-card p { margin: 0; }
+.entry-card .btn { justify-self: start; padding-inline: 1.5rem; }
+.entry-note { justify-self: start; font-weight: 500; }
+@media (max-width: 720px) {
+  .entry-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: 1rem; }
+  .entry-card { grid-row: auto; grid-template-rows: none; }
+}

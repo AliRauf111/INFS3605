@@ -25,19 +25,19 @@ export default async function Requests({ searchParams }: { searchParams: Promise
     <div className="stack">
       <div>
         <h1>Requests</h1>
-        <p className="muted">Start a new request, or find one you have already saved. Nothing is decided until you confirm the facts.</p>
+        <p className="muted">Start a new request, or find one you have already saved.</p>
       </div>
-      <div className="grid grid-2">
-        <section className="card">
-          <h2>Guided wizard</h2>
-          <p>Answer five short steps. Best when you already know the details.</p>
+      <div className="entry-grid">
+        <section className="card entry-card" aria-labelledby="wizard-heading">
+          <h2 id="wizard-heading">Guided Wizard</h2>
+          <p>Create a request in five simple steps.</p>
           <Link className="btn" href="/requests/new/wizard">Start the wizard</Link>
         </section>
-        <section className="card">
-          <h2>Paste a message</h2>
-          <p>Paste a parent or tutor message and review the suggested answers before anything is checked.</p>
-          <p><span className="badge info">{live ? "Live AI is configured" : "Simulated mode: keyword rules, no AI"}</span></p>
-          <Link className="btn" href="/requests/new/intake">Paste a message</Link>
+        <section className="card entry-card" aria-labelledby="capture-heading">
+          <h2 id="capture-heading">Quick Capture</h2>
+          <p>Turn a parent or tutor message into a request.</p>
+          <Link className="btn" href="/requests/new/intake">Capture a message</Link>
+          <span className="badge info entry-note">{live ? "Live AI is configured" : "Simulated mode: keyword rules, no AI"}</span>
         </section>
       </div>
       <section className="stack" aria-labelledby="saved-heading">
