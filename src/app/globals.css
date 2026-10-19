@@ -656,3 +656,76 @@ main.main-bare { max-width: none; padding: 0; }
   .entry-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: 1rem; }
   .entry-card { grid-row: auto; grid-template-rows: none; }
 }
+
+/* ---------------------------------------------------------------------------
+   Saved requests: ticking rows, the bulk actions bar, row menus and the remove dialog. */
+.saved-list > * + * { margin-top: 0.75rem; }
+.saved-list .request-table table { min-width: 720px; }
+.request-table .clickable-row { cursor: pointer; }
+.request-table tbody tr.is-selected, .request-cards li.is-selected { background: #e9f2fd; }
+.request-table tbody tr.is-selected:hover { background: #e1ecfb; }
+.request-table td, .request-table th { vertical-align: middle; }
+.request-table .sel-cell { width: 44px; padding: 0; text-align: center; }
+.request-table thead .sel-cell { padding: 0.65rem 0; }
+.sel-hit { display: flex; align-items: center; justify-content: center; min-height: 46px; cursor: pointer; }
+.sel-box { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.request-table .menu-cell { width: 52px; padding: 0.3rem 0.5rem; text-align: right; }
+.dots-btn {
+  display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 999px; border: 1px solid transparent;
+  background: transparent; color: var(--muted); cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease;
+}
+.dots-btn:hover, .dots-btn.is-open { background: var(--info-bg); color: var(--accent); }
+
+.bulk-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem;
+  background: #e9f2fd; border: 1px solid rgba(0, 102, 204, 0.18); border-radius: var(--radius-small); padding: 0.55rem 0.85rem;
+}
+.bulk-count { font-weight: 650; color: var(--heading); margin-right: 0.35rem; white-space: nowrap; }
+.bulk-bar .bulk-btn { min-height: 38px; height: 38px; padding: 0 1rem; white-space: nowrap; }
+.btn.danger-outline { background: #fff; color: var(--red-edge); border-color: var(--red-edge); }
+.btn.danger-outline:hover { background: var(--red-bg); color: var(--red-fg); border-color: var(--red-fg); }
+.link-btn { background: none; border: none; padding: 0.35rem 0.25rem; font: inherit; font-weight: 600; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; white-space: nowrap; }
+.link-btn:hover { color: var(--accent-hover); }
+.link-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+.action-msg { margin-bottom: 0; }
+.action-msg-line { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.75rem; }
+.action-msg-line .link-btn { color: inherit; }
+.action-msg-close { margin-left: auto; font-weight: 500; }
+.action-msg-sub { margin: 0.5rem 0 0.25rem; }
+.action-msg ul { margin: 0; padding-left: 1.2rem; }
+
+/* Drawn on top of everything, including the Compass AI launcher. */
+.row-menu {
+  position: fixed; z-index: 60; padding: 0.35rem; border-radius: 14px; background: #fff;
+  border: 1px solid var(--border); box-shadow: 0 12px 32px rgba(10, 42, 102, 0.18);
+}
+.menu-item {
+  display: flex; align-items: center; gap: 0.6rem; width: 100%; padding: 0.55rem 0.7rem; border: none; border-radius: 9px;
+  background: none; font: inherit; font-size: 0.92rem; color: var(--text); text-align: left; text-decoration: none; cursor: pointer;
+}
+.menu-item:hover, .menu-item:focus-visible { background: var(--info-bg); color: var(--heading); outline: none; }
+.menu-item:focus-visible { box-shadow: inset 0 0 0 2px var(--focus); }
+.menu-item.danger { color: var(--red-edge); }
+.menu-item.danger:hover, .menu-item.danger:focus-visible { background: var(--red-bg); color: var(--red-fg); }
+.menu-item[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.menu-note { margin-left: auto; font-size: 0.75rem; color: var(--muted); }
+.menu-sep { height: 1px; margin: 0.3rem 0.2rem; background: var(--border); }
+
+.confirm-dialog {
+  width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; margin: auto; border: none; border-radius: var(--radius); padding: 1.4rem;
+  color: var(--text); background: #fff; box-shadow: 0 24px 60px rgba(6, 26, 64, 0.3);
+}
+.confirm-dialog::backdrop { background: rgba(6, 26, 64, 0.35); }
+.confirm-dialog h2 { margin-top: 0; }
+.confirm-list { list-style: none; margin: 0 0 0.85rem; padding: 0.6rem 0.8rem; background: var(--surface-2); border-radius: var(--radius-small); font-size: 0.9rem; max-height: 220px; overflow-y: auto; }
+.confirm-list li + li { margin-top: 0.3rem; }
+.confirm-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; }
+.saved-links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; }
+
+.rc-top { display: flex; align-items: center; gap: 0.6rem; }
+.rc-top .rc-title { flex: 1; min-width: 0; }
+@media (max-width: 600px) {
+  .bulk-bar .bulk-btn { flex: 1 1 auto; width: auto; }
+  .confirm-actions .btn { flex: 1 1 auto; width: auto; }
+}

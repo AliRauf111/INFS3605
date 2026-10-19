@@ -56,6 +56,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const [readAloud, setReadAloud] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [greeting, setGreeting] = useState(false);
+  const [dodge, setDodge] = useState<"" | "compact" | "tucked">("");
   const [available, setAvailable] = useState(true);
   const [mood, setMood] = useState<AvatarState | null>(null);
   const [announce, setAnnounce] = useState("");
@@ -167,6 +168,45 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       scrollToEnd();
     }, 60);
   };
+  // Pages mark busy areas, like the Saved requests table, with data-compass-avoid. While
+  // the launcher would sit on top of one, it hides its label and greeting, and if the
+  // robot itself would still cover a control it tucks in at the edge of the screen.
+  const launcherBoxRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let frame = 0;
+    const overlaps = (a: DOMRect, b: DOMRect) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    const check = () => {
+      frame = 0;
+      const box = launcherBoxRef.current;
+      const avatar = launcherRef.current;
+      const zones = [...document.querySelectorAll<HTMLElement>("[data-compass-avoid]")].map((z) => z.getBoundingClientRect());
+      if (!box || !avatar || zones.length === 0) return setDodge("");
+      const shift = new DOMMatrixReadOnly(getComputedStyle(box).transform === "none" ? undefined : getComputedStyle(box).transform).m41;
+      const home = (r: DOMRect) => new DOMRect(r.x - shift, r.y, r.width, r.height);
+      const whole = home(box.getBoundingClientRect());
+      // The greeting bubble sits above the launcher, so count that space too.
+      const reach = new DOMRect(whole.x, whole.y - 90, whole.width, whole.height + 90);
+      const robot = home(avatar.getBoundingClientRect());
+      if (zones.some((z) => overlaps(robot, z))) setDodge("tucked");
+      else if (zones.some((z) => overlaps(reach, z))) setDodge("compact");
+      else setDodge("");
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    schedule();
+    const mo = new MutationObserver(schedule);
+    mo.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      mo.disconnect();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
+
   // Other parts of the page (the footer link, for example) open the panel with this event.
   const openRef = useRef(openPanel);
   openRef.current = openPanel;
@@ -330,14 +370,14 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     <div className="compass-root" data-paused={paused ? "true" : undefined}>
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announce}</div>
 
-      {greeting && !open && (
+      {greeting && !open && !dodge && (
         <div className="cl-greeting" role="status">
           <span>Hi {firstName}. Need a hand?</span>
           <button type="button" className="cl-greeting-close" aria-label="Dismiss greeting" onClick={() => setGreeting(false)}><Svg name="close" /></button>
         </div>
       )}
 
-      <div className={`cl-launcher${open ? " is-open" : ""}`}>
+      <div ref={launcherBoxRef} className={`cl-launcher${open ? " is-open" : ""}${dodge && !open ? ` is-${dodge}` : ""}`}>
         <button type="button" className="cl-pill" onClick={open ? minimise : openPanel} aria-expanded={open} aria-controls="compass-panel" tabIndex={-1} aria-hidden="true">
           Ask Compass
         </button>

@@ -28,6 +28,12 @@
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .cl-pill:hover { background: var(--accent-hover); }
+/* Moving out of the way of busy areas such as the Saved requests table. */
+.cl-launcher { --cl-size: 76px; --cl-right: 24px; transition: transform 0.25s ease; pointer-events: none; }
+.cl-launcher > * { pointer-events: auto; } /* the gap between pill and robot stays clickable through */
+.cl-launcher.is-compact .cl-pill, .cl-launcher.is-tucked .cl-pill { opacity: 0; pointer-events: none; transform: translateX(8px); }
+.cl-launcher.is-tucked { transform: translateX(calc(var(--cl-size) + var(--cl-right) - 20px)); }
+.cl-launcher.is-tucked:hover, .cl-launcher.is-tucked:focus-within { transform: none; }
 .cl-launcher.is-open .cl-pill { opacity: 0; pointer-events: none; transform: translateX(8px); }
 
 .cl-greeting {
@@ -231,7 +237,7 @@
 
 /* ---------- Phones ---------- */
 @media (max-width: 600px) {
-  .cl-launcher { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); }
+  .cl-launcher { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); --cl-size: 64px; --cl-right: 14px; }
   .cl-avatar-btn { width: 64px; height: 64px; }
   .cl-avatar-btn svg { width: 60px; height: 60px; }
   .cl-pill { padding: 0.45rem 0.85rem; font-size: 0.85rem; }
@@ -242,7 +248,7 @@
     transform: translateY(24px);
   }
   .cp-panel.open { transform: none; }
-  .cl-launcher.is-open { opacity: 0; pointer-events: none; }
+  .cl-launcher.is-open, .cl-launcher.is-open > * { opacity: 0; pointer-events: none; }
   .cp-starters, .cp-trust, .cp-mode { margin-left: 0; }
   .cp-voice-stage { width: 160px; height: 160px; }
   .cp-voice-stage svg { width: 130px; height: 130px; }

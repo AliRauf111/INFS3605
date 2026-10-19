@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 export function ClickableRow({ href, children }: { href: string; children: React.ReactNode }) {
   const router = useRouter();
   function onClick(e: React.MouseEvent<HTMLTableRowElement>) {
-    if ((e.target as HTMLElement).closest("a, button")) return; // the link handles itself
+    if ((e.target as HTMLElement).closest("a, button, input, label")) return; // the link handles itself
     if (window.getSelection()?.toString()) return; // let people copy text
     if (e.metaKey || e.ctrlKey) window.open(href, "_blank");
     else router.push(href);

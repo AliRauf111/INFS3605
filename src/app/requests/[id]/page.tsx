@@ -38,6 +38,8 @@ const EVENT_TEXT: Record<string, string> = {
   closed: "Recorded and closed",
   removed_from_list: "Removed from the list",
   restored_to_list: "Put back in the list",
+  archived: "Archived",
+  unarchived: "Restored from the archive",
 };
 
 const DRAFTS_FOR_ACTION: Partial<Record<string, DraftKind>> = {
@@ -114,6 +116,11 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
         <div className="notice warning" role="status">
           Removed from the list {friendlyTime(visibility.hiddenAt).replace(/^[A-Z]/, (c) => c.toLowerCase())}
           {visibility.hiddenBy && names.get(visibility.hiddenBy) ? ` by ${names.get(visibility.hiddenBy)}` : ""}. It no longer shows on the dashboard, Requests or Approval Alley. Its full record is kept below.
+        </div>
+      )}
+      {visibility !== "not_set_up" && visibility.archivedAt && !visibility.hiddenAt && (
+        <div className="notice info" role="status">
+          Archived {friendlyTime(visibility.archivedAt).replace(/^[A-Z]/, (c) => c.toLowerCase())}. It only shows under <Link href="/requests?archived=1">Archived requests</Link>, where you can restore it. Its decision and history haven&apos;t changed.
         </div>
       )}
       <nav className="crumbs" aria-label="Breadcrumb">

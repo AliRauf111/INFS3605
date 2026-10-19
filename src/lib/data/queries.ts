@@ -50,31 +50,56 @@ function missingHiddenColumn(error: { message?: string; code?: string } | null):
   return Boolean(error && (error.code === "42703" || error.code === "PGRST204" || /hidden_at/.test(error.message ?? "")));
 }
 
+// True when the database hasn't had the "archive" update yet (no archived_at column).
+function missingArchivedColumn(error: { message?: string; code?: string } | null): boolean {
+  return Boolean(error && /archived_at/.test(error.message ?? ""));
+}
+
+/** Which part of the list to show: the normal list, archived requests or removed requests. */
+export type ListView = "active" | "archived" | "removed";
+
 /**
- * Requests for the lists, newest first. Requests someone removed from the list are left
- * out unless `removed` is true, which returns only those. If the database update hasn't
- * been run yet, every request is shown as before.
+ * Requests for the lists, newest first. The normal list leaves out requests that were
+ * archived or removed. "archived" returns archived requests that weren't also removed,
+ * and "removed" returns removed ones. If a database update hasn't been run yet, the
+ * list works as it did before that update.
  */
-export async function listRequests(opts: { status?: RequestStatus[]; limit?: number; removed?: boolean } = {}): Promise<RequestRow[]> {
-  const build = (withHidden: boolean) => {
+export async function listRequests(opts: { status?: RequestStatus[]; limit?: number; view?: ListView } = {}): Promise<RequestRow[]> {
+  const view = opts.view ?? "active";
+  const build = (withHidden: boolean, withArchived: boolean) => {
     let q = db().from("requests").select(REQUEST_COLUMNS).order("created_at", { ascending: false }).limit(opts.limit ?? 100);
     if (opts.status?.length) q = q.in("status", opts.status);
-    if (withHidden) q = opts.removed ? q.not("hidden_at", "is", null) : q.is("hidden_at", null);
+    if (withHidden) q = view === "removed" ? q.not("hidden_at", "is", null) : q.is("hidden_at", null);
+    if (withArchived && view !== "removed") q = view === "archived" ? q.not("archived_at", "is", null) : q.is("archived_at", null);
     return q;
   };
-  const res = await build(true);
-  if (missingHiddenColumn(res.error)) return opts.removed ? [] : (check(await build(false), "requests") as RequestRow[]);
+  let res = await build(true, true);
+  if (missingArchivedColumn(res.error)) {
+    if (view === "archived") return [];
+    res = await build(true, false);
+  }
+  if (missingHiddenColumn(res.error)) {
+    if (view !== "active") return [];
+    return check(await build(false, false), "requests") as RequestRow[];
+  }
   return check(res, "requests") as RequestRow[];
 }
 
-export type ListVisibility = { hiddenAt: string | null; hiddenBy: string | null } | "not_set_up";
+export type ListVisibility = { hiddenAt: string | null; hiddenBy: string | null; archivedAt: string | null } | "not_set_up";
 
-/** Whether a request has been removed from the lists, and by whom. */
+/** Whether a request has been removed from the lists or archived. */
 export async function requestVisibility(id: string): Promise<ListVisibility> {
-  const { data, error } = await db().from("requests").select("hidden_at, hidden_by").eq("id", id).maybeSingle();
-  if (missingHiddenColumn(error)) return "not_set_up";
-  if (error) throw new Error(`Could not load request: ${error.message}`);
-  return { hiddenAt: data?.hidden_at ?? null, hiddenBy: data?.hidden_by ?? null };
+  let res = await db().from("requests").select("hidden_at, hidden_by, archived_at").eq("id", id).maybeSingle();
+  if (missingArchivedColumn(res.error)) {
+    const r = await db().from("requests").select("hidden_at, hidden_by").eq("id", id).maybeSingle();
+    if (missingHiddenColumn(r.error)) return "not_set_up";
+    if (r.error) throw new Error(`Could not load request: ${r.error.message}`);
+    return { hiddenAt: r.data?.hidden_at ?? null, hiddenBy: r.data?.hidden_by ?? null, archivedAt: null };
+  }
+  if (missingHiddenColumn(res.error)) return "not_set_up";
+  if (res.error) throw new Error(`Could not load request: ${res.error.message}`);
+  const data = res.data as { hidden_at: string | null; hidden_by: string | null; archived_at: string | null } | null;
+  return { hiddenAt: data?.hidden_at ?? null, hiddenBy: data?.hidden_by ?? null, archivedAt: data?.archived_at ?? null };
 }
 
 export async function userNames(): Promise<Map<string, string>> {
