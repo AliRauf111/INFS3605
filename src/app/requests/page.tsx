@@ -54,7 +54,7 @@ export default async function Requests({ searchParams }: { searchParams: Promise
       </div>
       <section className="stack" aria-labelledby="saved-heading">
         <div className="page-head" style={{ marginBottom: 0 }}>
-          <h2 id="saved-heading" style={{ margin: 0 }}>{view === "removed" ? "Removed requests" : view === "archived" ? "Archived requests" : "Saved requests"}</h2>
+          <h2 id="saved-heading" style={{ margin: 0 }}>{view === "removed" ? "Removed Requests" : view === "archived" ? "Archived Requests" : "Saved Requests"}</h2>
           <form className="row" method="get">
             {view === "removed" && <input type="hidden" name="removed" value="1" />}
             {view === "archived" && <input type="hidden" name="archived" value="1" />}
@@ -71,9 +71,9 @@ export default async function Requests({ searchParams }: { searchParams: Promise
         {/* The key resets the selection whenever the view or the filter changes. */}
         <RequestsTable key={`${view}:${filter ?? "all"}`} rows={rows} view={view} />
         <p className="hint saved-links">
-          {view !== "active" && <Link href="/requests">Back to saved requests</Link>}
-          {view !== "archived" && <Link href="/requests?archived=1">Show archived requests</Link>}
-          {view !== "removed" && <Link href="/requests?removed=1">Show removed requests</Link>}
+          {view !== "active" && <Link href="/requests">Back to Saved Requests</Link>}
+          {view !== "archived" && <Link href="/requests?archived=1">Show Archived Requests</Link>}
+          {view !== "removed" && <Link href="/requests?removed=1">Show Removed Requests</Link>}
         </p>
       </section>
     </div>

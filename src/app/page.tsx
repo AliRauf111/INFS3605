@@ -67,7 +67,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     <div className="stack dash">
       {removed && (
         <div className="notice success" role="status">
-          Request removed from the list. You can find it again under <Link href="/requests?removed=1">Removed requests</Link>.
+          Request removed from the list. You can find it again under <Link href="/requests?removed=1">Removed Requests</Link>.
         </div>
       )}
       <div className="page-head">

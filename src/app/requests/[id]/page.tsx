@@ -128,7 +128,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
       )}
       {visibility !== "not_set_up" && visibility.archivedAt && !visibility.hiddenAt && (
         <div className="notice info" role="status">
-          Archived {friendlyTime(visibility.archivedAt).replace(/^[A-Z]/, (c) => c.toLowerCase())}. It only shows under <Link href="/requests?archived=1">Archived requests</Link>, where you can restore it. Its decision and history haven&apos;t changed.
+          Archived {friendlyTime(visibility.archivedAt).replace(/^[A-Z]/, (c) => c.toLowerCase())}. It only shows under <Link href="/requests?archived=1">Archived Requests</Link>, where you can restore it. Its decision and history haven&apos;t changed.
         </div>
       )}
       <nav className="crumbs" aria-label="Breadcrumb">
