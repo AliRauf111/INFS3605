@@ -56,7 +56,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <div className="lc lc-front">
             <div className="lc-row"><span className="lc-ref">BK-1042</span><span>Refund · $30.00</span></div>
             <div className="lc-row lc-rule"><span className="lc-pill"><span className="lc-icon" />Green</span><code>refund.under_50</code></div>
-            <div className="lc-row lc-foot"><span>Inside the rules</span><strong>Ready to record</strong></div>
+            <div className="lc-row lc-foot"><span>Inside the rules</span><strong>Ready to Record</strong></div>
           </div>
         </div>
 

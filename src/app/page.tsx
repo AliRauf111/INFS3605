@@ -7,13 +7,14 @@ import { EmptyState, LoadError } from "@/components/ui";
 import type { RequestStatus } from "@/lib/domain/types";
 import { friendlyTime } from "@/lib/domain/progress";
 import { PageHeader } from "@/components/PageHeader";
+import { FilterLink } from "@/components/FilterLink";
 
 export const dynamic = "force-dynamic";
 
 // Tabs filter the recent list through the address bar, so they work without scripts.
 const TABS: { key: string; label: string; statuses: RequestStatus[] | null }[] = [
   { key: "all", label: "All", statuses: null },
-  { key: "record", label: "Ready to record", statuses: ["ready", "approved", "declined"] },
+  { key: "record", label: "Ready to Record", statuses: ["ready", "approved", "declined"] },
   { key: "send", label: "Send to Owner", statuses: ["review_required"] },
   { key: "owner", label: "Waiting for Owner", statuses: ["awaiting_owner"] },
   { key: "clarify", label: "Needs Clarification", statuses: ["needs_clarification", "more_info_requested"] },
@@ -37,7 +38,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   const owner = user.role === "owner";
   const tiles = [
-    { key: "record", icon: "ok", title: "Ready to record", count: count("record"), text: "Inside the rules or decided. Act on them and log the outcome.", mine: !owner },
+    { key: "record", icon: "ok", title: "Ready to Record", count: count("record"), text: "Inside the rules or decided. Act on them and log the outcome.", mine: !owner },
     { key: "send", icon: "send", title: "Send to Owner", count: count("send"), text: "The rules say the owner must see these first.", mine: !owner },
     { key: "clarify", icon: "warn", title: "Needs Clarification", count: count("clarify"), text: "Missing details. Ask the family before it moves on.", mine: !owner },
     {
@@ -64,6 +65,19 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   }, null);
   const updated = latest ? friendlyTime(latest, now).replace(/^Today, /, "").replace(/^Yesterday/, "yesterday") : null;
 
+  const tileBody = (t: (typeof tiles)[number]) => (
+    <>
+      <span className="qt-bg" aria-hidden="true" />
+      <div className="qt-head">
+        <span className={`qt-icon ${t.icon}`} aria-hidden="true" />
+        <span>{t.title}</span>
+        {t.key === startHere && <span className="qt-badge">Start here</span>}
+      </div>
+      <div className="qt-count">{t.count}</div>
+      <p>{t.text}</p>
+    </>
+  );
+
   return (
     <div className="stack dash">
       {removed && (
@@ -80,18 +94,15 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <section aria-labelledby="queue-heading">
         <h2 id="queue-heading" className="section-title">Your Queue</h2>
         <div className="queue">
-          {tiles.map((t) => (
-            <Link key={t.key} href={t.key === "owner" && owner ? "/owner" : `/?tab=${t.key}#recent`} className={`queue-tile ${t.key === startHere ? "start" : ""}`}>
-              <span className="qt-bg" aria-hidden="true" />
-              <div className="qt-head">
-                <span className={`qt-icon ${t.icon}`} aria-hidden="true" />
-                <span>{t.title}</span>
-                {t.key === startHere && <span className="qt-badge">Start here</span>}
-              </div>
-              <div className="qt-count">{t.count}</div>
-              <p>{t.text}</p>
-            </Link>
-          ))}
+          {tiles.map((t) =>
+            t.key === "owner" && owner ? (
+              <Link key={t.key} href="/owner" className={`queue-tile ${t.key === startHere ? "start" : ""}`}>{tileBody(t)}</Link>
+            ) : (
+              <FilterLink key={t.key} href={`/?tab=${t.key}#recent`} target="recent" current={t.key === active.key} className={`queue-tile ${t.key === startHere ? "start" : ""}`}>
+                {tileBody(t)}
+              </FilterLink>
+            ),
+          )}
         </div>
       </section>
 
@@ -103,9 +114,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <div className="card queue-card" data-compass-avoid="">
           <nav className="tabs" aria-label="Filter recent requests">
             {TABS.map((t) => (
-              <Link key={t.key} href={t.key === "all" ? "/#recent" : `/?tab=${t.key}#recent`} aria-current={t.key === active.key ? "page" : undefined} className="tab">
+              <FilterLink key={t.key} href={t.key === "all" ? "/#recent" : `/?tab=${t.key}#recent`} target="recent" current={t.key === active.key} className="tab">
                 {t.label} <span className="tab-count">{count(t.key)}</span>
-              </Link>
+              </FilterLink>
             ))}
           </nav>
           {shown.length === 0 ? (
