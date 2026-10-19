@@ -469,7 +469,7 @@ function ConfirmRemove({ rows, single, busy, onCancel, onConfirm }: { rows: Tabl
         {rows.length > shown.length && <li className="muted">and {rows.length - shown.length} more</li>}
       </ul>
       <p id="confirm-remove-text">
-        {rows.length === 1 ? "It will leave" : "They will leave"} the dashboard, Requests and Approval Alley. Details, decisions and history are kept, and you can put {rows.length === 1 ? "it" : "them"} back from Removed Requests. Removing never approves, declines or refunds anything.
+        Details, decisions and history are kept, and you can put {rows.length === 1 ? "it" : "them"} back from Removed Requests.
       </p>
       <div className="confirm-actions">
         <button type="button" className="btn secondary confirm-cancel" onClick={onCancel}>Cancel</button>
