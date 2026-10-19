@@ -5,6 +5,7 @@ import { Wizard, type WizardState } from "@/components/Wizard";
 import { centsToInput } from "@/lib/domain/money";
 import type { Colour, RequestStatus, Role } from "@/lib/domain/types";
 import type { ConfirmedFacts } from "@/lib/validation/facts";
+import { A11yTrigger } from "@/components/a11y/A11yPanel";
 
 const CLARIFY = ["needs_clarification", "review_required", "more_info_requested"];
 
@@ -94,6 +95,7 @@ export function RequestActions(props: {
           )}
           {ownerCanDecide && <button className="btn" type="button" aria-expanded={panel === "owner"} onClick={() => open("owner")}>Make a decision</button>}
           {canClose && <button className="btn" type="button" aria-expanded={panel === "close"} onClick={() => open("close")}>Record what you did</button>}
+          <A11yTrigger />
         </div>
       </div>
       {done && <p className="notice success" role="status">{done}</p>}

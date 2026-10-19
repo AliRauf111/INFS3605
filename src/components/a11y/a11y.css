@@ -7,14 +7,20 @@
 
 /* ---------- The Accessibility button ---------- */
 .a11y-trigger svg { flex: none; }
-.page-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-/* The header is already full, so there the button shows only its icon and the menu never wraps
-   onto a second line. Its name stays for screen readers and shows as a tooltip. */
-.user-box .a11y-trigger { padding-inline: 0.6rem; }
-.user-box .a11y-trigger .a11y-trigger-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+/* Page headers (src/components/PageHeader.tsx): heading on the left, actions on the right edge of
+   the main content, with Accessibility last. On the dashboard it comes before New Request. */
+.page-title { flex: 1 1 18rem; min-width: 0; }
+.page-title > :last-child { margin-bottom: 0; }
+.page-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0.5rem; margin-left: auto; }
+.page-title + .page-actions { align-self: flex-start; }
+.stack:not(.dash) > .page-head { margin-bottom: 0; }
+.dash .page-title + .page-actions { align-self: auto; }
+.page-actions .btn { width: auto; }
+.page-actions-solo { margin-bottom: 1rem; }
 @media (max-width: 600px) {
   .page-actions { width: 100%; }
-  .page-actions .btn { flex: 1 1 auto; width: auto; }
+  .page-actions .btn { flex: 0 1 auto; }
+  .dash .page-actions .btn { flex: 1 1 auto; }
 }
 .a11y-trigger[aria-expanded="true"] { background: var(--info-bg); border-color: var(--accent); color: var(--info-fg); }
 
@@ -151,3 +157,5 @@ html[data-motion="reduce"] :is(.a11y-panel, .a11y-backdrop, .cl-launcher, .cl-gr
    the panel), so it stays fully in view. */
 html[data-a11y-open][data-a11y-mode="side"] .compass-root .cl-launcher.is-tucked { transform: none; }
 html[data-a11y-open][data-a11y-mode="side"] .footer-inner { padding-bottom: 104px; }
+.info-top { margin-bottom: 2rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.info-top .info-logo { margin-bottom: 0; }

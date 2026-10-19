@@ -6,6 +6,7 @@ import { RequestsTable, type TableRow } from "@/components/RequestsTable";
 import { removalNeedsOwner } from "@/lib/domain/progress";
 import { LoadError } from "@/components/ui";
 import { STATUSES, STATUS_LABELS, type RequestStatus } from "@/lib/domain/types";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Requests" };
@@ -35,10 +36,10 @@ export default async function Requests({ searchParams }: { searchParams: Promise
   }
   return (
     <div className="stack">
-      <div>
+      <PageHeader>
         <h1>Requests</h1>
         <p className="muted">Start a new request, or find one you have already saved.</p>
-      </div>
+      </PageHeader>
       <div className="entry-grid">
         <section className="card entry-card" aria-labelledby="wizard-heading">
           <h2 id="wizard-heading">Guided Wizard</h2>

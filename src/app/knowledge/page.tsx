@@ -4,6 +4,7 @@ import { formatAud } from "@/lib/domain/money";
 import { isStale } from "@/lib/context/mappers";
 import { DataBadge, LoadError, formatDateTime } from "@/components/ui";
 import { RulesSection } from "@/app/rules/RulesSection";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Knowledge Hub" };
@@ -22,8 +23,10 @@ export default async function KnowledgePage() {
   const stale = (iso: string) => isStale(iso, now) ? <span className="badge amber">! May be out of date</span> : null;
   return (
     <div className="stack">
-      <h1>Knowledge Hub</h1>
-      <p className="muted">The owner's rules, bookings, payments, tutor availability and procedures in one place.</p>
+      <PageHeader>
+        <h1>Knowledge Hub</h1>
+        <p className="muted">The owner's rules, bookings, payments, tutor availability and procedures in one place.</p>
+      </PageHeader>
 
       <RulesSection user={user} versions={versions} />
 

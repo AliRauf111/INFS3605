@@ -6,6 +6,7 @@ import { REQUEST_TYPE_LABELS, type RequestType } from "@/lib/domain/types";
 import { EmptyState, LoadError, formatDateTime } from "@/components/ui";
 import { SuggestionControls, RefreshSuggestions } from "./SuggestionControls";
 import { IntegrationsSection } from "@/app/settings/integrations/IntegrationsSection";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Coverage" };
@@ -26,8 +27,10 @@ export default async function CoveragePage() {
   const pending = data.candidates.filter((c) => !data.suggestions.some((s) => s.summary === c.summary));
   return (
     <div className="stack">
-      <h1>Rule coverage</h1>
-      <p className="muted">Calculated from the {m.total} saved requests when this page loads. These figures count records; they do not estimate time saved.</p>
+      <PageHeader>
+        <h1>Rule coverage</h1>
+        <p className="muted">Calculated from the {m.total} saved requests when this page loads. These figures count records; they do not estimate time saved.</p>
+      </PageHeader>
       {m.total === 0 ? <EmptyState title="No requests yet"><p>Metrics appear once requests are saved.</p></EmptyState> : (
         <>
           <div className="grid grid-3">

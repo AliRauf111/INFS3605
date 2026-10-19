@@ -6,6 +6,7 @@ import { AccessRequests } from "./AccessRequests";
 import { formatAud } from "@/lib/domain/money";
 import { REQUEST_TYPE_LABELS, TRI_STATE_LABELS } from "@/lib/domain/types";
 import { ColourBadge, EmptyState, LoadError, StatusBadge, formatDateTime } from "@/components/ui";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Approval Alley" };
@@ -27,7 +28,7 @@ export default async function OwnerQueuePage() {
   const other = items.filter((i) => i.request.status !== "awaiting_owner");
   return (
     <div className="stack">
-      <h1>Approval Alley</h1>
+      <PageHeader><h1>Approval Alley</h1></PageHeader>
       {user.role !== "owner" && <p className="notice info">You can see the queue, but only the owner can approve, decline or ask for more information.</p>}
       <h2>Waiting for a Decision ({waiting.length})</h2>
       {waiting.length === 0 && <EmptyState title="Nothing is waiting for the owner"><p>Requests appear here when an admin sends them for review.</p></EmptyState>}

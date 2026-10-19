@@ -4,6 +4,7 @@ import { catalogueData, offerKey } from "@/lib/data/catalogue";
 import { COURSES, SUBJECT_AREAS, UNRESOLVED, canTeach, formatSelection, type YearLevel } from "@/lib/catalogue/hsc";
 import { LoadError } from "@/components/ui";
 import { AddStudentCourse, AddTutorCourse, FindTutor, OfferToggle, RemoveLink, SetBookingCourse } from "./SubjectsClient";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Subjects" };
@@ -30,14 +31,12 @@ export default async function SubjectsPage() {
 
   return (
     <div className="stack">
-      <div className="page-head">
-        <div>
-          <h1>Subjects</h1>
-          <p className="muted" style={{ margin: 0 }}>
-            NSW HSC courses for Years 11 and 12. Codes such as MTH1011 are Tutor Compass category codes, not NESA course numbers. A tutor only matches when they teach the exact course and year.
-          </p>
-        </div>
-      </div>
+      <PageHeader>
+        <h1>Subjects</h1>
+        <p className="muted" style={{ margin: 0 }}>
+          NSW HSC courses for Years 11 and 12. Codes such as MTH1011 are Tutor Compass category codes, not NESA course numbers. A tutor only matches when they teach the exact course and year.
+        </p>
+      </PageHeader>
 
       {!data.ready && (
         <div className="notice warning" role="status">

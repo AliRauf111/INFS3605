@@ -9,7 +9,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Logo } from "@/components/Logo";
 import { BOOT_SCRIPT, BootLoader } from "@/components/loader/BootLoader";
 import { NavLoader } from "@/components/loader/NavLoader";
-import { A11yPanel, A11yTrigger, FocusViewBar } from "@/components/a11y/A11yPanel";
+import { A11yPanel, FocusViewBar } from "@/components/a11y/A11yPanel";
 import { PREFS_SCRIPT } from "@/lib/a11y/prefs";
 
 export const metadata: Metadata = {
@@ -45,7 +45,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <a href="/" className="brand"><Logo /></a>
                 <NavLinks role={user.role} />
                 <div className="user-box">
-                  <A11yTrigger variant="header" />
                   <span>
                     {user.displayName} <span className="badge">{user.role === "owner" ? "Owner" : "Administrator"}</span>
                   </span>

@@ -6,7 +6,7 @@ import { QueueTable } from "@/components/QueueTable";
 import { EmptyState, LoadError } from "@/components/ui";
 import type { RequestStatus } from "@/lib/domain/types";
 import { friendlyTime } from "@/lib/domain/progress";
-import { A11yTrigger } from "@/components/a11y/A11yPanel";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -71,16 +71,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           Request removed from the list. You can find it again under <Link href="/requests?removed=1">Removed Requests</Link>.
         </div>
       )}
-      <div className="page-head">
-        <div>
-          <h1>Dashboard</h1>
-          <p className="muted">Hi {user.displayName.split(" ")[0]}. {today}.</p>
-        </div>
-        <div className="page-actions">
-          <A11yTrigger variant="page" />
-          <Link className="btn" href="/requests"><span aria-hidden="true">+</span> New Request</Link>
-        </div>
-      </div>
+      {/* Dashboard exception: Accessibility sits just before New Request, which stays rightmost. */}
+      <PageHeader a11y="first" actions={<Link className="btn" href="/requests"><span aria-hidden="true">+</span> New Request</Link>}>
+        <h1>Dashboard</h1>
+        <p className="muted">Hi {user.displayName.split(" ")[0]}. {today}.</p>
+      </PageHeader>
 
       <section aria-labelledby="queue-heading">
         <h2 id="queue-heading" className="section-title">Your Queue</h2>

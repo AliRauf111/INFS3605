@@ -27,19 +27,16 @@ function AccessIcon() {
   );
 }
 
-/** The Accessibility button. The dashboard shows one beside New Request; other pages show one in the header. */
-export function A11yTrigger({ variant }: { variant: "page" | "header" }) {
+/** The Accessibility button. Each page has one, in its page header's action area (see PageHeader). */
+export function A11yTrigger() {
   const s = useA11y();
-  const pathname = usePathname();
-  if (variant === "header" && pathname === "/") return null;
   return (
     <button
       type="button"
-      className={`btn secondary a11y-trigger${variant === "header" ? " small" : ""}`}
+      className="btn secondary a11y-trigger"
       aria-expanded={s.open}
       aria-controls="a11y-panel"
-      data-a11y-trigger={variant}
-      title={variant === "header" ? "Display and Accessibility" : undefined}
+      data-a11y-trigger=""
       onClick={(e) => toggleFrom(e.currentTarget)}
     >
       <AccessIcon /> <span className="a11y-trigger-text">Accessibility</span>
@@ -110,7 +107,7 @@ export function A11yPanel() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented) return;
       const a = document.activeElement;
-      if (modal || panelRef.current?.contains(a) || (a instanceof HTMLElement && a.dataset.a11yTrigger)) {
+      if (modal || panelRef.current?.contains(a) || (a instanceof HTMLElement && a.dataset.a11yTrigger !== undefined)) {
         e.preventDefault();
         setOpen(false);
       }
