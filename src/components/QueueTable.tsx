@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ClickableRow } from "./ClickableRow";
 import type { RequestRow } from "@/lib/data/queries";
 import { formatAud } from "@/lib/domain/money";
 import { REQUEST_TYPE_LABELS } from "@/lib/domain/types";
@@ -38,7 +39,7 @@ export function QueueTable({ rows, now }: { rows: RequestRow[]; now: Date }) {
             {rows.map((r) => {
               const next = nextStep(r.status);
               return (
-                <tr key={r.id}>
+                <ClickableRow key={r.id} href={`/requests/${r.id}`}>
                   <td>
                     <Link className="row-link" href={`/requests/${r.id}`}><strong>{r.reference_id ?? "No reference"}</strong></Link>
                     <div className="sub">{REQUEST_TYPE_LABELS[r.request_type]}</div>
@@ -48,7 +49,7 @@ export function QueueTable({ rows, now }: { rows: RequestRow[]; now: Date }) {
                   <td><strong>{next.title}</strong><div className="sub">{next.detail}</div></td>
                   <td>{friendlyTime(r.created_at, now)}</td>
                   <td className="chev" aria-hidden="true">›</td>
-                </tr>
+                </ClickableRow>
               );
             })}
           </tbody>

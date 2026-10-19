@@ -357,11 +357,11 @@ details > summary { cursor: pointer; color: var(--accent); font-weight: 500; }
 .queue-table table { width: 100%; }
 .queue-table th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 650; background: none; }
 .queue-table th, .queue-table td { padding: 0.9rem 1rem; vertical-align: middle; border-bottom: 1px solid var(--border); }
-.queue-table tbody tr { position: relative; transition: background-color 0.15s ease; }
+.queue-table tbody tr { transition: background-color 0.15s ease; }
+.queue-table .clickable-row { cursor: pointer; }
 .queue-table tbody tr:hover { background: rgba(0, 102, 204, 0.04); }
 .queue-table .row-link { color: var(--heading); text-decoration: none; }
-.queue-table .row-link::after { content: ""; position: absolute; inset: 0; }
-.queue-table .row-link:focus-visible::after { outline: 3px solid var(--focus); outline-offset: -3px; border-radius: 6px; }
+.queue-table .row-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 .queue-table .num { text-align: right; white-space: nowrap; }
 .queue-table .chev { color: var(--muted); font-size: 1.3rem; width: 1.5rem; }
 .sub { font-size: 0.85rem; color: var(--muted); margin-top: 0.15rem; }
