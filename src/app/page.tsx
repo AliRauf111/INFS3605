@@ -83,7 +83,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </div>
 
       <section aria-labelledby="queue-heading">
-        <h2 id="queue-heading" className="section-title">Your queue</h2>
+        <h2 id="queue-heading" className="section-title">Your Queue</h2>
         <div className="queue">
           {tiles.map((t) => (
             <Link key={t.key} href={t.key === "owner" && owner ? "/owner" : `/?tab=${t.key}#recent`} className={`queue-tile ${t.key === startHere ? "start" : ""}`}>
