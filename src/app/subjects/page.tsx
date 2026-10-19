@@ -154,7 +154,7 @@ export default async function SubjectsPage() {
         <h2 id="catalogue-h" style={{ margin: 0 }}>Catalogue</h2>
         <p className="hint">
           The full list of {COURSES.length} courses. {offeredCount} course and year pairs are switched on for this business.{" "}
-          {owner ? "Switch a course on when the business starts offering it." : "Only the owner can switch courses on or off."} The list itself is kept in <span className="code">src/lib/catalogue/hsc.ts</span>.
+          {owner ? "Switch a course on when the business starts offering it." : "Only the owner can switch courses on or off."}
         </p>
         {SUBJECT_AREAS.map((a) => (
           <div key={a.id} className="area-block">
