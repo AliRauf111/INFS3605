@@ -108,7 +108,7 @@ export const DATA_LABELS = ["live_connected", "imported", "fictional_demo"] as c
 export type DataLabel = (typeof DATA_LABELS)[number];
 
 export const DATA_LABEL_TEXT: Record<DataLabel, string> = {
-  live_connected: "Live connected",
+  live_connected: "Live Connected",
   imported: "Imported",
-  fictional_demo: "Fictional demonstration data",
+  fictional_demo: "Fictional Demonstration Data",
 };

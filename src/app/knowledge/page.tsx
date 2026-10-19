@@ -55,7 +55,7 @@ export default async function KnowledgePage() {
         <div className="table-wrap"><table>
           <thead><tr><th>Slot</th><th>Tutor</th><th>Starts</th><th>Status</th><th>Source</th></tr></thead>
           <tbody>{k.slots.map((s) => (
-            <tr key={s.id}><td>{s.id}</td><td>{tutor(s.tutor_id)}</td><td>{formatDateTime(s.starts_at)}</td><td>{s.status}</td><td><DataBadge label={s.data_label} /> {stale(s.last_synced_at)}</td></tr>
+            <tr key={s.id}><td>{s.id}</td><td>{tutor(s.tutor_id)}</td><td>{formatDateTime(s.starts_at)}</td><td>{s.status.charAt(0).toUpperCase() + s.status.slice(1)}</td><td><DataBadge label={s.data_label} /> {stale(s.last_synced_at)}</td></tr>
           ))}</tbody>
         </table></div>
       </section>
@@ -64,7 +64,7 @@ export default async function KnowledgePage() {
         <h2>Procedures</h2>
         {k.articles.map((a) => (
           <details key={a.id} id={`article-${a.id}`} className="card">
-            <summary><strong>{a.title}</strong> ({a.id}, v{a.version}) {a.owner_approved && <span className="badge green">Owner approved</span>} <DataBadge label={a.data_label} /></summary>
+            <summary><strong>{a.title}</strong> ({a.id}, v{a.version}) {a.owner_approved && <span className="badge green">Owner Approved</span>} <DataBadge label={a.data_label} /></summary>
             <pre>{a.body}</pre>
           </details>
         ))}

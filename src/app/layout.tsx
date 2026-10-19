@@ -45,7 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     {user.displayName} <span className="badge">{user.role === "owner" ? "Owner" : "Administrator"}</span>
                   </span>
                   <form action="/api/auth/logout" method="post">
-                    <button className="btn secondary small" type="submit">Sign out</button>
+                    <button className="btn secondary small" type="submit">Sign Out</button>
                   </form>
                 </div>
               </div>
