@@ -62,6 +62,11 @@
 html:not([data-boot="ready"]) body > :not(.boot-loader):not(script):not(noscript) { visibility: hidden; }
 html[data-boot="ready"] .boot-loader { opacity: 0; visibility: hidden; pointer-events: none; }
 
+/* After a click to another page: show straight away, hide the page underneath, fade out at the end. */
+.nav-loader .ls-fade, html[data-boot-now] .boot-loader .ls-fade { animation-duration: 0.2s; animation-delay: 0s; }
+.nav-loader.is-leaving { opacity: 0; pointer-events: none; }
+html[data-nav-loading] body > :not(.nav-loader):not(.boot-loader):not(script):not(noscript) { visibility: hidden; }
+
 @keyframes ls-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes ls-dance {
   0%, 100% { transform: translate(-5px, 0) rotate(-4deg); }

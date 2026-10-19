@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { LoadingScreen } from "./LoadingScreen";
+import { NAV_UNTIL_KEY } from "./NavLoader";
 
 // The loading screen shown while the website first opens. It covers the page from the
 // first paint and fades away once the app has started in the browser and the first
 // page's data has arrived (the route's loading.tsx placeholder, marked with
 // data-route-pending, has been swapped for the real page). If the page's data fails,
-// the page's own error message and Try again link are revealed the same way. It never
-// shows again for moves between pages; those use the small inline loading text.
+// the page's own error message and Try again link are revealed the same way. Moves
+// between pages use NavLoader instead.
 //
 // State lives on <html data-boot>: unset while loading, "ready" or "failed". The small
 // script in BOOT_SCRIPT also sets "failed" if the app's code can't be downloaded (or
@@ -29,6 +30,21 @@ export function BootLoader() {
       if (settled || html.dataset.boot) return;
       settled = true;
       observer.disconnect();
+      // A click on a plain link reloads the whole page. NavLoader asked for the dance to
+      // last 3 seconds from that click, so wait out whatever is left of that time.
+      let wait = 0;
+      try {
+        wait = Number(sessionStorage.getItem(NAV_UNTIL_KEY) ?? 0) - Date.now();
+        sessionStorage.removeItem(NAV_UNTIL_KEY);
+      } catch {}
+      if (wait > 0 && wait <= 3000) {
+        window.setTimeout(() => reveal(), wait);
+        return;
+      }
+      reveal();
+    };
+    const reveal = () => {
+      if (html.dataset.boot) return;
       html.dataset.boot = "ready";
       // Remove the screen once its 0.3 second fade has finished, so nothing keeps animating.
       window.setTimeout(() => setGone(true), 400);
@@ -51,5 +67,6 @@ export function BootLoader() {
 export const BOOT_SCRIPT = `(function(){var h=document.documentElement;function fail(){if(!h.dataset.boot)h.dataset.boot="failed"}
 addEventListener("error",function(e){var t=e.target;if(t&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))fail()},true);
 addEventListener("load",function(){setTimeout(function(){if(!window.__tcStarted)fail()},4000)});
+try{if(Number(sessionStorage.getItem("tc-nav-loader-until"))>Date.now())h.dataset.bootNow=""}catch(e){}
 setTimeout(fail,20000);
 document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("[data-boot-retry]"))location.reload()});})();`;

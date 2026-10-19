@@ -135,7 +135,7 @@ Not yet confirmed (also shown on the Subjects page): which languages have Beginn
 
 ## Loading screen
 
-When the website first opens, a blue screen with Compass dancing covers the page until the app has started in the browser and the first page's data has arrived, then fades out. Fast loads never show it, and moving between pages only shows the small "Loading…" line. If the app's code can't be downloaded, or start-up takes more than 20 seconds, it stops and shows an error with a Try again button. It respects reduced-motion settings. Files: `src/components/loader/` (the screen and its start-up logic), `src/app/layout.tsx` and `src/app/loading.tsx`.
+When the website first opens, a blue screen with Compass dancing covers the page until the app has started in the browser and the first page's data has arrived, then fades out. Fast first loads never show it. Clicking a link, button or table row that opens another page shows it for 3 seconds (longer only if that page's data is still loading), so the dance can be seen; the browser's back and forward buttons and same-page filters don't. Change `MIN_SHOW_MS` in `src/components/loader/NavLoader.tsx` to adjust the 3 seconds. If the app's code can't be downloaded, or start-up takes more than 20 seconds, it stops and shows an error with a Try again button. It respects reduced-motion settings. Files: `src/components/loader/` (the screen and its start-up logic), `src/app/layout.tsx` and `src/app/loading.tsx`.
 
 ## Compass AI
 

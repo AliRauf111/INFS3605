@@ -8,6 +8,7 @@ import { aiConfigured } from "@/lib/ai/client";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Logo } from "@/components/Logo";
 import { BOOT_SCRIPT, BootLoader } from "@/components/loader/BootLoader";
+import { NavLoader } from "@/components/loader/NavLoader";
 
 export const metadata: Metadata = {
   title: { default: "Tutor Compass", template: "%s | Tutor Compass" },
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <style>{`.boot-loader{display:none!important}body>*{visibility:visible!important}`}</style>
         </noscript>
         <BootLoader />
+        <NavLoader />
         {user && (
           <>
             <a href="#main" className="skip-link">Skip to content</a>
