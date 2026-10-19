@@ -6,6 +6,7 @@ import { QueueTable } from "@/components/QueueTable";
 import { EmptyState, LoadError } from "@/components/ui";
 import type { RequestStatus } from "@/lib/domain/types";
 import { friendlyTime } from "@/lib/domain/progress";
+import { A11yTrigger } from "@/components/a11y/A11yPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +76,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <h1>Dashboard</h1>
           <p className="muted">Hi {user.displayName.split(" ")[0]}. {today}.</p>
         </div>
-        <Link className="btn" href="/requests"><span aria-hidden="true">+</span> New request</Link>
+        <div className="page-actions">
+          <A11yTrigger variant="page" />
+          <Link className="btn" href="/requests"><span aria-hidden="true">+</span> New Request</Link>
+        </div>
       </div>
 
       <section aria-labelledby="queue-heading">
@@ -83,6 +87,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <div className="queue">
           {tiles.map((t) => (
             <Link key={t.key} href={t.key === "owner" && owner ? "/owner" : `/?tab=${t.key}#recent`} className={`queue-tile ${t.key === startHere ? "start" : ""}`}>
+              <span className="qt-bg" aria-hidden="true" />
               <div className="qt-head">
                 <span className={`qt-icon ${t.icon}`} aria-hidden="true" />
                 <span>{t.title}</span>
@@ -98,7 +103,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <section id="recent" aria-labelledby="recent-heading">
         <div className="section-row">
           <h2 id="recent-heading" className="section-title">Recent Requests</h2>
-          {updated && latest && <span className="hint">Updated <time dateTime={latest}>{updated}</time></span>}
+          {updated && latest && <span className="hint" data-secondary="">Updated <time dateTime={latest}>{updated}</time></span>}
         </div>
         <div className="card queue-card" data-compass-avoid="">
           <nav className="tabs" aria-label="Filter recent requests">

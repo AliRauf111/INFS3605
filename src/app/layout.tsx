@@ -9,6 +9,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Logo } from "@/components/Logo";
 import { BOOT_SCRIPT, BootLoader } from "@/components/loader/BootLoader";
 import { NavLoader } from "@/components/loader/NavLoader";
+import { A11yPanel, A11yTrigger, FocusViewBar } from "@/components/a11y/A11yPanel";
+import { PREFS_SCRIPT } from "@/lib/a11y/prefs";
 
 export const metadata: Metadata = {
   title: { default: "Tutor Compass", template: "%s | Tutor Compass" },
@@ -25,6 +27,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         {/* In <head> so it is listening before the app's script files start to load. */}
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
+        {/* Saved display preferences, applied before the first paint so there is no flash. */}
+        <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
       </head>
       <body>
         <noscript>
@@ -41,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <a href="/" className="brand"><Logo /></a>
                 <NavLinks role={user.role} />
                 <div className="user-box">
+                  <A11yTrigger variant="header" />
                   <span>
                     {user.displayName} <span className="badge">{user.role === "owner" ? "Owner" : "Administrator"}</span>
                   </span>
@@ -53,8 +58,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </>
         )}
         {/* Signed-out visitors only reach the sign-in page, which brings its own full-screen layout. */}
-        <main id="main" className={user ? undefined : "main-bare"}>{children}</main>
+        <main id="main" className={user ? undefined : "main-bare"}>
+          {user && <FocusViewBar />}
+          {children}
+        </main>
         {user && <SiteFooter />}
+        {user && <A11yPanel />}
         {user && <Assistant firstName={user.displayName.split(" ")[0]} aiLive={aiConfigured()} />}
       </body>
     </html>

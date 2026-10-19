@@ -5,6 +5,7 @@ import { EMPTY_STATE, type AssistantState, type Block, type Choice, type TaskFie
 import { CompassAvatar, type AvatarState } from "./CompassAvatar";
 import { AssistantMessage, type ActionState, type ChatItem } from "./Messages";
 import { useSpeech, useVoice } from "./useVoice";
+import { motionReduced } from "@/lib/a11y/motion";
 
 // Compass AI: the floating assistant on every signed-in page. This component owns the
 // panel, the conversation and the voice controls. The server decides what to ask and
@@ -155,7 +156,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   quietRef.current = !open && !busy && voice.phase === "idle" && !speech.speaking;
   useEffect(() => {
     const onSeen = () => {
-      if (!quietRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!quietRef.current || motionReduced()) return;
       flash("wave", 1300);
     };
     window.addEventListener("compass:footer-seen", onSeen);
@@ -164,7 +165,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
   const scrollToEnd = useCallback(() => {
     const el = listRef.current;
-    if (el) el.scrollTo({ top: el.scrollHeight, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: motionReduced() ? "auto" : "smooth" });
     setShowNew(false);
   }, []);
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { Logo } from "./Logo";
+import { motionReduced } from "@/lib/a11y/motion";
 
 // The site footer, shown to signed-in staff. Every link goes to a page or section that
 // exists; nothing points to "#".
@@ -54,7 +55,7 @@ export function SiteFooter() {
     const el = ref.current;
     if (!el) return;
     delete el.dataset.reveal;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    if (motionReduced() || !("IntersectionObserver" in window)) return;
     // Already on screen as the page opens: leave it showing rather than hide and replay it.
     let shown = el.getBoundingClientRect().top < window.innerHeight;
     if (!shown) el.dataset.reveal = "pending";
