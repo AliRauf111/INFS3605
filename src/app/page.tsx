@@ -17,9 +17,9 @@ const TABS: { key: string; label: string; statuses: RequestStatus[] | null }[] =
 ];
 const SHOW = 8;
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ tab?: string; removed?: string }> }) {
   const user = await requirePageUser();
-  const { tab } = await searchParams;
+  const { tab, removed } = await searchParams;
   const active = TABS.find((t) => t.key === tab) ?? TABS[0];
   let rows: RequestRow[];
   try {
@@ -51,6 +51,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   return (
     <div className="stack dash">
+      {removed && (
+        <div className="notice success" role="status">
+          Request removed from the list. You can find it again under <Link href="/requests?removed=1">Removed requests</Link>.
+        </div>
+      )}
       <div className="page-head">
         <div>
           <h1>Dashboard</h1>

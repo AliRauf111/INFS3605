@@ -9,14 +9,15 @@ import { STATUSES, STATUS_LABELS, type RequestStatus } from "@/lib/domain/types"
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Requests" };
 
-export default async function Requests({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+export default async function Requests({ searchParams }: { searchParams: Promise<{ status?: string; removed?: string }> }) {
   await requirePageUser();
   const live = aiConfigured();
-  const { status } = await searchParams;
+  const { status, removed: removedParam } = await searchParams;
+  const removed = removedParam === "1";
   const filter = STATUSES.includes(status as RequestStatus) ? (status as RequestStatus) : undefined;
   let rows;
   try {
-    rows = await listRequests({ status: filter ? [filter] : undefined, limit: 200 });
+    rows = await listRequests({ status: filter ? [filter] : undefined, limit: 200, removed });
   } catch (e) {
     return <LoadError error={e} />;
   }
@@ -41,8 +42,9 @@ export default async function Requests({ searchParams }: { searchParams: Promise
       </div>
       <section className="stack" aria-labelledby="saved-heading">
         <div className="page-head" style={{ marginBottom: 0 }}>
-          <h2 id="saved-heading" style={{ margin: 0 }}>Saved requests</h2>
+          <h2 id="saved-heading" style={{ margin: 0 }}>{removed ? "Removed requests" : "Saved requests"}</h2>
           <form className="row" method="get">
+            {removed && <input type="hidden" name="removed" value="1" />}
             <label htmlFor="status" className="sr-only">Filter by status</label>
             <select id="status" name="status" defaultValue={filter ?? ""} style={{ maxWidth: 280 }}>
               <option value="">All statuses</option>
@@ -51,7 +53,11 @@ export default async function Requests({ searchParams }: { searchParams: Promise
             <button className="btn secondary small" type="submit">Filter</button>
           </form>
         </div>
+        {removed && <p className="hint">These were taken off the lists. Open one to see its full record or put it back.</p>}
         <RequestsTable rows={rows} />
+        <p className="hint">
+          {removed ? <Link href="/requests">Back to saved requests</Link> : <Link href="/requests?removed=1">Show removed requests</Link>}
+        </p>
       </section>
     </div>
   );

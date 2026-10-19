@@ -617,3 +617,9 @@ main.main-bare { max-width: none; padding: 0; }
   .lc-mid { left: 0.8rem; right: 0.8rem; }
   .lc-front { margin-right: 1.6rem; }
 }
+
+/* Remove from list (request page) */
+.remove-box { display: grid; gap: 0.6rem; }
+.remove-btn { width: 100%; }
+.remove-confirm { border: 1px solid var(--red-edge); background: var(--red-bg); border-radius: var(--radius-small); padding: 0.9rem 1rem; }
+.remove-confirm p { margin: 0 0 0.75rem; color: var(--red-fg); }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePageUser } from "@/lib/auth/page";
-import { getRequestDetail } from "@/lib/data/queries";
+import { getRequestDetail, requestVisibility, type ListVisibility } from "@/lib/data/queries";
 import { db } from "@/lib/db/supabase";
 import { aiConfigured } from "@/lib/ai/client";
 import { formatAud } from "@/lib/domain/money";
@@ -18,6 +18,8 @@ import { ColourBadge, DataBadge, LoadError, StatusBadge, formatDateTime } from "
 import { friendlyTime, nextStep, progressHeading, requestProgress, ruleHeading, whatHappensNext } from "@/lib/domain/progress";
 import { RequestActions } from "./RequestActions";
 import { DraftsEditor } from "./DraftsEditor";
+import { RemoveFromList } from "./RemoveFromList";
+import { removalNeedsOwner } from "@/lib/domain/progress";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Request" };
@@ -34,6 +36,8 @@ const EVENT_TEXT: Record<string, string> = {
   admin_replied: "Admin replied with updated facts",
   admin_recorded: "Admin recorded an action",
   closed: "Recorded and closed",
+  removed_from_list: "Removed from the list",
+  restored_to_list: "Put back in the list",
 };
 
 const DRAFTS_FOR_ACTION: Partial<Record<string, DraftKind>> = {
@@ -49,8 +53,10 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
   const { id } = await params;
   const { saved } = await searchParams;
   let detail;
+  let visibility: ListVisibility = "not_set_up";
   try {
     detail = await getRequestDetail(id);
+    if (detail) visibility = await requestVisibility(id);
   } catch (e) {
     return <LoadError error={e} />;
   }
@@ -104,6 +110,12 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
   return (
     <div className="stack rq-page">
       {saved && <div className="notice success" role="status">Saved. This request and its decision are stored in the database.</div>}
+      {visibility !== "not_set_up" && visibility.hiddenAt && (
+        <div className="notice warning" role="status">
+          Removed from the list {friendlyTime(visibility.hiddenAt).replace(/^[A-Z]/, (c) => c.toLowerCase())}
+          {visibility.hiddenBy && names.get(visibility.hiddenBy) ? ` by ${names.get(visibility.hiddenBy)}` : ""}. It no longer shows on the dashboard, Requests or Approval Alley. Its full record is kept below.
+        </div>
+      )}
       <nav className="crumbs" aria-label="Breadcrumb">
         <Link href="/requests">Requests</Link> <span aria-hidden="true">›</span> <span aria-current="page">{r.reference_id ?? "Request"}</span>
       </nav>
@@ -206,6 +218,11 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
             <h2>What happens next</h2>
             <p>{whatHappensNext(r.status, user.role)}</p>
           </section>
+          <RemoveFromList
+            requestId={r.id}
+            removed={visibility !== "not_set_up" && Boolean(visibility.hiddenAt)}
+            locked={user.role !== "owner" && removalNeedsOwner(r.status, r.welfare_status)}
+          />
         </aside>
       </div>
 

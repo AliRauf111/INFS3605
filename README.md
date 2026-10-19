@@ -112,6 +112,12 @@ The sign-in page has Sign in and Create account tabs, Forgot password, and Conti
 - `SUPPORT_EMAIL` (optional) adds a contact address to the Support page. Without it, the page tells people to contact the owner.
 - The Support, Privacy and Terms pages can be opened without signing in.
 
+## Remove from list
+
+Each request page has a red "Remove from list" button under What happens next. It asks first, then hides the request from the dashboard, Requests and Approval Alley. Nothing is deleted: the full record stays, the change is written to the request's history, and "Show removed requests" on the Requests page lists them so they can be put back. Admins can't remove a request that is waiting for the owner or raises a welfare concern.
+
+Existing databases need `supabase/migrations/20261019000001_remove_from_list.sql` run once in the Supabase SQL Editor. Until then the lists work as before and the button explains what to run.
+
 ## Compass AI
 
 Compass AI is the robot in the bottom right corner of every signed-in page. Staff can ask it to check a refund, change a lesson or find a policy, by typing or by voice.

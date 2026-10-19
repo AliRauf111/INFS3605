@@ -45,10 +45,36 @@ export type RequestRow = {
 const REQUEST_COLUMNS =
   "id, request_type, money_involved, amount_cents, complaint_status, welfare_status, reference_id, booking_id, context, confirmed_facts, decision, decision_reason, matched_rule_id, policy_version, next_step, status, intake_method, data_label, current_decision_id, decision_count, created_at, updated_at, created_by";
 
-export async function listRequests(opts: { status?: RequestStatus[]; limit?: number } = {}): Promise<RequestRow[]> {
-  let q = db().from("requests").select(REQUEST_COLUMNS).order("created_at", { ascending: false }).limit(opts.limit ?? 100);
-  if (opts.status?.length) q = q.in("status", opts.status);
-  return check(await q, "requests") as RequestRow[];
+// True when the database hasn't had the "remove from list" update yet (no hidden_at column).
+function missingHiddenColumn(error: { message?: string; code?: string } | null): boolean {
+  return Boolean(error && (error.code === "42703" || error.code === "PGRST204" || /hidden_at/.test(error.message ?? "")));
+}
+
+/**
+ * Requests for the lists, newest first. Requests someone removed from the list are left
+ * out unless `removed` is true, which returns only those. If the database update hasn't
+ * been run yet, every request is shown as before.
+ */
+export async function listRequests(opts: { status?: RequestStatus[]; limit?: number; removed?: boolean } = {}): Promise<RequestRow[]> {
+  const build = (withHidden: boolean) => {
+    let q = db().from("requests").select(REQUEST_COLUMNS).order("created_at", { ascending: false }).limit(opts.limit ?? 100);
+    if (opts.status?.length) q = q.in("status", opts.status);
+    if (withHidden) q = opts.removed ? q.not("hidden_at", "is", null) : q.is("hidden_at", null);
+    return q;
+  };
+  const res = await build(true);
+  if (missingHiddenColumn(res.error)) return opts.removed ? [] : (check(await build(false), "requests") as RequestRow[]);
+  return check(res, "requests") as RequestRow[];
+}
+
+export type ListVisibility = { hiddenAt: string | null; hiddenBy: string | null } | "not_set_up";
+
+/** Whether a request has been removed from the lists, and by whom. */
+export async function requestVisibility(id: string): Promise<ListVisibility> {
+  const { data, error } = await db().from("requests").select("hidden_at, hidden_by").eq("id", id).maybeSingle();
+  if (missingHiddenColumn(error)) return "not_set_up";
+  if (error) throw new Error(`Could not load request: ${error.message}`);
+  return { hiddenAt: data?.hidden_at ?? null, hiddenBy: data?.hidden_by ?? null };
 }
 
 export async function userNames(): Promise<Map<string, string>> {

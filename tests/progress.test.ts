@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { friendlyTime, nextStep, progressHeading, requestProgress, ruleName } from "@/lib/domain/progress";
+import { friendlyTime, nextStep, progressHeading, removalNeedsOwner, requestProgress, ruleName } from "@/lib/domain/progress";
 
 describe("request progress", () => {
   it("puts a red request waiting to be sent at owner review", () => {
@@ -32,5 +32,14 @@ describe("labels", () => {
     expect(friendlyTime("2026-10-19T00:13:00Z", now)).toMatch(/^Today, 11:13/);
     expect(friendlyTime("2026-10-18T00:13:00Z", now)).toMatch(/^Yesterday/);
     expect(friendlyTime("2026-10-12T09:19:00Z", now)).toMatch(/^12 Oct, 8:19/);
+  });
+});
+
+describe("removing from the list", () => {
+  it("keeps owner-only requests for the owner", () => {
+    expect(removalNeedsOwner("awaiting_owner", "no")).toBe(true);
+    expect(removalNeedsOwner("review_required", "yes")).toBe(true);
+    expect(removalNeedsOwner("closed", "yes")).toBe(false);
+    expect(removalNeedsOwner("ready", "no")).toBe(false);
   });
 });

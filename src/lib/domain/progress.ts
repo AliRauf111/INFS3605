@@ -78,6 +78,11 @@ export function whatHappensNext(status: RequestStatus, role: Role): string {
   }
 }
 
+/** Only the owner can take these off the lists, so nothing they need to see disappears. */
+export function removalNeedsOwner(status: RequestStatus, welfare: string | null): boolean {
+  return status === "awaiting_owner" || (welfare === "yes" && status !== "closed");
+}
+
 export function ruleHeading(colour: Colour, status: RequestStatus, welfare: boolean): string {
   if (colour === "red") return welfare ? "Stop. The owner must handle this personally" : "Send this to the owner before doing anything else";
   if (colour === "amber") return status === "needs_clarification" ? "Some facts are missing" : "Check with the owner before going ahead";
