@@ -8,6 +8,8 @@ import { composeDraft, draftContext } from "@/lib/actions/drafts";
 import { findUnsupportedPromises } from "@/lib/actions/drafts-logic";
 import {
   BUCKETS,
+  COLOUR_TITLES,
+  COLOURS,
   ORDERING_NOTE,
   attentionFor,
   bucketFor,
@@ -16,7 +18,6 @@ import {
   priorityTier,
   shortId,
   tierReason,
-  type BucketKey,
 } from "@/lib/agent/briefing-logic";
 import { ACTION_RULES, OWNER_DECISIONS, availableActions, canPrepare, type ProposalAction } from "@/lib/agent/permissions";
 import { prepareProposal } from "@/lib/agent/proposals";
@@ -26,6 +27,8 @@ import {
   approvedProcedures,
   briefingData,
   canSeeWelfareDetail,
+  countStatuses,
+  type BriefingKey,
   requestBundle,
   requestsForReference,
   searchRequests,
@@ -45,7 +48,7 @@ import {
 } from "@/lib/agent/review-logic";
 import { aiAllowedFor } from "@/lib/agent/sensitive";
 import { formatAud } from "@/lib/domain/money";
-import { REQUEST_TYPE_LABELS, STATUS_LABELS, type RequestStatus, type RequestType } from "@/lib/domain/types";
+import { REQUEST_TYPE_LABELS, STATUS_LABELS, type Colour, type RequestStatus, type RequestType } from "@/lib/domain/types";
 import { CATEGORY_CONFIG, FACT_LABELS, describeRange, policyVersionLabel, type FactKey, type PolicySnapshot } from "@/lib/engine/policy";
 import type { Block, BriefingBlock, Command, DraftBlock, Focus, Mood, ReviewAction, ReviewBlock, Step } from "./logic";
 import { parseReference } from "./logic";
@@ -85,10 +88,16 @@ function unavailable(ctx: TurnCtx, what: string, e: unknown): Mood {
 // ---------------------------------------------------------------------------
 // Briefing
 
-export async function briefingTurn(ctx: TurnCtx, opts: { bucket?: BucketKey; page?: number } = {}): Promise<Mood> {
+export async function briefingTurn(ctx: TurnCtx, opts: { bucket?: BriefingKey; page?: number } = {}): Promise<Mood> {
   let sections;
+  let decide = 0;
+  let pendingOutcomes = 0;
   try {
-    sections = await briefingData({ only: opts.bucket, page: opts.page });
+    [sections, decide, pendingOutcomes] = await Promise.all([
+      briefingData({ only: opts.bucket, byColour: !opts.bucket, page: opts.page }),
+      countStatuses(["awaiting_owner"]),
+      countStatuses(["approved", "declined"]),
+    ]);
   } catch (e) {
     return unavailable(ctx, "the request queues", e);
   }
@@ -96,7 +105,8 @@ export async function briefingTurn(ctx: TurnCtx, opts: { bucket?: BucketKey; pag
   const role = ctx.user.role;
   const total = sections.reduce((t, s) => t + s.count, 0);
   ctx.steps.push({ label: "Counting unfinished requests across every active record", state: "done" });
-  ctx.steps.push({ label: "Ordering by the escalation rules", state: "done" });
+  ctx.steps.push({ label: "Ordering red, then amber, then green", state: "done" });
+  const titleOf = (k: BriefingKey) => ((COLOURS as readonly string[]).includes(k) ? COLOUR_TITLES[k as Colour] : BUCKETS.find((b) => b.key === k)!.title[role]);
 
   const block: BriefingBlock = {
     kind: "briefing",
@@ -105,9 +115,10 @@ export async function briefingTurn(ctx: TurnCtx, opts: { bucket?: BucketKey; pag
     scope: opts.bucket ?? "all",
     ordering: ORDERING_NOTE,
     total,
+    pendingOutcomes,
     sections: sections.map((s) => ({
       key: s.key,
-      title: BUCKETS.find((b) => b.key === s.key)!.title[role],
+      title: titleOf(s.key),
       count: s.count,
       page: s.page,
       pageSize: s.pageSize,
@@ -133,7 +144,6 @@ export async function briefingTurn(ctx: TurnCtx, opts: { bucket?: BucketKey; pag
     })),
   };
 
-  const decide = sections.find((s) => s.key === "owner_decision")?.count ?? 0;
   if (!opts.bucket) {
     say(ctx, total === 0
       ? "Nothing is waiting. There are no unfinished requests right now."

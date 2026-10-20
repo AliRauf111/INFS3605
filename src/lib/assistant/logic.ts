@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { REQUEST_TYPES, TRI_STATES, type Colour, type RequestStatus, type RequestType, type Role, type TriState } from "@/lib/domain/types";
 import type { FactsForm } from "@/lib/validation/facts";
-import { BUCKET_KEYS, type BucketKey } from "@/lib/agent/briefing-logic";
+import { BUCKET_KEYS, COLOURS, type BucketKey } from "@/lib/agent/briefing-logic";
 import { PROPOSAL_ACTIONS, type ProposalAction } from "@/lib/agent/permissions";
 import type { ProposalView } from "@/lib/agent/proposal-logic";
 import type { FactSources, Figure, Readiness } from "@/lib/agent/review-logic";
@@ -71,7 +71,7 @@ export const EMPTY_STATE: AssistantState = { task: null, awaiting: null, focus: 
 
 /** Card buttons that read or prepare, sent back to the server as a structured command. */
 export const CommandSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("briefing"), bucket: z.enum(BUCKET_KEYS).optional(), page: z.number().int().min(1).max(500).optional() }).strict(),
+  z.object({ type: z.literal("briefing"), bucket: z.enum([...BUCKET_KEYS, ...COLOURS]).optional(), page: z.number().int().min(1).max(500).optional() }).strict(),
   z.object({ type: z.literal("review"), requestId: z.uuid() }).strict(),
   z.object({ type: z.literal("explain"), requestId: z.uuid() }).strict(),
   z.object({ type: z.literal("followup"), requestId: z.uuid() }).strict(),
@@ -193,10 +193,12 @@ export type BriefingBlock = {
   kind: "briefing";
   generatedAt: string;
   role: Role;
-  scope: "all" | BucketKey;
+  scope: "all" | BucketKey | Colour;
   ordering: string;
   total: number;
-  sections: Array<{ key: BucketKey; title: string; count: number; items: BriefingItem[]; page: number; pageSize: number; orderedAll: boolean }>;
+  /** Decided requests still waiting for an outcome, for the Show Pending Outcomes button. */
+  pendingOutcomes: number;
+  sections: Array<{ key: BucketKey | Colour; title: string; count: number; items: BriefingItem[]; page: number; pageSize: number; orderedAll: boolean }>;
 };
 
 export type DraftBlock = {

@@ -338,3 +338,4 @@
 .cp-checklist li.have { color: var(--green-fg); }
 .cp-briefing .cp-btn, .cp-review .cp-btn, .cp-proposal .cp-btn, .cp-draftcard .cp-btn { min-height: 44px; }
 .cp-more summary:focus-visible, .cp-chip:focus-visible, .cp-btn:focus-visible, .cp-link:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.cp-section-title { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }

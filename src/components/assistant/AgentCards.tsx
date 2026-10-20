@@ -237,7 +237,6 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro }: {
 export function BriefingCard({ block, disabled, onCommand }: { block: BriefingBlock; disabled: boolean; onCommand: (c: Command, label: string) => void }) {
   const generated = new Date(block.generatedAt).toLocaleString("en-AU", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
   const refresh = () => onCommand(block.scope === "all" ? { type: "briefing" } : { type: "briefing", bucket: block.scope }, "Refresh");
-  const pending = block.sections.find((s) => s.key === "pending_outcome");
   return (
     <section className="cp-briefing" aria-label={block.scope === "all" ? "What Needs My Attention" : block.sections[0]?.title}>
       <div className="cp-card-head">
@@ -252,7 +251,8 @@ export function BriefingCard({ block, disabled, onCommand }: { block: BriefingBl
           {block.scope === "all" && <p className="cp-small">{block.ordering}</p>}
           {block.sections.map((s) => (
             <div key={s.key} className="cp-section">
-              <h4>
+              <h4 className="cp-section-title">
+                {(s.key === "red" || s.key === "amber" || s.key === "green") && <span className={`cp-dot-c ${s.key}`} aria-hidden="true" />}
                 {block.scope === "all" ? s.title : "Requests"} <span className="cp-count" aria-label={`${s.count} requests`}>{s.count}</span>
               </h4>
               {s.count === 0 ? (
@@ -286,7 +286,7 @@ export function BriefingCard({ block, disabled, onCommand }: { block: BriefingBl
               {!s.orderedAll && <p className="cp-small">This queue is very large, so ordering used the oldest 2000 requests. The count is still exact.</p>}
             </div>
           ))}
-          {block.scope === "all" && pending && pending.count > 0 && (
+          {block.scope === "all" && block.pendingOutcomes > 0 && (
             <div className="cp-row">
               <button type="button" className="cp-btn secondary" disabled={disabled} onClick={() => onCommand({ type: "briefing", bucket: "pending_outcome" }, "Show Pending Outcomes")}>Show Pending Outcomes</button>
             </div>

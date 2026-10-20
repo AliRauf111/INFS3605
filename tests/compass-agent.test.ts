@@ -96,6 +96,14 @@ describe("briefing", () => {
     expect(sortByPriority(rows).map((r) => r.id)).toEqual(["c", "b", "e", "d", "a"]);
     expect(priorityTier({ welfare_status: "unsure", complaint_status: "no", decision: "green" })).toBe(2);
   });
+  it("puts every red request before amber, and amber before green", () => {
+    const rows = [
+      { ...row({ id: "g", decision: "green", welfare_status: "unsure" }), waitingSince: "2026-09-01T00:00:00Z" },
+      { ...row({ id: "a", decision: "amber", complaint_status: "unsure" }), waitingSince: "2026-09-02T00:00:00Z" },
+      { ...row({ id: "r", decision: "red" }), waitingSince: "2026-10-09T00:00:00Z" },
+    ];
+    expect(sortByPriority(rows).map((x) => x.decision)).toEqual(["red", "amber", "green"]);
+  });
   it("measures waiting from the move into the current status", () => {
     const since = waitingSince(row({}), [
       { to_status: "review_required", created_at: "2026-10-01T00:00:00Z" },

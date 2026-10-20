@@ -23,8 +23,19 @@ export const BUCKETS: Bucket[] = [
   { key: "ready", title: { owner: "Ready for Admin", admin: "Ready for Admin" }, statuses: ["ready"] },
 ];
 
+export const COLOURS = ["red", "amber", "green"] as const;
+
+/** Every unfinished status. Closed requests are finished. */
+export const UNFINISHED: RequestStatus[] = BUCKETS.flatMap((b) => b.statuses);
+
+export const COLOUR_TITLES: Record<Colour, string> = {
+  red: "Red: Owner Decides",
+  amber: "Amber: Owner Approves or Details Needed",
+  green: "Green: Within the Rules",
+};
+
 export const ORDERING_NOTE =
-  "Ordered by the escalation rules: welfare concerns first, then complaints, then unconfirmed welfare or complaint answers, then red, amber and green results. Within each group, the longest wait comes first.";
+  "Red first, then amber, then green. Within each colour, welfare concerns come first, then complaints, then unconfirmed welfare or complaint answers, then the longest wait.";
 
 export type BriefingRow = {
   id: string;
@@ -57,9 +68,12 @@ export function tierReason(tier: number): string | null {
   return ["Welfare concern", "Complaint", "Welfare or complaint not confirmed", null, null, null][tier] ?? null;
 }
 
-/** Sort a bucket: most urgent tier first, then the one waiting longest. */
+const colourRank = (c: Colour) => COLOURS.indexOf(c);
+
+/** Sort: red, amber, green; then the most urgent tier; then the one waiting longest. */
 export function sortByPriority<T extends BriefingRow & { waitingSince: string }>(rows: T[]): T[] {
-  return [...rows].sort((a, b) => priorityTier(a) - priorityTier(b) || a.waitingSince.localeCompare(b.waitingSince) || a.id.localeCompare(b.id));
+  return [...rows].sort((a, b) =>
+    colourRank(a.decision) - colourRank(b.decision) || priorityTier(a) - priorityTier(b) || a.waitingSince.localeCompare(b.waitingSince) || a.id.localeCompare(b.id));
 }
 
 /** When the request entered its current status: the latest event that moved it there. */

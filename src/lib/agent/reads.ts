@@ -7,7 +7,7 @@ import type { DecisionResult } from "@/lib/engine/evaluate";
 import type { EvidenceSnapshot } from "@/lib/engine/evidence";
 import type { PolicySnapshot } from "@/lib/engine/policy";
 import type { ConfirmedFacts } from "@/lib/validation/facts";
-import { BUCKETS, sortByPriority, waitingSince, type BriefingRow, type BucketKey } from "./briefing-logic";
+import { BUCKETS, COLOURS, UNFINISHED, sortByPriority, waitingSince, type BriefingRow, type BucketKey } from "./briefing-logic";
 import type { Procedure } from "./review-logic";
 
 // Compass's read tools. Each one is an ordinary server function with its own query, so
@@ -85,8 +85,11 @@ export async function requestsForReference(reference: string): Promise<RequestSu
 // ---------------------------------------------------------------------------
 // Briefing counts and items
 
+/** A briefing section is either a traffic-light colour or a status group. */
+export type BriefingKey = BucketKey | Colour;
+
 export type BriefingSection = {
-  key: BucketKey;
+  key: BriefingKey;
   count: number;
   items: Array<RequestSummary & { waitingSince: string }>;
   page: number;
@@ -97,18 +100,22 @@ export type BriefingSection = {
 
 const ORDER_LIMIT = 2000;
 
-async function countStatuses(statuses: RequestStatus[]): Promise<number> {
+export async function countStatuses(statuses: RequestStatus[], colour?: Colour): Promise<number> {
   const cols = await listColumns();
-  const res = await activeOnly(db().from("requests").select("id", { count: "exact", head: true }).in("status", statuses), cols);
+  let q = db().from("requests").select("id", { count: "exact", head: true }).in("status", statuses);
+  if (colour) q = q.eq("decision", colour);
+  const res = await activeOnly(q, cols);
   if (res.error) throw new SourceUnavailable(`Could not count requests: ${res.error.message}`);
   return res.count ?? 0;
 }
 
-async function bucketRows(statuses: RequestStatus[]): Promise<RequestSummary[]> {
+async function bucketRows(statuses: RequestStatus[], colour?: Colour): Promise<RequestSummary[]> {
   const rows: RequestSummary[] = [];
   const cols = await listColumns();
   for (let from = 0; from < ORDER_LIMIT; from += 500) {
-    const q = activeOnly(db().from("requests").select(SUMMARY_COLUMNS).in("status", statuses).order("created_at").order("id"), cols);
+    let base = db().from("requests").select(SUMMARY_COLUMNS).in("status", statuses);
+    if (colour) base = base.eq("decision", colour);
+    const q = activeOnly(base.order("created_at").order("id"), cols);
     const batch = check(await q.range(from, from + 499), "requests") as RequestSummary[];
     rows.push(...batch);
     if (batch.length < 500) break;
@@ -130,15 +137,21 @@ async function statusEvents(ids: string[]): Promise<Map<string, Array<{ to_statu
  * Tool: briefing counts and the first page of each section. Counts come from exact
  * count queries over every active request, never from a capped list.
  */
-export async function briefingData(opts: { only?: BucketKey; page?: number; pageSize?: number } = {}): Promise<BriefingSection[]> {
+export async function briefingData(opts: { only?: BriefingKey; byColour?: boolean; page?: number; pageSize?: number } = {}): Promise<BriefingSection[]> {
   const pageSize = Math.min(20, Math.max(1, opts.pageSize ?? (opts.only ? 10 : 5)));
-  const buckets = BUCKETS.filter((b) => !opts.only || b.key === opts.only);
+  const isColour = (k: BriefingKey): k is Colour => (COLOURS as readonly string[]).includes(k);
+  // The full briefing is grouped by traffic light. A single status group (for example
+  // "waiting for your decision") is still available on its own.
+  const groups: Array<{ key: BriefingKey; statuses: RequestStatus[]; colour?: Colour }> =
+    opts.byColour || (opts.only && isColour(opts.only))
+      ? COLOURS.map((c) => ({ key: c, statuses: UNFINISHED, colour: c }))
+      : BUCKETS.map((b) => ({ key: b.key, statuses: b.statuses }));
   return Promise.all(
-    buckets.map(async (b) => {
+    groups.filter((b) => !opts.only || b.key === opts.only).map(async (b) => {
       const page = opts.only ? Math.max(1, opts.page ?? 1) : 1;
-      const count = await countStatuses(b.statuses);
+      const count = await countStatuses(b.statuses, b.colour);
       if (count === 0) return { key: b.key, count, items: [], page, pageSize, orderedAll: true };
-      const rows = await bucketRows(b.statuses);
+      const rows = await bucketRows(b.statuses, b.colour);
       const events = await statusEvents(rows.map((r) => r.id));
       const sorted = sortByPriority(rows.map((r) => ({ ...r, waitingSince: waitingSince(r, events.get(r.id) ?? []) })));
       return { key: b.key, count, items: sorted.slice((page - 1) * pageSize, page * pageSize), page, pageSize, orderedAll: rows.length >= count };
