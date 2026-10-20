@@ -142,16 +142,16 @@ html[data-a11y-open][data-a11y-mode="side"] .queue { grid-template-columns: repe
    repeated here with translate added (the .compass-root prefix makes these win over assistant.css). */
 .compass-root .cl-launcher { transition: transform 0.25s ease, translate var(--a11y-ms) var(--a11y-ease); }
 .compass-root .cl-greeting { transition: translate var(--a11y-ms) var(--a11y-ease); }
-.compass-root .cp-panel { transition: opacity 0.24s ease, transform 0.24s ease, visibility 0s linear 0.24s, translate var(--a11y-ms) var(--a11y-ease); }
-.compass-root .cp-panel.open { transition: opacity 0.26s ease, transform 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.1), visibility 0s, translate var(--a11y-ms) var(--a11y-ease); }
-html[data-a11y-open][data-a11y-mode="side"] .compass-root :is(.cl-launcher, .cl-greeting, .cp-panel) { translate: calc(-1 * var(--a11y-room)) 0; }
+/* The expanded workspace covers the whole page, panel included, so it doesn't move; while it is
+   open the launcher goes back to its own column on the right edge. */
+html[data-a11y-open][data-a11y-mode="side"] .compass-root :is(.cl-launcher:not(.is-open), .cl-greeting) { translate: calc(-1 * var(--a11y-room)) 0; }
 
 /* ---------- Reduced motion, from the device or the panel ---------- */
 @media (prefers-reduced-motion: reduce) {
   .a11y-panel, .a11y-backdrop, html[data-a11y-open] .a11y-panel, html[data-a11y-open][data-a11y-mode="modal"] .a11y-backdrop { transition: none !important; }
-  .compass-root :is(.cl-launcher, .cl-greeting, .cp-panel, .cp-panel.open) { transition: none !important; }
+  .compass-root :is(.cl-launcher, .cl-greeting, .cp-panel, .cp-panel.open, .cp-backdrop) { transition: none !important; }
 }
-html[data-motion="reduce"] :is(.a11y-panel, .a11y-backdrop, .cl-launcher, .cl-greeting, .cp-panel) { transition: none !important; }
+html[data-motion="reduce"] :is(.a11y-panel, .a11y-backdrop, .cl-launcher, .cl-greeting, .cp-panel, .cp-backdrop) { transition: none !important; }
 
 /* Beside the panel there is no room to tuck the launcher off the right edge (it would slide under
    the panel), so it stays fully in view. */

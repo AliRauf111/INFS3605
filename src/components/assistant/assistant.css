@@ -2,7 +2,13 @@
    Uses the site's colour tokens from globals.css. Every animation is switched off for
    reduced motion, and paused while the tab is hidden. */
 
-.compass-root { --cp-blue: var(--accent); --cp-navy: var(--heading); --cp-pale: #eef4fd; --cp-line: rgba(10, 42, 102, 0.12); }
+/* Light mode: white and very pale blue glass, dark navy text and the site's blue for actions.
+   Dark and High Contrast override these tokens in globals.css. */
+.compass-root {
+  --cp-blue: var(--accent); --cp-navy: #10294e; --cp-pale: #eef4fd; --cp-line: rgba(16, 41, 78, 0.12);
+  --cp-surface: rgba(255, 255, 255, 0.9); --cp-field-edge: rgba(0, 102, 204, 0.28);
+  --cp-ms: 400ms; --cp-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
 
 /* ---------- Launcher ---------- */
 .cl-launcher {
@@ -34,7 +40,9 @@
 .cl-launcher.is-compact .cl-pill, .cl-launcher.is-tucked .cl-pill { opacity: 0; pointer-events: none; transform: translateX(8px); }
 .cl-launcher.is-tucked { transform: translateX(calc(var(--cl-size) + var(--cl-right) - 20px)); }
 .cl-launcher.is-tucked:hover, .cl-launcher.is-tucked:focus-within { transform: none; }
-.cl-launcher.is-open .cl-pill { opacity: 0; pointer-events: none; transform: translateX(8px); }
+.cl-launcher.is-open .cl-pill { opacity: 0; visibility: hidden; pointer-events: none; transform: translateX(8px); }
+/* While open, the launcher sits above the blurred page in its own column and closes Compass. */
+.cl-launcher.is-open { z-index: 92; }
 
 .cl-greeting {
   position: fixed; right: 30px; bottom: calc(112px + env(safe-area-inset-bottom)); z-index: 41;
@@ -45,22 +53,69 @@
 }
 .cl-greeting-close { border: none; background: none; color: var(--muted); padding: 0.2rem; border-radius: 50%; cursor: pointer; display: grid; place-items: center; min-width: 32px; min-height: 32px; }
 
-/* ---------- Panel ---------- */
-.cp-panel {
-  position: fixed; right: 24px; bottom: calc(112px + env(safe-area-inset-bottom)); z-index: 45;
-  width: 400px; height: min(620px, calc(100vh - 140px)); max-height: calc(var(--compass-vh, 100vh) - 130px);
-  display: flex; flex-direction: column; overflow: hidden;
-  background: var(--paper, #fff); border: 1px solid var(--cp-line); border-radius: 24px;
-  box-shadow: 0 24px 60px rgba(10, 42, 102, 0.22), 0 2px 6px rgba(10, 42, 102, 0.08);
-  opacity: 0; visibility: hidden; transform: translateY(16px) scale(0.98); transform-origin: bottom right;
-  transition: opacity 0.24s ease, transform 0.24s ease, visibility 0s linear 0.24s;
+/* ---------- The expanded workspace ---------- */
+/* The page underneath is blurred and gently dimmed; this layer also takes any click meant for it. */
+.cp-backdrop {
+  position: fixed; inset: 0; z-index: 90; touch-action: none;
+  background: rgba(16, 41, 78, 0.16);
+  -webkit-backdrop-filter: blur(10px) saturate(115%); backdrop-filter: blur(10px) saturate(115%);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity var(--cp-ms) var(--cp-ease), visibility 0s linear var(--cp-ms);
 }
-.cp-panel.open { opacity: 1; visibility: visible; transform: none; transition: opacity 0.26s ease, transform 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.1), visibility 0s; }
+.compass-root.is-open .cp-backdrop { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity var(--cp-ms) var(--cp-ease), visibility 0s; }
 
-.cp-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.7rem 0.6rem 0.7rem 0.9rem; border-bottom: 1px solid var(--cp-line); background: linear-gradient(180deg, #fafcff, #fff); }
+/* Placed by Assistant.tsx from the visible viewport (see src/lib/assistant/workspace.ts). The values
+   here are only a fallback. It grows out of the launcher's corner by widening its clip, so the text
+   inside is laid out once at full size and never stretches. */
+.cp-panel {
+  position: fixed; z-index: 91; top: 20px; left: 20px; width: calc(100vw - 136px); height: calc(100vh - 40px);
+  container: cpw / inline-size;
+  display: flex; flex-direction: column; overflow: hidden; color: var(--cp-navy);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.8), rgba(233, 242, 255, 0.7));
+  -webkit-backdrop-filter: saturate(160%) blur(28px); backdrop-filter: saturate(160%) blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.85); border-radius: 26px;
+  box-shadow: 0 0 0 1px rgba(16, 41, 78, 0.06), 0 28px 70px rgba(16, 41, 78, 0.2), 0 2px 8px rgba(16, 41, 78, 0.06);
+  opacity: 0; visibility: hidden; transform: translate(10px, 14px);
+  clip-path: inset(calc(100% - 76px) 0 0 calc(100% - 76px) round 38px);
+  transition:
+    clip-path var(--cp-ms) var(--cp-ease), transform var(--cp-ms) var(--cp-ease),
+    opacity 240ms ease 120ms, visibility 0s linear var(--cp-ms);
+}
+.cp-panel.open {
+  opacity: 1; visibility: visible; transform: none;
+  /* Reaches past the edges so the soft shadow isn't cut off; the corners stay concentric. */
+  clip-path: inset(-90px round 116px);
+  transition:
+    clip-path var(--cp-ms) var(--cp-ease), transform var(--cp-ms) var(--cp-ease),
+    opacity 200ms ease, visibility 0s;
+}
+/* Where frosted glass isn't available, or the person asks for less transparency, the surfaces are solid. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cp-panel { background: #fbfdff; }
+  .cp-backdrop { background: rgba(16, 41, 78, 0.5); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cp-panel { background: #fbfdff; }
+  .cp-backdrop { background: rgba(16, 41, 78, 0.5); }
+}
+
+.cp-header { flex: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 0.85rem 0.75rem 1.1rem; border-bottom: 1px solid var(--cp-line); }
 .cp-title { flex: 1; min-width: 0; }
-.cp-title h2 { margin: 0; font-size: 1.02rem; color: var(--cp-navy); }
-.cp-title p { margin: 0; font-size: 0.8rem; color: var(--muted); }
+.cp-title h2 { margin: 0; font-size: 1.08rem; color: var(--cp-navy); }
+.cp-title h2:focus { outline: none; }
+.cp-title h2:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+.cp-title p { margin: 0.1rem 0 0; font-size: 0.8rem; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.5rem; }
+/* Live AI or demo: the server's setting, never a guess. */
+.cp-indicator { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.05rem 0.55rem; border-radius: 999px; font-size: 0.76rem; font-weight: 650; }
+.cp-indicator.live { background: var(--green-bg); color: var(--green-fg); }
+.cp-indicator.demo { background: var(--amber-bg); color: var(--amber-fg); }
+.cp-indicator-dot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: currentColor; }
+.cp-icon-btn.cp-new-chat { width: auto; padding: 0 0.85rem 0 0.65rem; gap: 0.35rem; display: inline-flex; align-items: center; border: 1px solid var(--cp-line); border-radius: 999px; background: rgba(255, 255, 255, 0.6); font: inherit; }
+.cp-btn-text { font-size: 0.88rem; font-weight: 600; white-space: nowrap; }
+@container cpw (max-width: 620px) {
+  .cp-icon-btn.cp-new-chat { width: 40px; padding: 0; border: none; background: none; display: grid; }
+  .cp-btn-text { display: none; }
+}
 .cp-icon-btn { border: none; background: none; color: var(--cp-navy); width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; cursor: pointer; flex: none; transition: background-color 0.15s ease; }
 .cp-icon-btn:hover:not(:disabled) { background: var(--cp-pale); }
 .cp-icon-btn:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -72,14 +127,18 @@
 .cp-check.on { background: var(--cp-blue); border-color: var(--cp-blue); }
 .cp-menu-note { margin: 0.3rem 0.65rem 0.4rem; font-size: 0.78rem; color: var(--muted); }
 
-.cp-list { flex: 1; overflow-y: auto; padding: 1rem 0.9rem 0.6rem; overscroll-behavior: contain; background: linear-gradient(180deg, #fff, #f8fbff); }
-.cp-msg { display: flex; gap: 0.5rem; margin-bottom: 0.8rem; align-items: flex-start; animation: cp-in 0.22s ease-out both; }
+/* Only the conversation scrolls. Messages and the composer share one centred reading column. */
+.cp-body { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.cp-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 1.25rem 1.25rem 0.75rem; }
+.cp-col { width: 100%; max-width: 840px; margin: 0 auto; }
+.cp-list > .cp-col { container: cpcol / inline-size; }
+.cp-msg { display: flex; gap: 0.6rem; margin-bottom: 1rem; align-items: flex-start; animation: cp-in 0.22s ease-out both; }
 .cp-msg.user { justify-content: flex-end; }
 .cp-msg-avatar { flex: none; margin-top: 2px; }
 .cp-msg-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; }
-.cp-bubble { background: var(--cp-pale); color: var(--cp-navy); padding: 0.6rem 0.85rem; border-radius: 4px 16px 16px 16px; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.95rem; line-height: 1.45; }
-.cp-bubble.user { background: var(--cp-blue); color: #fff; border-radius: 16px 4px 16px 16px; max-width: 82%; }
-.cp-bubble.error { background: var(--red-bg); color: var(--red-fg); }
+.cp-bubble { background: var(--cp-surface); color: var(--cp-navy); border: 1px solid var(--cp-line); padding: 0.65rem 0.95rem; border-radius: 4px 18px 18px 18px; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.97rem; line-height: 1.5; box-shadow: 0 1px 2px rgba(16, 41, 78, 0.04); }
+.cp-bubble.user { background: var(--cp-blue); color: #fff; border-color: transparent; border-radius: 18px 4px 18px 18px; max-width: min(78%, 38rem); }
+.cp-bubble.error { background: var(--red-bg); color: var(--red-fg); border-color: transparent; }
 .cp-typing { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); }
 .cp-dots { display: inline-flex; gap: 3px; }
 .cp-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--cp-blue); opacity: 0.35; animation: cp-dot 1.2s infinite ease-in-out; }
@@ -92,14 +151,29 @@
 .cp-chip:hover:not(:disabled) { background: var(--cp-pale); border-color: var(--cp-blue); }
 .cp-chip:disabled { opacity: 0.5; cursor: default; }
 
-/* Welcome shortcuts: one full-width button, then the three workflows, which wrap. */
-.cp-shortcuts { display: grid; gap: 0.5rem; margin: 0 0 0.9rem 36px; }
-.cp-shortcut-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 0.5rem; }
-.cp-shortcut-row .cp-shortcut { align-items: center; text-align: center; min-height: 52px; padding: 0.5rem 0.4rem; }
+/* Welcome: heading, greeting, then the four shortcuts. In a wide column they sit in one row
+   (What Needs My Attention? first and highlighted); narrower, they wrap onto more rows. */
+.cp-welcome { padding: clamp(0.5rem, 5vh, 3rem) 0 1rem; }
+.cp-hero { margin: 0 0 1.4rem; }
+.cp-hero-title { margin: 0 0 0.45rem; font-size: clamp(1.45rem, 1.1rem + 1.2vw, 2.05rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; color: #10294e; }
+.cp-hero-greeting { margin: 0; font-size: 1.05rem; color: var(--cp-navy); }
+.cp-shortcuts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.65rem; margin: 0 0 1.1rem; }
+.cp-shortcut-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.65rem; }
+/* Measured in em so larger text moves to the roomier layouts later, and no shortcut is left on its own. */
+@container cpcol (min-width: 30em) {
+  .cp-shortcut-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@container cpcol (min-width: 46em) {
+  .cp-shortcuts { grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); }
+}
+@container cpcol (max-width: 29.99em) {
+  .cp-shortcuts .cp-shortcut { min-height: 0; }
+}
 .cp-shortcut {
-  display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.15rem;
-  min-height: 56px; padding: 0.55rem 0.75rem; text-align: left; cursor: pointer;
-  border: 1px solid #b9d3f3; border-radius: 12px; background: var(--paper, #fff); color: var(--cp-navy); font: inherit;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0.25rem;
+  min-height: 84px; padding: 0.8rem 0.95rem; text-align: left; cursor: pointer;
+  border: 1px solid var(--cp-field-edge); border-radius: 16px; background: var(--cp-surface); color: var(--cp-navy); font: inherit;
+  box-shadow: 0 1px 2px rgba(16, 41, 78, 0.05);
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 .cp-shortcut.wide { background: var(--cp-blue); border-color: var(--cp-blue); color: #fff; }
@@ -112,11 +186,11 @@
 .cp-shortcut:disabled { opacity: 0.55; cursor: default; }
 .cp-shortcut:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-.cp-trust { display: flex; gap: 0.7rem; align-items: flex-start; border: 1px solid var(--cp-line); background: var(--paper, #fff); border-radius: 16px; padding: 0.8rem 0.9rem; margin-left: 36px; }
+.cp-trust { display: flex; gap: 0.7rem; align-items: flex-start; border: 1px solid var(--cp-line); background: var(--cp-surface); border-radius: 16px; padding: 0.8rem 0.9rem; }
 .cp-trust strong { color: var(--cp-navy); font-size: 0.92rem; }
 .cp-trust p { margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--muted); }
 .cp-shield { color: var(--cp-blue); flex: none; margin-top: 2px; }
-.cp-mode { margin: 0.7rem 0 0 36px; font-size: 0.78rem; display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; }
+.cp-mode { margin: 0.7rem 0 0; font-size: 0.78rem; display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; }
 .cp-mode.demo { background: var(--amber-bg); color: var(--amber-fg); }
 .cp-mode.live { background: var(--green-bg); color: var(--green-fg); }
 
@@ -175,11 +249,15 @@
 .cp-notice.warning { background: var(--amber-bg); color: var(--amber-fg); }
 .cp-notice.error { background: var(--red-bg); color: var(--red-fg); }
 
-.cp-new { position: absolute; left: 50%; bottom: 128px; transform: translateX(-50%); border: none; border-radius: 999px; background: var(--cp-navy); color: #fff; font: inherit; font-size: 0.82rem; font-weight: 600; padding: 0.4rem 0.9rem; cursor: pointer; box-shadow: 0 6px 16px rgba(10, 42, 102, 0.25); }
+.cp-new { position: absolute; z-index: 2; left: 50%; bottom: 12px; transform: translateX(-50%); border: none; border-radius: 999px; background: var(--cp-navy); color: #fff; font: inherit; font-size: 0.82rem; font-weight: 600; padding: 0.4rem 0.9rem; cursor: pointer; box-shadow: 0 6px 16px rgba(10, 42, 102, 0.25); }
 
 /* Composer */
-.cp-composer { padding: 0.6rem 0.8rem calc(0.6rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--cp-line); background: var(--paper, #fff); }
-.cp-input { display: flex; align-items: flex-end; gap: 0.2rem; border: 1px solid var(--field-border); border-radius: 22px; padding: 0.2rem 0.25rem 0.2rem 0.2rem; background: var(--paper, #fff); transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+.cp-composer { flex: none; padding: 0.55rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--cp-line); }
+.cp-input {
+  display: flex; align-items: flex-end; gap: 0.2rem; border: 1px solid var(--cp-field-edge); border-radius: 22px; padding: 0.25rem 0.3rem 0.25rem 0.25rem;
+  background: rgba(255, 255, 255, 0.82); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  box-shadow: 0 6px 22px rgba(16, 41, 78, 0.08); transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 .cp-input:focus-within { border-color: var(--focus); box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15); }
 .cp-input textarea { flex: 1; border: none; background: none; resize: none; min-height: 40px; max-height: 140px; padding: 0.55rem 0.2rem; font: inherit; font-size: 0.95rem; color: var(--text); box-shadow: none !important; field-sizing: content; }
 .cp-input textarea:focus { outline: none; }
@@ -191,7 +269,8 @@
 .cp-attach-note { font-size: 0.8rem; color: var(--info-fg); margin: 0 0 0.35rem; }
 
 /* Voice mode */
-.cp-voice { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 1rem 1.1rem calc(1rem + env(safe-area-inset-bottom)); gap: 0.55rem; background: radial-gradient(120% 60% at 50% 0%, #eef5ff, #fff 70%); }
+.cp-voice { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1.25rem calc(1rem + env(safe-area-inset-bottom)); gap: 0.55rem; background: radial-gradient(60% 45% at 50% 0%, rgba(214, 231, 255, 0.55), rgba(255, 255, 255, 0) 70%); }
+.cp-voice > * { max-width: 560px; }
 .cp-voice-stage { position: relative; display: grid; place-items: center; width: 190px; height: 190px; }
 .cp-halo { position: absolute; inset: 8px; border-radius: 50%; background: radial-gradient(circle, rgba(61, 139, 255, 0.22), rgba(61, 139, 255, 0) 70%); opacity: 0.35; transition: opacity 0.3s ease; }
 .cp-voice-stage.live .cp-halo { opacity: 1; animation: cp-halo 2.4s ease-in-out infinite; }
@@ -270,18 +349,22 @@
   .cl-avatar-btn svg { width: 60px; height: 60px; }
   .cl-pill { padding: 0.45rem 0.85rem; font-size: 0.85rem; }
   .cl-greeting { right: 18px; bottom: calc(92px + env(safe-area-inset-bottom)); }
-  .cp-panel {
-    right: 0; left: 0; bottom: 0; top: auto; width: 100%;
-    height: var(--compass-vh, 100dvh); max-height: none; border-radius: 0; border: none;
-    transform: translateY(24px);
-  }
-  .cp-panel.open { transform: none; }
-  .cl-launcher.is-open, .cl-launcher.is-open > * { opacity: 0; pointer-events: none; }
-  .cp-starters, .cp-shortcuts, .cp-trust, .cp-mode { margin-left: 0; }
+  .cp-starters { margin-left: 0; }
+  .cp-list { padding: 1rem 0.85rem 0.6rem; }
+  .cp-composer { padding-left: 0.6rem; padding-right: 0.6rem; }
   .cp-voice-stage { width: 160px; height: 160px; }
   .cp-voice-stage svg { width: 130px; height: 130px; }
-  .cp-new { bottom: 120px; }
 }
+
+/* Phones: the workspace takes the whole visible screen (above the keyboard), clear of notches and
+   the home bar. The header's close button takes over from the launcher, which steps aside. */
+.compass-root[data-layout="full"] .cp-panel { border-radius: 0; border: none; box-shadow: none; transform: translateY(18px); }
+.compass-root[data-layout="full"] .cp-panel.open { transform: none; clip-path: inset(0); }
+.compass-root[data-layout="full"] .cp-header { padding-top: calc(0.6rem + env(safe-area-inset-top)); padding-left: calc(0.85rem + env(safe-area-inset-left)); padding-right: calc(0.5rem + env(safe-area-inset-right)); }
+.compass-root[data-layout="full"] .cl-launcher.is-open { visibility: hidden; opacity: 0; pointer-events: none; }
+
+html[data-controls="large"] .compass-root .cp-icon-btn { min-width: 48px; height: 48px; }
+html[data-controls="large"] .compass-root .cp-send { width: 48px; height: 48px; }
 @media (max-width: 380px) {
   .cl-pill { display: none; }
 }
