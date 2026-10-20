@@ -141,7 +141,7 @@ describe("reviews", () => {
   it("agrees with the seeded procedures and flags what the rules don't check", () => {
     const refund = procedureChecks(snap(DEFAULT_REFUND_POLICY), KB);
     expect(refund.filter((f) => f.kind === "conflict")).toEqual([]);
-    expect(refund.some((f) => f.kind === "not_enforced" && /unused lessons/.test(f.text))).toBe(true);
+    expect(refund.some((f) => /unused lessons/.test(f.text))).toBe(false);
     expect(procedureChecks(snap(DEFAULT_PAYMENT_EXTENSION_POLICY), KB).filter((f) => f.kind === "conflict")).toEqual([]);
     expect(procedureChecks(snap(DEFAULT_LESSON_CHANGE_POLICY), KB).some((f) => /24 hours/.test(f.text))).toBe(true);
   });

@@ -296,7 +296,6 @@ export async function buildReview(ctx: TurnCtx, b: RequestBundle, mode: "review"
     ...(policyNote ? [{ tone: "warning" as const, text: policyNote }] : []),
     ...(b.liveError ? [{ tone: "error" as const, text: `The current booking and payment records couldn't be read, so changes since the rule check can't be ruled out. ${b.liveError}` }] : []),
     ...findings.map((f) => ({ tone: f.kind === "conflict" ? ("error" as const) : ("info" as const), text: f.text })),
-    ...(booking?.dataLabel === "fictional_demo" ? [{ tone: "info" as const, text: "These are fictional demonstration records." }] : []),
   ];
   if (!b.decision) issues.unshift({ tone: "error", text: "The latest rule check couldn't be found, so the result can't be shown." });
 

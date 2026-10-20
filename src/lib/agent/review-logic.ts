@@ -110,9 +110,6 @@ export function procedureChecks(policy: PolicySnapshot | null, articles: Procedu
         });
       }
     }
-    if (policy.category === "refund" && /unused lessons?/i.test(a.body)) {
-      found.push({ kind: "not_enforced", articleId: a.id, text: `${a.id} says refunds are calculated on unused lessons. ${label} doesn't calculate this, so check the amount against the lessons left by hand.` });
-    }
     const notice = /(\d{1,3})\s*hours?'?\s*notice/i.exec(a.body);
     if (policy.category === "lesson_change" && notice) {
       found.push({ kind: "not_enforced", articleId: a.id, text: `${a.id} requires ${notice[1]} hours' notice for a free reschedule. ${label} doesn't check notice, so confirm it by hand.` });
