@@ -337,7 +337,7 @@ export function RuleEditor({ versionId, initial, version }: { versionId: string;
   );
 }
 
-// ---- Describe a rule -------------------------------------------------------------
+// ---- Describe a Rule -------------------------------------------------------------
 
 type Proposal = { mode: "live_ai" | "simulated"; modeNote: string; definition: PolicyDefinition; ambiguities: string[]; check: PolicyCheck };
 
