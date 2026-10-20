@@ -136,7 +136,7 @@ describe("reviews", () => {
     expect(get("Paid and not yet refunded")).toBe("$480.00");
     expect(get("Lessons")).toBe("4 of 10 used, 6 left");
     expect(figures.some((f) => /unused/i.test(f.label))).toBe(false);
-    expect(note).toMatch(/No unused-lesson refund figure/);
+    expect(note).toBeNull();
   });
   it("agrees with the seeded procedures and flags what the rules don't check", () => {
     const refund = procedureChecks(snap(DEFAULT_REFUND_POLICY), KB);

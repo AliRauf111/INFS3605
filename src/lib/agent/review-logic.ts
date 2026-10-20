@@ -59,9 +59,7 @@ export function financialFigures(opts: {
       source: "record",
     });
   }
-  const note = requestType === "refund"
-    ? "No unused-lesson refund figure is shown. The written procedure says refunds are based on unused lessons, but the owner's rules don't define that calculation (for example, how part-used packages or fees are treated). The rules only check the amount against what was paid."
-    : null;
+  const note: string | null = null;
   return { figures, note };
 }
 
