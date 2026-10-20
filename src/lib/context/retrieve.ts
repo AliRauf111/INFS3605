@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db/supabase";
 import type { ConfirmedFacts } from "@/lib/validation/facts";
-import type { EvidenceSnapshot } from "@/lib/engine/evidence";
+import type { BookingRecord, EvidenceSnapshot, PaymentRecord } from "@/lib/engine/evidence";
 import type { PolicyCategory, PolicyDefinition, PolicySnapshot } from "@/lib/engine/policy";
 import { POLICY_CATEGORIES } from "@/lib/engine/policy";
 import { classifyReference, mapBooking, mapPayment, mapSlot, type BookingRow, type PaymentRow, type SlotRow } from "./mappers";
@@ -152,4 +152,20 @@ export async function freeSlotsForBooking(bookingId: string) {
     .gte("starts_at", new Date().toISOString())
     .order("starts_at");
   return ((data ?? []) as unknown as SlotRow[]).map((s) => mapSlot(s, new Date()));
+}
+
+/**
+ * The booking and its payments as they are now, for comparing with the evidence a
+ * decision used. Read-only, and only for a booking already linked to a request.
+ */
+export async function liveRecordsForBooking(bookingId: string, now = new Date()): Promise<{ booking: BookingRecord | null; payments: PaymentRecord[] | null }> {
+  const row = await bookingById(bookingId);
+  if (!row) return { booking: null, payments: null };
+  const { data, error } = await db()
+    .from("payments")
+    .select("id, booking_id, invoice_ref, amount_cents, status, paid_at, due_date, data_label, last_synced_at")
+    .eq("booking_id", bookingId)
+    .order("id");
+  if (error) throw new Error(`Payment lookup failed: ${error.message}`);
+  return { booking: mapBooking(row, now), payments: ((data ?? []) as PaymentRow[]).map((p) => mapPayment(p, now)) };
 }

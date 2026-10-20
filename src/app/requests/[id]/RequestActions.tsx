@@ -129,7 +129,7 @@ export function RequestActions(props: {
           <fieldset>
             <legend>Your decision for this request only</legend>
             <div className="choices">
-              {([["approve", "Approve"], ["decline", "Decline"], ["request_info", "Ask for more information"]] as const).map(([v, l]) => (
+              {([["approve", "Approve"], ["decline", "Decline"], ["request_info", "Ask for Information"]] as const).map(([v, l]) => (
                 <label className="choice" key={v}><input type="radio" name="ownerAction" checked={ownerAction === v} onChange={() => setOwnerAction(v)} />{l}</label>
               ))}
             </div>

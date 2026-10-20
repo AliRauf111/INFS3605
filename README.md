@@ -90,7 +90,7 @@ Put the printed API URL and secret (service role) key into `.env.local`, then ru
 | AI intake, drafts and "Describe a rule" | Live when `ANTHROPIC_API_KEY` is set. Otherwise simulated with keyword rules and templates, and labelled as such on screen. Live AI has not been tested in this build because no key was available. |
 | Bookings, payments, tutor availability | Fictional rows in Supabase. No real systems are connected. |
 | Email, SMS, payments, booking changes | Not connected, on purpose. The app only prepares drafts. |
-| Compass AI chat assistant | Live AI when `ANTHROPIC_API_KEY` is set (optional `ANTHROPIC_MODEL`). Without it the chat runs in demo mode with keyword rules, and the panel says "Demo mode" in the welcome screen, the menu and each reply. Either way the colour comes from the rule engine, and nothing is saved until the person confirms a preview. |
+| Compass AI chat assistant | Live AI when `ANTHROPIC_API_KEY` is set (optional `ANTHROPIC_MODEL`). Without it the chat runs in demo mode with keyword rules, and the panel says so. Briefings and reviews come from the records either way. The colour comes from the rule engine, and nothing is saved until the person confirms a server-side proposal. Welfare cases never go to the AI service. |
 | Compass AI voice | Uses the browser's own Web Speech API, so there is no key to set. Works in Chrome, Edge and Safari (Chrome sends the audio to Google's speech service). Firefox doesn't support it, and the panel says so. Spoken replies are off by default. |
 | Coverage suggestions | Deterministic pattern counts over saved requests. No AI is used. Suggestions stay inactive until the owner reviews and activates a rule. |
 
@@ -139,12 +139,22 @@ When the website first opens, a blue screen with Compass dancing covers the page
 
 ## Compass AI
 
-Compass AI is the robot in the bottom right corner of every signed-in page. Staff can ask it to check a refund, change a lesson or find a policy, by typing or by voice.
+Compass AI is the robot in the bottom right corner of every signed-in page. Staff can ask it to check a refund, change a lesson or find a policy, by typing or by voice. It also helps with owner work:
 
-- The browser only talks to `/api/assistant`. The AI key stays on the server and is never sent to the page.
-- The AI only reads the message and pulls out facts. The rule engine decides green, amber or red, the same as the wizard.
-- Every action shows a preview first. Saving creates a request, and "Submit for owner review" uses the normal workflow, so the server checks permissions as usual. Compass never moves money, changes bookings or sends messages.
-- To turn on live AI, add `ANTHROPIC_API_KEY` in Vercel under Settings > Environment Variables and redeploy.
+- **What Needs My Attention?** A briefing built on demand from current records: requests waiting for the owner, owner reviews not yet sent, requests needing clarification, decided requests still waiting for an outcome and green requests ready for the admin team. Counts come from exact database counts, not a capped list. Items are ordered by fixed rules (welfare, then complaints, then red, amber and green, then longest wait), with Review Request, Prepare Follow-up, Record Outcome, Show Pending Outcomes and Refresh.
+- **Decision-ready reviews.** "Prepare FAM-07 for review" or "Explain why this request was escalated" shows the request, what the parent wants, money figures from the records, the rule result and policy version, facts split into from records, supplied and missing, conflicts and changed records, procedures and history. Compass never recommends an outcome. When evidence is incomplete it says what blocks a decision and prepares an Ask for Information note.
+- **Routine enquiries.** "Can this family have seven extra days to pay?", "What information do I need for this refund?", "What can I do under the current policy?" and "Prepare a reply asking for the missing details" use the active policy, the approved procedures and the rule engine. Drafts are editable and never sent.
+
+How changes are kept safe:
+
+- Reads, previews and unsaved drafts need no confirmation. Every saved change (a new request, Send to Owner, Approve, Decline, Ask for Information, Record Outcome, Save Draft) is first stored as a proposal in `agent_proposals` with its exact inputs, the record and policy versions it relied on, the role needed and a 15 minute expiry. The person sees the preview and chooses Confirm, Edit (which replaces the proposal) or Cancel.
+- On Confirm the server re-reads the records and re-runs the rules. If anything changed it shows an updated preview instead. The database function `execute_agent_proposal` then checks the role, expiry and versions again under a row lock, makes the change and writes the audit record in one transaction, and never runs the same proposal twice. Owner decisions can only be confirmed by the owner.
+- Approving a refund records a decision. It does not move money, change bookings or send messages.
+- The AI only reads words, summarises and drafts. It never chooses the colour, a record, a permission or an action. A message or request that may describe a child welfare concern is never sent to the AI service: Compass uses keyword rules on the server, the case follows the fixed welfare escalation, and admins see only a restricted summary.
+- Conversation state is kept on the server in `agent_sessions`, tied to the signed-in user.
+- `/api/health` reports whether the Compass tables exist and whether the AI key works and the model is available.
+- To turn on live AI, add `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`) in Vercel under Settings > Environment Variables and redeploy.
+- Database checks for the approval process are in `supabase/tests/agent-proposals.sql`.
 
 ## 60-second demo
 

@@ -63,7 +63,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </main>
         {user && <SiteFooter />}
         {user && <A11yPanel />}
-        {user && <Assistant firstName={user.displayName.split(" ")[0]} aiLive={aiConfigured()} />}
+        {user && <Assistant firstName={user.displayName.split(" ")[0]} aiLive={aiConfigured()} role={user.role} />}
       </body>
     </html>
   );

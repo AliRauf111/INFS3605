@@ -13,7 +13,7 @@ import { SubmitRequestSchema, validateFactsForm, type ConfirmedFacts } from "@/l
 // Action handling for requests: validate, retrieve context, evaluate, then save
 // everything in one database transaction.
 
-function requestColumns(facts: ConfirmedFacts, result: DecisionResult, evidence: EvidenceSnapshot) {
+export function requestColumns(facts: ConfirmedFacts, result: DecisionResult, evidence: EvidenceSnapshot) {
   return {
     request_type: facts.requestType,
     money_involved: facts.moneyInvolved,
@@ -34,7 +34,7 @@ function requestColumns(facts: ConfirmedFacts, result: DecisionResult, evidence:
   };
 }
 
-function decisionColumns(facts: ConfirmedFacts, result: DecisionResult, policy: PolicySnapshot | null, inputHash: string) {
+export function decisionColumns(facts: ConfirmedFacts, result: DecisionResult, policy: PolicySnapshot | null, inputHash: string) {
   return {
     colour: result.colour,
     matched_rule_id: result.matchedRuleId,
@@ -49,7 +49,7 @@ function decisionColumns(facts: ConfirmedFacts, result: DecisionResult, policy: 
   };
 }
 
-async function decide(user: SessionUser, sessionKey: string, facts: ConfirmedFacts) {
+export async function decide(user: SessionUser, sessionKey: string, facts: ConfirmedFacts) {
   const evidence = await toolRetrieveRecords(user, { sessionKey, facts });
   const policy = await toolRetrievePolicy(user, sessionKey, facts.requestType);
   const { result, inputHash } = await toolEvaluate(user, sessionKey, facts, evidence, policy);

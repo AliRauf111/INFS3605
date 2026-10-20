@@ -18,7 +18,13 @@ export type ActivityEvent =
   | "owner_review_created"
   | "rule_proposed"
   | "suggestion_prepared"
-  | "ai_unavailable";
+  | "ai_unavailable"
+  | "records_retrieved"
+  | "briefing_prepared"
+  | "proposal_prepared"
+  | "proposal_confirmed"
+  | "proposal_cancelled"
+  | "sensitive_case_routed";
 
 export type ActivityState = "pending" | "completed" | "blocked" | "failed";
 export type ActivityMode = "live_ai" | "simulated" | "system";

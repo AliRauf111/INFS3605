@@ -1,7 +1,8 @@
 "use client";
 import "./assistant.css";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { EMPTY_STATE, type AssistantState, type Block, type Choice, type TaskField, type TurnResponse } from "@/lib/assistant/logic";
+import { EMPTY_STATE, type AssistantState, type Block, type Choice, type Command, type TaskField, type TurnResponse } from "@/lib/assistant/logic";
+import type { Role } from "@/lib/domain/types";
 import { CompassAvatar, type AvatarState } from "./CompassAvatar";
 import { AssistantMessage, type ActionState, type ChatItem } from "./Messages";
 import { useSpeech, useVoice } from "./useVoice";
@@ -11,17 +12,40 @@ import { motionReduced } from "@/lib/a11y/motion";
 // panel, the conversation and the voice controls. The server decides what to ask and
 // runs the owner's rules; nothing here can change a decision.
 
-type SendInput = { message?: string; answer?: { field: TaskField; value: string }; start?: "refund" | "lesson_change" | "policy" };
+type SendInput = {
+  message?: string;
+  answer?: { field: TaskField; value: string };
+  start?: "refund" | "lesson_change" | "policy" | "briefing" | "owner_queue";
+  command?: Command;
+};
 type Stored = { items: ChatItem[]; state: AssistantState; sessionKey: string; readAloud: boolean; draft: string };
 
-const STORE = "compass.chat.v1";
+const STORE = "compass.chat.v2";
 const GREETED = "compass.greeted";
 
 const uid = () => crypto.randomUUID();
 
 function spokenText(blocks: Block[]): string {
   return blocks
-    .map((b) => (b.kind === "text" ? b.text : b.kind === "decision" ? `${b.title}. ${b.explanation}` : b.kind === "policy" ? b.answer : b.kind === "notice" ? b.text : ""))
+    .map((b) => {
+      switch (b.kind) {
+        case "text":
+        case "notice":
+          return b.text;
+        case "decision":
+          return `${b.title}. ${b.explanation}`;
+        case "policy":
+          return b.answer;
+        case "review":
+          return `Review of ${b.request.reference}. ${b.request.statusLabel}. ${b.readiness.ready ? "Ready for a decision." : "Not ready for a clean decision."}`;
+        case "proposal":
+          return `${b.proposal.preview.title}. Prepared, not saved. Awaiting your confirmation.`;
+        case "draft":
+          return `${b.title} prepared. Not saved and not sent.`;
+        default:
+          return "";
+      }
+    })
     .filter(Boolean)
     .join(" ");
 }
@@ -47,7 +71,7 @@ function Svg({ name, label }: { name: keyof typeof Icon; label?: string }) {
 
 const WAVE = Array.from({ length: 28 }, (_, i) => i);
 
-export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: boolean }) {
+export function Assistant({ firstName, aiLive, role }: { firstName: string; aiLive: boolean; role: Role }) {
   const [hydrated, setHydrated] = useState(false);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"chat" | "voice">("chat");
@@ -310,10 +334,11 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   };
 
   const onPick = (field: TaskField, c: Choice) => void send({ answer: { field, value: c.value } }, c.label);
+  const onCommand = (command: Command, label: string) => void send({ command }, label);
 
   const onAction = (itemId: string, index: number, next: ActionState) => {
     setItems((xs) => xs.map((x) => (x.id === itemId ? { ...x, actions: { ...x.actions, [index]: next } } : x)));
-    if (next.stage === "submitted" || (next.stage === "saved" && next.status === "ready")) flash("success");
+    if (next.card?.p?.stage === "done") flash("success");
   };
 
   const newConversation = () => {
@@ -481,9 +506,12 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
                     <div className="cp-msg-body"><div className="cp-bubble">Hi {firstName}. What would you like to sort out?</div></div>
                   </div>
                   <div className="cp-chips cp-starters">
+                    <button type="button" className="cp-chip" onClick={() => void send({ start: "briefing" }, "What Needs My Attention?")}>What Needs My Attention?</button>
+                    {role === "owner" && <button type="button" className="cp-chip" onClick={() => void send({ start: "owner_queue" }, "Requests Needing My Decision")}>Requests Needing My Decision</button>}
                     <button type="button" className="cp-chip" onClick={() => void send({ start: "refund" }, "Check a refund")}>Check a refund</button>
                     <button type="button" className="cp-chip" onClick={() => void send({ start: "lesson_change" }, "Change a lesson")}>Change a lesson</button>
                     <button type="button" className="cp-chip" onClick={() => void send({ start: "policy" }, "Find a policy")}>Find a policy</button>
+                    <button type="button" className="cp-chip" onClick={() => void send({ command: { type: "policy_overview" } }, "What can I do under the current policy?")}>Current rules</button>
                   </div>
                   <div className="cp-trust">
                     <span className="cp-shield" aria-hidden="true">
@@ -506,8 +534,11 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
                     item={item}
                     last={i === items.length - 1}
                     busy={busy}
+                    sessionKey={sessionKey}
                     onPick={onPick}
                     onAction={onAction}
+                    onCommand={onCommand}
+                    onAnnounce={setAnnounce}
                     onRetry={() => lastSend.current && void send(lastSend.current.input, lastSend.current.label)}
                   />
                 ),

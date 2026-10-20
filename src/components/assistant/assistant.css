@@ -270,3 +270,71 @@
   .compass-root *, .compass-root *::before, .compass-root *::after { animation: none !important; transition: none !important; }
   .cl-avatar-btn:hover, .cl-avatar-btn:focus-visible { transform: none; }
 }
+
+/* Owner and enquiry cards: briefing, review, drafts and confirmations. They reuse the
+   same tokens as the decision card, so themes and high contrast carry over. */
+.cp-briefing, .cp-review, .cp-draftcard { width: 100%; border: 1px solid var(--cp-line); border-radius: 16px; padding: 0.8rem 0.9rem; background: var(--paper, #fff); font-size: 0.9rem; }
+.cp-review { border-left-width: 6px; }
+.cp-review.green { border-left-color: var(--green-edge); }
+.cp-review.amber { border-left-color: var(--amber-edge); }
+.cp-review.red { border-left-color: var(--red-edge); }
+.cp-briefing h3, .cp-review h3, .cp-draftcard h3 { margin: 0; font-size: 0.98rem; color: var(--cp-navy); }
+.cp-briefing h4, .cp-review h4, .cp-draftcard h4, .cp-found h4 { margin: 0.7rem 0 0.25rem; font-size: 0.86rem; color: var(--cp-navy); }
+.cp-review h5 { margin: 0.4rem 0 0.15rem; font-size: 0.82rem; }
+.cp-review p, .cp-draftcard p { margin: 0 0 0.35rem; }
+.cp-review ul, .cp-draftcard ul, .cp-proposal ul { margin: 0.2rem 0 0.4rem; padding-left: 1.1rem; }
+.cp-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+.cp-empty { margin: 0.5rem 0 0; padding: 0.7rem; border-radius: 12px; background: var(--green-bg); color: var(--green-fg); }
+.cp-section + .cp-section { border-top: 1px solid var(--cp-line); margin-top: 0.6rem; }
+.cp-count { display: inline-grid; place-items: center; min-width: 1.6rem; padding: 0 0.4rem; height: 1.4rem; border-radius: 999px; background: var(--cp-pale); color: var(--cp-navy); font-size: 0.78rem; margin-left: 0.2rem; }
+.cp-items { list-style: none; margin: 0.3rem 0 0.2rem; padding: 0; display: grid; gap: 0.45rem; }
+.cp-item { border: 1px solid var(--cp-line); border-radius: 12px; padding: 0.55rem 0.65rem; }
+.cp-item-top { display: flex; gap: 0.45rem; align-items: center; color: var(--cp-navy); }
+.cp-item .cp-row { margin-top: 0.3rem; }
+.cp-dot-c { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 50%; flex: none; }
+.cp-dot-c.green { background: var(--green-edge); }
+.cp-dot-c.amber { background: var(--amber-edge); }
+.cp-dot-c.red { background: var(--red-edge); }
+.cp-flag { margin: 0.15rem 0; font-size: 0.8rem; font-weight: 600; color: var(--red-fg); }
+.cp-why { margin: 0.15rem 0 0; font-size: 0.84rem; }
+.cp-figures { display: grid; grid-template-columns: 1fr; gap: 0.15rem; margin: 0 0 0.3rem; }
+.cp-figures div { display: flex; justify-content: space-between; gap: 0.6rem; border-bottom: 1px dashed var(--cp-line); padding: 0.15rem 0; }
+.cp-figures dt { color: var(--muted); }
+.cp-figures dd { margin: 0; font-weight: 600; text-align: right; }
+.cp-src { font-weight: 400; color: var(--muted); font-size: 0.78rem; }
+.cp-rule-line { margin: 0 0 0.25rem; }
+.cp-rule-line.green strong { color: var(--green-fg); }
+.cp-rule-line.amber strong { color: var(--amber-fg); }
+.cp-rule-line.red strong { color: var(--red-fg); }
+.cp-issues { list-style: none; padding: 0; margin: 0.4rem 0; display: grid; gap: 0.3rem; }
+.cp-issues li { border-radius: 10px; padding: 0.4rem 0.6rem; font-size: 0.84rem; }
+.cp-issues li.info { background: var(--info-bg); color: var(--info-fg); }
+.cp-issues li.warning { background: var(--amber-bg); color: var(--amber-fg); }
+.cp-issues li.error { background: var(--red-bg); color: var(--red-fg); }
+.cp-more { margin: 0.35rem 0; font-size: 0.86rem; }
+.cp-more summary { cursor: pointer; color: var(--cp-blue); font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+.cp-history { padding-left: 1.1rem; margin: 0.2rem 0; }
+.cp-history p { margin: 0.1rem 0 0.3rem; color: var(--muted); }
+.cp-ready { border-radius: 12px; padding: 0.55rem 0.7rem; margin: 0.5rem 0 0.3rem; font-size: 0.86rem; }
+.cp-ready p { margin: 0; }
+.cp-ready.yes { background: var(--green-bg); color: var(--green-fg); }
+.cp-ready.no { background: var(--amber-bg); color: var(--amber-fg); }
+.cp-tag.ai { background: var(--info-bg); color: var(--info-fg); }
+.cp-proposal { margin-top: 0.6rem; border: 1px solid var(--cp-blue); border-radius: 14px; padding: 0.65rem 0.75rem; background: var(--paper, #fff); width: 100%; font-size: 0.88rem; }
+.cp-proposal h4 { margin: 0.2rem 0; font-size: 0.92rem; color: var(--cp-navy); }
+.cp-proposal.done { border-color: var(--green-edge); background: var(--green-bg); color: var(--green-fg); }
+.cp-proposal.closed { border-color: var(--cp-line); }
+.cp-changes { width: 100%; border-collapse: collapse; margin: 0.35rem 0; font-size: 0.84rem; }
+.cp-changes th, .cp-changes td { text-align: left; padding: 0.25rem 0.35rem; border-bottom: 1px solid var(--cp-line); vertical-align: top; }
+.cp-changes thead th { color: var(--muted); font-weight: 600; }
+.cp-quote { background: var(--cp-pale); border-radius: 10px; padding: 0.45rem 0.6rem; margin: 0.35rem 0; }
+.cp-quote p { margin: 0.15rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cp-label { font-size: 0.76rem; font-weight: 600; color: var(--muted); }
+.cp-warnings { font-size: 0.84rem; color: var(--amber-fg); }
+.cp-draftcard textarea { width: 100%; font: inherit; font-size: 0.88rem; margin-top: 0.3rem; }
+.cp-checklist { list-style: none; padding: 0; margin: 0.2rem 0 0.4rem; }
+.cp-checklist li { padding: 0.15rem 0; }
+.cp-checklist li.missing { color: var(--amber-fg); }
+.cp-checklist li.have { color: var(--green-fg); }
+.cp-briefing .cp-btn, .cp-review .cp-btn, .cp-proposal .cp-btn, .cp-draftcard .cp-btn { min-height: 44px; }
+.cp-more summary:focus-visible, .cp-chip:focus-visible, .cp-btn:focus-visible, .cp-link:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }

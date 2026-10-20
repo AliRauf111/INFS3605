@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import type { Block, Choice, Step, TaskField } from "@/lib/assistant/logic";
-import { STATUS_LABELS, type RequestStatus } from "@/lib/domain/types";
+import type { Block, Choice, Command, Step, TaskField } from "@/lib/assistant/logic";
+import { BriefingCard, ChecklistCard, DraftCard, OptionsRow, ProposalCard, ReviewCard, RulesCard, prepare, type CardState } from "./AgentCards";
 import { CompassAvatar } from "./CompassAvatar";
 
 // What a conversation looks like on screen: bubbles, the steps Compass actually ran,
@@ -10,13 +10,9 @@ import { CompassAvatar } from "./CompassAvatar";
 // it survives minimising the panel.
 
 export type ActionState = {
-  stage: "idle" | "preview" | "saving" | "saved" | "note" | "submitting" | "submitted" | "drafting" | "error";
+  stage: "idle" | "preparing" | "error";
   key: string;
-  requestId?: string;
-  savedColour?: string;
-  status?: RequestStatus;
-  note?: string;
-  draft?: string;
+  card?: CardState;
   error?: string;
 };
 
@@ -30,13 +26,6 @@ export type ChatItem = {
   error?: boolean;
   actions?: Record<number, ActionState>;
 };
-
-async function postJson(url: string, body: unknown) {
-  const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error ?? `Something went wrong (${res.status}).`);
-  return json;
-}
 
 const ICON: Record<string, string> = { green: "✓", amber: "!", red: "■" };
 
@@ -65,55 +54,36 @@ function ChoiceRow({ field, options, disabled, onPick }: { field: TaskField; opt
   );
 }
 
-function DecisionCard({ block, action, onAction }: {
+function DecisionCard({ block, action, onAction, sessionKey, onCommand, onAnnounce }: {
   block: Extract<Block, { kind: "decision" }>;
   action: ActionState;
   onAction: (next: ActionState) => void;
+  sessionKey: string;
+  onCommand: (c: Command, label: string) => void;
+  onAnnounce: (t: string) => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);
-  const previewRef = useRef<HTMLDivElement>(null);
-  // Bring the confirm button into view when the preview opens.
-  useEffect(() => {
-    if (action.stage === "preview") previewRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [action.stage]);
-  const set = (patch: Partial<ActionState>) => onAction({ ...action, ...patch });
+  const card = action.card ?? {};
 
-  const save = async () => {
-    set({ stage: "saving", error: undefined });
+  // Saving goes through the same server-side approval as every other Compass change:
+  // prepare a proposal, show exactly what will be saved, then confirm.
+  const start = async () => {
+    onAction({ ...action, stage: "preparing", error: undefined });
     try {
-      const r = await postJson("/api/requests", { idempotencyKey: action.key, intakeMethod: "ai_intake", facts: block.facts });
-      onAction({ ...action, stage: "saved", requestId: r.id, savedColour: r.colour, status: r.status, error: undefined });
+      const proposal = await prepare({ sessionKey, action: "request.create", facts: block.facts });
+      onAction({ ...action, stage: "idle", error: undefined, card: { p: { stage: "pending", proposal } } });
+      onAnnounce("Prepared. Check what will be saved, then confirm.");
     } catch (e) {
-      onAction({ ...action, stage: "error", error: e instanceof Error ? e.message : "Saving failed." });
-    }
-  };
-  const submit = async () => {
-    set({ stage: "submitting", error: undefined });
-    try {
-      const r = await postJson(`/api/requests/${action.requestId}/transition`, { action: "send_to_owner", note: action.note ?? "" });
-      onAction({ ...action, stage: "submitted", status: r.status, error: undefined });
-    } catch (e) {
-      onAction({ ...action, stage: "note", error: e instanceof Error ? e.message : "That didn't go through." });
-    }
-  };
-  const draft = async () => {
-    const before = action.stage;
-    set({ stage: "drafting", error: undefined });
-    try {
-      const r = await postJson(`/api/requests/${action.requestId}/drafts`, { kind: "parent_response", useAi: true });
-      onAction({ ...action, stage: before === "drafting" ? "saved" : before, draft: r.body, error: undefined });
-    } catch (e) {
-      onAction({ ...action, stage: before, error: e instanceof Error ? e.message : "The draft couldn't be prepared." });
+      onAction({ ...action, stage: "error", error: e instanceof Error ? e.message : "Couldn't prepare that. Nothing was saved." });
     }
   };
 
-  const saved = action.requestId && ["saved", "note", "submitting", "submitted", "drafting"].includes(action.stage);
-  const canSubmit = action.status === "review_required" || action.status === "needs_clarification";
+  const done = card.p?.stage === "done" ? card.p.result : undefined;
   const doneMessage = block.requestType === "refund"
     ? "You can now process the refund in your payment system. Tutor Compass never moves money."
     : block.requestType === "lesson_change"
       ? "You can now update the booking in your booking system. Tutor Compass doesn't change bookings."
-      : "You can now follow the next steps below.";
+      : "You can now follow the next steps under this rule.";
 
   return (
     <section className={`cp-decision ${block.colour}`} aria-label={`Decision: ${block.title}`}>
@@ -128,72 +98,51 @@ function DecisionCard({ block, action, onAction }: {
       {block.missing.length > 0 && (
         <ul className="cp-missing">{block.missing.map((m, i) => <li key={i}>{m}</li>)}</ul>
       )}
-      {block.nextSteps.length > 0 && (
-        <>
-          <button type="button" className="cp-link" aria-expanded={showDetails} onClick={() => setShowDetails((v) => !v)}>
-            {showDetails ? "Hide details" : "View details"}
-          </button>
-          {showDetails && (
-            <div className="cp-details">
+      {block.findings && block.findings.length > 0 && <ul className="cp-warnings">{block.findings.map((f, i) => <li key={i}>{f}</li>)}</ul>}
+      <button type="button" className="cp-link" aria-expanded={showDetails} onClick={() => setShowDetails((v) => !v)}>
+        {showDetails ? "Hide details" : "View details"}
+      </button>
+      {showDetails && (
+        <div className="cp-details">
+          {block.sources && (
+            <>
+              <strong>From records</strong>
+              <ul>{block.sources.retrieved.length ? block.sources.retrieved.map((x, i) => <li key={i}>{x}</li>) : <li>None.</li>}</ul>
+              <strong>Supplied by you</strong>
+              <ul>{block.sources.supplied.map((x, i) => <li key={i}>{x}</li>)}</ul>
+              <strong>Still missing</strong>
+              <ul>{block.sources.missing.length ? block.sources.missing.map((x, i) => <li key={i}>{x}</li>) : <li>Nothing.</li>}</ul>
+            </>
+          )}
+          {block.nextSteps.length > 0 && (
+            <>
               <strong>Next steps under this rule</strong>
               <ol>{block.nextSteps.map((s, i) => <li key={i}>{s}</li>)}</ol>
-              {block.policy && <Link href={block.policy.href}>{block.policy.label}</Link>}
-            </div>
+            </>
           )}
-        </>
-      )}
-
-      {action.stage === "idle" && <button type="button" className="cp-btn" onClick={() => set({ stage: "preview", key: action.key || crypto.randomUUID() })}>{block.actionLabel}</button>}
-
-      {(action.stage === "preview" || action.stage === "saving" || (action.stage === "error" && !action.requestId)) && (
-        <div ref={previewRef} className="cp-preview" role="group" aria-label="Preview before saving">
-          <p className="cp-status"><strong>Draft prepared.</strong> Awaiting your confirmation.</p>
-          <ul>{block.summary.map((s, i) => <li key={i}>{s}</li>)}</ul>
-          <p className="cp-small">Saving creates a request in Tutor Compass with this decision. It doesn&apos;t refund money, change a booking or send a message.</p>
-          {action.error && <p className="cp-error" role="alert">{action.error}</p>}
-          <div className="cp-row">
-            <button type="button" className="cp-btn" onClick={save} disabled={action.stage === "saving"}>{action.stage === "saving" ? "Saving…" : "Confirm and save"}</button>
-            <button type="button" className="cp-btn secondary" onClick={() => set({ stage: "idle", error: undefined })} disabled={action.stage === "saving"}>Cancel</button>
-          </div>
+          {block.policy && <Link href={block.policy.href}>{block.policy.label}</Link>}
         </div>
       )}
 
-      {saved && (
-        <div className="cp-result" role="status">
-          {action.stage === "submitted"
-            ? <p className="cp-status"><strong>Submitted for owner review.</strong> {action.status ? STATUS_LABELS[action.status] : ""}</p>
-            : <p className="cp-status"><strong>Saved.</strong> Status: {action.status ? STATUS_LABELS[action.status] : "saved"}.</p>}
-          {action.savedColour && action.savedColour !== block.colour && (
-            <p className="cp-error">The records changed after the check. The saved decision is {action.savedColour}. Open the request to see why.</p>
-          )}
-          {action.status === "ready" && <p className="cp-small">{doneMessage}</p>}
-          <div className="cp-row">
-            <Link className="cp-btn secondary" href={`/requests/${action.requestId}`}>Open request</Link>
-            {canSubmit && action.stage === "saved" && <button type="button" className="cp-btn" onClick={() => set({ stage: "note", note: block.summary.join(". ") + "." })}>Submit for owner review</button>}
-            {!action.draft && action.stage !== "note" && action.stage !== "submitting" && (
-              <button type="button" className="cp-btn secondary" onClick={draft} disabled={action.stage === "drafting"}>{action.stage === "drafting" ? "Drafting…" : "Draft parent message"}</button>
-            )}
-          </div>
-          {(action.stage === "note" || action.stage === "submitting") && (
-            <div className="cp-preview">
-              <label htmlFor={`note-${action.key}`}>Note for the owner</label>
-              <textarea id={`note-${action.key}`} rows={3} value={action.note ?? ""} onChange={(e) => set({ note: e.target.value })} />
-              {action.error && <p className="cp-error" role="alert">{action.error}</p>}
-              <div className="cp-row">
-                <button type="button" className="cp-btn" onClick={submit} disabled={action.stage === "submitting" || !(action.note ?? "").trim()}>{action.stage === "submitting" ? "Submitting…" : "Confirm and submit"}</button>
-                <button type="button" className="cp-btn secondary" onClick={() => set({ stage: "saved", error: undefined })}>Cancel</button>
-              </div>
-            </div>
-          )}
-          {action.draft && (
-            <div className="cp-draft">
-              <label htmlFor={`draft-${action.key}`}>Parent message draft (not sent)</label>
-              <textarea id={`draft-${action.key}`} rows={6} readOnly value={action.draft} />
-              <button type="button" className="cp-btn secondary" onClick={() => navigator.clipboard?.writeText(action.draft ?? "")}>Copy</button>
-              <p className="cp-small">Tutor Compass never sends messages. Copy it into your email when you&apos;re ready.</p>
-            </div>
-          )}
-          {action.error && action.stage === "saved" && <p className="cp-error" role="alert">{action.error}</p>}
+      {!card.p && (
+        <button type="button" className="cp-btn" onClick={() => void start()} disabled={action.stage === "preparing"}>
+          {action.stage === "preparing" ? "Preparing…" : block.actionLabel}
+        </button>
+      )}
+      {action.error && <p className="cp-error" role="alert">{action.error}</p>}
+      {card.p && (
+        <ProposalCard
+          state={card.p}
+          intro="Saving creates a request in Tutor Compass with this rule result. It doesn't refund money, change a booking or send a message."
+          onState={(p) => onAction({ ...action, card: { ...card, p: p.stage === "closed" ? undefined : p }, error: p.stage === "closed" ? p.message : undefined })}
+          onAnnounce={onAnnounce}
+          onCommand={onCommand}
+        />
+      )}
+      {done?.status === "ready" && <p className="cp-small">{doneMessage}</p>}
+      {done?.requestId && done.status !== "ready" && done.status !== "closed" && (
+        <div className="cp-row">
+          <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "followup", requestId: done.requestId! }, "Prepare Follow-up")}>Prepare Follow-up</button>
         </div>
       )}
     </section>
@@ -217,14 +166,26 @@ function PolicyBlock({ block }: { block: Extract<Block, { kind: "policy" }> }) {
   );
 }
 
-export function AssistantMessage({ item, last, busy, onPick, onAction, onRetry }: {
+export function AssistantMessage({ item, last, busy, sessionKey, onPick, onAction, onCommand, onAnnounce, onRetry }: {
   item: ChatItem;
   last: boolean;
   busy: boolean;
+  sessionKey: string;
   onPick: (field: TaskField, c: Choice) => void;
   onAction: (itemId: string, index: number, next: ActionState) => void;
+  onCommand: (c: Command, label: string) => void;
+  onAnnounce: (t: string) => void;
   onRetry: () => void;
 }) {
+  const actionFor = (i: number): ActionState => item.actions?.[i] ?? { stage: "idle", key: "" };
+  const cardProps = (i: number) => ({
+    sessionKey,
+    disabled: busy,
+    state: actionFor(i).card ?? {},
+    onState: (card: CardState) => onAction(item.id, i, { ...actionFor(i), card }),
+    onCommand,
+    onAnnounce,
+  });
   return (
     <div className="cp-msg assistant">
       <CompassAvatar size={28} className="cp-msg-avatar" />
@@ -240,6 +201,8 @@ export function AssistantMessage({ item, last, busy, onPick, onAction, onRetry }
               return <div key={i} className={`cp-notice ${b.tone}`}>{b.text}</div>;
             case "choices":
               return <ChoiceRow key={i} field={b.field} options={b.options} disabled={!last || busy} onPick={onPick} />;
+            case "options":
+              return <OptionsRow key={i} block={b} disabled={busy} onCommand={onCommand} />;
             case "found":
               return (
                 <section key={i} className="cp-found" aria-label="What I found">
@@ -251,10 +214,31 @@ export function AssistantMessage({ item, last, busy, onPick, onAction, onRetry }
               );
             case "policy":
               return <PolicyBlock key={i} block={b} />;
-            case "decision": {
-              const action: ActionState = item.actions?.[i] ?? { stage: "idle", key: "" };
-              return <DecisionCard key={i} block={b} action={action} onAction={(next) => onAction(item.id, i, next)} />;
+            case "decision":
+              return <DecisionCard key={i} block={b} action={actionFor(i)} onAction={(next) => onAction(item.id, i, next)} sessionKey={sessionKey} onCommand={onCommand} onAnnounce={onAnnounce} />;
+            case "briefing":
+              return <BriefingCard key={i} block={b} disabled={busy} onCommand={onCommand} />;
+            case "review":
+              return <ReviewCard key={i} block={b} {...cardProps(i)} />;
+            case "draft":
+              return <DraftCard key={i} block={b} {...cardProps(i)} />;
+            case "proposal": {
+              const st = actionFor(i).card?.p ?? { stage: "pending" as const, proposal: b.proposal };
+              return (
+                <ProposalCard
+                  key={i}
+                  state={st}
+                  intro={b.intro}
+                  onState={(p) => onAction(item.id, i, { ...actionFor(i), card: { p } })}
+                  onAnnounce={onAnnounce}
+                  onCommand={onCommand}
+                />
+              );
             }
+            case "checklist":
+              return <ChecklistCard key={i} block={b} />;
+            case "rules":
+              return <RulesCard key={i} block={b} />;
           }
         })}
       </div>

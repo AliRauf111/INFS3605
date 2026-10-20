@@ -49,7 +49,7 @@ export function nextStep(status: RequestStatus): { title: string; detail: string
     case "approved":
       return { title: "Record Outcome", detail: "Approved by Owner", pending: "Not recorded yet. Use Record what you did above." };
     case "declined":
-      return { title: "Record Outcome", detail: "Declined by owner", pending: "Not recorded yet. Use Record what you did above." };
+      return { title: "Record Outcome", detail: "Declined by Owner", pending: "Not recorded yet. Use Record what you did above." };
     case "closed":
       return { title: "Done", detail: "Recorded and closed", pending: "" };
   }
