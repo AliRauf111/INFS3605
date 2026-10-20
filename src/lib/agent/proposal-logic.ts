@@ -22,6 +22,8 @@ export type Preconditions = {
   activePolicyId?: string | null;
   /** Fingerprint of the linked booking and payment records as they were at preview. */
   recordsHash?: string | null;
+  /** For a workflow action: the lesson, slot, invoice or absence records as they were at preview. */
+  workflow?: Record<string, string | number | null> | null;
   /** For a new request: the engine outcome the person saw. */
   decision?: { colour: string; matchedRuleId: string; policyVersionId: string | null; suggestedStatus: string; gaps: string[] } | null;
 };
@@ -66,6 +68,7 @@ const LABELS: Record<keyof Preconditions, string> = {
   activePolicyId: "A different policy version is active now.",
   recordsHash: "The linked booking or payment records changed.",
   decision: "The rule engine now gives a different result.",
+  workflow: "The lesson, time slot, invoice or tutor's absences changed.",
 };
 
 /** List what differs between the preview's preconditions and the ones read now. */
@@ -94,6 +97,10 @@ export function describeDbChanges(changed: string[]): string[] {
     archived: LABELS.archivedAt,
     removed: LABELS.hiddenAt,
     draft: LABELS.draftUpdatedAt,
+    lesson: "The lesson changed or is no longer scheduled.",
+    slot: "That time is no longer free.",
+    invoice: "The invoice changed.",
+    absence: "An absence was recorded for some of these dates.",
   };
   return changed.map((c) => map[c] ?? `The ${c} changed.`);
 }
@@ -121,5 +128,11 @@ export function resultMessage(action: ProposalAction, opts: { requestType?: stri
       return "Outcome recorded and the request is closed. This records what staff did; Tutor Compass did not carry out the action.";
     case "draft.save":
       return "Draft saved on the request. It has not been sent to anyone.";
+    case "booking.reschedule":
+      return "Lesson moved on Tutor Compass's timetable and the request is closed. Nothing has been sent to the family or the tutor.";
+    case "invoice.extend_due_date":
+      return "Due date changed on Tutor Compass's record of the invoice, the reminder schedule replaced and the request closed. No reminder has been sent and no payment system was changed.";
+    case "tutor.record_absence":
+      return "Absence recorded. Compass will no longer offer this tutor's times on these dates. No lesson has been moved yet.";
   }
 }

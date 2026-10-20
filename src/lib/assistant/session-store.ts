@@ -17,10 +17,10 @@ export async function loadState(sessionKey: string, user: SessionUser, fromBrows
   const { data, error } = await db().from("agent_sessions").select("user_id, state").eq("session_key", sessionKey).maybeSingle();
   if (missingTable(error)) return { state: fromBrowser, source: "browser" };
   if (error) throw new Error(`Could not load the conversation: ${error.message}`);
-  if (!data) return { state: { task: null, awaiting: null, focus: null }, source: "server" };
+  if (!data) return { state: { task: null, awaiting: null, focus: null, run: null }, source: "server" };
   if (data.user_id !== user.id) throw new Error("conversation_owner_mismatch");
   const parsed = AssistantStateSchema.safeParse(data.state);
-  return { state: parsed.success ? parsed.data : { task: null, awaiting: null, focus: null }, source: "server" };
+  return { state: parsed.success ? parsed.data : { task: null, awaiting: null, focus: null, run: null }, source: "server" };
 }
 
 export async function saveState(sessionKey: string, user: SessionUser, state: AssistantState): Promise<void> {

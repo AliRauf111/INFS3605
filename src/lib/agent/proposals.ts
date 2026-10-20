@@ -30,6 +30,7 @@ import {
 import { approvedProcedures, UUID } from "./reads";
 import { shortId } from "./briefing-logic";
 import { procedureChecks } from "./review-logic";
+import { absencePlan, extensionPlan, reschedulePlan, type WorkflowRequest } from "@/lib/workflows/plans";
 
 // The shared approval process. Compass prepares; the person confirms; the server checks
 // everything again and only then makes the change.
@@ -54,6 +55,8 @@ export const PrepareSchema = z
     body: z.string().max(6000).optional(),
     generatedBy: z.enum(["template", "live_ai", "simulated", "edited"]).optional(),
     facts: z.unknown().optional(),
+    /** Inputs for a workflow action (Move Lesson, Extend Due Date, Record Absence). */
+    inputs: z.record(z.string(), z.unknown()).optional(),
   })
   .strict();
 export type PrepareInput = z.infer<typeof PrepareSchema>;
@@ -61,11 +64,13 @@ export type PrepareInput = z.infer<typeof PrepareSchema>;
 type StoredInputs =
   | { note: string }
   | { kind: DraftKind; body: string; generatedBy: string }
-  | { form: FactsForm; facts: unknown; activityKey: string };
+  | { form: FactsForm; facts: unknown; activityKey: string }
+  | Record<string, unknown>;
 
 type Plan = {
   action: ProposalAction;
   targetId: string | null;
+  targetType: "request" | "new_request" | "tutor";
   inputs: StoredInputs;
   preconditions: Preconditions;
   preview: ProposalPreview;
@@ -92,6 +97,7 @@ type RequestRow = {
   policy_version_id: string | null;
   decision_count: number;
   welfare_status: string | null;
+  confirmed_facts: { proposedSlotId?: string | null; extensionDays?: number | null } | null;
 };
 
 const fmtTime = (iso: string) => new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Sydney", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
@@ -166,7 +172,7 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
       { field: "Status", current: "None", proposed: STATUS_LABELS[result.suggestedStatus] },
     ];
     return {
-      action, targetId: null, requestId: null, requestType: v.facts.requestType,
+      action, targetId: null, targetType: "new_request", requestId: null, requestType: v.facts.requestType,
       inputs: { form: form!, facts: v.facts, activityKey },
       preconditions: {
         activePolicyId: policy?.id ?? null,
@@ -198,6 +204,26 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
     };
   }
 
+  // Workflow inputs arrive as `inputs` when first prepared, and as the stored inputs when re-checked.
+  const workflowInputs = (raw as { inputs?: unknown }).inputs ?? raw;
+
+  if (action === "tutor.record_absence") {
+    if (!rule.prepare.includes(user.role)) throw new ApiError(403, "You can't record absences.");
+    const part = await absencePlan(workflowInputs);
+    return {
+      action, targetId: null, targetType: "tutor", requestId: null, requestType: null,
+      inputs: part.inputs,
+      preconditions: { workflow: part.workflow },
+      preview: {
+        title: part.title,
+        target: { reference: part.target!.reference, shortId: null, href: null, typeLabel: part.target!.typeLabel, statusLabel: null },
+        changes: part.changes, note: null, body: null, editable: null,
+        requiredRoleText: ROLE_TEXT[rule.confirm], outcome: rule.outcome, warnings: part.warnings, policyRefs: [], versions: part.versions,
+      },
+      payload: {},
+    };
+  }
+
   if (!requestId || !UUID.test(requestId)) throw new ApiError(400, "Choose a request first.");
   const req = await loadRequest(requestId);
   const allowed = canPrepare(action, user.role, req.status, await missingFor(req.current_decision_id));
@@ -223,6 +249,24 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
     warnings.push(`This request was checked under ${req.policy_version}, but ${policyVersionLabel(active)} is active now.`);
   }
 
+  if (action === "booking.reschedule" || action === "invoice.extend_due_date") {
+    const part = action === "booking.reschedule" ? await reschedulePlan(req as WorkflowRequest, workflowInputs) : await extensionPlan(req as WorkflowRequest, workflowInputs);
+    return {
+      action, targetId: req.id, targetType: "request", requestId: req.id, requestType: req.request_type,
+      inputs: part.inputs,
+      preconditions: { ...base, workflow: part.workflow },
+      preview: {
+        title: part.title,
+        target: { ...target, reference: part.target?.reference ?? target.reference },
+        changes: part.changes, note: null, body: null, editable: null,
+        requiredRoleText: ROLE_TEXT[rule.confirm], outcome: rule.outcome,
+        warnings: [...warnings, ...part.warnings],
+        policyRefs, versions: [...versions, ...part.versions],
+      },
+      payload: {},
+    };
+  }
+
   if (action === "draft.save") {
     const r = raw as { kind?: DraftKind; body?: string; generatedBy?: string };
     const kind = z.enum(DRAFT_KINDS).safeParse(r.kind);
@@ -233,7 +277,7 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
     if (error) throw toDbError(error);
     const promises = findUnsupportedPromises(body.data, req.status);
     return {
-      action, targetId: req.id, requestId: req.id, requestType: req.request_type,
+      action, targetId: req.id, targetType: "request", requestId: req.id, requestType: req.request_type,
       inputs: { kind: kind.data, body: body.data, generatedBy: r.generatedBy && r.generatedBy !== "edited" && r.generatedBy !== "simulated" ? r.generatedBy : "edited" },
       preconditions: { ...base, draftUpdatedAt: (existing?.updated_at as string | undefined) ?? null },
       preview: {
@@ -262,7 +306,7 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
     warnings.push("Welfare concern: also phone the owner, as the welfare procedure (KB-01) says.");
   }
   return {
-    action, targetId: req.id, requestId: req.id, requestType: req.request_type,
+    action, targetId: req.id, targetType: "request", requestId: req.id, requestType: req.request_type,
     inputs: { note: note.data },
     preconditions: base,
     preview: {
@@ -288,7 +332,7 @@ type ProposalRow = {
   created_role: string;
   session_key: string | null;
   action_type: ProposalAction;
-  target_type: "request" | "new_request";
+  target_type: "request" | "new_request" | "tutor";
   target_id: string | null;
   inputs: StoredInputs;
   preconditions: Preconditions;
@@ -317,6 +361,8 @@ function notSetUp(error: { message?: string; code?: string } | null): boolean {
   return Boolean(error && (error.code === "42P01" || error.code === "PGRST205" || /agent_proposals|execute_agent_proposal/.test(error.message ?? "")));
 }
 
+export const WORKFLOW_SETUP_MESSAGE = "Compass workflows aren't set up in the database yet. Run sql/compass-workflows.sql in Supabase (see the setup note), then try again.";
+
 const SETUP_MESSAGE = "Compass approvals aren't set up in the database yet. Run sql/compass-assistant.sql in Supabase (see the setup note), then try again.";
 
 async function store(user: SessionUser, plan: Plan, sessionKey: string | null, replaces: string | null): Promise<ProposalRow> {
@@ -328,7 +374,7 @@ async function store(user: SessionUser, plan: Plan, sessionKey: string | null, r
       created_role: user.role,
       session_key: sessionKey,
       action_type: plan.action,
-      target_type: plan.targetId ? "request" : "new_request",
+      target_type: plan.targetType,
       target_id: plan.targetId,
       inputs: plan.inputs,
       input_hash: inputHash(plan.action, plan.targetId, plan.inputs),
@@ -341,6 +387,7 @@ async function store(user: SessionUser, plan: Plan, sessionKey: string | null, r
     .select("*")
     .single();
   if (notSetUp(error)) throw new ApiError(503, SETUP_MESSAGE);
+  if (error && error.code === "23514" && /action_type|target_type/.test(error.message ?? "")) throw new ApiError(503, WORKFLOW_SETUP_MESSAGE);
   if (error) throw toDbError(error);
   await logActivity({
     sessionKey: sessionKey ?? data.id, requestId: plan.requestId, actorId: user.id, mode: "system",
@@ -487,6 +534,11 @@ export async function editProposal(user: SessionUser, id: string, body: unknown)
   const plan = await buildPlan(user, row.action_type, row.target_id, inputs, row.session_key);
   if (!(await settle(row.id, "superseded"))) throw new ApiError(409, "This changed while you were editing. Open it again.");
   return view(await store(user, plan, row.session_key, row.id), user);
+}
+
+/** The current preview of a proposal this person prepared, to show it again. */
+export async function proposalView(user: SessionUser, id: string): Promise<ProposalView> {
+  return view(await loadProposal(id, user), user);
 }
 
 export async function cancelProposal(user: SessionUser, id: string): Promise<{ status: ProposalStatus; message: string }> {

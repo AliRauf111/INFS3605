@@ -15,6 +15,9 @@ export const PROPOSAL_ACTIONS = [
   "request.request_info",
   "request.record_outcome",
   "draft.save",
+  "booking.reschedule",
+  "invoice.extend_due_date",
+  "tutor.record_absence",
 ] as const;
 export type ProposalAction = (typeof PROPOSAL_ACTIONS)[number];
 
@@ -98,7 +101,39 @@ export const ACTION_RULES: Record<ProposalAction, ActionRule> = {
     needsNote: false,
     outcome: "Saves the draft on the request so others can see it. It is not sent to anyone.",
   },
+  // The workflow actions. They change Tutor Compass's own records only once the owner's
+  // rules made the request Ready for Admin or the owner approved it.
+  "booking.reschedule": {
+    label: "Move Lesson",
+    prepare: ["admin", "owner"],
+    confirm: "staff",
+    from: ["ready", "approved"],
+    to: "closed",
+    needsNote: false,
+    outcome: "Moves the lesson on Tutor Compass's timetable and closes the request. Nothing is sent to the family or the tutor.",
+  },
+  "invoice.extend_due_date": {
+    label: "Extend Due Date",
+    prepare: ["admin", "owner"],
+    confirm: "staff",
+    from: ["ready", "approved"],
+    to: "closed",
+    needsNote: false,
+    outcome: "Changes the due date on Tutor Compass's record of the invoice, replaces its reminder schedule and closes the request. No payment system is connected and no reminder is sent.",
+  },
+  "tutor.record_absence": {
+    label: "Record Absence",
+    prepare: ["admin", "owner"],
+    confirm: "staff",
+    from: null,
+    to: null,
+    needsNote: false,
+    outcome: "Records the tutor as away for these dates, so Compass stops offering their times. It doesn't move any lesson by itself.",
+  },
 };
+
+/** Workflow actions that change a lesson, an invoice or a tutor's calendar. */
+export const WORKFLOW_ACTIONS: ProposalAction[] = ["booking.reschedule", "invoice.extend_due_date", "tutor.record_absence"];
 
 export const OWNER_DECISIONS: ProposalAction[] = ["request.approve", "request.decline", "request.request_info"];
 

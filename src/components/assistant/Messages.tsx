@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Block, Choice, Command, Step, TaskField } from "@/lib/assistant/logic";
-import { BriefingCard, ChecklistCard, DraftCard, OptionsRow, ProposalCard, ReviewCard, RulesCard, prepare, type CardState } from "./AgentCards";
+import { AttentionCard, BriefingCard, ChecklistCard, DraftCard, OptionsRow, ProposalCard, ResultCard, ReviewCard, RulesCard, SimulatedCard, prepare, type CardState } from "./AgentCards";
 import { CompassAvatar } from "./CompassAvatar";
 
 // What a conversation looks like on screen: bubbles, the steps Compass actually ran,
@@ -229,6 +229,8 @@ export function AssistantMessage({ item, last, busy, sessionKey, onPick, onActio
                   key={i}
                   state={st}
                   intro={b.intro}
+                  next={b.next}
+                  disabled={busy}
                   onState={(p) => onAction(item.id, i, { ...actionFor(i), card: { p } })}
                   onAnnounce={onAnnounce}
                   onCommand={onCommand}
@@ -237,6 +239,12 @@ export function AssistantMessage({ item, last, busy, sessionKey, onPick, onActio
             }
             case "checklist":
               return <ChecklistCard key={i} block={b} />;
+            case "attention":
+              return <AttentionCard key={i} block={b} disabled={busy} onCommand={onCommand} />;
+            case "result":
+              return <ResultCard key={i} block={b} />;
+            case "simulated":
+              return <SimulatedCard key={i} block={b} onAnnounce={onAnnounce} />;
             case "rules":
               return <RulesCard key={i} block={b} />;
           }

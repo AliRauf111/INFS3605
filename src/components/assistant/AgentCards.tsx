@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { BriefingBlock, Block, Command, DraftBlock, ReviewAction, ReviewBlock, RulesBlock } from "@/lib/assistant/logic";
+import type { AttentionBlock, BriefingBlock, Block, Command, DraftBlock, ReviewAction, ReviewBlock, RulesBlock } from "@/lib/assistant/logic";
 import type { ProposalAction } from "@/lib/agent/permissions";
 import type { ProposalView } from "@/lib/agent/proposal-logic";
 import { motionReduced } from "@/lib/a11y/motion";
@@ -66,12 +66,15 @@ const COLOUR_TEXT: Record<string, string> = { green: "Green", amber: "Amber", re
 // ---------------------------------------------------------------------------
 // Confirmation card: Confirm, Edit or Cancel. Used by every saved change.
 
-export function ProposalCard({ state, onState, onAnnounce, onCommand, intro }: {
+export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, next, disabled }: {
   state: ProposalState;
   onState: (s: ProposalState) => void;
   onAnnounce: (t: string) => void;
   onCommand: (c: Command, label: string) => void;
   intro?: string | null;
+  /** The workflow's next step, offered once this preview is finished. */
+  next?: { label: string; command: Command };
+  disabled?: boolean;
 }) {
   const p = state.proposal;
   const v = p.preview;
@@ -144,10 +147,11 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro }: {
       <div className="cp-proposal done" role="status">
         <p className="cp-status"><strong>Done.</strong> {state.message}</p>
         {state.result?.duplicate && <p className="cp-small">This was already confirmed, so it wasn&apos;t done twice.</p>}
-        {id && (
+        {(next || id) && (
           <div className="cp-row">
-            <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "review", requestId: id }, "Review Request")}>Review Request</button>
-            <Link className="cp-btn secondary" href={`/requests/${id}`}>Open Request</Link>
+            {next && <button type="button" className="cp-btn" disabled={disabled} onClick={() => onCommand(next.command, next.label)}>{next.label}</button>}
+            {id && !next && <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "review", requestId: id }, "Review Request")}>Review Request</button>}
+            {id && <Link className="cp-btn secondary" href={`/requests/${id}`}>Open Request</Link>}
           </div>
         )}
       </div>
@@ -158,6 +162,11 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro }: {
       <div className="cp-proposal closed" role="status">
         <p className="cp-status">{state.message}</p>
         {state.reasons?.length ? <ul className="cp-missing">{state.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul> : null}
+        {next && (
+          <div className="cp-row">
+            <button type="button" className="cp-btn secondary" disabled={disabled} onClick={() => onCommand(next.command, next.label)}>{next.label}</button>
+          </div>
+        )}
       </div>
     );
   }
@@ -238,9 +247,9 @@ export function BriefingCard({ block, disabled, onCommand }: { block: BriefingBl
   const generated = new Date(block.generatedAt).toLocaleString("en-AU", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
   const refresh = () => onCommand(block.scope === "all" ? { type: "briefing" } : { type: "briefing", bucket: block.scope }, "Refresh");
   return (
-    <section className="cp-briefing" aria-label={block.scope === "all" ? "What Needs My Attention" : block.sections[0]?.title}>
+    <section className="cp-briefing" aria-label={block.scope === "all" ? "All Unfinished Requests" : block.sections[0]?.title}>
       <div className="cp-card-head">
-        <h3>{block.scope === "all" ? "What Needs My Attention?" : block.sections[0]?.title}</h3>
+        <h3>{block.scope === "all" ? "All Unfinished Requests" : block.sections[0]?.title}</h3>
         <button type="button" className="cp-link" onClick={refresh} disabled={disabled}>Refresh</button>
       </div>
       <p className="cp-small">Generated {generated} from current records. Counts include every active request.</p>
@@ -547,6 +556,94 @@ export function RulesCard({ block }: { block: RulesBlock }) {
       ))}
       <h4>Always</h4>
       <ul>{block.systemRules.map((r, i) => <li key={i}>{r}</li>)}</ul>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// What Needs My Attention?
+
+export function AttentionCard({ block, disabled, onCommand }: { block: AttentionBlock; disabled: boolean; onCommand: (c: Command, label: string) => void }) {
+  const generated = new Date(block.generatedAt).toLocaleString("en-AU", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+  return (
+    <section className="cp-briefing cp-attention" aria-label="What Needs My Attention?">
+      <div className="cp-card-head">
+        <h3>What Needs My Attention?</h3>
+        <button type="button" className="cp-link" onClick={() => onCommand({ type: "attention" }, "Refresh")} disabled={disabled}>Refresh</button>
+      </div>
+      <p className="cp-small">Checked {generated} against current records and your permissions.</p>
+      <ul className="cp-counts" aria-label="Counts">
+        {block.counts.map((c) => (
+          <li key={c.key} className={c.count ? "has" : ""}><span className="cp-count">{c.count}</span> {c.label}</li>
+        ))}
+      </ul>
+      {block.total === 0 ? (
+        <p className="cp-empty">Nothing is outstanding. No decisions, clarifications, waiting workflows or failed actions need you right now.</p>
+      ) : (
+        <ol className="cp-items">
+          {block.items.map((it) => (
+            <li key={it.key} className={`cp-item ${it.colour ?? "none"} cat-${it.category}`}>
+              <div className="cp-item-top">
+                {it.colour && <span className={`cp-dot-c ${it.colour}`} aria-hidden="true" />}
+                {it.colour && <span className="sr-only">{COLOUR_TEXT[it.colour]}. </span>}
+                <strong>{it.title}</strong>
+              </div>
+              <p className="cp-small">{block.counts.find((c) => c.key === it.category)?.label} · {it.meta}</p>
+              <p className="cp-why">{it.reason}</p>
+              <div className="cp-row">
+                {it.action.command
+                  ? <button type="button" className="cp-btn" disabled={disabled} onClick={() => onCommand(it.action.command!, `${it.action.label}: ${it.title}`)}>{it.action.label}</button>
+                  : it.action.href && <Link className="cp-btn" href={it.action.href}>{it.action.label}</Link>}
+                {it.href && <Link className="cp-btn secondary" href={it.href}>Open</Link>}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+      {block.notes.map((n, i) => <p key={i} className="cp-small">{n}</p>)}
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Read back after a change, and simulated messages
+
+export function ResultCard({ block }: { block: Extract<Block, { kind: "result" }> }) {
+  return (
+    <section className="cp-result" aria-label={block.title} role="status">
+      <h3>{block.title}</h3>
+      <table className="cp-changes">
+        <caption className="sr-only">Before and after</caption>
+        <thead><tr><th scope="col">Field</th><th scope="col">Before</th><th scope="col">Now</th></tr></thead>
+        <tbody>{block.rows.map((r, i) => <tr key={i}><th scope="row">{r.label}</th><td>{r.before}</td><td>{r.after}</td></tr>)}</tbody>
+      </table>
+      {block.notes.map((n, i) => <p key={i} className="cp-small">{n}</p>)}
+      <p className="cp-small">Read back at {time(block.verifiedAt)}.</p>
+    </section>
+  );
+}
+
+export function SimulatedCard({ block, onAnnounce }: { block: Extract<Block, { kind: "simulated" }>; onAnnounce: (t: string) => void }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(block.body);
+      setCopied(true);
+      onAnnounce("Copied. It hasn't been sent.");
+    } catch {
+      onAnnounce("Couldn't copy. Select the text instead.");
+    }
+  };
+  return (
+    <section className="cp-simulated" aria-label={`${block.title}, simulated`}>
+      <p className="cp-sim-tag">Simulated</p>
+      <h3>{block.title}</h3>
+      <p className="cp-small">To: {block.to}</p>
+      <div className="cp-quote"><p>{block.body}</p></div>
+      <p className="cp-small">{block.note}</p>
+      <div className="cp-row">
+        <button type="button" className="cp-btn secondary" onClick={() => void copy()}>{copied ? "Copied" : "Copy Text"}</button>
+      </div>
     </section>
   );
 }

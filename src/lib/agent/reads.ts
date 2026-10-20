@@ -123,6 +123,19 @@ async function bucketRows(statuses: RequestStatus[], colour?: Colour): Promise<R
   return rows;
 }
 
+/** Tool: every active request in these statuses, with what the next-step rules need. */
+export async function attentionRows(statuses: RequestStatus[]): Promise<Array<RequestSummary & { current_decision_id: string | null; owner_review_started_at: string | null }>> {
+  const cols = await listColumns();
+  const out: Array<RequestSummary & { current_decision_id: string | null; owner_review_started_at: string | null }> = [];
+  for (let from = 0; from < ORDER_LIMIT; from += 500) {
+    const q = activeOnly(db().from("requests").select(`${SUMMARY_COLUMNS}, current_decision_id, owner_review_started_at`).in("status", statuses).order("created_at").order("id"), cols);
+    const batch = check(await q.range(from, from + 499), "requests") as typeof out;
+    out.push(...batch);
+    if (batch.length < 500) break;
+  }
+  return out;
+}
+
 async function statusEvents(ids: string[]): Promise<Map<string, Array<{ to_status: string | null; created_at: string }>>> {
   const out = new Map<string, Array<{ to_status: string | null; created_at: string }>>();
   for (let i = 0; i < ids.length; i += 100) {

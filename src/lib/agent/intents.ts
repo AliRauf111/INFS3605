@@ -54,6 +54,6 @@ const NUMBER_WORDS: Record<string, number> = {
 export function numberWordsToDigits(text: string): string {
   return text
     .replace(/\b(a|one|an extra)\s+(fortnight|week)\b/gi, (_, __, w: string) => `${NUMBER_WORDS[w.toLowerCase()]} days`)
-    .replace(/\b(two|three|four)\s+weeks\b/gi, (_, n: string) => `${NUMBER_WORDS[n.toLowerCase()] * 7} days`)
+    .replace(/\b(two|three|four)\s+(?:more\s+|extra\s+|additional\s+)?weeks\b/gi, (_, n: string) => `${NUMBER_WORDS[n.toLowerCase()] * 7} days`)
     .replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|sixty|ninety)\b(?=\s+(more\s+|extra\s+|additional\s+)?(days?|business days?))/gi, (w) => String(NUMBER_WORDS[w.toLowerCase()]));
 }

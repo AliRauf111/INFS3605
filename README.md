@@ -139,22 +139,23 @@ When the website first opens, a blue screen with Compass dancing covers the page
 
 ## Compass AI
 
-Compass AI is the robot in the bottom right corner of every signed-in page. Staff can ask it to check a refund, change a lesson or find a policy, by typing or by voice. It also helps with owner work:
+Compass AI is the robot in the bottom right corner of every signed-in page. Its welcome screen has four shortcuts, defined once in `src/lib/assistant/shortcuts.ts`: What Needs My Attention?, Lesson Change, Payment Extension and Tutor Absence. Staff can also type or speak, for example to check a refund or find a policy.
 
-- **What Needs My Attention?** A briefing built on demand from current records: requests waiting for the owner, owner reviews not yet sent, requests needing clarification, decided requests still waiting for an outcome and green requests ready for the admin team. Counts come from exact database counts, not a capped list. Items are ordered by fixed rules (welfare, then complaints, then red, amber and green, then longest wait), with Review Request, Prepare Follow-up, Record Outcome, Show Pending Outcomes and Refresh.
+- **What Needs My Attention?** One short list built from current records and the signed-in person's permissions: failed Compass actions, decisions awaiting approval (the owner decides here; the admin team sends to the owner), Compass workflows that are waiting or blocked, requests needing clarification and outcomes to record. Counts are exact. Each item says why it needs attention and has a button to open or continue it.
+- **Lesson Change, Payment Extension and Tutor Absence.** Workflows that find the booking, invoice or tutor, read the policy, availability and procedures, ask only for what is missing, offer alternatives or cover tutors, then save a request so the owner's rules decide who must approve. Once the rules allow it or the owner approves, Compass applies the change (`booking.reschedule`, `invoice.extend_due_date`, `tutor.record_absence`) and reads the records back. Progress is kept in `agent_workflows`, so a workflow waiting for the owner or a family can be continued later. No AI is used in them, and messages to families and tutors are labelled Simulated: nothing is sent.
 - **Decision-ready reviews.** "Prepare FAM-07 for review" or "Explain why this request was escalated" shows the request, what the parent wants, money figures from the records, the rule result and policy version, facts split into from records, supplied and missing, conflicts and changed records, procedures and history. Compass never recommends an outcome. When evidence is incomplete it says what blocks a decision and prepares an Ask for Information note.
 - **Routine enquiries.** "Can this family have seven extra days to pay?", "What information do I need for this refund?", "What can I do under the current policy?" and "Prepare a reply asking for the missing details" use the active policy, the approved procedures and the rule engine. Drafts are editable and never sent.
 
 How changes are kept safe:
 
-- Reads, previews and unsaved drafts need no confirmation. Every saved change (a new request, Send to Owner, Approve, Decline, Ask for Information, Record Outcome, Save Draft) is first stored as a proposal in `agent_proposals` with its exact inputs, the record and policy versions it relied on, the role needed and a 15 minute expiry. The person sees the preview and chooses Confirm, Edit (which replaces the proposal) or Cancel.
+- Reads, previews and unsaved drafts need no confirmation. Every saved change (a new request, Send to Owner, Approve, Decline, Ask for Information, Record Outcome, Save Draft, Move Lesson, Extend Due Date, Record Absence) is first stored as a proposal in `agent_proposals` with its exact inputs, the record and policy versions it relied on, the role needed and a 15 minute expiry. The person sees the preview and chooses Confirm, Edit (which replaces the proposal) or Cancel.
 - On Confirm the server re-reads the records and re-runs the rules. If anything changed it shows an updated preview instead. The database function `execute_agent_proposal` then checks the role, expiry and versions again under a row lock, makes the change and writes the audit record in one transaction, and never runs the same proposal twice. Owner decisions can only be confirmed by the owner.
 - Approving a refund records a decision. It does not move money, change bookings or send messages.
 - The AI only reads words, summarises and drafts. It never chooses the colour, a record, a permission or an action. A message or request that may describe a child welfare concern is never sent to the AI service: Compass uses keyword rules on the server, the case follows the fixed welfare escalation, and admins see only a restricted summary.
 - Conversation state is kept on the server in `agent_sessions`, tied to the signed-in user.
 - `/api/health` reports whether the Compass tables exist and whether the AI key works and the model is available.
 - To turn on live AI, add `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`) in Vercel under Settings > Environment Variables and redeploy.
-- Database checks for the approval process are in `supabase/tests/agent-proposals.sql`.
+- Database checks for the approval process are in `supabase/tests/agent-proposals.sql`, and for the workflows in `supabase/tests/compass-workflows.sql`.
 
 ## 60-second demo
 

@@ -5,6 +5,7 @@ import { BUCKET_KEYS, COLOURS, type BucketKey } from "@/lib/agent/briefing-logic
 import { PROPOSAL_ACTIONS, type ProposalAction } from "@/lib/agent/permissions";
 import type { ProposalView } from "@/lib/agent/proposal-logic";
 import type { FactSources, Figure, Readiness } from "@/lib/agent/review-logic";
+import { ActiveRunSchema } from "@/lib/workflows/logic";
 
 // Pure logic for Compass AI, the chat assistant. It decides what to ask next, merges
 // what the person said into the request being built and searches approved procedures.
@@ -63,11 +64,13 @@ export const AssistantStateSchema = z
     task: TaskSchema.nullable(),
     awaiting: z.enum([...TASK_FIELDS, "policy_query"]).nullable(),
     focus: FocusSchema.nullable().default(null),
+    /** The Lesson Change, Payment Extension or Tutor Absence workflow this chat is running. */
+    run: ActiveRunSchema.nullable().default(null),
   })
   .strict();
 export type AssistantState = z.infer<typeof AssistantStateSchema>;
 
-export const EMPTY_STATE: AssistantState = { task: null, awaiting: null, focus: null };
+export const EMPTY_STATE: AssistantState = { task: null, awaiting: null, focus: null, run: null };
 
 /** Card buttons that read or prepare, sent back to the server as a structured command. */
 export const CommandSchema = z.discriminatedUnion("type", [
@@ -78,6 +81,16 @@ export const CommandSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("decide"), requestId: z.uuid(), action: z.enum(PROPOSAL_ACTIONS) }).strict(),
   z.object({ type: z.literal("requirements"), requestId: z.uuid().optional(), requestType: z.enum(REQUEST_TYPES).optional() }).strict(),
   z.object({ type: z.literal("policy_overview"), requestType: z.enum(REQUEST_TYPES).optional() }).strict(),
+  z.object({ type: z.literal("attention") }).strict(),
+  z.object({ type: z.literal("proposal"), proposalId: z.uuid() }).strict(),
+  z
+    .object({
+      type: z.literal("workflow"),
+      runId: z.uuid(),
+      op: z.enum(["continue", "pick", "decide", "cancel"]),
+      value: z.string().trim().max(80).optional(),
+    })
+    .strict(),
 ]);
 export type Command = z.infer<typeof CommandSchema>;
 
@@ -133,7 +146,10 @@ export type Block =
   | ReviewBlock
   | BriefingBlock
   | DraftBlock
-  | { kind: "proposal"; proposal: ProposalView; intro: string | null }
+  | { kind: "proposal"; proposal: ProposalView; intro: string | null; next?: { label: string; command: Command } }
+  | AttentionBlock
+  | { kind: "result"; title: string; rows: Array<{ label: string; before: string; after: string }>; notes: string[]; verifiedAt: string }
+  | { kind: "simulated"; title: string; to: string; body: string; note: string }
   | { kind: "checklist"; title: string; items: Array<{ label: string; state: "have" | "missing" | "check"; detail?: string }>; refs: string[]; notes: string[]; link?: Link }
   | RulesBlock;
 
@@ -214,6 +230,29 @@ export type DraftBlock = {
   generatedBy: "template" | "live_ai";
   staffChecks: string[];
   restricted: boolean;
+};
+
+export type AttentionKey = "failed" | "approval" | "workflows" | "clarification" | "outcomes";
+
+export type AttentionItem = {
+  key: string;
+  category: AttentionKey;
+  title: string;
+  reason: string;
+  colour: Colour | null;
+  meta: string;
+  action: { label: string; command?: Command; href?: string };
+  href: string | null;
+};
+
+export type AttentionBlock = {
+  kind: "attention";
+  generatedAt: string;
+  role: Role;
+  total: number;
+  counts: Array<{ key: AttentionKey; label: string; count: number }>;
+  items: AttentionItem[];
+  notes: string[];
 };
 
 export type RulesBlock = {

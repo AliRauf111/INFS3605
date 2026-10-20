@@ -24,7 +24,10 @@ export type ActivityEvent =
   | "proposal_prepared"
   | "proposal_confirmed"
   | "proposal_cancelled"
-  | "sensitive_case_routed";
+  | "sensitive_case_routed"
+  | "workflow_started"
+  | "workflow_step"
+  | "workflow_completed";
 
 export type ActivityState = "pending" | "completed" | "blocked" | "failed";
 export type ActivityMode = "live_ai" | "simulated" | "system";

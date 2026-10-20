@@ -2,7 +2,7 @@
 import "./assistant.css";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { EMPTY_STATE, type AssistantState, type Block, type Choice, type Command, type TaskField, type TurnResponse } from "@/lib/assistant/logic";
-import type { Role } from "@/lib/domain/types";
+import { SHORTCUTS, type ShortcutId } from "@/lib/assistant/shortcuts";
 import { CompassAvatar, type AvatarState } from "./CompassAvatar";
 import { AssistantMessage, type ActionState, type ChatItem } from "./Messages";
 import { useSpeech, useVoice } from "./useVoice";
@@ -15,7 +15,7 @@ import { motionReduced } from "@/lib/a11y/motion";
 type SendInput = {
   message?: string;
   answer?: { field: TaskField; value: string };
-  start?: "refund" | "lesson_change" | "policy" | "briefing" | "owner_queue";
+  start?: ShortcutId;
   command?: Command;
 };
 type Stored = { items: ChatItem[]; state: AssistantState; sessionKey: string; readAloud: boolean; draft: string };
@@ -24,6 +24,13 @@ const STORE = "compass.chat.v2";
 const GREETED = "compass.greeted";
 
 const uid = () => crypto.randomUUID();
+
+/** What the welcome screen says about AI. It only changes with the server's AI setting. */
+function welcomeMode(aiLive: boolean): string {
+  return aiLive
+    ? "Live AI is on. It only reads your messages and words summaries. Records, permissions and the owner's rules decide everything. The four shortcuts use no AI."
+    : "Demo mode: no AI service is connected. Keyword rules, current records and the owner's rules run everything, and every workflow works in full.";
+}
 
 function spokenText(blocks: Block[]): string {
   return blocks
@@ -71,7 +78,7 @@ function Svg({ name, label }: { name: keyof typeof Icon; label?: string }) {
 
 const WAVE = Array.from({ length: 28 }, (_, i) => i);
 
-export function Assistant({ firstName, aiLive, role }: { firstName: string; aiLive: boolean; role: Role }) {
+export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: boolean }) {
   const [hydrated, setHydrated] = useState(false);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"chat" | "voice">("chat");
@@ -90,7 +97,7 @@ export function Assistant({ firstName, aiLive, role }: { firstName: string; aiLi
   const [attachNote, setAttachNote] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [modeNote, setModeNote] = useState(aiLive ? "Live AI reads your words. Owner rules decide." : "Demo mode: keyword rules, no live AI.");
+  const [modeNote, setModeNote] = useState(() => welcomeMode(aiLive));
 
   const abortRef = useRef<AbortController | null>(null);
   const lastSend = useRef<{ input: SendInput; label: string } | null>(null);
@@ -350,6 +357,7 @@ export function Assistant({ firstName, aiLive, role }: { firstName: string; aiLi
     setConv(EMPTY_STATE);
     setSessionKey(uid());
     setDraft("");
+    setModeNote(welcomeMode(aiLive));
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
@@ -505,14 +513,22 @@ export function Assistant({ firstName, aiLive, role }: { firstName: string; aiLi
                     <CompassAvatar size={28} className="cp-msg-avatar" />
                     <div className="cp-msg-body"><div className="cp-bubble">Hi {firstName}. What would you like to sort out?</div></div>
                   </div>
-                  <div className="cp-chips cp-starters">
-                    <button type="button" className="cp-chip" onClick={() => void send({ start: "briefing" }, "What Needs My Attention?")}>What Needs My Attention?</button>
-                    {role === "owner" && <button type="button" className="cp-chip" onClick={() => void send({ start: "owner_queue" }, "Requests Needing My Decision")}>Requests Needing My Decision</button>}
-                    <button type="button" className="cp-chip" onClick={() => void send({ start: "refund" }, "Check a refund")}>Check a refund</button>
-                    <button type="button" className="cp-chip" onClick={() => void send({ start: "lesson_change" }, "Change a lesson")}>Change a lesson</button>
-                    <button type="button" className="cp-chip" onClick={() => void send({ start: "policy" }, "Find a policy")}>Find a policy</button>
-                    <button type="button" className="cp-chip" onClick={() => void send({ command: { type: "policy_overview" } }, "What can I do under the current policy?")}>Current rules</button>
-                  </div>
+                  <nav className="cp-shortcuts" aria-label="Shortcuts">
+                    {SHORTCUTS.filter((x) => x.layout === "wide").map((x) => (
+                      <button key={x.id} type="button" className="cp-shortcut wide" data-shortcut={x.id} aria-describedby={`cp-hint-${x.id}`} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
+                        <span className="cp-shortcut-label">{x.label}</span>
+                        <span className="cp-shortcut-hint" id={`cp-hint-${x.id}`} aria-hidden="true">{x.hint}</span>
+                      </button>
+                    ))}
+                    <div className="cp-shortcut-row" role="group" aria-label="Workflows">
+                      {SHORTCUTS.filter((x) => x.layout === "workflow").map((x) => (
+                        <button key={x.id} type="button" className="cp-shortcut" data-shortcut={x.id} aria-describedby={`cp-hint-${x.id}`} title={x.hint} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
+                          <span className="cp-shortcut-label">{x.label}</span>
+                          <span className="sr-only" id={`cp-hint-${x.id}`} aria-hidden="true">{x.hint}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </nav>
                   <div className="cp-trust">
                     <span className="cp-shield" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" /><path d="M9 12l2 2 4-4" /></svg>
@@ -522,7 +538,7 @@ export function Assistant({ firstName, aiLive, role }: { firstName: string; aiLi
                       <p>I check requests against your organisation&apos;s policies before suggesting anything.</p>
                     </div>
                   </div>
-                  <p className={`cp-mode ${aiLive ? "live" : "demo"}`}>{modeNote}</p>
+                  <p className={`cp-mode ${aiLive ? "live" : "demo"}`}>{welcomeMode(aiLive)}</p>
                 </div>
               )}
               {items.map((item, i) =>
