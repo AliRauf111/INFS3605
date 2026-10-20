@@ -1,4 +1,5 @@
 import type { RequestStatus, Role } from "@/lib/domain/types";
+import { CLARIFY_STATUSES, OWNER_REVIEW_STATUSES, RECORD_STATUSES, allowedTransitions, type TransitionAction } from "@/lib/workflow/next-step";
 
 // One map of what Compass may prepare, who may confirm it and from which statuses. The
 // proposal service, the review cards and the tests all read this list. The database
@@ -44,9 +45,10 @@ export const ACTION_RULES: Record<ProposalAction, ActionRule> = {
   },
   "request.send_to_owner": {
     label: "Send to Owner",
-    prepare: ["admin", "owner"],
+    // The owner reviews requests directly and never sends one to themselves.
+    prepare: ["admin"],
     confirm: "staff",
-    from: ["review_required", "needs_clarification", "more_info_requested"],
+    from: CLARIFY_STATUSES,
     to: "awaiting_owner",
     needsNote: true,
     outcome: "Moves the request to Waiting for Owner with your note. Nothing is sent to the family.",
@@ -55,7 +57,7 @@ export const ACTION_RULES: Record<ProposalAction, ActionRule> = {
     label: "Approve",
     prepare: ["owner"],
     confirm: "owner",
-    from: ["awaiting_owner"],
+    from: OWNER_REVIEW_STATUSES,
     to: "approved",
     needsNote: true,
     outcome: "Records your decision as Approved by Owner. It does not move money, change a booking or contact the family.",
@@ -64,7 +66,7 @@ export const ACTION_RULES: Record<ProposalAction, ActionRule> = {
     label: "Decline",
     prepare: ["owner"],
     confirm: "owner",
-    from: ["awaiting_owner"],
+    from: OWNER_REVIEW_STATUSES,
     to: "declined",
     needsNote: true,
     outcome: "Records your decision as Declined by Owner. Nothing is sent to the family.",
@@ -73,7 +75,7 @@ export const ACTION_RULES: Record<ProposalAction, ActionRule> = {
     label: "Ask for Information",
     prepare: ["owner"],
     confirm: "owner",
-    from: ["awaiting_owner"],
+    from: OWNER_REVIEW_STATUSES,
     to: "more_info_requested",
     needsNote: true,
     outcome: "Sends the request back to the admin team with your questions. Nothing is sent to the family.",
@@ -82,7 +84,7 @@ export const ACTION_RULES: Record<ProposalAction, ActionRule> = {
     label: "Record Outcome",
     prepare: ["admin", "owner"],
     confirm: "staff",
-    from: ["ready", "approved", "declined"],
+    from: RECORD_STATUSES,
     to: "closed",
     needsNote: true,
     outcome: "Records what was done and closes the request. Tutor Compass does not carry out the action itself.",
@@ -102,11 +104,26 @@ export const OWNER_DECISIONS: ProposalAction[] = ["request.approve", "request.de
 
 export type Permission = { ok: true } | { ok: false; reason: string; alternative: ProposalAction | null };
 
-/** Can this person ask Compass to prepare this action on a request in this status? */
-export function canPrepare(action: ProposalAction, role: Role, status: RequestStatus | null): Permission {
+const TRANSITION_OF: Partial<Record<ProposalAction, TransitionAction>> = {
+  "request.send_to_owner": "send_to_owner",
+  "request.approve": "approve",
+  "request.decline": "decline",
+  "request.request_info": "request_info",
+  "request.record_outcome": "record_and_close",
+};
+
+/**
+ * Can this person ask Compass to prepare this action on a request in this status? Workflow
+ * actions go through the shared next-step rules, so Compass offers exactly what the
+ * request page offers. `missing` is the number of required details still missing.
+ */
+export function canPrepare(action: ProposalAction, role: Role, status: RequestStatus | null, missing = 0): Permission {
   const rule = ACTION_RULES[action];
+  if (action === "request.send_to_owner" && role === "owner") {
+    return { ok: false, reason: "You're the owner, so there's nothing to send. Open the request and use Start Review instead.", alternative: null };
+  }
   if (!rule.prepare.includes(role)) {
-    const alternative = status && ACTION_RULES["request.send_to_owner"].from!.includes(status) ? "request.send_to_owner" : null;
+    const alternative = status && CLARIFY_STATUSES.includes(status) && missing === 0 ? "request.send_to_owner" : null;
     return {
       ok: false,
       reason:
@@ -119,6 +136,16 @@ export function canPrepare(action: ProposalAction, role: Role, status: RequestSt
   if (rule.from && (!status || !rule.from.includes(status))) {
     return { ok: false, reason: `${rule.label} isn't available while the request is ${status ?? "unsaved"}.`, alternative: null };
   }
+  const transition = TRANSITION_OF[action];
+  if (transition && status && !allowedTransitions({ role, status, missing }).has(transition)) {
+    return {
+      ok: false,
+      reason: missing > 0
+        ? `${rule.label} isn't available until the missing details are complete. Use Complete Missing Details on the request first.`
+        : `${rule.label} isn't available while the request is ${status}.`,
+      alternative: null,
+    };
+  }
   return { ok: true };
 }
 
@@ -128,7 +155,7 @@ export function canConfirm(required: "staff" | "owner", role: Role): boolean {
 }
 
 /** The workflow actions this person could prepare for a request in this status, in display order. */
-export function availableActions(role: Role, status: RequestStatus): ProposalAction[] {
+export function availableActions(role: Role, status: RequestStatus, missing = 0): ProposalAction[] {
   const order: ProposalAction[] = ["request.approve", "request.decline", "request.request_info", "request.send_to_owner", "request.record_outcome"];
-  return order.filter((a) => canPrepare(a, role, status).ok);
+  return order.filter((a) => canPrepare(a, role, status, missing).ok);
 }

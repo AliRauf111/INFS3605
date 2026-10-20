@@ -13,6 +13,7 @@ import { canonicalJson, hashDecisionInput } from "@/lib/engine/hash";
 import type { EvidenceSnapshot } from "@/lib/engine/evidence";
 import { policyVersionLabel } from "@/lib/engine/policy";
 import { validateFactsForm, type FactsForm } from "@/lib/validation/facts";
+import { countMissing } from "@/lib/workflow/next-step";
 import { ACTION_RULES, PROPOSAL_ACTIONS, canConfirm, canPrepare, type ProposalAction } from "./permissions";
 import {
   describeDbChanges,
@@ -123,6 +124,14 @@ async function loadRequest(id: string): Promise<RequestRow> {
   return data as RequestRow;
 }
 
+/** Required details the request's latest rule check says are missing. */
+async function missingFor(decisionId: string | null): Promise<number> {
+  if (!decisionId) return 0;
+  const { data, error } = await db().from("decisions").select("missing:result->missing").eq("id", decisionId).maybeSingle();
+  if (error) throw toDbError(error);
+  return countMissing((data as { missing: Array<{ fact: string }> | null } | null)?.missing);
+}
+
 function targetOf(r: RequestRow) {
   return {
     reference: r.reference_id ?? r.booking_id ?? "No reference",
@@ -191,7 +200,7 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
 
   if (!requestId || !UUID.test(requestId)) throw new ApiError(400, "Choose a request first.");
   const req = await loadRequest(requestId);
-  const allowed = canPrepare(action, user.role, req.status);
+  const allowed = canPrepare(action, user.role, req.status, await missingFor(req.current_decision_id));
   if (!allowed.ok) throw new ApiError(user.role !== "owner" && rule.prepare.length === 1 ? 403 : 409, allowed.reason);
   const active = req.request_type === "other" ? null : await getActivePolicy(req.request_type);
   const target = targetOf(req);

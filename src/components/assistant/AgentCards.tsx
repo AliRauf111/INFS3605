@@ -406,7 +406,7 @@ export function ReviewCard({ block, sessionKey, disabled, state, onState, onComm
       {!state.p && !state.composing && (
         <div className="cp-row" role="group" aria-label="Next actions">
           {block.actions.map((a, i) => a.href
-            ? <Link key={i} className="cp-btn secondary" href={a.href}>{a.label}</Link>
+            ? <Link key={i} className={`cp-btn${a.primary ? "" : " secondary"}`} href={a.href}>{a.label}</Link>
             : (
               <button key={i} type="button" className={`cp-btn${a.primary ? "" : " secondary"}`} disabled={disabled || Boolean(state.preparing)} onClick={() => void runAction(a)}>
                 {a.action && state.preparing === a.action ? "Preparing…" : a.label}

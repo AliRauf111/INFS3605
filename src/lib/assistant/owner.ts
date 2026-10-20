@@ -52,6 +52,7 @@ import { REQUEST_TYPE_LABELS, STATUS_LABELS, type Colour, type RequestStatus, ty
 import { CATEGORY_CONFIG, FACT_LABELS, describeRange, policyVersionLabel, type FactKey, type PolicySnapshot } from "@/lib/engine/policy";
 import type { Block, BriefingBlock, Command, DraftBlock, Focus, Mood, ReviewAction, ReviewBlock, Step } from "./logic";
 import { parseReference } from "./logic";
+import { OWNER_REVIEW_STATUSES, countMissing, workflowFor } from "@/lib/workflow/next-step";
 
 // Compass's owner and enquiry tools: the briefing, decision-ready reviews, explanations,
 // follow-up drafts, information checklists and policy summaries. Every figure, status and
@@ -199,7 +200,7 @@ export async function resolveRequest(ctx: TurnCtx, text: string, then: (id: stri
   // No reference and nothing in focus: offer the most relevant open requests.
   let open;
   try {
-    open = await searchRequests({ statuses: ctx.user.role === "owner" ? ["awaiting_owner"] : ["review_required", "needs_clarification", "more_info_requested", "approved", "declined", "ready"], pageSize: 6 });
+    open = await searchRequests({ statuses: ctx.user.role === "owner" ? OWNER_REVIEW_STATUSES : ["review_required", "needs_clarification", "more_info_requested", "approved", "declined", "ready"], pageSize: 6 });
   } catch (e) {
     unavailable(ctx, "the requests", e);
     return null;
@@ -224,6 +225,8 @@ const EVENT_LABELS: Record<string, string> = {
   created: "Saved",
   reevaluated: "Facts updated and rules re-run",
   sent_to_owner: "Sent to Owner",
+  owner_review_started: "Owner started the review",
+  owner_handling_note: "Owner handling note",
   owner_approved: "Approved by Owner",
   owner_declined: "Declined by Owner",
   owner_requested_info: "Owner asked for information",
@@ -313,13 +316,22 @@ export async function buildReview(ctx: TurnCtx, b: RequestBundle, mode: "review"
 
   const typeLabel = REQUEST_TYPE_LABELS[r.request_type];
   const noteOpts = { reference, typeLabel, amountCents: r.amount_cents, policyLabel: usedLabel, ruleLabel, missing: ready.reasons };
+  // The same next-step rules as the request page: role, status, missing details and
+  // whether the owner has started a review.
+  const missingCount = countMissing(result?.missing);
+  const wf = workflowFor({ role: user.role, status: r.status, missing: missingCount, reviewStartedAt: r.owner_review_started_at ?? null, colour: r.decision, welfare: r.welfare_status === "yes" });
   const actions: ReviewAction[] = [];
-  for (const a of availableActions(user.role, r.status)) {
+  if (wf.primary?.kind === "complete_details") {
+    actions.push({ label: wf.primary.label, href: `/requests/${r.id}?details=1`, primary: true });
+  } else if (wf.primary?.kind === "start_review" || wf.primary?.kind === "continue_review") {
+    actions.push({ label: wf.primary.label, href: `/requests/${r.id}`, primary: true });
+  }
+  for (const a of availableActions(user.role, r.status, missingCount)) {
     actions.push({
       label: ACTION_RULES[a].label,
       action: a,
       note: a === "request.request_info" ? infoRequestNote(reference, ready.reasons) : defaultNote(a, noteOpts),
-      primary: ready.ready ? false : a === "request.request_info" || a === "request.send_to_owner",
+      primary: wf.primary?.kind === "send_to_owner" && a === "request.send_to_owner" ? true : ready.ready ? false : a === "request.request_info",
     });
   }
   if (["needs_clarification", "more_info_requested", "review_required"].includes(r.status)) {
@@ -328,7 +340,8 @@ export async function buildReview(ctx: TurnCtx, b: RequestBundle, mode: "review"
   actions.push({ label: "Open Request", href: `/requests/${r.id}` });
 
   let roleNote: string | null = null;
-  if (r.status === "awaiting_owner" && user.role !== "owner") roleNote = "Only the owner can approve, decline or ask for information. This request is waiting for the owner.";
+  if (r.status === "awaiting_owner" && user.role !== "owner") roleNote = "Awaiting Owner Decision. Only the owner can approve, decline or ask for information.";
+  if (wf.missingDetails && r.status !== "closed") roleNote = `${missingCount === 1 ? "One required detail is" : `${missingCount} required details are`} missing. Complete them before anything is sent to the owner or approved.`;
   if (r.status === "closed") roleNote = "This request is closed. Nothing more is needed.";
 
   const fallback = parentWants({ requestType: r.request_type, amountCents: r.amount_cents, extensionDays, reference, context: r.context, restricted: restricted || r.welfare_status === "yes" });
@@ -377,6 +390,7 @@ export async function buildReview(ctx: TurnCtx, b: RequestBundle, mode: "review"
     restricted,
     roleNote,
     actions,
+    nextStep: wf.primary?.label ?? null,
   };
 }
 
@@ -417,16 +431,20 @@ export async function reviewTurn(ctx: TurnCtx, requestId: string, mode: "review"
     say(ctx, `Why ${review.request.reference} is ${review.request.statusLabel.toLowerCase()}: ${why}`);
   } else {
     const decides = review.actions.some((a) => a.action && OWNER_DECISIONS.includes(a.action));
-    const next = review.actions.find((a) => a.action)?.label;
+    const next = review.nextStep;
+    const nextLine = next ? ` The next step is ${next}.` : "";
+    const missingNow = (b.decision?.result.missing ?? []).filter((m) => m.fact !== "policy" && m.fact !== "request_type").length;
     say(ctx, review.restricted
-      ? "Here's the review. A welfare concern is recorded, so the details are restricted to the owner. Send it to the owner and phone them, as KB-01 says."
+      ? `Here's the review. A welfare concern is recorded, so the details are restricted to the owner. Phone the owner, as KB-01 says.${nextLine}`
+      : missingNow > 0 && ["needs_clarification", "review_required", "more_info_requested"].includes(b.request.status)
+        ? `Here's the review. Some required details are missing, so it can't be sent to the owner or approved yet.${nextLine}`
       : !review.readiness.ready
         ? decides
-          ? "Here's the review. Some things prevent a clean decision, so I've listed them and prepared a targeted information request."
-          : "Here's the review. Some things are missing or have changed, so I've listed them."
+          ? `Here's the review. Some things prevent a clean decision, so I've listed them and prepared a targeted information request.${nextLine}`
+          : `Here's the review. Some things are missing or have changed, so I've listed them.${nextLine}`
         : decides
-          ? "Here's the review. The evidence is complete, so the decision is yours. Compass doesn't recommend an outcome."
-          : `Here's the review. The evidence is complete.${next ? ` The next step is ${next}.` : ""}`);
+          ? `Here's the review. The evidence is complete, so the decision is yours. Compass doesn't recommend an outcome.${nextLine}`
+          : `Here's the review. The evidence is complete.${nextLine}`);
   }
   ctx.blocks.push(review);
   return review.readiness.ready ? "success" : "clarify";
@@ -437,7 +455,7 @@ export async function decideTurn(ctx: TurnCtx, requestId: string, action: Propos
   const b = await loadBundle(ctx, requestId);
   if (!b) return "clarify";
   const review = await buildReview(ctx, b, "review");
-  const allowed = canPrepare(action, ctx.user.role, b.request.status);
+  const allowed = canPrepare(action, ctx.user.role, b.request.status, countMissing(b.decision?.result.missing));
   ctx.blocks.push(review);
   if (!allowed.ok) {
     ctx.blocks.push({ kind: "notice", tone: "warning", text: allowed.reason });
@@ -552,7 +570,9 @@ export async function requirementsTurn(ctx: TurnCtx, opts: { requestId?: string;
     return "clarify";
   }
   if (type === "other") {
-    say(ctx, "There's no owner policy for this kind of request, so every one goes to the owner. Record what the family wants and send it to the owner.");
+    say(ctx, ctx.user.role === "owner"
+      ? "There's no policy for this kind of request, so every one comes to you for review."
+      : "There's no owner policy for this kind of request, so every one goes to the owner. Record what the family wants and send it to the owner.");
     return "clarify";
   }
   let policies: PolicySnapshot[];
@@ -564,7 +584,9 @@ export async function requirementsTurn(ctx: TurnCtx, opts: { requestId?: string;
   const policy = policies.find((p) => p.category === type) ?? null;
   ctx.steps.push({ label: "Reading the active policy", state: policy ? "done" : "blocked" });
   if (!policy) {
-    say(ctx, `There's no active ${REQUEST_TYPE_LABELS[type].toLowerCase()} policy, so these can't be green. Send them to the owner, and ask the owner to activate a policy.`);
+    say(ctx, ctx.user.role === "owner"
+      ? `There's no active ${REQUEST_TYPE_LABELS[type].toLowerCase()} policy, so these can't be green and come to you for review. Activate a policy in Rules to change that.`
+      : `There's no active ${REQUEST_TYPE_LABELS[type].toLowerCase()} policy, so these can't be green. Send them to the owner, and ask the owner to activate a policy.`);
     return "clarify";
   }
   const missingFacts = new Set((bundle?.decision?.result.missing ?? []).map((m) => m.fact));

@@ -172,6 +172,8 @@ export type ReviewBlock = {
   restricted: boolean;
   roleNote: string | null;
   actions: ReviewAction[];
+  /** The primary next step from the shared next-step rules, for example Complete Missing Details. */
+  nextStep?: string | null;
 };
 
 export type BriefingItem = {

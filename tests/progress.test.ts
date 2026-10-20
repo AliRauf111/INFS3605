@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { friendlyTime, nextStep, progressHeading, removalNeedsOwner, requestProgress, ruleName } from "@/lib/domain/progress";
+import { friendlyTime, progressHeading, removalNeedsOwner, requestProgress, ruleName } from "@/lib/domain/progress";
 
 describe("request progress", () => {
   it("puts a red request waiting to be sent at owner review", () => {
@@ -18,7 +18,13 @@ describe("request progress", () => {
   it("finishes when closed", () => {
     const steps = requestProgress("closed", true);
     expect(steps.every((s) => s.state === "done")).toBe(true);
-    expect(nextStep("closed").pending).toBe("");
+  });
+  it("holds at the rule check while a review_required request has missing details", () => {
+    const steps = requestProgress("review_required", false, { missing: 1 });
+    expect(steps.map((s) => s.state)).toEqual(["done", "current", "upcoming", "upcoming"]);
+  });
+  it("notes when the owner has started the review", () => {
+    expect(requestProgress("review_required", false, { reviewStarted: true })[2]).toEqual({ label: "Owner review", state: "current", note: "Review started" });
   });
 });
 

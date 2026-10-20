@@ -57,16 +57,37 @@ type Lookup =
 
 const STEPS = ["Request type", "Details", "Concerns", "Reference", "Review"];
 
+/** Which wizard field and step answer each required fact the rule check can report missing. */
+const FACT_FIELDS: Record<string, { field: keyof WizardState; step: number }> = {
+  amount: { field: "amount", step: 1 },
+  extension_days: { field: "extensionDays", step: 1 },
+  financial_impact: { field: "financialImpact", step: 1 },
+  complaint: { field: "complaint", step: 2 },
+  welfare: { field: "welfare", step: 2 },
+  reference: { field: "referenceId", step: 3 },
+  payment_record: { field: "referenceId", step: 3 },
+  outstanding_invoice: { field: "referenceId", step: 3 },
+  availability: { field: "proposedSlotId", step: 3 },
+};
+
+/** Required details the latest rule check says are missing. Used to highlight fields. */
+export type NeededFacts = Array<{ fact: string; message: string }>;
+
 function slotText(iso: string) {
   return new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 }
 
-function TriChoice({ name, label, hint, value, onChange, suggested }: {
-  name: string; label: string; hint?: string; value: TriState | ""; onChange: (v: TriState | "") => void; suggested?: boolean;
+function NeededBadge({ show }: { show?: boolean }) {
+  return show ? <span className="badge amber needed-badge">Needed for a decision</span> : null;
+}
+
+function TriChoice({ name, label, hint, value, onChange, suggested, needed }: {
+  name: string; label: string; hint?: string; value: TriState | ""; onChange: (v: TriState | "") => void; suggested?: boolean; needed?: boolean;
 }) {
   return (
-    <fieldset>
-      <legend>{label} {suggested && <span className="badge info">Suggested from message</span>}</legend>
+    <fieldset className={needed ? "field-needed" : undefined} aria-describedby={needed ? `${name}-needed` : undefined}>
+      <legend>{label} {suggested && <span className="badge info">Suggested from message</span>} <NeededBadge show={needed} /></legend>
+      {needed && <p className="sr-only" id={`${name}-needed`}>This answer is needed before a decision can be made.</p>}
       {hint && <p className="hint">{hint}</p>}
       <div className="choices">
         {TRI_STATES.map((t) => (
@@ -90,6 +111,7 @@ export function Wizard({
   lockType = false,
   requireConfirmation = false,
   intro,
+  needed = [],
 }: {
   mode: Mode;
   initial?: Partial<WizardState>;
@@ -97,10 +119,15 @@ export function Wizard({
   lockType?: boolean;
   requireConfirmation?: boolean;
   intro?: React.ReactNode;
+  /** Required details to highlight (from the latest rule check). Existing answers are kept. */
+  needed?: NeededFacts;
 }) {
   const router = useRouter();
   const [s, setS] = useState<WizardState>({ ...EMPTY_WIZARD, ...initial });
-  const [step, setStep] = useState(lockType ? 1 : 0);
+  const neededFields = new Set(needed.map((n) => FACT_FIELDS[n.fact]?.field).filter(Boolean) as Array<keyof WizardState>);
+  const firstNeededStep = Math.min(...needed.map((n) => FACT_FIELDS[n.fact]?.step ?? 99));
+  const [step, setStep] = useState(firstNeededStep < 99 ? Math.max(firstNeededStep, lockType ? 1 : 0) : lockType ? 1 : 0);
+  const isNeeded = (f: keyof WizardState) => neededFields.has(f);
   const [lookup, setLookup] = useState<Lookup>({ status: "idle" });
   const [confirmed, setConfirmed] = useState(false);
   const [note, setNote] = useState("");
@@ -215,6 +242,12 @@ export function Wizard({
   return (
     <div className="stack">
       {intro}
+      {needed.length > 0 && (
+        <div className="notice warning" role="note">
+          <p><strong>{needed.length === 1 ? "One required detail is" : `${needed.length} required details are`} missing, so no decision can be made yet.</strong> Your existing answers are kept. Fill in the highlighted {needed.length === 1 ? "field" : "fields"}, then choose Re-check and save. The rules run again straight away.</p>
+          <ul>{needed.map((n) => <li key={n.fact + n.message}>{n.message}</li>)}</ul>
+        </div>
+      )}
       <ol className="progress" aria-label="Progress">
         {STEPS.map((label, i) => (
           <li key={label} aria-current={i === step ? "step" : undefined} className={i < step ? "done" : undefined}>
@@ -245,13 +278,13 @@ export function Wizard({
         {step === 1 && (
           <div>
             {t === "lesson_change" ? (
-              <TriChoice name="financialImpact" label="Does the change affect fees?" hint="For example a longer lesson, a cancellation fee or a credit." value={s.financialImpact} onChange={(v) => set("financialImpact", v)} suggested={isSuggested("financialImpact")} />
+              <TriChoice name="financialImpact" label="Does the change affect fees?" hint="For example a longer lesson, a cancellation fee or a credit." value={s.financialImpact} onChange={(v) => set("financialImpact", v)} suggested={isSuggested("financialImpact")} needed={isNeeded("financialImpact")} />
             ) : (
-              <TriChoice name="moneyInvolved" label="Is money involved?" value={s.moneyInvolved} onChange={(v) => set("moneyInvolved", v)} suggested={isSuggested("moneyInvolved")} />
+              <TriChoice name="moneyInvolved" label="Is money involved?" value={s.moneyInvolved} onChange={(v) => set("moneyInvolved", v)} suggested={isSuggested("moneyInvolved")} needed={isNeeded("moneyInvolved")} />
             )}
             {(t === "refund" || t === "other") && (
-              <div className="field">
-                <label htmlFor="amount">Amount in AUD {isSuggested("amount") && <span className="badge info">Suggested from message</span>}</label>
+              <div className={`field${isNeeded("amount") ? " field-needed" : ""}`}>
+                <label htmlFor="amount">Amount in AUD {isSuggested("amount") && <span className="badge info">Suggested from message</span>} <NeededBadge show={isNeeded("amount")} /></label>
                 <p className="hint" id="amount-hint">Dollars and cents, for example 49.99. Leave blank if you do not know yet.</p>
                 <input id="amount" type="text" inputMode="decimal" value={s.amount} onChange={(e) => set("amount", e.target.value)} aria-describedby="amount-hint amount-error" aria-invalid={!amountCheck.ok} />
                 {!amountCheck.ok && <p className="error-text" id="amount-error">{amountCheck.error}</p>}
@@ -259,8 +292,8 @@ export function Wizard({
               </div>
             )}
             {t === "payment_extension" && (
-              <div className="field">
-                <label htmlFor="days">Extra days requested {isSuggested("extensionDays") && <span className="badge info">Suggested from message</span>}</label>
+              <div className={`field${isNeeded("extensionDays") ? " field-needed" : ""}`}>
+                <label htmlFor="days">Extra days requested {isSuggested("extensionDays") && <span className="badge info">Suggested from message</span>} <NeededBadge show={isNeeded("extensionDays")} /></label>
                 <input id="days" type="text" inputMode="numeric" value={s.extensionDays} onChange={(e) => set("extensionDays", e.target.value)} aria-invalid={Boolean(daysError)} aria-describedby="days-error" />
                 {daysError && <p className="error-text" id="days-error">{daysError}</p>}
               </div>
@@ -270,16 +303,16 @@ export function Wizard({
 
         {step === 2 && (
           <div>
-            <TriChoice name="complaint" label="Is this a complaint?" hint="About the service, a tutor or how something was handled." value={s.complaint} onChange={(v) => set("complaint", v)} suggested={isSuggested("complaint")} />
-            <TriChoice name="welfare" label="Is there any concern about a child's safety or wellbeing?" hint="If you are unsure, choose Not sure. It will not be treated as no." value={s.welfare} onChange={(v) => set("welfare", v)} suggested={isSuggested("welfare")} />
+            <TriChoice name="complaint" label="Is this a complaint?" hint="About the service, a tutor or how something was handled." value={s.complaint} onChange={(v) => set("complaint", v)} suggested={isSuggested("complaint")} needed={isNeeded("complaint")} />
+            <TriChoice name="welfare" label="Is there any concern about a child's safety or wellbeing?" hint="If you are unsure, choose Not sure. It will not be treated as no." value={s.welfare} onChange={(v) => set("welfare", v)} suggested={isSuggested("welfare")} needed={isNeeded("welfare")} />
             {s.welfare === "yes" && <p className="notice error">Welfare concerns always go straight to the owner. If a child may be in immediate danger, call 000 first.</p>}
           </div>
         )}
 
         {step === 3 && (
           <div>
-            <div className="field">
-              <label htmlFor="reference">Booking, family or payment reference {isSuggested("referenceId") && <span className="badge info">Suggested from message</span>}</label>
+            <div className={`field${isNeeded("referenceId") ? " field-needed" : ""}`}>
+              <label htmlFor="reference">Booking, family or payment reference {isSuggested("referenceId") && <span className="badge info">Suggested from message</span>} <NeededBadge show={isNeeded("referenceId")} /></label>
               <p className="hint" id="ref-hint">For example BK-1042, FAM-07 or PAY-2001.</p>
               <div className="row">
                 <input id="reference" type="text" value={s.referenceId} aria-describedby="ref-hint" style={{ flex: "1 1 200px", width: "auto" }}
@@ -311,8 +344,8 @@ export function Wizard({
                   <p><strong>{lookup.booking.id}</strong>: {lookup.booking.label}. {lookup.booking.lessons}. <span className="badge info">{lookup.booking.source}</span></p>
                   <p className="hint">Payments: {lookup.payments.length ? lookup.payments.join("; ") : "none on record"}</p>
                   {t === "lesson_change" && (
-                    <fieldset>
-                      <legend>New lesson time (same tutor)</legend>
+                    <fieldset className={isNeeded("proposedSlotId") ? "field-needed" : undefined}>
+                      <legend>New lesson time (same tutor) <NeededBadge show={isNeeded("proposedSlotId")} /></legend>
                       {lookup.slots.length === 0 && <p className="muted">No upcoming slots are recorded for this tutor.</p>}
                       <div className="choices">
                         {lookup.slots.map((slot) => (
@@ -347,7 +380,7 @@ export function Wizard({
               {(t === "refund" || t === "other") && <><dt>Amount</dt><dd>{amountCheck.ok && amountCheck.cents !== null ? formatAud(amountCheck.cents) : "Not provided"}</dd></>}
               {t === "payment_extension" && <><dt>Extra days</dt><dd>{s.extensionDays || "Not provided"}</dd></>}
               {t === "lesson_change" && <><dt>New time</dt><dd>{s.proposedSlotId || "Not chosen"}</dd></>}
-              <dt>Complaint</dt><dd>{s.complaint ? TRI_STATE_LABELS[s.complaint] : "Not answered"} <button type="button" className="link-button" onClick={() => go(2)}>Change</button></dd>
+              <dt>Complaint</dt><dd>{s.complaint ? TRI_STATE_LABELS[s.complaint] : "Not answered"} <NeededBadge show={isNeeded("complaint") && !s.complaint} /> <button type="button" className="link-button" onClick={() => go(2)}>Change</button></dd>
               <dt>Welfare concern</dt><dd>{s.welfare ? TRI_STATE_LABELS[s.welfare] : "Not answered"}</dd>
               <dt>Reference</dt><dd>{s.referenceId || "Not provided"}{s.bookingId && s.bookingId !== s.referenceId ? ` (booking ${s.bookingId})` : ""} <button type="button" className="link-button" onClick={() => go(3)}>Change</button></dd>
               <dt>Context</dt><dd>{s.context || <span className="muted">None</span>}</dd>

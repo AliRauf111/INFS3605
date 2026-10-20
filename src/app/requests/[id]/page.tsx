@@ -15,7 +15,9 @@ import {
 import { describeRange, policyVersionLabel } from "@/lib/engine/policy";
 import { ActivityPanel } from "@/components/ActivityPanel";
 import { ColourBadge, DataBadge, LoadError, StatusBadge, formatDateTime } from "@/components/ui";
-import { friendlyTime, nextStep, progressHeading, requestProgress, ruleHeading, whatHappensNext } from "@/lib/domain/progress";
+import { friendlyTime, progressHeading, requestProgress, ruleHeading } from "@/lib/domain/progress";
+import { rowWorkflow } from "@/lib/data/queries";
+import { countMissing } from "@/lib/workflow/next-step";
 import { RequestActions } from "./RequestActions";
 import { DraftsEditor } from "./DraftsEditor";
 import { RemoveFromList } from "./RemoveFromList";
@@ -32,6 +34,8 @@ const EVENT_TEXT: Record<string, string> = {
   created: "Created",
   reevaluated: "Facts updated and re-checked",
   sent_to_owner: "Sent to the owner",
+  owner_review_started: "Owner started the review",
+  owner_handling_note: "Owner handling note and next steps",
   owner_approved: "Owner approved",
   owner_declined: "Owner declined",
   owner_requested_info: "Owner asked for more information",
@@ -53,10 +57,10 @@ const DRAFTS_FOR_ACTION: Partial<Record<string, DraftKind>> = {
   prepare_admin_checklist: "admin_checklist",
 };
 
-export default async function RequestPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
+export default async function RequestPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; details?: string }> }) {
   const user = await requirePageUser();
   const { id } = await params;
-  const { saved } = await searchParams;
+  const { saved, details } = await searchParams;
   let detail;
   let visibility: ListVisibility = "not_set_up";
   let savedClass: Awaited<ReturnType<typeof savedRequestClass>> = null;
@@ -76,7 +80,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
   const evidence = current?.evidence;
   const snapshot = current?.policy_snapshot;
   const rule = snapshot?.definition.rules.find((x) => x.id === (result?.candidateRuleId ?? r.matched_rule_id));
-  const ownerEvent = [...events].reverse().find((e) => e.event_type.startsWith("owner_"));
+  const ownerEvent = [...events].reverse().find((e) => ["owner_approved", "owner_declined", "owner_requested_info"].includes(e.event_type));
   const kb = r.welfare_status === "yes" ? "KB-01" : r.complaint_status === "yes" ? "KB-04" : null;
   const article = kb ? (await db().from("knowledge_articles").select("id, title, body, owner_approved, version").eq("id", kb).maybeSingle()).data : null;
   const draftKinds = new Set<DraftKind>(["escalation_summary"]);
@@ -91,9 +95,20 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
   }
   const escalationDraft = drafts.find((d) => d.kind === "escalation_summary")?.body ?? "";
 
-  const steps = requestProgress(r.status, Boolean(ownerEvent) || events.some((e) => e.event_type === "sent_to_owner"));
+  // What this person can do next comes from the shared next-step rules (role, status,
+  // missing details and whether the owner has started a review), never from colour alone.
+  const wf = rowWorkflow(r, user.role);
+  const missingCount = countMissing(result?.missing);
+  const needed = (result?.missing ?? []).filter((m) => m.fact !== "policy" && m.fact !== "request_type");
+  const reviewStartedText = r.owner_review_started_at
+    ? `Review started ${friendlyTime(r.owner_review_started_at).replace(/^(Today|Yesterday)/, (w) => w.toLowerCase())}${r.owner_review_started_by && names.get(r.owner_review_started_by) ? ` by ${names.get(r.owner_review_started_by)}` : ""}.`
+    : null;
+  const steps = requestProgress(r.status, Boolean(ownerEvent) || events.some((e) => e.event_type === "sent_to_owner" || e.event_type === "owner_review_started"), {
+    missing: missingCount,
+    reviewStarted: wf.reviewStarted,
+  });
   const heading = progressHeading(steps);
-  const pending = nextStep(r.status).pending;
+  const pending = wf.pending;
   const createdBy = r.created_by ? names.get(r.created_by) ?? "Unknown" : "Seed data";
   const ruleHref = snapshot ? `/rules/${snapshot.id}` : "/knowledge#rules";
   type Item = { key: string; at: string; order: number; dot: string; title: string; detail?: string; note?: string | null };
@@ -143,6 +158,10 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
         currentDecisionId={r.current_decision_id}
         facts={r.confirmed_facts}
         escalationDraft={escalationDraft}
+        workflow={wf}
+        needed={wf.can.completeDetails ? needed : []}
+        reviewStartedText={reviewStartedText}
+        openDetails={details === "1"}
       >
         <p className="rq-kicker">{REQUEST_TYPE_LABELS[r.request_type]} · Created {friendlyTime(r.created_at).replace(/^(Today|Yesterday)/, (w) => w.toLowerCase())}</p>
         <h1>{r.reference_id ?? REQUEST_TYPE_LABELS[r.request_type]}{r.amount_cents !== null && <span className="rq-amount"> · {formatAud(r.amount_cents)}</span>}</h1>
@@ -177,7 +196,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
 
           <section className={`card rule-card ${r.decision}`} aria-label="Rule check">
             <span className={`rule-tag ${r.decision}`}><span className="rule-tag-icon" aria-hidden="true" />Rule check: {COLOUR_WORD[r.decision]}</span>
-            <h2>{ruleHeading(r.decision, r.status, r.welfare_status === "yes")}</h2>
+            <h2>{ruleHeading(r.decision, r.status, r.welfare_status === "yes", user.role, missingCount)}</h2>
             <p>{r.decision_reason}</p>
             {result && (result.missing.length > 0 || result.blockers.length > 0) && (
               <ul className="rule-missing">
@@ -198,7 +217,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
               {pending && (
                 <li className="pending">
                   <span className="act-dot" aria-hidden="true" />
-                  <div><strong>{nextStep(r.status).title}</strong><p>{pending}</p></div>
+                  <div><strong>{wf.title}</strong><p>{pending}</p></div>
                 </li>
               )}
               {items.map((it) => (
@@ -240,7 +259,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
           </section>
           <section className="next-box">
             <h2>What happens next</h2>
-            <p>{whatHappensNext(r.status, user.role)}</p>
+            <p>{wf.whatNext}</p>
           </section>
           <RemoveFromList
             requestId={r.id}
@@ -294,7 +313,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
             <h3>Next steps under this rule</h3>
             {result?.nextSteps.length ? <ol>{result.nextSteps.map((st) => <li key={st}>{st}</li>)}</ol> : <p className="muted">No steps recorded.</p>}
             <h3>Permitted actions</h3>
-            <ul>{(result?.permittedActions ?? []).map((a) => <li key={a}>{ACTION_LABELS[a]}</li>)}</ul>
+            <ul>{(result?.permittedActions ?? []).map((a) => <li key={a}>{user.role === "owner" && a === "send_to_owner" ? "Owner review (you review this directly)" : ACTION_LABELS[a]}</li>)}</ul>
             <p className="hint">Tutor Compass prepares drafts and records decisions. It does not process payments, send messages or change bookings.</p>
           </section>
           <section>
@@ -309,7 +328,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
                     </li>
                   ))}
                 </ul>
-                {evidence.booking.status === "multiple" && <p className="notice warning">Several bookings matched. Choose one with Update facts.</p>}
+                {evidence.booking.status === "multiple" && <p className="notice warning">Several bookings matched. Choose one with {wf.can.completeDetails && missingCount ? "Complete Missing Details" : "Update Facts"}.</p>}
               </>
             ) : (
               <p className="muted">No evidence snapshot was stored.</p>

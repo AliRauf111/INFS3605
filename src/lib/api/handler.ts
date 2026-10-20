@@ -21,6 +21,7 @@ const DB_STATUS: Record<DbError["code"], number> = {
   reason_required: 400,
   invalid_input: 400,
   policy_frozen: 409,
+  missing_details: 409,
   unknown: 500,
 };
 

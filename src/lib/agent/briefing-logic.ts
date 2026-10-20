@@ -17,7 +17,7 @@ export type Bucket = {
 /** Every unfinished status appears in exactly one bucket. Closed requests are finished. */
 export const BUCKETS: Bucket[] = [
   { key: "owner_decision", title: { owner: "Waiting for Your Decision", admin: "Waiting for the Owner" }, statuses: ["awaiting_owner"] },
-  { key: "send_to_owner", title: { owner: "Owner Review Required, Not Yet Sent", admin: "Owner Review Required" }, statuses: ["review_required"] },
+  { key: "send_to_owner", title: { owner: "Requires Your Review, Not Yet Sent", admin: "Owner Review Required" }, statuses: ["review_required"] },
   { key: "clarification", title: { owner: "Needs Clarification", admin: "Needs Clarification" }, statuses: ["needs_clarification", "more_info_requested"] },
   { key: "pending_outcome", title: { owner: "Decided, Awaiting Outcome", admin: "Decided, Awaiting Outcome" }, statuses: ["approved", "declined"] },
   { key: "ready", title: { owner: "Ready for Admin", admin: "Ready for Admin" }, statuses: ["ready"] },
@@ -110,7 +110,9 @@ export function attentionFor(status: RequestStatus, role: Role): { why: string; 
         ? { why: "Your decision is needed before the admin team can act.", next: { label: "Review Request", command: "review" } }
         : { why: "Waiting for the owner's decision. There is nothing for the admin team to do yet.", next: { label: "Review Request", command: "review" } };
     case "review_required":
-      return { why: "The rules say the owner must review this, but it has not been sent to the owner yet.", next: { label: "Review Request", command: "review" } };
+      return role === "owner"
+        ? { why: "The rules say you need to review this. The admin team hasn't sent it yet, but you can start the review now.", next: { label: "Review Request", command: "review" } }
+        : { why: "The rules say the owner must review this, but it has not been sent to the owner yet.", next: { label: "Review Request", command: "review" } };
     case "needs_clarification":
       return { why: "Facts are missing or conflicting, so no rule can be applied yet.", next: { label: "Prepare Follow-up", command: "followup" } };
     case "more_info_requested":

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ClickableRow } from "./ClickableRow";
-import type { RequestRow } from "@/lib/data/queries";
+import { rowWorkflow, type RequestRow } from "@/lib/data/queries";
 import type { RequestClass } from "@/lib/data/catalogue";
 import { formatAud } from "@/lib/domain/money";
-import { REQUEST_TYPE_LABELS } from "@/lib/domain/types";
-import { friendlyTime, nextStep, ruleName } from "@/lib/domain/progress";
+import { REQUEST_TYPE_LABELS, type Role } from "@/lib/domain/types";
+import { friendlyTime, ruleName } from "@/lib/domain/progress";
 
 // The dashboard's request list: what each request is, what the rules said and what
 // has to happen next. Each row opens the request. Phones get stacked cards instead.
@@ -31,7 +31,7 @@ function ClassCell({ cls }: { cls: RequestClass | undefined }) {
   );
 }
 
-export function QueueTable({ rows, now, classes }: { rows: RequestRow[]; now: Date; classes: Map<string, RequestClass> }) {
+export function QueueTable({ rows, now, classes, role }: { rows: RequestRow[]; now: Date; classes: Map<string, RequestClass>; role: Role }) {
   return (
     <>
       <div className="queue-table table-wrap">
@@ -50,7 +50,7 @@ export function QueueTable({ rows, now, classes }: { rows: RequestRow[]; now: Da
           </thead>
           <tbody>
             {rows.map((r) => {
-              const next = nextStep(r.status);
+              const next = rowWorkflow(r, role);
               return (
                 <ClickableRow key={r.id} href={`/requests/${r.id}`}>
                   <td>
@@ -71,7 +71,7 @@ export function QueueTable({ rows, now, classes }: { rows: RequestRow[]; now: Da
       </div>
       <ul className="queue-cards" aria-label="Recent requests, newest first">
         {rows.map((r) => {
-          const next = nextStep(r.status);
+          const next = rowWorkflow(r, role);
           return (
             <li key={r.id}>
               <Link href={`/requests/${r.id}`}>

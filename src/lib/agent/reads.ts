@@ -174,6 +174,8 @@ export type RequestRecord = RequestSummary & {
   category_code?: string | null;
   course_id?: string | null;
   year_level?: number | null;
+  owner_review_started_at?: string | null;
+  owner_review_started_by?: string | null;
   confirmed_facts: ConfirmedFacts;
 };
 
