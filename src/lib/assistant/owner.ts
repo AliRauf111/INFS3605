@@ -363,8 +363,8 @@ export async function buildReview(ctx: TurnCtx, b: RequestBundle, mode: "review"
       colour: r.decision,
       ruleLabel,
       matchedRuleId: r.matched_rule_id,
-      explanation: r.decision_reason,
-      escalation: result?.escalation ?? null,
+      explanation: reviewExplanation(r.decision_reason),
+      escalation: null,
       policyLabel: usedPolicy ? `${usedPolicy.definition.title} (${usedLabel})` : `System rules (${usedLabel})`,
       policyHref: r.policy_version_id ? `/rules/${r.policy_version_id}` : null,
       checkedAt: b.decision ? `Rule check #${b.decision.sequence}, ${when(b.decision.created_at)}` : "Unknown",
@@ -639,4 +639,13 @@ export async function policyOverviewTurn(ctx: TurnCtx, requestType?: RequestType
 
 export function statusBucket(status: RequestStatus) {
   return bucketFor(status);
+}
+
+// Plainer wording for the review card: title case names, no demo tag and owner approval only.
+function reviewExplanation(text: string): string {
+  const titled = (name: string) => name.replace(/\b[a-z]/g, (c) => c.toUpperCase());
+  return text
+    .replace(/^Rule "([^"]+)"/, (_, label: string) => `Rule "${titled(label)}"`)
+    .replace(/ in ([^.(]+?) \(fictional demo\) applies/, (_, title: string) => ` in ${titled(title)} applies`)
+    .replace("This needs clarification or owner approval before anything is promised.", "This needs owner approval before anything is promised.");
 }
