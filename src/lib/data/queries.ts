@@ -239,13 +239,16 @@ export async function ownerQueue() {
 }
 
 export async function knowledgeHub() {
-  const [families, tutors, bookings, payments, slots, articles] = await Promise.all([
+  const [families, tutors, bookings, payments, slots, articles, lessons, absences] = await Promise.all([
     db().from("families").select("id, parent_name, student_name, data_label").order("id"),
     db().from("tutors").select("id, name, subjects, data_label").order("id"),
     db().from("bookings").select("id, family_id, tutor_id, subject, lessons_purchased, lessons_used, price_cents, status, data_label, source_system, last_synced_at").order("id"),
     db().from("payments").select("id, booking_id, invoice_ref, amount_cents, status, paid_at, due_date, method, data_label, source_system, last_synced_at").order("id"),
     db().from("tutor_availability").select("id, tutor_id, starts_at, ends_at, status, data_label, source_system, last_synced_at").order("starts_at"),
     db().from("knowledge_articles").select("id, title, category, body, owner_approved, version, data_label, updated_at").order("id"),
+    // The timetable the Compass workflows change. Older databases without these tables just show none.
+    db().from("lessons").select("id, booking_id, tutor_id, slot_id, starts_at, status, data_label").eq("status", "scheduled").gt("starts_at", new Date().toISOString()).order("starts_at"),
+    db().from("tutor_absences").select("id, tutor_id, starts_on, ends_on, note").eq("status", "recorded").gte("ends_on", new Date().toISOString().slice(0, 10)).order("starts_on"),
   ]);
   return {
     families: check(families, "families") as Array<{ id: string; parent_name: string; student_name: string; data_label: string }>,
@@ -254,6 +257,8 @@ export async function knowledgeHub() {
     payments: check(payments, "payments") as Array<Record<string, any>>,
     slots: check(slots, "availability") as Array<Record<string, any>>,
     articles: check(articles, "articles") as Array<{ id: string; title: string; category: string; body: string; owner_approved: boolean; version: number; data_label: string; updated_at: string }>,
+    lessons: (lessons.error ? [] : lessons.data ?? []) as Array<{ id: string; booking_id: string; tutor_id: string; slot_id: string | null; starts_at: string; status: string; data_label: string }>,
+    absences: (absences.error ? [] : absences.data ?? []) as Array<{ id: string; tutor_id: string; starts_on: string; ends_on: string; note: string }>,
   };
 }
 

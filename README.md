@@ -71,6 +71,7 @@ Put the printed API URL and secret (service role) key into `.env.local`, then ru
 | `npm run build` | Production build |
 | `npm run smoke` | End-to-end checks against a running app and its database (47 checks). Creates new fictional requests each run, so only use it on a demo database. |
 | `npm run sql:bundle` | Rebuilds `supabase/setup-everything.sql` from the migrations and seed files |
+| `npm run demo:generate` | Rebuilds `supabase/demo-dataset.sql` (the original demo data used by the demo reset) from the seed files. Run it, then `npm run sql:bundle`, after changing any seed file. |
 | `npm run check:secrets` | Looks for keys in Git files and the browser bundle. Run after `npm run build`. |
 
 ## Deploy to Vercel
@@ -156,6 +157,16 @@ How changes are kept safe:
 - `/api/health` reports whether the Compass tables exist and whether the AI key works and the model is available.
 - To turn on live AI, add `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`) in Vercel under Settings > Environment Variables and redeploy.
 - Database checks for the approval process are in `supabase/tests/agent-proposals.sql`, and for the workflows in `supabase/tests/compass-workflows.sql`.
+
+## Demo mode: a fresh start on every refresh
+
+In demo mode (the default, turn it off with `DEMO_MODE=off`) every full page load puts the fictional demo data back to its original state before the page is drawn. That covers a browser refresh, typing the address and signing in. Moving between pages inside the app, opening or closing Compass and re-rendering never reset anything, so a change stays visible until the next refresh.
+
+- The original dataset is one database function, `public.demo_seed()`, built from the seed files by `npm run demo:generate` (`supabase/demo-dataset.sql`). `public.reset_demo_data()` removes every row labelled `fictional_demo` (bookings, lessons, slots, payments, reminders, absences, requests and their history, rule versions, procedures, subject choices, Compass chats, workflow runs and proposals) and adds the original rows back, in one transaction. Rows labelled `live_connected` or `imported` are never touched, and if a real request uses a demo rule version the reset stops and changes nothing.
+- Dates are worked out again on every reset, in Sydney time, so the class demo script works on any day: Leo's lesson LSN-4001 is next week's Thursday with Priya free that Tuesday afternoon, Tom's lesson LSN-4003 is on the next Thursday with Nadia free at the same time, and INV-507 is due in three days.
+- The reset is shared by everyone using the same database. Refreshing in one window resets the demo for every other window too, so sign in to all windows before you start.
+- Nothing in the demo is ever sent: family and tutor messages are marked Simulated, and reminders are recorded but not connected to email or SMS.
+- Checks: `supabase/tests/demo-reset.sql` (database) and `tests/demo-mode.test.ts`.
 
 ## 60-second demo
 

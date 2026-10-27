@@ -9,6 +9,7 @@ import { CompassAvatar, type AvatarState } from "./CompassAvatar";
 import { AssistantMessage, type ActionState, type ChatItem } from "./Messages";
 import { useSpeech, useVoice } from "./useVoice";
 import { motionReduced } from "@/lib/a11y/motion";
+import { DEMO_EPOCH_COOKIE, freshChat, readCookie } from "@/lib/demo/mode";
 import { isNearBottom, lockPageScroll, makeSiblingsInert, scrollTargetForNew, stopMedia, workspaceGeometry, type WorkspaceGeometry } from "@/lib/assistant/workspace";
 
 // Compass AI: the floating assistant on every signed-in page. This component owns the
@@ -27,7 +28,8 @@ type SendInput = {
   start?: ShortcutId;
   command?: Command;
 };
-type Stored = { items: ChatItem[]; state: AssistantState; sessionKey: string; readAloud: boolean; draft: string };
+/** demoEpoch: the demo reset this chat started after, so a later reset starts a fresh chat. */
+type Stored = { items: ChatItem[]; state: AssistantState; sessionKey: string; readAloud: boolean; draft: string; demoEpoch?: string | null };
 
 const STORE = "compass.chat.v2";
 const GREETED = "compass.greeted";
@@ -108,6 +110,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const [paused, setPaused] = useState(false);
   const [modeNote, setModeNote] = useState(() => welcomeMode(aiLive));
   const [geom, setGeom] = useState<WorkspaceGeometry | null>(null);
+  const [demoEpoch, setDemoEpoch] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
   const lastSend = useRef<{ input: SendInput; label: string } | null>(null);
@@ -127,13 +130,18 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const speech = useSpeech();
 
   // Restore this tab's conversation, and greet once per session. Reloading the page
-  // starts a fresh, empty chat; only the read-aloud setting is kept.
+  // starts a fresh, empty chat; only the read-aloud setting is kept. So does any page load
+  // that put the demo data back to its original state (in demo mode), so Compass never
+  // carries on a workflow about records that have been reset. Moving between pages and
+  // opening or closing Compass keep the chat.
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORE);
       const saved = raw ? (JSON.parse(raw) as Stored) : null;
       const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-      const fresh = nav?.type === "reload";
+      const epoch = readCookie(document.cookie, DEMO_EPOCH_COOKIE);
+      setDemoEpoch(epoch);
+      const fresh = freshChat({ reloaded: nav?.type === "reload", savedEpoch: saved?.demoEpoch, currentEpoch: epoch });
       setItems(fresh ? [] : saved?.items ?? []);
       setConv(fresh ? EMPTY_STATE : saved?.state ?? EMPTY_STATE);
       setSessionKey((!fresh && saved?.sessionKey) || uid());
@@ -161,9 +169,9 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   useEffect(() => {
     if (!hydrated) return;
     try {
-      sessionStorage.setItem(STORE, JSON.stringify({ items: items.slice(-60), state: conv, sessionKey, readAloud, draft } satisfies Stored));
+      sessionStorage.setItem(STORE, JSON.stringify({ items: items.slice(-60), state: conv, sessionKey, readAloud, draft, demoEpoch } satisfies Stored));
     } catch { /* storage full or blocked */ }
-  }, [hydrated, items, conv, sessionKey, readAloud, draft]);
+  }, [hydrated, items, conv, sessionKey, readAloud, draft, demoEpoch]);
 
   // Pause decorative animation when the tab is hidden.
   useEffect(() => {

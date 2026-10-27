@@ -1,10 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { ACCESS_COOKIE, REFRESH_COOKIE, REFRESH_MAX_AGE, cookieOptions, tokenExpiresAt } from "@/lib/auth/cookies";
+import { DEMO_EPOCH_COOKIE, demoResetEnabled, isFullPageLoad } from "@/lib/demo/mode";
+import { resetDemoData } from "@/lib/demo/reset";
 
 // Runs on the server before each page or API request. It refreshes an expiring sign-in
 // session and sends signed-out visitors to the login page. Permission checks still
 // happen inside every API route; this is only the front door.
+//
+// In demo mode, a signed-in full page load (a refresh, a typed address, signing in) first
+// puts the fictional demo data back to its original state, and waits for that, so the
+// page and Compass never see half-loaded or out-of-date demo records. Moving between pages
+// inside the app doesn't reset anything.
 
 // Pages anyone can open. API routes are never redirected here; each one checks access itself.
 const PUBLIC_PATHS = ["/login", "/reset-password", "/support", "/privacy", "/terms", "/api/auth/login", "/api/auth/logout", "/api/health"];
@@ -46,12 +53,26 @@ export async function proxy(req: NextRequest) {
   }
 
   let res: NextResponse;
+  let demoEpoch: string | null = null;
   if (!access && !isPublic && !pathname.startsWith("/api/")) {
     const login = new URL("/login", req.url);
     if (pathname !== "/") login.searchParams.set("next", pathname);
     res = NextResponse.redirect(login);
   } else {
+    if (access && !isPublic && !pathname.startsWith("/api/") && demoResetEnabled(process.env.DEMO_MODE) && isFullPageLoad(req.method, req.headers)) {
+      const reset = await resetDemoData();
+      if (reset.ok) {
+        req.cookies.set(DEMO_EPOCH_COOKIE, reset.epoch);
+        demoEpoch = reset.epoch;
+      } else if (reset.reason !== "not_configured") {
+        console.warn(`Demo reset skipped: ${reset.reason}`);
+      }
+    }
     res = NextResponse.next({ request: { headers: req.headers } });
+  }
+  if (demoEpoch) {
+    // Readable by the page, so Compass knows the demo data was reset. Lasts for the browser session.
+    res.cookies.set(DEMO_EPOCH_COOKIE, demoEpoch, { httpOnly: false, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" });
   }
   if (renewed) {
     res.cookies.set(ACCESS_COOKIE, renewed.access_token, cookieOptions(renewed.expires_in));

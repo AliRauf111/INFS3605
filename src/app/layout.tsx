@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import "./globals.css";
 import { getSessionUser } from "@/lib/auth/session";
 import { supabaseConfigured } from "@/lib/db/supabase";
@@ -42,7 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div className="demo-strip">One place to plan, teach and grow.</div>
             <header className="site-header">
               <div className="header-inner">
-                <a href="/" className="brand"><Logo /></a>
+                <Link href="/" className="brand"><Logo /></Link>
                 <NavLinks role={user.role} />
                 <div className="user-box">
                   <span>
