@@ -1,262 +1,289 @@
 import Link from "next/link";
 import { requirePageUser } from "@/lib/auth/page";
-import { listRequests, rowWorkflow, withWorkflowState, type RequestRow } from "@/lib/data/queries";
-import type { Queue } from "@/lib/workflow/next-step";
-import { classesForRequests, type RequestClass } from "@/lib/data/catalogue";
-import { QueueTable } from "@/components/QueueTable";
+import { listRequests, withWorkflowState, type RequestRow } from "@/lib/data/queries";
 import { LoadError } from "@/components/ui";
 import { friendlyTime } from "@/lib/domain/progress";
-import { PageHeader } from "@/components/PageHeader";
-import { FilterLink } from "@/components/FilterLink";
-import { Icon, type IconName } from "@/components/Icons";
+import { PageActions } from "@/components/PageHeader";
+import { Icon } from "@/components/Icons";
 import { OpenCompassButton } from "@/components/OpenCompassButton";
-import { CompassAvatar } from "@/components/assistant/CompassAvatar";
-import { LIGHT_PARAM, LIGHT_WORD, filterByLight, lightFromParam, summariseLights } from "@/lib/overview/lights";
+import { BotScene } from "@/components/BotScene";
+import { CapacityCard, type CapacityPeriod, type PeriodKey } from "@/components/CapacityChart";
+import { OverviewBoard, type Tile } from "@/components/OverviewBoard";
 import { upcomingLessons } from "@/lib/insights/data";
-import { isAway } from "@/lib/insights/logic";
-import { sydneyDate, sydneyToday } from "@/lib/workflows/dates";
-import type { Colour } from "@/lib/domain/types";
+import { isAway, sydneyPeriod } from "@/lib/insights/logic";
+import { activePolicies, calendarWeeks, recentEvents, studentsByBooking } from "@/lib/overview/data";
+import { ruleLines } from "@/lib/overview/rules";
+import { monthSeries, monthWeekStarts, niceMax, pointsChange, weekSeries, type CapacitySeries } from "@/lib/overview/capacity";
+import {
+  STATUS_GROUPS,
+  TILE_COLOUR,
+  cardLine,
+  cardTitle,
+  countGroups,
+  groupFromParam,
+  groupOf,
+  groupText,
+  pendingRequests,
+  type CardRow,
+  type StatusGroup,
+} from "@/lib/overview/status-cards";
+import { addDays, sydneyDate, sydneyToday } from "@/lib/workflows/dates";
+import { REQUEST_TYPE_LABELS } from "@/lib/domain/types";
 
 export const dynamic = "force-dynamic";
 
-// Overview: what needs doing now. Three traffic-light cards filter the request list, which
-// keeps its next-step tabs; beside it sit Compass AI and the next lessons on the timetable.
-// Filters live in the address bar, so they work without scripts and survive a refresh.
-type Tab = { key: string; label: string; queues: Queue[] | null };
-const ADMIN_TABS: Tab[] = [
-  { key: "all", label: "All", queues: null },
-  { key: "record", label: "Ready to Record", queues: ["record"] },
-  { key: "send", label: "Send to Owner", queues: ["send"] },
-  { key: "owner", label: "Waiting for Owner", queues: ["owner"] },
-  { key: "clarify", label: "Needs Clarification", queues: ["clarify"] },
-];
-const OWNER_TABS: Tab[] = [
-  { key: "all", label: "All", queues: null },
-  { key: "review", label: "Requires Your Review", queues: ["review"] },
-  { key: "clarify", label: "Needs Clarification", queues: ["clarify"] },
-  { key: "record", label: "Ready to Record", queues: ["record"] },
-];
-const SHOW = 8;
-const LIGHT_ICON: Record<Colour, IconName> = { red: "stop", amber: "alert", green: "check" };
+// Overview, laid out like the Studio design: three status cards, then "Over to you" on the
+// left, tutor capacity and today's lessons in the middle, and Compass AI, the owner's rules
+// and recent activity on the right. Every figure comes from the records; nothing here is
+// sample data.
 
-function greeting(now: Date): string {
+const EVENT_TEXT: Record<string, [string, string]> = {
+  sent_to_owner: ["Sent to the owner", "for a decision"],
+  owner_approved: ["Approved by the owner", "and back with the team"],
+  owner_declined: ["Declined by the owner", "with a reason recorded"],
+  owner_requested_info: ["The owner asked", "for a few more details"],
+  admin_replied: ["Details sent back", "to the owner"],
+  closed: ["Outcome recorded", "and the request closed"],
+  reevaluated: ["Rules re-checked", "with the new facts"],
+};
+
+function partOfDay(now: Date): "morning" | "afternoon" | "evening" {
   const hour = Number(new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", hourCycle: "h23" }).format(now));
-  return hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  return hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
 }
 
-function href(params: { light?: Colour | null; tab?: string }): string {
-  const q = new URLSearchParams();
-  if (params.light) q.set("light", LIGHT_PARAM[params.light]);
-  if (params.tab && params.tab !== "all") q.set("tab", params.tab);
-  const s = q.toString();
-  return `/${s ? `?${s}` : ""}#requests`;
+function initials(name: string | undefined | null): string {
+  return (name ?? "").split(/[\s-]+/).filter((w) => /^[A-Za-z]/.test(w)).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
 }
 
-const timeFmt = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit" });
-const dayFmt = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" });
+const clock = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit", hour12: true });
+const shortDay = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", weekday: "short" });
 
-export default async function Overview({ searchParams }: { searchParams: Promise<{ tab?: string; light?: string; removed?: string }> }) {
+function timeParts(iso: string): { time: string; period: string } {
+  const parts = clock.formatToParts(new Date(iso));
+  const time = parts.filter((p) => p.type === "hour" || p.type === "minute" || p.type === "literal").map((p) => p.value).join("").trim();
+  const period = parts.find((p) => p.type === "dayPeriod")?.value.toLowerCase().replace(/\./g, "") ?? "";
+  return { time, period };
+}
+
+function subjectIcon(subject: string): { letter: string; cls: string } {
+  const name = subject.replace(/^Year\s+\d+\s+/i, "").trim() || subject;
+  const cls = /math/i.test(name) ? "math" : /science|chem|phys|bio/i.test(name) ? "sci" : "";
+  return { letter: name[0]?.toUpperCase() ?? "L", cls };
+}
+
+function asCard(r: RequestRow): CardRow {
+  return {
+    id: r.id,
+    request_type: r.request_type,
+    status: r.status,
+    decision: r.decision,
+    amount_cents: r.amount_cents,
+    reference_id: r.reference_id,
+    created_at: r.created_at,
+    updated_at: r.updated_at,
+    missing: r.missing_count ?? 0,
+    reviewStartedAt: r.owner_review_started_at,
+    welfare: r.welfare_status === "yes",
+    complaint: r.complaint_status === "yes",
+    extensionDays: r.confirmed_facts?.extensionDays ?? null,
+    context: r.context,
+  };
+}
+
+function changeText(change: number | null, against: string): string {
+  if (change === null) return `Nothing offered ${against} to compare`;
+  if (change === 0) return `The same as ${against}`;
+  return `${Math.abs(change)} ${Math.abs(change) === 1 ? "point" : "points"} ${change > 0 ? "more" : "fewer"} than ${against}`;
+}
+
+/** The tip starts on today, or on the busiest day when today isn't in the period. */
+function tipIndex(s: CapacitySeries, todayIndex: number): number {
+  if (todayIndex >= 0 && todayIndex < s.labels.length) return todayIndex;
+  let best = 0;
+  s.booked.forEach((b, i) => { if (b > s.booked[best]) best = i; });
+  return best;
+}
+
+export default async function Overview({ searchParams }: { searchParams: Promise<{ status?: string; removed?: string }> }) {
   const user = await requirePageUser();
-  const { tab, light: lightParam, removed } = await searchParams;
-  const owner = user.role === "owner";
-  const TABS = owner ? OWNER_TABS : ADMIN_TABS;
-  const active = TABS.find((t) => t.key === tab) ?? TABS[0];
-  const light = lightFromParam(lightParam);
+  const { status, removed } = await searchParams;
   const now = new Date();
+  const p = sydneyPeriod(now);
+  const todayIso = sydneyToday(now);
+  const lastWeek = addDays(p.weekStart, -7);
+  const nextWeek = addDays(p.weekStart, 7);
+  const monthStarts = monthWeekStarts(todayIso);
+  const from = monthStarts[0] < lastWeek ? monthStarts[0] : lastWeek;
+  const monthEnd = addDays(monthStarts[monthStarts.length - 1], 7);
+  const to = monthEnd > addDays(nextWeek, 7) ? monthEnd : addDays(nextWeek, 7);
+
   let rows: RequestRow[];
   let lessons: Awaited<ReturnType<typeof upcomingLessons>>;
+  let calendar: Awaited<ReturnType<typeof calendarWeeks>>;
+  let events: Awaited<ReturnType<typeof recentEvents>>;
+  let policies: Awaited<ReturnType<typeof activePolicies>>;
   try {
-    [rows, lessons] = await Promise.all([withWorkflowState(await listRequests({ limit: 200 })), upcomingLessons(now, 5)]);
+    [rows, lessons, calendar, events, policies] = await Promise.all([
+      listRequests({ limit: 200 }).then(withWorkflowState),
+      upcomingLessons(now, 8),
+      calendarWeeks(from, to),
+      recentEvents(2),
+      activePolicies(),
+    ]);
   } catch (e) {
     return <LoadError error={e} />;
   }
-  const asLight = (r: RequestRow) => ({ decision: r.decision, status: r.status, missing: r.missing_count ?? 0, reviewStartedAt: r.owner_review_started_at, welfare: r.welfare_status === "yes" });
-  const lights = summariseLights(rows.map(asLight), user.role);
-  const byLight = filterByLight(rows.map((r) => ({ ...asLight(r), row: r })), light).map((x) => x.row);
-  const queueOf = new Map(rows.map((r) => [r.id, rowWorkflow(r, user.role).queue]));
-  const inTab = (t: Tab) => (t.queues ? byLight.filter((r) => t.queues!.includes(queueOf.get(r.id)!)) : byLight);
-  const count = (key: string) => inTab(TABS.find((t) => t.key === key)!).length;
-  const matching = inTab(active);
-  const shown = matching.slice(0, SHOW);
-  let classes: Map<string, RequestClass>;
-  try {
-    classes = await classesForRequests(shown);
-  } catch (e) {
-    return <LoadError error={e} />;
-  }
+
+  // Status cards and "Over to you"
+  const cards = rows.map(asCard);
+  const counts = countGroups(cards);
+  const pending = pendingRequests(cards);
+  const students = await studentsByBooking(rows.filter((r) => pending.some((s) => s.id === r.id)).map((r) => r.booking_id ?? ""));
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const tiles: Tile[] = pending.map((r) => {
+    const row = byId.get(r.id)!;
+    const who = students.get(row.booking_id ?? "") ?? null;
+    return {
+      id: r.id,
+      group: groupOf(r.status)!,
+      type: REQUEST_TYPE_LABELS[r.request_type],
+      colour: TILE_COLOUR[r.request_type],
+      title: cardTitle(r),
+      line: cardLine(r),
+      when: `${r.reference_id ? `${r.reference_id} · ` : ""}${friendlyTime(r.created_at, now)}`,
+      initials: initials(who ?? r.reference_id),
+      who,
+    };
+  });
+  const texts = Object.fromEntries(STATUS_GROUPS.map((g) => [g, groupText(g, user.role)])) as Record<StatusGroup, string>;
+
+  // Capacity: this week, next week and this month from the tutor calendar.
+  const thisWeek = weekSeries(calendar.slots, calendar.absences, p.weekStart);
+  const next = weekSeries(calendar.slots, calendar.absences, nextWeek);
+  const last = weekSeries(calendar.slots, calendar.absences, lastWeek);
+  const month = monthSeries(calendar.slots, calendar.absences, todayIso);
+  const todayIndex = (new Date(`${todayIso}T00:00:00Z`).getUTCDay() + 6) % 7;
+  const monthIndex = monthStarts.findIndex((s) => s === p.weekStart);
+  const period = (key: PeriodKey, label: string, series: CapacitySeries, change: string, long: string, tip: number): CapacityPeriod => ({
+    key, label, series, change, long, tip: tipIndex(series, tip), max: niceMax(Math.max(0, ...series.offered)),
+  });
+  const periods: CapacityPeriod[] = [
+    period("week", "This week", thisWeek, changeText(pointsChange(thisWeek.percent, last.percent), "last week"), "this week", todayIndex),
+    period("next", "Next week", next, changeText(pointsChange(next.percent, thisWeek.percent), "this week"), "next week", -1),
+    period("month", "This month", month, `Across ${monthStarts.length} weeks this month`, "this month", monthIndex),
+  ];
+  // Open on this week, or next week while nothing is offered this week yet.
+  const initialPeriod: PeriodKey = thisWeek.percent === null && next.percent !== null ? "next" : "week";
+
+  // Today's lessons, or the next ones when today is clear.
+  const todays = lessons?.lessons.filter((l) => sydneyDate(l.starts_at) === todayIso) ?? [];
+  const lessonList = (todays.length ? todays : lessons?.lessons ?? []).slice(0, 3);
+
   const today = now.toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "long", day: "numeric", month: "long" });
-  const latest = rows.reduce<string | null>((max, r) => {
-    const t = r.updated_at && r.updated_at > r.created_at ? r.updated_at : r.created_at;
-    return !max || t > max ? t : max;
-  }, null);
-  const updated = latest ? friendlyTime(latest, now).replace(/^Today, /, "").replace(/^Yesterday/, "yesterday") : null;
-  const lightWord = light ? LIGHT_WORD[light] : null;
-  const todayIso = sydneyToday(now);
+  const firstName = user.displayName.split(" ")[0];
+  const rules = ruleLines(policies).slice(0, 2);
 
   return (
-    <div className="stack dash">
+    <div className="studio">
       {removed && (
         <div className="notice success" role="status">
           Request removed from the list. You can find it again under <Link href="/requests?removed=1">Removed Requests</Link>.
         </div>
       )}
-      {/* Display and Accessibility sits where Ask Compass AI used to be; New Request stays rightmost. */}
-      <PageHeader
-        a11y="first"
-        className="overview-head"
-        actions={<>
-          <span className="head-date" data-secondary="">{today}</span>
-          <Link className="btn" href="/requests"><Icon name="plus" /> New Request</Link>
-        </>}
-      >
-        <p className="kicker">Your Day, in Focus</p>
-        <h1>{greeting(now)}, {user.displayName.split(" ")[0]} <span className="h1-spark" aria-hidden="true"><Icon name="sparkle" size={22} /></span></h1>
-        <p className="muted">A calmer view of your tutoring requests. Take it one decision at a time.</p>
-      </PageHeader>
-
-      <section aria-labelledby="lights-heading">
-        <h2 id="lights-heading" className="sr-only">Requests by Rule Result</h2>
-        <div className="lights">
-          {lights.map((l) => (
-            <FilterLink key={l.colour} href={href({ light: light === l.colour ? null : l.colour, tab: active.key })} target="requests" current={light === l.colour} className={`light-card ${l.colour}`}>
-              <span className="light-top">
-                <span className="light-dot" aria-hidden="true" />
-                <span className="light-word">{l.word}</span>
-                <span className="light-title">· {l.title}</span>
-                <span className="light-icon" aria-hidden="true"><Icon name={LIGHT_ICON[l.colour]} /></span>
-              </span>
-              <span className="light-count">{l.count}</span>
-              <span className="light-text" data-secondary="">{l.text}</span>
-              <span className="light-foot">
-                <span>{l.count === 0 ? "None open" : l.yours === 0 ? "None need you right now" : `${l.yours} ${l.yours === 1 ? "needs" : "need"} your next step`}</span>
-                <span className="light-cta">{light === l.colour ? "Showing" : "View Requests"} <Icon name="arrow" size={16} /></span>
-              </span>
-            </FilterLink>
-          ))}
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Your day, in focus</p>
+          <h1>Good {partOfDay(now)}, {firstName} <span aria-hidden="true">✧</span></h1>
+          <p className="subheading">A calmer view of your tutoring business. Let us take it one decision at a time.</p>
         </div>
-      </section>
+        <PageActions className="head-actions">
+          <span className="date-label">{today}</span>
+        </PageActions>
+      </div>
 
-      <div className="overview-grid">
-        <section id="requests" className="card requests-card" aria-labelledby="requests-heading" data-compass-avoid="">
-          <div className="card-head">
-            <div>
-              <h2 id="requests-heading">Requests</h2>
-              <p className="hint" data-secondary="">{updated && latest ? <>Newest first. Updated <time dateTime={latest}>{updated}</time>.</> : "Newest first."}</p>
-            </div>
-            <Link className="btn secondary small" href="/requests">View All Requests</Link>
-          </div>
-          {light && (
-            <div className={`filter-bar ${light}`} role="status">
-              <span className="light-dot" aria-hidden="true" />
-              <span>Showing <strong>{lightWord}</strong> requests that are still open.</span>
-              <FilterLink href={href({ tab: active.key })} target="requests" className="link-btn">Show All Requests</FilterLink>
-            </div>
-          )}
-          <nav className="tabs" aria-label="Filter requests by next step">
-            {TABS.map((t) => (
-              <FilterLink key={t.key} href={href({ light, tab: t.key })} target="requests" current={t.key === active.key} className="tab">
-                {t.label} <span className="tab-count">{count(t.key)}</span>
-              </FilterLink>
-            ))}
-          </nav>
-          {shown.length === 0 ? (
-            <div className="empty" role="status">
-              <span className="empty-icon" aria-hidden="true"><Icon name={light ? LIGHT_ICON[light] : "requests"} /></span>
-              <h3>
-                {rows.length === 0
-                  ? "No requests yet"
-                  : light && active.key !== "all"
-                    ? `No ${lightWord?.toLowerCase()} requests under “${active.label}”`
-                    : light
-                      ? `No open ${lightWord?.toLowerCase()} requests`
-                      : "Nothing here right now"}
-              </h3>
-              <p className="muted">
-                {rows.length === 0
-                  ? "Start the first request with Quick Capture or the Guided Wizard."
-                  : light
-                    ? "Nothing with this rule result is waiting. Requests that are closed keep their colour in their history."
-                    : "Try another filter, or start a new request."}
-              </p>
-              <div className="row">
-                {rows.length === 0 ? <Link className="btn" href="/requests">Start a Request</Link> : null}
-                {light || active.key !== "all" ? <FilterLink href={href({})} target="requests" className="btn secondary">Show All Requests</FilterLink> : null}
-              </div>
-            </div>
-          ) : (
-            <QueueTable rows={shown} now={now} classes={classes} role={user.role} />
-          )}
-          <div className="queue-foot">
-            <span className="hint">Showing {shown.length} of {matching.length} {light ? `${lightWord?.toLowerCase()} ` : ""}{active.key === "all" ? "requests" : `“${active.label.toLowerCase()}” requests`}</span>
-            <Link href="/requests">View all requests <Icon name="arrow" size={16} /></Link>
-          </div>
-        </section>
-
-        <div className="overview-side" data-compass-avoid="">
-          <section className="card compass-card" aria-labelledby="compass-card-heading">
-            <p className="kicker"><Icon name="sparkle" size={16} /> Compass AI</p>
-            <div className="compass-card-art" aria-hidden="true"><CompassAvatar size={92} /></div>
-            <h2 id="compass-card-heading">Less chasing. More teaching.</h2>
-            <p className="muted">Ask what needs your attention, or start a lesson change, payment extension or tutor absence. Compass follows the owner&apos;s rules, and you confirm every change.</p>
-            <OpenCompassButton className="btn compass-card-btn" />
-          </section>
-
-          <section className="card lessons-card" aria-labelledby="lessons-heading">
+      <OverviewBoard tiles={tiles} counts={counts} texts={texts} initial={groupFromParam(status)}>
+        <div className="centre-column">
+          <CapacityCard periods={periods} initial={initialPeriod} />
+          <section className="card schedule-card" aria-labelledby="today-heading" data-compass-avoid="">
             <div className="card-head">
               <div>
-                <h2 id="lessons-heading">Coming Up</h2>
-                <p className="hint" data-secondary="">The next lessons on the timetable, Sydney time.</p>
+                <h2 id="today-heading">Coming up {todays.length ? "today" : "next"}</h2>
+                <p className="caption">{todays.length ? `A snapshot of your ${partOfDay(now)}` : "Nothing on the timetable today. These are the next lessons."}</p>
               </div>
-              <Link className="icon-link" href="/knowledge#lessons" aria-label="All upcoming lessons in the Knowledge Hub"><Icon name="arrow" /></Link>
+              <Link className="round-btn" href="/knowledge#lessons" aria-label="Open full schedule"><Icon name="external" /></Link>
             </div>
             {lessons === null ? (
-              <p className="muted">The lesson timetable isn&apos;t set up in this database yet.</p>
-            ) : lessons.lessons.length === 0 ? (
-              <p className="muted">No lessons on the timetable.</p>
+              <p className="caption">The lesson timetable isn&apos;t set up in this database yet.</p>
+            ) : lessonList.length === 0 ? (
+              <p className="caption">No lessons on the timetable.</p>
             ) : (
-              <ul className="lesson-list">
-                {lessons.lessons.map((l, i) => {
-                  const day = sydneyDate(l.starts_at);
-                  const away = isAway(lessons.absences, l.tutor_id, day);
-                  const subject = l.bookings?.subject ?? "Lesson";
-                  return (
-                    <li key={l.id}>
-                      <span className="lesson-time">
-                        <strong>{timeFmt.format(new Date(l.starts_at))}</strong>
-                        <span>{day === todayIso ? "Today" : dayFmt.format(new Date(l.starts_at))}</span>
-                      </span>
-                      <span className={`lesson-mark tint-${["lilac", "blue", "rose"][i % 3]}`} aria-hidden="true">{subject.replace(/^Year \d+\s*/, "").charAt(0) || "L"}</span>
-                      <span className="lesson-text">
-                        <strong>{subject}</strong>
-                        <span>{l.bookings?.families?.student_name ?? "Student"} · {l.tutors?.name ?? l.tutor_id}</span>
-                      </span>
-                      <span className={`lesson-state${away ? " away" : ""}`}>{away ? "Tutor away" : "Scheduled"}</span>
-                    </li>
-                  );
-                })}
-              </ul>
+              lessonList.map((l) => {
+                const day = sydneyDate(l.starts_at);
+                const away = isAway(lessons.absences, l.tutor_id, day);
+                const subject = l.bookings?.subject ?? "Lesson";
+                const icon = subjectIcon(subject);
+                const t = timeParts(l.starts_at);
+                return (
+                  <div key={l.id} className="schedule-row">
+                    <div className="time-block"><b>{t.time}</b>{day === todayIso ? t.period : `${t.period} ${shortDay.format(new Date(l.starts_at))}`}</div>
+                    <span className={`subject-icon ${icon.cls}`} aria-hidden="true">{icon.letter}</span>
+                    <div className="lesson-info">
+                      <strong>{subject}</strong>
+                      <span>{l.bookings?.families?.student_name ?? "Student"} · {l.tutors?.name ?? l.tutor_id}</span>
+                    </div>
+                    <span className={`status-dot${away ? " warn" : ""}`}>{away ? "Cover needed" : "Confirmed"}</span>
+                  </div>
+                );
+              })
             )}
+          </section>
+        </div>
+
+        <div className="right-column" data-compass-avoid="">
+          <section className="card ai-card" aria-labelledby="ai-card-heading">
+            <p className="overline"><Icon name="sparkle" /> COMPASS AI</p>
+            <BotScene />
+            <h2 id="ai-card-heading">Less chasing.<br /> More teaching.</h2>
+            <p>Bring the pieces together.<br />Make the next move with confidence.</p>
+            <OpenCompassButton className="btn dark" />
           </section>
 
           <section className="card rules-card" aria-labelledby="rules-heading">
             <div className="card-head">
               <div>
-                <h2 id="rules-heading">What the Colours Mean</h2>
-                <p className="hint" data-secondary="">The owner&apos;s rules decide the colour. Approval never rewrites it.</p>
+                <h2 id="rules-heading">Your business, your rules</h2>
+                <p className="caption">Compass follows the boundaries you set</p>
               </div>
-              <Link className="icon-link" href="/knowledge#rules" aria-label="The owner's rules in the Knowledge Hub"><Icon name="arrow" /></Link>
+              <Link className="round-btn" href="/knowledge#rules" aria-label="Open business rules"><Icon name="external" /></Link>
             </div>
-            <ul className="legend" aria-label="What the colours mean">
-              {lights.map((l) => (
-                <li key={l.colour} className={l.colour}>
-                  <span className="light-dot" aria-hidden="true" />
-                  <span><strong>{l.word}:</strong> {l.text}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="rule-status"><i aria-hidden="true" />Owner approval for exceptions</div>
+            {rules.length ? rules.map((r) => <div key={r} className="rule-status"><i aria-hidden="true" />{r}</div>) : <div className="rule-status"><i aria-hidden="true" />No active rules yet</div>}
+            <p className="rule-bottom">You stay in control of every decision that matters.</p>
+          </section>
+
+          <section className="card activity-card" aria-labelledby="activity-heading">
+            <h2 id="activity-heading">Quietly getting things done</h2>
+            {events.length === 0 ? (
+              <div className="activity-row"><span className="activity-dot" aria-hidden="true"><Icon name="check" /></span><div>Nothing has happened on a request yet.</div></div>
+            ) : (
+              events.map((e) => {
+                const [lead, rest] = EVENT_TEXT[e.event_type] ?? ["Updated", ""];
+                const ref = byId.get(e.request_id)?.reference_id;
+                return (
+                  <div key={e.id} className="activity-row">
+                    <span className="activity-dot" aria-hidden="true"><Icon name="check" /></span>
+                    <div>
+                      <Link href={`/requests/${e.request_id}`}><strong>{lead}</strong></Link> {rest}{ref ? ` · ${ref}` : ""}.
+                      <small>{friendlyTime(e.created_at, now)}</small>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </section>
         </div>
-      </div>
+      </OverviewBoard>
     </div>
   );
 }

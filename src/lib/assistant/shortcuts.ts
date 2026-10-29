@@ -19,10 +19,10 @@ export type Shortcut = {
 };
 
 export const SHORTCUTS: readonly Shortcut[] = [
-  { id: "attention", label: "What Needs My Attention?", hint: "Decisions, clarifications, waiting workflows and failed actions", layout: "wide" },
-  { id: "lesson_change", label: "Lesson Change", hint: "Move a lesson to a new time", layout: "workflow" },
-  { id: "payment_extension", label: "Payment Extension", hint: "Give an invoice more time", layout: "workflow" },
-  { id: "tutor_absence", label: "Tutor Absence", hint: "Cover or move a tutor's lessons", layout: "workflow" },
+  { id: "attention", label: "What Needs My Attention?", hint: "See the priorities. Start with what matters most.", layout: "wide" },
+  { id: "lesson_change", label: "Lesson Change", hint: "Find a new time that works.", layout: "workflow" },
+  { id: "payment_extension", label: "Payment Extension", hint: "Work through a payment request.", layout: "workflow" },
+  { id: "tutor_absence", label: "Tutor Absence", hint: "Find cover. Keep lessons moving.", layout: "workflow" },
 ];
 
 /** The first thing Compass says when a workflow starts. */

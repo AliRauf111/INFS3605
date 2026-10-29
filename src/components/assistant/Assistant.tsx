@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { EMPTY_STATE, type AssistantState, type Block, type Choice, type Command, type TaskField, type TurnResponse } from "@/lib/assistant/logic";
 import { SHORTCUTS, type ShortcutId } from "@/lib/assistant/shortcuts";
 import { CompassAvatar, type AvatarState } from "./CompassAvatar";
+import { Icon as StudioIcon, type IconName } from "@/components/Icons";
+import { BotScene } from "@/components/BotScene";
 import { AssistantMessage, type ActionState, type ChatItem } from "./Messages";
 import { useSpeech, useVoice } from "./useVoice";
 import { motionReduced } from "@/lib/a11y/motion";
@@ -37,6 +39,8 @@ const GREETED = "compass.greeted";
 const uid = () => crypto.randomUUID();
 
 /** What the welcome screen says about AI. It only changes with the server's AI setting. */
+const SHORTCUT_ICON: Record<ShortcutId, IconName> = { attention: "requests", lesson_change: "calendar", payment_extension: "wallet", tutor_absence: "people" };
+
 function welcomeMode(aiLive: boolean): string {
   return aiLive
     ? "Live AI is on. It only reads your messages and words summaries. Records, permissions and the owner's rules decide everything. The four shortcuts use no AI."
@@ -197,7 +201,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   // keyboard and follows rotation, zoom and resizing. One set of listeners per mount.
   const measure = useCallback(() => {
     const vv = window.visualViewport;
-    const rail = document.querySelector<HTMLElement>(".site-rail");
+    const rail = document.querySelector<HTMLElement>(".rail");
     const next = workspaceGeometry({
       width: document.documentElement.clientWidth || window.innerWidth,
       height: vv?.height ?? window.innerHeight,
@@ -625,7 +629,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announce}</div>
 
       {/* Blurs and dims the page while Compass is open, and takes any click meant for it. */}
-      <div className="cp-backdrop" aria-hidden="true" />
+      <div className="cp-backdrop ai-layer" aria-hidden="true" />
 
       {greeting && !open && !dodge && (
         <div className="cl-greeting" role="status">
@@ -636,40 +640,40 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
       <div
         id="compass-panel"
-        className={`cp-panel${open ? " open" : ""} mode-${mode}`}
+        className={`cp-panel ai-shell${open ? " open" : ""} mode-${mode}`}
         style={panelStyle}
         aria-hidden={!open}
         inert={!open}
       >
-        <header className="cp-header">
-          <CompassAvatar state={avatarState} size={40} />
-          <div className="cp-title">
-            <h2 id="compass-title" ref={titleRef} tabIndex={-1}>Compass AI</h2>
-            <p>
-              <span className={`cp-indicator ${aiLive ? "live" : "demo"}`} title={modeNote}>
-                <span className="cp-indicator-dot" aria-hidden="true" />{indicator}
-              </span>
-              {mode === "voice" && <span className="cp-subtitle">Voice mode</span>}
-            </p>
+        <header className="cp-header ai-header">
+          <div className="ai-brand">
+            <span className="small-orb" aria-hidden="true">✦</span>
+            <div>
+              <h2 id="compass-title" ref={titleRef} tabIndex={-1}>Compass AI</h2>
+              <span>{mode === "voice" ? "Voice mode" : "Your business. Your call."}</span>
+            </div>
+            <span className="badge lilac" title={modeNote}>{indicator}</span>
           </div>
-          {speech.speaking && (
-            <button type="button" className="cp-icon-btn" onClick={speech.cancel} aria-label="Stop reading aloud" title="Stop reading aloud"><Svg name="stop" /></button>
-          )}
-          <button type="button" className="cp-icon-btn cp-new-chat" onClick={newConversation} aria-label="New conversation" title="New conversation">
-            <Svg name="plus" /><span className="cp-btn-text" aria-hidden="true">New conversation</span>
-          </button>
-          <div className="cp-menu-wrap">
-            <button type="button" className="cp-icon-btn" aria-label="Compass settings" title="Compass settings" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><Svg name="more" /></button>
-            {menuOpen && (
-              <div className="cp-menu" role="menu">
-                <button type="button" role="menuitemcheckbox" aria-checked={readAloud} disabled={!speech.available} onClick={() => { setReadAloud((v) => !v); speech.cancel(); }}>
-                  <span className={`cp-check${readAloud ? " on" : ""}`} aria-hidden="true">{readAloud ? "✓" : ""}</span> Read replies aloud
-                </button>
-                <p className="cp-menu-note">{modeNote}</p>
-              </div>
+          <div className="ai-actions">
+            {speech.speaking && (
+              <button type="button" className="cp-icon-btn" onClick={speech.cancel} aria-label="Stop reading aloud" title="Stop reading aloud"><Svg name="stop" /></button>
             )}
+            <button type="button" className="text-btn" onClick={newConversation}>
+              <StudioIcon name="refresh" /> Start over
+            </button>
+            <div className="cp-menu-wrap">
+              <button type="button" className="cp-icon-btn" aria-label="Compass settings" title="Compass settings" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><Svg name="more" /></button>
+              {menuOpen && (
+                <div className="cp-menu" role="menu">
+                  <button type="button" role="menuitemcheckbox" aria-checked={readAloud} disabled={!speech.available} onClick={() => { setReadAloud((v) => !v); speech.cancel(); }}>
+                    <span className={`cp-check${readAloud ? " on" : ""}`} aria-hidden="true">{readAloud ? "✓" : ""}</span> Read replies aloud
+                  </button>
+                  <p className="cp-menu-note">{modeNote}</p>
+                </div>
+              )}
+            </div>
+            <button type="button" className="icon-btn" onClick={closePanel} aria-label="Close Compass AI" title="Close Compass AI"><StudioIcon name="close" /></button>
           </div>
-          <button type="button" className="cp-icon-btn" onClick={closePanel} aria-label="Close Compass AI" title="Close Compass AI"><Svg name="close" /></button>
         </header>
 
         {mode === "chat" ? (
@@ -685,38 +689,22 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
               >
                 <div className="cp-col">
                   {showWelcome && (
-                    <div className="cp-welcome">
-                      <div className="cp-hero">
-                        <h3 className="cp-hero-title">Let us take something off your plate.</h3>
-                        <p className="cp-hero-greeting">Hi {firstName}. What would you like to sort out?</p>
-                      </div>
-                      <nav className="cp-shortcuts" aria-label="Shortcuts">
-                        {SHORTCUTS.filter((x) => x.layout === "wide").map((x) => (
-                          <button key={x.id} type="button" className="cp-shortcut wide" data-shortcut={x.id} aria-describedby={`cp-hint-${x.id}`} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
-                            <span className="cp-shortcut-label">{x.label}</span>
-                            <span className="cp-shortcut-hint" id={`cp-hint-${x.id}`} aria-hidden="true">{x.hint}</span>
+                    <section className="cp-welcome ai-welcome">
+                      <BotScene />
+                      <p className="eyebrow">A clearer next step</p>
+                      <h3>Let us take something<br />off your plate.</h3>
+                      <p>Hi {firstName}. Your bookings, policies and business context, brought together.<br />Choose a starting point. We will work through it together.</p>
+                      <nav className="shortcuts" aria-label="Shortcuts">
+                        {SHORTCUTS.map((x) => (
+                          <button key={x.id} type="button" className="shortcut" data-shortcut={x.id} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
+                            <span className="sc-icon" aria-hidden="true"><StudioIcon name={SHORTCUT_ICON[x.id]} /></span>
+                            <div><strong>{x.label}</strong><p>{x.hint}</p></div>
+                            {x.layout === "wide" && <StudioIcon name="arrow" />}
                           </button>
                         ))}
-                        <div className="cp-shortcut-row" role="group" aria-label="Workflows">
-                          {SHORTCUTS.filter((x) => x.layout === "workflow").map((x) => (
-                            <button key={x.id} type="button" className="cp-shortcut" data-shortcut={x.id} aria-describedby={`cp-hint-${x.id}`} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
-                              <span className="cp-shortcut-label">{x.label}</span>
-                              <span className="cp-shortcut-hint" id={`cp-hint-${x.id}`} aria-hidden="true">{x.hint}</span>
-                            </button>
-                          ))}
-                        </div>
                       </nav>
-                      <div className="cp-trust">
-                        <span className="cp-shield" aria-hidden="true">
-                          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" /><path d="M9 12l2 2 4-4" /></svg>
-                        </span>
-                        <div>
-                          <strong>Uses owner-approved rules</strong>
-                          <p>I check requests against your organisation&apos;s policies before suggesting anything.</p>
-                        </div>
-                      </div>
-                      <p className={`cp-mode ${aiLive ? "live" : "demo"}`}>{welcomeMode(aiLive)}</p>
-                    </div>
+                      <div className="welcome-foot"><StudioIcon name="info" />{aiLive ? "Live AI on" : "Demo mode, no AI service connected"} · plans need your confirmation · nothing is sent without you</div>
+                    </section>
                   )}
                   {items.map((item, i) =>
                     item.role === "user" ? (

@@ -3,7 +3,6 @@ import { filterByLight, lightFromParam, LIGHT_ORDER, LIGHT_PARAM, summariseLight
 import { lessonsToday, nextWeek, openByNextStep, recentMix, sydneyPeriod, tutorsAvailable, weeklyCapacity, type SlotLite } from "@/lib/insights/logic";
 import { MIN_CHOICES, withChoices } from "@/lib/workflows/logic";
 import { workspaceGeometry } from "@/lib/assistant/workspace";
-import { pickMode } from "@/components/a11y/store";
 import { COLOUR_SHORT } from "@/lib/domain/types";
 
 // Thursday 29 October 2026, 12:00 in Sydney (AEDT, UTC+11).
@@ -177,20 +176,14 @@ describe("Compass guided questions", () => {
 });
 
 describe("Layout beside the navigation rail", () => {
-  it("keeps the rail visible beside the Compass workspace on wide screens", () => {
-    const g = workspaceGeometry({ width: 1440, height: 900, offsetTop: 0, rail: 88 });
-    expect(g.rail).toBe(88);
-    expect(g.left).toBe(88 + g.margin);
-    expect(g.left + g.width + g.column).toBe(1440);
+  it("keeps the rail visible beside the Compass workspace on wide screens, inside the Studio margin", () => {
+    const g = workspaceGeometry({ width: 1440, height: 900, offsetTop: 0, rail: 86 });
+    expect(g).toMatchObject({ mode: "column", rail: 86, margin: 23, left: 86 + 23, top: 23, width: 1440 - 86 - 46, height: 900 - 46 });
   });
 
-  it("covers the rail when keeping it would make the workspace too narrow", () => {
-    expect(workspaceGeometry({ width: 700, height: 900, offsetTop: 0, rail: 88 }).rail).toBe(0);
-    expect(workspaceGeometry({ width: 390, height: 800, offsetTop: 0, rail: 88 }).mode).toBe("full");
-  });
-
-  it("opens the accessibility panel as a drawer when the rail leaves too little room", () => {
-    expect(pickMode(1200, 100)).toBe("side");
-    expect(pickMode(1200, 100, 88)).toBe("modal");
+  it("uses a 15px margin up to 900px wide and covers the rail at 680px and below", () => {
+    expect(workspaceGeometry({ width: 900, height: 700, offsetTop: 0, rail: 86 }).margin).toBe(15);
+    const phone = workspaceGeometry({ width: 680, height: 800, offsetTop: 0, rail: 60 });
+    expect(phone).toMatchObject({ mode: "full", rail: 0, left: 8, top: 8, width: 664, height: 784 });
   });
 });

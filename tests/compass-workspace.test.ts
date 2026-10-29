@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  COLUMN_GAP,
   FULL_WIDTH_BELOW,
-  LAUNCHER,
   isNearBottom,
   lockPageScroll,
   makeSiblingsInert,
@@ -12,39 +10,31 @@ import {
 } from "@/lib/assistant/workspace";
 
 describe("workspace geometry", () => {
-  const column = LAUNCHER.right + LAUNCHER.size + COLUMN_GAP;
-
-  it("covers almost the whole desktop viewport and ends just before the launcher column", () => {
+  it("fills the desktop viewport inside an even 23px margin, with no launcher column", () => {
     const g = workspaceGeometry({ width: 1440, height: 900, offsetTop: 0 });
     expect(g.mode).toBe("column");
-    expect(g.left).toBe(g.margin);
-    expect(g.top).toBe(g.margin);
-    expect(g.left + g.width).toBe(1440 - column);
-    expect(g.top + g.height).toBe(900 - g.margin);
-    // The launcher (right 24px, 76px wide) sits wholly inside the clear column.
-    expect(1440 - LAUNCHER.right - LAUNCHER.size).toBeGreaterThan(g.left + g.width);
+    expect(g.left).toBe(23);
+    expect(g.top).toBe(23);
+    expect(g.left + g.width).toBe(1440 - 23);
+    expect(g.top + g.height).toBe(900 - 23);
   });
 
-  it("keeps the same even margins and column on a tablet", () => {
-    const g = workspaceGeometry({ width: 1024, height: 768, offsetTop: 0 });
-    expect(g.mode).toBe("column");
-    expect(g.margin).toBeGreaterThan(0);
-    expect(g.left).toBe(g.margin);
-    expect(768 - (g.top + g.height)).toBe(g.margin);
-    expect(g.left + g.width).toBe(1024 - column);
+  it("uses a 15px margin on a small tablet", () => {
+    const g = workspaceGeometry({ width: 800, height: 768, offsetTop: 0 });
+    expect(g).toMatchObject({ mode: "column", margin: 15, left: 15, width: 770 });
   });
 
-  it("uses the full visible screen on phones, above the on-screen keyboard", () => {
+  it("covers the screen on phones with a small margin, above the on-screen keyboard", () => {
     const open = workspaceGeometry({ width: 390, height: 844, offsetTop: 0 });
-    expect(open).toMatchObject({ mode: "full", left: 0, top: 0, width: 390, height: 844, column: 0 });
+    expect(open).toMatchObject({ mode: "full", left: 8, top: 8, width: 374, height: 828 });
     const typing = workspaceGeometry({ width: 390, height: 500, offsetTop: 120 });
-    expect(typing).toMatchObject({ mode: "full", top: 120, height: 500 });
+    expect(typing).toMatchObject({ mode: "full", top: 128, height: 484 });
     expect(workspaceGeometry({ width: FULL_WIDTH_BELOW - 1, height: 700, offsetTop: 0 }).mode).toBe("full");
     expect(workspaceGeometry({ width: FULL_WIDTH_BELOW, height: 700, offsetTop: 0 }).mode).toBe("column");
   });
 
   it("never returns negative sizes", () => {
-    const g = workspaceGeometry({ width: 620, height: 20, offsetTop: -5 });
+    const g = workspaceGeometry({ width: 620, height: 10, offsetTop: -5 });
     expect(g.width).toBeGreaterThanOrEqual(0);
     expect(g.height).toBeGreaterThanOrEqual(0);
     expect(g.top).toBeGreaterThanOrEqual(0);

@@ -1,22 +1,23 @@
 "use client";
 import { useSyncExternalStore } from "react";
 import { DEFAULT_PREFS, applyPrefs, readSavedPrefs, samePrefs, writeSavedPrefs, type DisplayPrefs } from "@/lib/a11y/prefs";
-import { animateLayout, finishLayoutMotion } from "./layout-motion";
 
-// Shared state for the Display and Accessibility panel: whether it is open, how it is shown
-// (beside the page or as a drawer over it), the preferences being previewed and the ones
-// saved. The triggers, the panel and the Focus View bar all read this one store.
+// Shared state for the Display and Accessibility drawer: whether it is open, the
+// preferences being previewed and the ones saved. As in the Studio design, changes preview
+// straight away, Save Preferences keeps them and closes the drawer, and closing without
+// saving puts the saved ones back. The triggers, the drawer and the Focus View bar all
+// read this one store.
 
-export type PanelMode = "side" | "modal";
 export type A11yState = {
   open: boolean;
-  mode: PanelMode;
   prefs: DisplayPrefs;
   saved: DisplayPrefs;
   message: { text: string; tone: "ok" | "error" } | null;
+  /** A short note shown after the drawer closes, such as "saved". */
+  toast: string | null;
 };
 
-const SERVER: A11yState = { open: false, mode: "modal", prefs: DEFAULT_PREFS, saved: DEFAULT_PREFS, message: null };
+const SERVER: A11yState = { open: false, prefs: DEFAULT_PREFS, saved: DEFAULT_PREFS, message: null, toast: null };
 let state: A11yState = SERVER;
 let started = false;
 const listeners = new Set<() => void>();
@@ -30,45 +31,15 @@ function deviceDark(): boolean {
 }
 
 function apply(p: DisplayPrefs) {
-  const before = document.documentElement.getAttribute("data-motion");
   applyPrefs(document.documentElement, p, deviceDark());
-  // Turning on Reduce Motion part-way through a transition settles it at once.
-  if (before !== "reduce" && p.reduceMotion) finishLayoutMotion();
-}
-
-/**
- * The panel sits beside the page only when the page keeps enough room for readable content.
- * reserved is space already taken on the left, such as the navigation rail.
- */
-export function pickMode(width: number, textSize: number, reserved = 0): PanelMode {
-  return width - 392 - reserved >= 800 * Math.max(1, textSize / 100) ? "side" : "modal";
-}
-
-/** The navigation rail's width while it sits down the left edge (0 when it is a row under the header). */
-function railWidth(): number {
-  const rail = document.querySelector<HTMLElement>(".site-rail");
-  return rail && getComputedStyle(rail).position === "fixed" ? rail.offsetWidth : 0;
-}
-
-function modeFor(textSize: number): PanelMode {
-  return pickMode(window.innerWidth, textSize, railWidth());
-}
-
-function setLayout(open: boolean, mode: PanelMode) {
-  const h = document.documentElement;
-  if (open) h.setAttribute("data-a11y-open", "");
-  else h.removeAttribute("data-a11y-open");
-  h.setAttribute("data-a11y-mode", mode);
 }
 
 function start() {
   if (started || typeof window === "undefined") return;
   started = true;
   const saved = readSavedPrefs();
-  state = { ...state, prefs: saved, saved, mode: modeFor(saved.textSize) };
-  setLayout(false, state.mode);
+  state = { ...state, prefs: saved, saved };
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => apply(state.prefs));
-  window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", (e) => { if (e.matches) finishLayoutMotion(); });
   // Another tab saved new preferences.
   window.addEventListener("storage", (e) => {
     if (e.key !== null && e.key !== "tc-display-prefs") return;
@@ -94,59 +65,48 @@ export function getA11y(): A11yState {
   return state;
 }
 
-/** Re-checks the layout mode, for example after a resize, rotation or text size change. */
-export function refreshMode(): void {
-  const mode = modeFor(state.prefs.textSize);
-  if (mode === state.mode) return;
-  finishLayoutMotion();
-  state = { ...state, mode };
-  setLayout(state.open, mode);
-  emit();
-}
-
 export function setOpen(open: boolean): void {
   start();
   if (open === state.open) return;
-  const mode = modeFor(state.prefs.textSize);
-  const change = () => setLayout(open, mode);
-  // As a drawer over the page nothing underneath moves, so only the drawer animates.
-  if (mode === "side" || state.mode === "side") animateLayout(change);
-  else change();
-  state = { ...state, open, mode, message: open ? state.message : null };
+  const h = document.documentElement;
+  if (open) h.setAttribute("data-a11y-open", "");
+  else h.removeAttribute("data-a11y-open");
+  // Closing without saving goes back to the saved preferences.
+  if (!open && !samePrefs(state.prefs, state.saved)) apply(state.saved);
+  state = { ...state, open, prefs: open ? state.prefs : state.saved, message: null, toast: open ? null : state.toast };
   emit();
 }
 
 export function updatePrefs(patch: Partial<DisplayPrefs>): void {
   start();
   const prefs = { ...state.prefs, ...patch };
-  const mode = modeFor(prefs.textSize);
-  const run = () => {
-    apply(prefs);
-    if (mode !== state.mode) setLayout(state.open, mode);
-  };
-  // A text size change can move the page between side panel and drawer; animate that too.
-  if (state.open && mode !== state.mode) animateLayout(run);
-  else run();
-  state = { ...state, prefs, mode, message: null };
+  apply(prefs);
+  state = { ...state, prefs, message: null };
   emit();
 }
 
+/** Saves what is previewed and closes the drawer, or explains why it couldn't be saved. */
 export function savePrefs(): void {
   const ok = writeSavedPrefs(state.prefs);
-  state = {
-    ...state,
-    saved: ok ? state.prefs : state.saved,
-    message: ok
-      ? { text: "Preferences saved. They'll apply each time you use Tutor Compass in this browser.", tone: "ok" }
-      : { text: "Your browser blocked saving. The changes stay for now but won't be kept after a reload.", tone: "error" },
-  };
-  emit();
+  if (!ok) {
+    state = { ...state, message: { text: "Preferences could not be saved in this browser. You can keep previewing them while this panel is open.", tone: "error" } };
+    emit();
+    return;
+  }
+  state = { ...state, saved: state.prefs, toast: "Your display preferences have been saved." };
+  setOpen(false);
 }
 
 export function resetPrefs(): void {
-  writeSavedPrefs(null);
+  const ok = writeSavedPrefs(null);
   updatePrefs(DEFAULT_PREFS);
-  state = { ...state, saved: DEFAULT_PREFS, message: { text: "Preferences reset to the defaults.", tone: "ok" } };
+  state = { ...state, saved: DEFAULT_PREFS, message: { text: ok ? "Default display preferences restored." : "Defaults restored for this visit.", tone: "ok" } };
+  emit();
+}
+
+export function clearToast(): void {
+  if (!state.toast) return;
+  state = { ...state, toast: null };
   emit();
 }
 

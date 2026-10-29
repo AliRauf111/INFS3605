@@ -2,30 +2,15 @@
 import "./a11y.css";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef } from "react";
+import { Icon } from "@/components/Icons";
 import { THEMES, TEXT_SIZES, stepTextSize, type DisplayPrefs } from "@/lib/a11y/prefs";
-import { getA11y, hasUnsaved, refreshMode, resetPrefs, saveOne, savePrefs, setOpen, updatePrefs, useA11y } from "./store";
+import { clearToast, getA11y, resetPrefs, saveOne, savePrefs, setOpen, updatePrefs, useA11y } from "./store";
 
-// The Display and Accessibility panel. On wide screens it sits beside the page and the page
-// makes room for it (a non-modal dialog, so the dashboard stays usable). On smaller screens it
-// is a drawer over the page with the background made inert until it closes.
+// The Display and Accessibility drawer, as in the Studio design: it slides in from the
+// right over a blurred page, and everything behind it is inert until it closes. Escape,
+// Close or a click on the page closes it, and focus goes back to the button that opened it.
 
 let lastTrigger: HTMLElement | null = null;
-
-function toggleFrom(el: HTMLElement) {
-  const open = !getA11y().open;
-  if (open) lastTrigger = el;
-  setOpen(open);
-}
-
-function AccessIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="10.25" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="12" cy="6.9" r="1.55" fill="currentColor" />
-      <path d="M7 9.6l5 1.1 5-1.1M12 10.7v3.2l-2.4 4.4M12 13.9l2.4 4.4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 /** The Display and Accessibility button. Each page has one, in its page header's action area (see PageHeader). */
 export function A11yTrigger() {
@@ -33,15 +18,18 @@ export function A11yTrigger() {
   return (
     <button
       type="button"
-      className="btn secondary a11y-trigger"
+      className="btn dark accessibility-trigger a11y-trigger"
+      aria-haspopup="dialog"
       aria-expanded={s.open}
-      aria-controls="a11y-panel"
+      aria-controls="accessibilityPanel"
       data-a11y-trigger=""
-      onClick={(e) => toggleFrom(e.currentTarget)}
+      onClick={(e) => {
+        lastTrigger = e.currentTarget;
+        setOpen(!getA11y().open);
+      }}
     >
-      <AccessIcon />
-      <span className="a11y-trigger-text">Display and Accessibility</span>
-      <span className="a11y-trigger-short" aria-hidden="true">Display</span>
+      <Icon name="accessibility" />
+      <span>Display and Accessibility</span>
     </button>
   );
 }
@@ -56,120 +44,93 @@ export function FocusViewBar() {
   );
 }
 
-const ROW_ICONS = {
-  focus: <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M9 12h6" />,
-  motion: <path d="M4 12h3l2-5 4 10 2-5h5" />,
-  controls: <path d="M8 11V6.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V11m0-.5a1.5 1.5 0 0 1 3 0V15a5 5 0 0 1-5 5h-1.5a5 5 0 0 1-4-2l-2.3-3a1.5 1.5 0 0 1 2.3-1.9L8 14" />,
-  text: <path d="M4 18l4.5-12h1L14 18M5.7 14h6.6M15 18l2.8-7h.4L21 18M15.9 16h4.2" />,
-  theme: <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 3v18M12 8h6M12 12h9M12 16h7" />,
-};
-
-function RowIcon({ name }: { name: keyof typeof ROW_ICONS }) {
+function DisplaySwitch({ id, title, description, checked, onChange }: { id: string; title: string; description: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <span className="a11y-row-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" focusable="false">{ROW_ICONS[name]}</svg>
-    </span>
-  );
-}
-
-function Switch({ id, icon, label, desc, checked, onChange }: { id: string; icon: keyof typeof ROW_ICONS; label: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <div className="a11y-row">
-      <RowIcon name={icon} />
-      <label htmlFor={id} className="a11y-row-text">
-        <span className="a11y-row-label">{label}</span>
-        <span className="a11y-row-desc" id={`${id}-desc`}>{desc}</span>
-      </label>
-      <input id={id} type="checkbox" role="switch" className="a11y-switch" checked={checked} aria-describedby={`${id}-desc`} onChange={(e) => onChange(e.target.checked)} />
+    <div className="accessibility-setting">
+      <div>
+        <h3 id={`${id}-label`}>{title}</h3>
+        <p id={`${id}-description`}>{description}</p>
+      </div>
+      <button
+        type="button"
+        className={`display-switch${checked ? " on" : ""}`}
+        role="switch"
+        aria-checked={checked}
+        aria-labelledby={`${id}-label`}
+        aria-describedby={`${id}-description`}
+        onClick={() => onChange(!checked)}
+      >
+        <span />
+      </button>
     </div>
   );
 }
 
-const BACKGROUND = [".skip-link", ".site-rail", ".site-header", "#main", ".site-footer", ".compass-root"];
+const BACKGROUND = [".skip-link", ".rail", ".workspace", ".compass-root"];
 
 export function A11yPanel() {
   const s = useA11y();
   const uid = useId();
   const panelRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const resetRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
-  const modal = s.mode === "modal";
   const p = s.prefs;
   const set = (patch: Partial<DisplayPrefs>) => updatePrefs(patch);
 
-  // Focus moves into the panel when it opens and back to the button that opened it on close.
+  // Focus moves into the drawer when it opens and back to the button that opened it on close.
   const wasOpen = useRef(false);
   useEffect(() => {
     if (s.open && !wasOpen.current) {
       requestAnimationFrame(() => titleRef.current?.focus({ preventScroll: true }));
     } else if (!s.open && wasOpen.current) {
-      const inside = panelRef.current?.contains(document.activeElement) || document.activeElement === document.body;
-      if (inside) {
-        const target = lastTrigger?.isConnected ? lastTrigger : document.querySelector<HTMLElement>("[data-a11y-trigger]");
-        target?.focus({ preventScroll: true });
-      }
+      const target = lastTrigger?.isConnected ? lastTrigger : document.querySelector<HTMLElement>("[data-a11y-trigger]");
+      target?.focus({ preventScroll: true });
     }
     wasOpen.current = s.open;
   }, [s.open]);
 
-  // As a drawer, everything behind it is inert, so focus and screen readers stay in the panel.
+  // Everything behind the drawer is inert, and the page doesn't scroll, until it closes.
   useEffect(() => {
-    if (!(s.open && modal)) return;
+    if (!s.open) return;
     const els = BACKGROUND.flatMap((sel) => [...document.querySelectorAll<HTMLElement>(sel)]).filter((el) => !el.inert);
     els.forEach((el) => { el.inert = true; });
-    return () => els.forEach((el) => { el.inert = false; });
-  }, [s.open, modal]);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      els.forEach((el) => { el.inert = false; });
+      document.body.style.overflow = overflow;
+    };
+  }, [s.open]);
 
-  // Escape closes it: always as a drawer, and beside the page when focus is in the panel or on its button.
   useEffect(() => {
     if (!s.open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented) return;
-      const a = document.activeElement;
-      if (modal || panelRef.current?.contains(a) || (a instanceof HTMLElement && a.dataset.a11yTrigger !== undefined)) {
-        e.preventDefault();
-        setOpen(false);
-      }
+      e.preventDefault();
+      setOpen(false);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [s.open, modal]);
+  }, [s.open]);
 
-  // Resizing or rotating can move the panel between beside the page and drawer.
-  useEffect(() => {
-    let frame = 0;
-    const onResize = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(refreshMode);
-    };
-    window.addEventListener("resize", onResize);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
-
-  // The panel starts just below the sticky header, whatever its height.
-  useEffect(() => {
-    const header = document.querySelector<HTMLElement>(".site-header");
-    if (!header) return;
-    const set = () => document.documentElement.style.setProperty("--a11y-top", `${header.getBoundingClientRect().height}px`);
-    set();
-    const ro = new ResizeObserver(set);
-    ro.observe(header);
-    return () => ro.disconnect();
-  }, []);
-
-  // A drawer closes when the page changes; beside the page it can stay open.
+  // The drawer closes when the page changes.
   const lastPath = useRef(pathname);
   useEffect(() => {
-    if (lastPath.current !== pathname && getA11y().open && getA11y().mode === "modal") setOpen(false);
+    if (lastPath.current !== pathname && getA11y().open) setOpen(false);
     lastPath.current = pathname;
   }, [pathname]);
 
+  // The saved note shows for a few seconds after the drawer closes.
+  useEffect(() => {
+    if (!s.toast) return;
+    const t = window.setTimeout(clearToast, 3400);
+    return () => window.clearTimeout(t);
+  }, [s.toast]);
+
   // Keep Tab inside the drawer.
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (!modal || e.key !== "Tab" || !panelRef.current) return;
+    if (e.key !== "Tab" || !panelRef.current) return;
     const items = [...panelRef.current.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex='-1'])")];
     if (items.length === 0) return;
     const first = items[0];
@@ -185,80 +146,72 @@ export function A11yPanel() {
 
   const minSize = p.textSize === TEXT_SIZES[0];
   const maxSize = p.textSize === TEXT_SIZES[TEXT_SIZES.length - 1];
-  const unsaved = hasUnsaved(s);
 
   return (
     <>
-      <div className="a11y-backdrop" aria-hidden="true" onClick={() => setOpen(false)} />
-      <aside
-        id="a11y-panel"
-        ref={panelRef}
-        className="a11y-panel"
-        role="dialog"
-        aria-modal={modal ? true : undefined}
-        aria-labelledby={`${uid}-title`}
-        aria-describedby={`${uid}-help`}
-        inert={!s.open}
-        onKeyDown={onKeyDown}
-      >
-        <div className="a11y-head">
-          <div>
-            <h2 id={`${uid}-title`} ref={titleRef} tabIndex={-1}>Display and Accessibility</h2>
-            <p id={`${uid}-help`}>Make TutorCompass work for you.</p>
-          </div>
-          <button type="button" className="a11y-close" onClick={() => setOpen(false)} aria-label="Close Display and Accessibility">
-            <span aria-hidden="true">Close</span>
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-          </button>
-        </div>
-
-        <div className="a11y-body">
-          <section className="a11y-group" aria-labelledby={`${uid}-focus`}>
-            <h3 id={`${uid}-focus`}>Focus and Comfort</h3>
-            <Switch id={`${uid}-fv`} icon="focus" label="Focus View" desc="Hide extra detail so the main tasks stand out. Warnings, request details needed for decisions and actions stay." checked={p.focusView} onChange={(v) => set({ focusView: v })} />
-            <Switch id={`${uid}-rm`} icon="motion" label="Reduce Motion" desc="Turn off animation, the moving Compass character and smooth scrolling across the site." checked={p.reduceMotion} onChange={(v) => set({ reduceMotion: v })} />
-            <Switch id={`${uid}-lc`} icon="controls" label="Larger Controls" desc="Use bigger buttons, links and form controls with more space around them." checked={p.largerControls} onChange={(v) => set({ largerControls: v })} />
-          </section>
-
-          <section className="a11y-group" aria-labelledby={`${uid}-reading`}>
-            <h3 id={`${uid}-reading`}>Reading</h3>
-            <div className="a11y-row">
-              <RowIcon name="text" />
-              <span className="a11y-row-text">
-                <span className="a11y-row-label" id={`${uid}-ts`}>Text Size</span>
-                <span className="a11y-row-desc">From 100% to 200%.</span>
-              </span>
-              <div className="a11y-stepper" role="group" aria-labelledby={`${uid}-ts`}>
-                <button type="button" onClick={() => set({ textSize: stepTextSize(p.textSize, -1) })} disabled={minSize} aria-label="Decrease text size">A−</button>
-                <output aria-live="polite" aria-label={`Text size ${p.textSize}%`}>{p.textSize}%</output>
-                <button type="button" onClick={() => set({ textSize: stepTextSize(p.textSize, 1) })} disabled={maxSize} aria-label="Increase text size">A+</button>
-              </div>
+      <div className="accessibility-layer" hidden={!s.open} onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
+        <aside
+          id="accessibilityPanel"
+          ref={panelRef}
+          className="accessibility-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`${uid}-title`}
+          aria-describedby={`${uid}-intro`}
+          onKeyDown={onKeyDown}
+        >
+          <header className="accessibility-header">
+            <div>
+              <h2 id={`${uid}-title`} ref={titleRef} tabIndex={-1}>Display and Accessibility</h2>
+              <p id={`${uid}-intro`}>Make Tutor Compass work for you.</p>
             </div>
-            <fieldset className="a11y-theme">
-              <legend className="a11y-row-label"><RowIcon name="theme" /> Colour Theme</legend>
-              <div className="a11y-segments">
-                {THEMES.map((t) => (
-                  <label key={t.value} className="a11y-segment">
-                    <input type="radio" name={`${uid}-theme`} value={t.value} checked={p.theme === t.value} onChange={() => set({ theme: t.value })} />
-                    <span>{t.label}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          </section>
-        </div>
+            <button type="button" className="accessibility-close" onClick={() => setOpen(false)} aria-label="Close display and accessibility">
+              Close <Icon name="close" />
+            </button>
+          </header>
 
-        <div className="a11y-foot">
-          <div className="a11y-actions">
-            <button type="button" className="btn" onClick={savePrefs}>Save Preferences</button>
-            <button type="button" className="btn secondary" onClick={resetPrefs}>Reset</button>
+          <div className="accessibility-options">
+            <section className="accessibility-section" aria-labelledby={`${uid}-comfort`}>
+              <h2 id={`${uid}-comfort`}>Focus and comfort</h2>
+              <DisplaySwitch id={`${uid}-fv`} title="Focus View" description="Hide extra details so the main tasks stand out. Warnings and actions stay." checked={p.focusView} onChange={(v) => set({ focusView: v })} />
+              <DisplaySwitch id={`${uid}-rm`} title="Reduce Motion" description="Turn off animation and moving layout changes across the site." checked={p.reduceMotion} onChange={(v) => set({ reduceMotion: v })} />
+              <DisplaySwitch id={`${uid}-lc`} title="Larger Controls" description="Use bigger buttons and form controls with more space around them." checked={p.largerControls} onChange={(v) => set({ largerControls: v })} />
+            </section>
+            <section className="accessibility-section" aria-labelledby={`${uid}-reading`}>
+              <h2 id={`${uid}-reading`}>Reading</h2>
+              <div className="text-size-setting">
+                <h3 id={`${uid}-ts`}>Text Size</h3>
+                <div className="text-size-controls" role="group" aria-labelledby={`${uid}-ts`}>
+                  <button type="button" aria-label="Decrease text size" onClick={() => set({ textSize: stepTextSize(p.textSize, -1) })} disabled={minSize}>A−</button>
+                  <output aria-live="polite">{p.textSize}%</output>
+                  <button type="button" aria-label="Increase text size" onClick={() => set({ textSize: stepTextSize(p.textSize, 1) })} disabled={maxSize}>A+</button>
+                </div>
+              </div>
+              <fieldset className="theme-setting">
+                <legend>Colour Theme</legend>
+                <div className="theme-options">
+                  {THEMES.map((t) => (
+                    <button key={t.value} type="button" aria-pressed={p.theme === t.value} onClick={() => set({ theme: t.value })}>
+                      {p.theme === t.value && <Icon name="check" />}{t.label}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            </section>
           </div>
-          <p className={`a11y-status${s.message?.tone === "error" ? " error" : ""}`} role="status">
-            {s.message ? s.message.text : unsaved ? "You have unsaved changes." : ""}
-          </p>
-          <p className="a11y-note">Changes preview straight away. Save Preferences keeps them in this browser, across pages, refreshes and demo resets. Reset goes back to the defaults.</p>
-        </div>
-      </aside>
+
+          <footer className="accessibility-footer">
+            <p role="status" className={s.message?.tone === "error" ? "error" : undefined}>
+              {s.message ? s.message.text : "Changes preview immediately. Save to keep your preferences."}
+            </p>
+            <div>
+              <button type="button" className="btn dark" onClick={savePrefs}>Save Preferences</button>
+              <button type="button" ref={resetRef} className="btn outline" onClick={() => { resetPrefs(); resetRef.current?.focus({ preventScroll: true }); }}>Reset</button>
+            </div>
+          </footer>
+        </aside>
+      </div>
+      <div className={`studio-toast${s.toast ? " show" : ""}`} role="status">{s.toast}</div>
     </>
   );
 }

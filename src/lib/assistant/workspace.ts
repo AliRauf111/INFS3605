@@ -1,14 +1,8 @@
 // The expanded Compass workspace: where it sits on screen, and what happens to the page
 // underneath while it is open. Kept free of React so each rule can be tested on its own.
 
-/** The launcher's home on wide screens: 24px from the right edge, 76px across (see assistant.css). */
-export const LAUNCHER = { right: 24, size: 76 } as const;
-/** Space between the workspace and the launcher column. */
-export const COLUMN_GAP = 16;
-/** Below this width the workspace uses the whole screen so messages and controls aren't cramped. */
-export const FULL_WIDTH_BELOW = 600;
-/** The workspace keeps at least this width when the rail stays in view; otherwise it covers the rail too. */
-export const MIN_BESIDE_RAIL = 520;
+/** Below this width (680px and narrower) the workspace covers the rail too, with a small even margin (the Studio design's 680px step). */
+export const FULL_WIDTH_BELOW = 681;
 /** The conversation and composer never grow wider than this, so lines stay readable. */
 export const READING_WIDTH = 840;
 
@@ -28,43 +22,34 @@ export type WorkspaceGeometry = {
   left: number;
   width: number;
   height: number;
-  /** The narrow strip on the right kept clear for the floating launcher. 0 in full mode. */
-  column: number;
   margin: number;
   /** The navigation rail kept in view on the left. 0 in full mode. */
   rail: number;
 };
 
-/** Small, even margins: a little more room on large screens. */
+/** The space around the workspace, as in the Studio design: 23px, 15px up to 900px wide, 8px on phones. */
 export function workspaceMargin(width: number): number {
-  return width >= 1100 ? 20 : width >= FULL_WIDTH_BELOW ? 14 : 0;
+  return width > 900 ? 23 : width >= FULL_WIDTH_BELOW ? 15 : 8;
 }
 
 /**
- * The workspace covers almost the whole visible viewport. On desktop and tablet a narrow
- * column on the right stays clear for the launcher and the workspace ends just before it,
- * and the navigation rail on the left (with the logo) stays in view.
- * On phones it uses the full width and height of what is visible above the keyboard.
+ * The workspace fills the visible viewport beside the navigation rail, inside an even margin,
+ * like the Studio design's Compass layer. On phones it covers the rail too and sizes itself to
+ * what is visible above the keyboard.
  */
 export function workspaceGeometry(vp: ViewportBox): WorkspaceGeometry {
   const width = Math.max(0, vp.width);
   const height = Math.max(0, vp.height);
   const top = Math.max(0, vp.offsetTop);
-  if (width < FULL_WIDTH_BELOW) {
-    return { mode: "full", top, left: 0, width, height, column: 0, margin: 0, rail: 0 };
-  }
   const margin = workspaceMargin(width);
-  const column = LAUNCHER.right + LAUNCHER.size + COLUMN_GAP;
-  // The rail stays visible only while it leaves the workspace a sensible width.
-  const wanted = Math.max(0, vp.rail ?? 0);
-  const rail = width - wanted - column - margin >= MIN_BESIDE_RAIL ? wanted : 0;
+  const full = width < FULL_WIDTH_BELOW;
+  const rail = full ? 0 : Math.max(0, vp.rail ?? 0);
   return {
-    mode: "column",
+    mode: full ? "full" : "column",
     top: top + margin,
     left: rail + margin,
-    width: Math.max(0, width - rail - margin - column),
+    width: Math.max(0, width - rail - margin * 2),
     height: Math.max(0, height - margin * 2),
-    column,
     margin,
     rail,
   };

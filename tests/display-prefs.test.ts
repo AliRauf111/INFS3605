@@ -11,7 +11,6 @@ import {
   stepTextSize,
   type DisplayPrefs,
 } from "@/lib/a11y/prefs";
-import { pickMode } from "@/components/a11y/store";
 
 // A minimal <html> element: attributes and an inline font size are all the prefs touch.
 class FakeRoot {
@@ -88,13 +87,3 @@ describe("display preferences", () => {
   });
 });
 
-describe("panel layout", () => {
-  it("sits beside the page only when there is room for the content", () => {
-    expect(pickMode(1440, 100)).toBe("side");
-    expect(pickMode(1192, 100)).toBe("side");
-    expect(pickMode(1191, 100)).toBe("modal");
-    expect(pickMode(1024, 100)).toBe("modal");
-    expect(pickMode(390, 100)).toBe("modal");
-    expect(pickMode(1440, 200)).toBe("modal");
-  });
-});

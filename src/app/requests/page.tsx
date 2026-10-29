@@ -7,19 +7,22 @@ import { removalNeedsOwner } from "@/lib/domain/progress";
 import { LoadError } from "@/components/ui";
 import { STATUSES, STATUS_LABELS, type RequestStatus } from "@/lib/domain/types";
 import { PageHeader } from "@/components/PageHeader";
+import { GROUP_LABEL, GROUP_STATUSES, groupFromParam } from "@/lib/overview/status-cards";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Requests" };
 
-export default async function Requests({ searchParams }: { searchParams: Promise<{ status?: string; removed?: string; archived?: string }> }) {
+export default async function Requests({ searchParams }: { searchParams: Promise<{ status?: string; group?: string; removed?: string; archived?: string }> }) {
   const user = await requirePageUser();
   const live = aiConfigured();
-  const { status, removed: removedParam, archived: archivedParam } = await searchParams;
+  const { status, group: groupParam, removed: removedParam, archived: archivedParam } = await searchParams;
   const view: ListView = removedParam === "1" ? "removed" : archivedParam === "1" ? "archived" : "active";
   const filter = STATUSES.includes(status as RequestStatus) ? (status as RequestStatus) : undefined;
+  // The Overview's status cards link here with a group of statuses.
+  const group = filter ? null : groupFromParam(groupParam);
   let rows: TableRow[];
   try {
-    const all = await listRequests({ status: filter ? [filter] : undefined, limit: 200, view });
+    const all = await listRequests({ status: filter ? [filter] : group ? GROUP_STATUSES[group] : undefined, limit: 200, view });
     // Only what the table shows goes to the browser.
     rows = all.map((r) => ({
       id: r.id,
@@ -67,10 +70,15 @@ export default async function Requests({ searchParams }: { searchParams: Promise
             <button className="btn secondary small" type="submit">Filter</button>
           </form>
         </div>
+        {group && (
+          <p className="filter-note" role="status">
+            Showing <strong>{GROUP_LABEL[group]}</strong>: {GROUP_STATUSES[group].map((s) => STATUS_LABELS[s]).join(" and ")}. <Link href="/requests">Show all requests</Link>
+          </p>
+        )}
         {view === "removed" && <p className="hint">These were taken off the lists. Their full record is kept, and you can put them back.</p>}
         {view === "archived" && <p className="hint">Archived requests keep their details and decision history. Restore one to return it to the lists.</p>}
         {/* The key resets the selection whenever the view or the filter changes. */}
-        <RequestsTable key={`${view}:${filter ?? "all"}`} rows={rows} view={view} />
+        <RequestsTable key={`${view}:${filter ?? group ?? "all"}`} rows={rows} view={view} />
         <p className="hint saved-links">
           {view !== "active" && <Link href="/requests">Back to Saved Requests</Link>}
           {view !== "archived" && <Link href="/requests?archived=1">Show Archived Requests</Link>}
