@@ -28,6 +28,7 @@ import {
   type StatusGroup,
 } from "@/lib/overview/status-cards";
 import { addDays, sydneyDate, sydneyToday } from "@/lib/workflows/dates";
+import { subjectIcon, timeParts } from "@/lib/schedule/calendar";
 import { REQUEST_TYPE_LABELS } from "@/lib/domain/types";
 
 export const dynamic = "force-dynamic";
@@ -56,21 +57,7 @@ function initials(name: string | undefined | null): string {
   return (name ?? "").split(/[\s-]+/).filter((w) => /^[A-Za-z]/.test(w)).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
 }
 
-const clock = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit", hour12: true });
 const shortDay = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", weekday: "short" });
-
-function timeParts(iso: string): { time: string; period: string } {
-  const parts = clock.formatToParts(new Date(iso));
-  const time = parts.filter((p) => p.type === "hour" || p.type === "minute" || p.type === "literal").map((p) => p.value).join("").trim();
-  const period = parts.find((p) => p.type === "dayPeriod")?.value.toLowerCase().replace(/\./g, "") ?? "";
-  return { time, period };
-}
-
-function subjectIcon(subject: string): { letter: string; cls: string } {
-  const name = subject.replace(/^Year\s+\d+\s+/i, "").trim() || subject;
-  const cls = /math/i.test(name) ? "math" : /science|chem|phys|bio/i.test(name) ? "sci" : "";
-  return { letter: name[0]?.toUpperCase() ?? "L", cls };
-}
 
 function asCard(r: RequestRow): CardRow {
   return {
@@ -211,7 +198,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
                 <h2 id="today-heading">Coming up {todays.length ? "today" : "next"}</h2>
                 <p className="caption">{todays.length ? `A snapshot of your ${partOfDay(now)}` : "Nothing on the timetable today. These are the next lessons."}</p>
               </div>
-              <Link className="round-btn" href="/knowledge#lessons" aria-label="Open full schedule"><Icon name="external" /></Link>
+              <Link className="round-btn" href="/schedule" aria-label="Open full schedule"><Icon name="external" /></Link>
             </div>
             {lessons === null ? (
               <p className="caption">The lesson timetable isn&apos;t set up in this database yet.</p>

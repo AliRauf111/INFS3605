@@ -17,6 +17,7 @@ const GROUPS: { title: string; links: FooterLink[] }[] = [
       { label: "Guided Wizard", href: "/requests/new/wizard" },
       { label: "Quick Capture", href: "/requests/new/intake" },
       { label: "Compass AI", assistant: true },
+      { label: "Schedule", href: "/schedule" },
       { label: "Knowledge Hub", href: "/knowledge" },
       { label: "Approval Alley", href: "/owner" },
     ],

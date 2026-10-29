@@ -667,3 +667,69 @@ html[data-motion="reduce"] :where(.rail, .topbar, .studio-foot, .studio, .access
   .compass-root .ai-brand h2 { font-size:0.75rem; white-space:nowrap; }
   .compass-root .text-btn { white-space:nowrap; }
 }
+
+/* ---------------------------------------------------------------------------
+   Schedule: the month calendar, the chosen day's lessons and the side column. */
+.studio .schedule-layout { display:grid; grid-template-columns:minmax(0,1fr) 290px; gap:20px; align-items:start; }
+.studio .calendar-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:14px; }
+.studio .calendar-controls { display:flex; align-items:center; gap:8px; }
+.studio .calendar-controls .round-btn { width:36px; height:36px; }
+.studio .calendar-controls .round-btn svg { width:16px; height:16px; }
+.studio .today-btn { padding:8px 16px; font-size:0.6875rem; }
+.studio .month-grid { width:calc(100% + 12px); margin:0 -6px; border-collapse:separate; border-spacing:6px; table-layout:fixed; }
+.studio .month-grid th { background:transparent; border:0; font-size:0.5625rem; font-weight:500; letter-spacing:1px; text-transform:uppercase; color:#8c7c97; padding:0 0 4px; text-align:center; }
+.studio .month-grid td { padding:0; border:0; vertical-align:top; background:transparent; }
+.studio .month-day { width:100%; min-height:96px; display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px 8px; border-radius:16px; border:1px solid transparent; background:#f5f2fa; color:#5e536f; text-align:left; }
+.studio .month-day.outside { background:#f8f6fb; color:#b3a9be; }
+.studio .month-day.outside .month-chips { opacity:.6; }
+.studio .month-day.today:not(.active) { border-color:#c9b9e4; }
+.studio .month-day.active { background:#2f2d43; color:#fff; }
+.studio .month-day:focus-visible { outline:3px solid #8871d7; outline-offset:2px; }
+.studio .month-date { font-size:0.8125rem; font-weight:500; }
+.studio .month-chips { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.studio .lesson-chip { display:block; padding:3px 6px; border-radius:8px; font-size:0.5rem; line-height:1.5; background:#ece4f8; color:#6a5790; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.studio .lesson-chip.math { background:#e0eaf9; color:#4c6a90; }
+.studio .lesson-chip.sci { background:#f3e0ec; color:#875c75; }
+.studio .lesson-chip.warn { background:#f7eadb; color:#86653f; }
+.studio .more-chip { font-size:0.5rem; color:#7d6f8f; padding-left:2px; }
+.studio .month-day.active .lesson-chip { background:#ffffff26; color:#fff; }
+.studio .month-day.active .more-chip { color:#e6dcf5; }
+.studio .day-lessons { margin-top:24px; }
+.studio .day-lessons .card-head h2 { font-size:1.0625rem; }
+.studio .empty-day { padding:14px 0; }
+.studio .agenda { display:none; }
+.studio .agenda-day h3 { display:flex; align-items:center; gap:8px; margin:18px 0 2px; font-size:0.75rem; font-weight:550; }
+.studio .agenda-day:first-child h3 { margin-top:4px; }
+.studio .agenda-earlier { margin:4px 0 6px; }
+.studio .plans-text { margin:12px 0 20px; }
+.studio .booking-card .caption { margin:15px 0; line-height:1.8; }
+.studio .studio-notice { border:0; display:flex; gap:10px; padding:16px 19px; border-radius:17px; background:#f6f2fb; color:#7a6688; line-height:1.7; font-size:0.6875rem; margin:0; }
+.studio .studio-notice svg { width:17px; height:17px; margin-top:2px; flex-shrink:0; }
+html[data-controls="large"] .studio .month-day { min-height:108px; padding:12px 10px; }
+@media (max-width:1100px) {
+  .studio .schedule-layout { grid-template-columns:1fr; }
+}
+@media (max-width:680px) {
+  .studio .month-grid, .studio .day-lessons { display:none; }
+  .studio .agenda { display:block; }
+  .studio .calendar-head { flex-wrap:wrap; }
+  .studio .studio-notice { font-size:0.625rem; padding:14px; }
+}
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .month-day { background:#302a40; border-color:#554766; color:var(--ink); }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .month-day.outside { background:#28233a; color:#8e83a0; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .month-day.active { background:#d5c1f3; color:#292035; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .lesson-chip { background:#443455; color:#e1cffb; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .lesson-chip.math { background:#2f4057; color:#c6dafa; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .lesson-chip.sci { background:#50364a; color:#f3cddd; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .lesson-chip.warn { background:#494020; color:#f5dfa0; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .month-day.active .lesson-chip { background:#2920351f; color:#292035; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .month-day.active .more-chip { color:#4a3a5e; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio :is(.more-chip, .month-grid th) { color:var(--night-muted); }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .studio-notice { background:#302a40; color:var(--night-muted); }
+:root[data-theme="contrast"] .studio .month-day, :root[data-theme="contrast"] .studio .month-day.outside { background:#08080c; border-color:#c3b7d2; color:#fff; }
+:root[data-theme="contrast"] .studio .month-day.active { background:#fff; color:#000; border-color:#fff; }
+:root[data-theme="contrast"] .studio :is(.lesson-chip, .lesson-chip.math, .lesson-chip.sci, .lesson-chip.warn) { background:transparent; border:1px solid #c3b7d2; color:#fff; }
+:root[data-theme="contrast"] .studio .month-day.active :is(.lesson-chip, .lesson-chip.math, .lesson-chip.sci, .lesson-chip.warn) { border-color:#000; color:#000; }
+:root[data-theme="contrast"] .studio .month-day.outside .month-date { color:#bdb3c9; }
+:root[data-theme="contrast"] .studio .lesson-chip.warn { border-style:dashed; }
+:root[data-theme="contrast"] .studio .studio-notice { background:#08080c; border:1px solid #c3b7d2; color:#eee; }

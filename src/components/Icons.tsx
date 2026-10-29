@@ -10,6 +10,8 @@ const SHAPES = {
   insights: <path d="M4 3v17h17M8 15l4-5 4 2 5-7" />,
   sliders: <><path d="M4 7h7m4 0h5M4 17h2m4 0h10" /><circle cx="13" cy="7" r="2" /><circle cx="8" cy="17" r="2" /></>,
   arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
+  "chevron-left": <path d="m15 6-6 6 6 6" />,
+  "chevron-right": <path d="m9 6 6 6-6 6" />,
   external: <path d="M6 17 17 6M6 6h11v11" />,
   check: <path d="m5 12 4 4L19 6" />,
   clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,

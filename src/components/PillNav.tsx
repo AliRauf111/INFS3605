@@ -3,12 +3,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 // The workspace tabs in the middle of the top bar: Overview, Requests, Schedule and
-// Insights. Schedule opens the lesson timetable in the Knowledge Hub. The full list of
-// pages stays in the rail on the left.
+// Insights. The full list of pages, Knowledge Hub included, stays in the rail on the left.
 const ITEMS = [
   { href: "/", label: "Overview", match: (p: string) => p === "/" },
   { href: "/requests", label: "Requests", match: (p: string) => p.startsWith("/requests") },
-  { href: "/knowledge#lessons", label: "Schedule", match: (p: string) => p.startsWith("/knowledge") },
+  { href: "/schedule", label: "Schedule", match: (p: string) => p.startsWith("/schedule") },
   { href: "/insights", label: "Insights", match: (p: string) => p.startsWith("/insights") },
 ];
 

@@ -5,7 +5,6 @@ import { isStale } from "@/lib/context/mappers";
 import { DataBadge, LoadError, formatDateTime } from "@/components/ui";
 import { RulesSection } from "@/app/rules/RulesSection";
 import { PageHeader } from "@/components/PageHeader";
-import { formatRange, formatSlot } from "@/lib/workflows/dates";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Knowledge Hub" };
@@ -21,7 +20,6 @@ export default async function KnowledgePage() {
   const now = new Date();
   const tutor = (id: string) => k.tutors.find((t) => t.id === id)?.name ?? id;
   const student = (familyId: string) => k.families.find((f) => f.id === familyId)?.student_name ?? familyId;
-  const bookingStudent = (bookingId: string) => student(k.bookings.find((b) => b.id === bookingId)?.family_id ?? "");
   const stale = (iso: string) => isStale(iso, now) ? <span className="badge amber">! May be out of date</span> : null;
   return (
     <div className="stack">
@@ -53,21 +51,6 @@ export default async function KnowledgePage() {
           ))}</tbody>
         </table></div>
         <p className="hint">PAY-2002 and PAY-2003 deliberately conflict (same invoice, different amounts), and PAY-2005 is deliberately stale, to show how missing or conflicting evidence blocks green.</p>
-      </section>
-
-      <section id="lessons">
-        <h2>Upcoming Lessons</h2>
-        {k.lessons.length ? (
-          <div className="table-wrap"><table>
-            <thead><tr><th>Lesson</th><th>Booking</th><th>Student</th><th>Tutor</th><th>When (Sydney)</th><th>Slot</th><th>Source</th></tr></thead>
-            <tbody>{k.lessons.map((l) => (
-              <tr key={l.id}><td>{l.id}</td><td>{l.booking_id}</td><td>{bookingStudent(l.booking_id)}</td><td>{tutor(l.tutor_id)}</td><td>{formatSlot(l.starts_at)}</td><td>{l.slot_id ?? "None"}</td><td><DataBadge label={l.data_label} /></td></tr>
-            ))}</tbody>
-          </table></div>
-        ) : <p className="muted">No upcoming lessons on the timetable.</p>}
-        {k.absences.length > 0 && (
-          <p className="hint">Tutors recorded as away: {k.absences.map((a) => `${tutor(a.tutor_id)}, ${formatRange(a.starts_on, a.ends_on)}`).join("; ")}.</p>
-        )}
       </section>
 
       <section>

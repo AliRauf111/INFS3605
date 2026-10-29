@@ -324,11 +324,16 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   // with this event. Focus goes back to whatever opened it.
   const openRef = useRef(openPanel);
   openRef.current = openPanel;
+  // A button can also start one of the shortcuts straight away, such as "Change a lesson"
+  // on the Schedule page.
+  const startRef = useRef<((input: SendInput, label: string) => unknown) | null>(null);
   useEffect(() => {
     const onOpen = (e: Event) => {
-      const opener = (e as CustomEvent<{ opener?: HTMLElement }>).detail?.opener;
-      openerRef.current = opener instanceof HTMLElement ? opener : null;
+      const detail = (e as CustomEvent<{ opener?: HTMLElement; shortcut?: string }>).detail;
+      openerRef.current = detail?.opener instanceof HTMLElement ? detail.opener : null;
       openRef.current();
+      const shortcut = SHORTCUTS.find((s) => s.id === detail?.shortcut);
+      if (shortcut) void startRef.current?.({ start: shortcut.id }, shortcut.label);
     };
     window.addEventListener("compass:open", onOpen);
     return () => window.removeEventListener("compass:open", onOpen);
@@ -494,6 +499,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       abortRef.current = null;
     }
   }, [busy, sessionKey, conv, flash, readAloud, speech]);
+  startRef.current = send;
 
   const submitDraft = () => {
     const text = draft.trim();
