@@ -9,7 +9,7 @@ import { friendlyTime, ruleName } from "@/lib/domain/progress";
 // The dashboard's request list: what each request is, what the rules said and what
 // has to happen next. Each row opens the request. Phones get stacked cards instead.
 
-const COLOUR_WORD = { green: "Green", amber: "Amber", red: "Red" } as const;
+const COLOUR_WORD = { green: "Green", amber: "Yellow", red: "Red" } as const;
 
 export function RuleTag({ row }: { row: RequestRow }) {
   return (
@@ -73,7 +73,7 @@ export function QueueTable({ rows, now, classes, role }: { rows: RequestRow[]; n
         {rows.map((r) => {
           const next = rowWorkflow(r, role);
           return (
-            <li key={r.id}>
+            <li key={r.id} className={`type-${r.request_type}`}>
               <Link href={`/requests/${r.id}`}>
                 <div className="qc-top">
                   <strong>{r.reference_id ?? "No reference"}</strong>

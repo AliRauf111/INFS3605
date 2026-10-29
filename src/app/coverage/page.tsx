@@ -34,7 +34,7 @@ export default async function CoveragePage() {
       {m.total === 0 ? <EmptyState title="No requests yet"><p>Metrics appear once requests are saved.</p></EmptyState> : (
         <>
           <div className="grid grid-3">
-            <div className="card"><div className="stat">{pct(m.withinPolicyShare)}</div><div>Handled within existing owner rules</div><small>{m.withinPolicy} of {m.total} requests matched an owner rule, rather than a default amber route or a safety rule.</small></div>
+            <div className="card"><div className="stat">{pct(m.withinPolicyShare)}</div><div>Handled within existing owner rules</div><small>{m.withinPolicy} of {m.total} requests matched an owner rule, rather than a default yellow route or a safety rule.</small></div>
             <div className="card"><div className="stat">{pct(m.greenShare)}</div><div>Green</div><small>{m.green} of {m.total} requests could follow approved steps without the owner.</small></div>
             <div className="card"><div className="stat">{m.awaitingOwner}</div><div>Waiting for owner review</div><small>Status is &ldquo;waiting for owner&rdquo; right now.</small></div>
           </div>
@@ -42,15 +42,15 @@ export default async function CoveragePage() {
           <section className="card">
             <h2>Requests by category and colour</h2>
             <div className="table-wrap"><table>
-              <thead><tr><th>Category</th><th>Green</th><th>Amber</th><th>Red</th></tr></thead>
+              <thead><tr><th>Category</th><th>Green</th><th>Yellow</th><th>Red</th></tr></thead>
               <tbody>{m.byCategory.map(([cat, c]) => <tr key={cat}><td>{REQUEST_TYPE_LABELS[cat as RequestType] ?? cat}</td><td>{c.green}</td><td>{c.amber}</td><td>{c.red}</td></tr>)}</tbody>
             </table></div>
           </section>
 
           <div className="grid grid-2">
             <section className="card">
-              <h2>Common reasons for amber</h2>
-              <p className="hint">The rule or default route behind each amber decision.</p>
+              <h2>Common reasons for yellow</h2>
+              <p className="hint">The rule or default route behind each yellow decision.</p>
               {m.amberReasons.length ? <ul>{m.amberReasons.map(([r, n]) => <li key={r}>{reason(r)}: {n}</li>)}</ul> : <p className="muted">No amber requests.</p>}
             </section>
             <section className="card">
@@ -60,7 +60,7 @@ export default async function CoveragePage() {
             </section>
             <section className="card">
               <h2>Frequently overridden rules</h2>
-              <p className="hint">Amber or red decisions the owner then approved as an exception, by rule.</p>
+              <p className="hint">Yellow or red decisions the owner then approved as an exception, by rule.</p>
               {m.overrides.length ? <ul>{m.overrides.map(([r, n]) => <li key={r}>{reason(r)}: {n}</li>)}</ul> : <p className="muted">No owner exceptions yet.</p>}
             </section>
           </div>
@@ -72,7 +72,7 @@ export default async function CoveragePage() {
           <h2 style={{ margin: 0 }}>Rule suggestions</h2>
           {user.role === "owner" && <RefreshSuggestions pending={pending.length} />}
         </div>
-        <p className="hint">Found by looking for at least two owner approvals of the same amber or red rule with no complaint or welfare concern. Suggestions use pattern analysis, not AI. They stay inactive until the owner turns one into a draft, tests it and activates it. Past exceptions are not treated as general permission.</p>
+        <p className="hint">Found by looking for at least two owner approvals of the same yellow or red rule with no complaint or welfare concern. Suggestions use pattern analysis, not AI. They stay inactive until the owner turns one into a draft, tests it and activates it. Past exceptions are not treated as general permission.</p>
         {open.length === 0 && <p className="muted">No open suggestions.{pending.length ? ` ${pending.length} new pattern${pending.length > 1 ? "s" : ""} found; the owner can add ${pending.length > 1 ? "them" : "it"}.` : ""}</p>}
         {data.suggestions.map((s) => (
           <article key={s.id} className="rule-card">

@@ -36,9 +36,22 @@ function apply(p: DisplayPrefs) {
   if (before !== "reduce" && p.reduceMotion) finishLayoutMotion();
 }
 
-/** The panel sits beside the page only when the page keeps enough room for readable content. */
-export function pickMode(width: number, textSize: number): PanelMode {
-  return width - 392 >= 800 * Math.max(1, textSize / 100) ? "side" : "modal";
+/**
+ * The panel sits beside the page only when the page keeps enough room for readable content.
+ * reserved is space already taken on the left, such as the navigation rail.
+ */
+export function pickMode(width: number, textSize: number, reserved = 0): PanelMode {
+  return width - 392 - reserved >= 800 * Math.max(1, textSize / 100) ? "side" : "modal";
+}
+
+/** The navigation rail's width while it sits down the left edge (0 when it is a row under the header). */
+function railWidth(): number {
+  const rail = document.querySelector<HTMLElement>(".site-rail");
+  return rail && getComputedStyle(rail).position === "fixed" ? rail.offsetWidth : 0;
+}
+
+function modeFor(textSize: number): PanelMode {
+  return pickMode(window.innerWidth, textSize, railWidth());
 }
 
 function setLayout(open: boolean, mode: PanelMode) {
@@ -52,7 +65,7 @@ function start() {
   if (started || typeof window === "undefined") return;
   started = true;
   const saved = readSavedPrefs();
-  state = { ...state, prefs: saved, saved, mode: pickMode(window.innerWidth, saved.textSize) };
+  state = { ...state, prefs: saved, saved, mode: modeFor(saved.textSize) };
   setLayout(false, state.mode);
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => apply(state.prefs));
   window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", (e) => { if (e.matches) finishLayoutMotion(); });
@@ -83,7 +96,7 @@ export function getA11y(): A11yState {
 
 /** Re-checks the layout mode, for example after a resize, rotation or text size change. */
 export function refreshMode(): void {
-  const mode = pickMode(window.innerWidth, state.prefs.textSize);
+  const mode = modeFor(state.prefs.textSize);
   if (mode === state.mode) return;
   finishLayoutMotion();
   state = { ...state, mode };
@@ -94,7 +107,7 @@ export function refreshMode(): void {
 export function setOpen(open: boolean): void {
   start();
   if (open === state.open) return;
-  const mode = pickMode(window.innerWidth, state.prefs.textSize);
+  const mode = modeFor(state.prefs.textSize);
   const change = () => setLayout(open, mode);
   // As a drawer over the page nothing underneath moves, so only the drawer animates.
   if (mode === "side" || state.mode === "side") animateLayout(change);
@@ -106,7 +119,7 @@ export function setOpen(open: boolean): void {
 export function updatePrefs(patch: Partial<DisplayPrefs>): void {
   start();
   const prefs = { ...state.prefs, ...patch };
-  const mode = pickMode(window.innerWidth, prefs.textSize);
+  const mode = modeFor(prefs.textSize);
   const run = () => {
     apply(prefs);
     if (mode !== state.mode) setLayout(state.open, mode);

@@ -2,7 +2,7 @@
 import "./assistant.css";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { EMPTY_STATE, type AssistantState, type Block, type Choice, type Command, type TaskField, type TurnResponse } from "@/lib/assistant/logic";
 import { SHORTCUTS, type ShortcutId } from "@/lib/assistant/shortcuts";
 import { CompassAvatar, type AvatarState } from "./CompassAvatar";
@@ -125,6 +125,11 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const rootRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
+  // The button that opened Compass (a page button or the launcher), so focus goes back to it.
+  const openerRef = useRef<HTMLElement | null>(null);
+  // Set when a confirmed change was saved, so the page underneath refreshes its counts on close.
+  const changedRef = useRef(false);
 
   const voice = useVoice();
   const speech = useSpeech();
@@ -192,12 +197,14 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   // keyboard and follows rotation, zoom and resizing. One set of listeners per mount.
   const measure = useCallback(() => {
     const vv = window.visualViewport;
+    const rail = document.querySelector<HTMLElement>(".site-rail");
     const next = workspaceGeometry({
       width: document.documentElement.clientWidth || window.innerWidth,
       height: vv?.height ?? window.innerHeight,
       offsetTop: vv?.offsetTop ?? 0,
+      rail: rail && getComputedStyle(rail).position === "fixed" ? rail.getBoundingClientRect().right : 0,
     });
-    setGeom((g) => (g && g.mode === next.mode && g.top === next.top && g.left === next.left && g.width === next.width && g.height === next.height ? g : next));
+    setGeom((g) => (g && g.mode === next.mode && g.top === next.top && g.left === next.left && g.width === next.width && g.height === next.height && g.rail === next.rail ? g : next));
   }, []);
   useLayoutEffect(() => {
     if (!hydrated) return;
@@ -309,11 +316,16 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     };
   }, []);
 
-  // Other parts of the page (the footer link, for example) open the panel with this event.
+  // Other parts of the page (the Compass AI card, the rail, the footer link) open the panel
+  // with this event. Focus goes back to whatever opened it.
   const openRef = useRef(openPanel);
   openRef.current = openPanel;
   useEffect(() => {
-    const onOpen = () => openRef.current();
+    const onOpen = (e: Event) => {
+      const opener = (e as CustomEvent<{ opener?: HTMLElement }>).detail?.opener;
+      openerRef.current = opener instanceof HTMLElement ? opener : null;
+      openRef.current();
+    };
     window.addEventListener("compass:open", onOpen);
     return () => window.removeEventListener("compass:open", onOpen);
   }, []);
@@ -330,7 +342,15 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     setOpen(false);
     setMenuOpen(false);
     setMode("chat");
-    requestAnimationFrame(() => launcherRef.current?.focus({ preventScroll: true }));
+    const back = openerRef.current?.isConnected && openerRef.current.getClientRects().length ? openerRef.current : launcherRef.current;
+    openerRef.current = null;
+    requestAnimationFrame(() => back?.focus({ preventScroll: true }));
+    // A change was confirmed while Compass was open: refresh the page's counts and lists.
+    // This re-reads the page's data only. It is not a full page load, so it never resets demo data.
+    if (changedRef.current) {
+      changedRef.current = false;
+      router.refresh();
+    }
   };
   const closeRef = useRef(closePanel);
   closeRef.current = closePanel;
@@ -490,7 +510,10 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
   const onAction = (itemId: string, index: number, next: ActionState) => {
     setItems((xs) => xs.map((x) => (x.id === itemId ? { ...x, actions: { ...x.actions, [index]: next } } : x)));
-    if (next.card?.p?.stage === "done") flash("success");
+    if (next.card?.p?.stage === "done") {
+      changedRef.current = true;
+      flash("success");
+    }
   };
 
   const newConversation = () => {
@@ -594,6 +617,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       className={`compass-root${open ? " is-open" : ""}`}
       data-paused={paused ? "true" : undefined}
       data-layout={geom?.mode ?? "column"}
+      style={{ "--cp-rail": `${geom?.rail ?? 0}px` } as CSSProperties}
       role={open ? "dialog" : undefined}
       aria-modal={open ? true : undefined}
       aria-labelledby={open ? "compass-title" : undefined}
@@ -807,14 +831,14 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
       {/* After the workspace in the DOM, so Tab goes from the composer to the launcher and back round. */}
       <div ref={launcherBoxRef} className={`cl-launcher${open ? " is-open" : ""}${dodge && !open ? ` is-${dodge}` : ""}`}>
-        <button type="button" className="cl-pill" onClick={open ? closePanel : openPanel} tabIndex={-1} aria-hidden="true">
+        <button type="button" className="cl-pill" onClick={open ? closePanel : () => { openerRef.current = null; openPanel(); }} tabIndex={-1} aria-hidden="true">
           Ask Compass
         </button>
         <button
           ref={launcherRef}
           type="button"
           className="cl-avatar-btn"
-          onClick={open ? closePanel : openPanel}
+          onClick={open ? closePanel : () => { openerRef.current = null; openPanel(); }}
           aria-expanded={open}
           aria-controls="compass-panel"
           aria-label={open ? "Close Compass AI" : `Ask Compass, the AI assistant${available ? "" : ". Having trouble connecting"}`}

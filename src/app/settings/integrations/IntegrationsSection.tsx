@@ -35,7 +35,7 @@ export async function IntegrationsSection() {
     { name: "Tutor calendar", state: "Not connected", detail: "Availability slots are fictional demonstration rows." },
     { name: "Email and SMS", state: "Not connected", detail: "Drafts are prepared for a person to copy and send. Nothing is sent by the app." },
   ];
-  const cls: Record<State, string> = { Live: "green", "Key set, not yet used": "amber", Simulated: "amber", "Not connected": "", Error: "red" };
+  const cls: Record<State, string> = { Live: "lilac", "Key set, not yet used": "info", Simulated: "info", "Not connected": "", Error: "red" };
   return (
     <section id="integrations" className="stack" aria-labelledby="integrations-heading">
       <div>

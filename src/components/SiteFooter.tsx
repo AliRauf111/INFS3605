@@ -94,7 +94,7 @@ export function SiteFooter() {
         <div className="footer-grid">
           <div className="footer-brand" data-compass-avoid>
             <Link href="/" className="footer-logo">
-              <Logo variant="light" />
+              <Logo />
             </Link>
             <p className="footer-tagline">A clearer direction for your tutoring business.</p>
             <p className="footer-about">Bring your business knowledge together, support your team and keep everyday decisions moving, with you in control.</p>

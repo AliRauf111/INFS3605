@@ -7,7 +7,9 @@ import { NavLinks } from "@/components/NavLinks";
 import { Assistant } from "@/components/assistant/Assistant";
 import { aiConfigured } from "@/lib/ai/client";
 import { SiteFooter } from "@/components/SiteFooter";
-import { Logo } from "@/components/Logo";
+import { Logo, LogoMark } from "@/components/Logo";
+import { OpenCompassButton } from "@/components/OpenCompassButton";
+import { demoResetEnabled } from "@/lib/demo/mode";
 import { BOOT_SCRIPT, BootLoader } from "@/components/loader/BootLoader";
 import { NavLoader } from "@/components/loader/NavLoader";
 import { A11yPanel, FocusViewBar } from "@/components/a11y/A11yPanel";
@@ -20,6 +22,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
+function initials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
+}
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = supabaseConfigured() ? await getSessionUser().catch(() => null) : null;
   return (
@@ -31,7 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Saved display preferences, applied before the first paint so there is no flash. */}
         <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
       </head>
-      <body>
+      <body className={user ? "app-shell" : undefined}>
         <noscript>
           <style>{`.boot-loader{display:none!important}body>*{visibility:visible!important}`}</style>
         </noscript>
@@ -40,14 +46,26 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {user && (
           <>
             <a href="#main" className="skip-link">Skip to content</a>
-            <div className="demo-strip">One place to plan, teach and grow.</div>
+            {/* The slim rail: logo, the main navigation and Compass AI. Below 900px it becomes a row under the header. */}
+            <aside className="site-rail" aria-label="Site">
+              <Link href="/" className="rail-brand" aria-label="Tutor Compass Overview"><LogoMark variant="light" /></Link>
+              <NavLinks role={user.role} />
+              <div className="rail-foot">
+                <OpenCompassButton className="rail-compass" iconOnly label="Ask Compass AI" />
+                <span className="rail-avatar" aria-hidden="true" title={user.displayName}>{initials(user.displayName)}</span>
+              </div>
+            </aside>
             <header className="site-header">
               <div className="header-inner">
                 <Link href="/" className="brand"><Logo /></Link>
-                <NavLinks role={user.role} />
+                {demoResetEnabled(process.env.DEMO_MODE) && (
+                  <span className="demo-chip" data-secondary="" title="Fictional demonstration data. A full page refresh puts it back to its starting state.">
+                    <span className="demo-dot" aria-hidden="true" /> Demo data, resets on refresh
+                  </span>
+                )}
                 <div className="user-box">
-                  <span>
-                    {user.displayName} <span className="badge">{user.role === "owner" ? "Owner" : "Administrator"}</span>
+                  <span className="user-name">
+                    {user.displayName} <span className="badge role-badge">{user.role === "owner" ? "Owner" : "Administrator"}</span>
                   </span>
                   <form action="/api/auth/logout" method="post">
                     <button className="btn secondary small" type="submit">Sign Out</button>

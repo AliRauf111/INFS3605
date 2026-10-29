@@ -61,9 +61,9 @@ describe("display preferences", () => {
   });
 
   it("writes only the attributes that are on", () => {
-    expect(prefsAttributes(DEFAULT_PREFS, false)).toEqual({ "data-theme": "light", "data-focus": null, "data-motion": null, "data-controls": null });
+    expect(prefsAttributes(DEFAULT_PREFS, false)).toEqual({ "data-theme": "light", "data-focus": null, "data-motion": null, "data-controls": null, "data-text": null });
     const all = prefsAttributes({ focusView: true, reduceMotion: true, largerControls: true, textSize: 200, theme: "dark" }, false);
-    expect(all).toEqual({ "data-theme": "dark", "data-focus": "on", "data-motion": "reduce", "data-controls": "large" });
+    expect(all).toEqual({ "data-theme": "dark", "data-focus": "on", "data-motion": "reduce", "data-controls": "large", "data-text": "200" });
   });
 
   it("leaves the browser's own text size alone at 100%", () => {

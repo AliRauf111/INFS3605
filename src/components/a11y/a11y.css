@@ -22,7 +22,13 @@
   .page-actions .btn { flex: 0 1 auto; }
   .dash .page-actions .btn { flex: 1 1 auto; }
 }
-.a11y-trigger[aria-expanded="true"] { background: var(--info-bg); border-color: var(--accent); color: var(--info-fg); }
+.a11y-trigger[aria-expanded="true"] { background: var(--lilac-bg); border-color: var(--lilac-edge); color: var(--lilac-fg); }
+/* On narrow screens the button shows a short word. The full name stays for screen readers. */
+.a11y-trigger-short { display: none; }
+@media (max-width: 520px) {
+  .a11y-trigger-short { display: inline; }
+  .a11y-trigger-text { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+}
 
 /* ---------- Panel ---------- */
 .a11y-panel {
@@ -30,7 +36,8 @@
   width: var(--a11y-width); max-width: calc(100vw - 24px);
   display: flex; flex-direction: column; overflow: hidden;
   background: var(--paper); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius);
-  box-shadow: 0 24px 60px rgba(10, 42, 102, 0.18), 0 2px 6px rgba(10, 42, 102, 0.06);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2); backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: 0 24px 60px rgba(40, 32, 110, 0.16), 0 2px 6px rgba(40, 32, 110, 0.06);
   opacity: 0; visibility: hidden; transform: translateX(calc(100% + 24px));
   transition: transform var(--a11y-ms) var(--a11y-ease), opacity 0.3s ease, visibility 0s linear var(--a11y-ms);
 }
@@ -42,7 +49,7 @@ html[data-a11y-open] .a11y-panel {
 /* As a drawer: full height on the right, over everything, with a backdrop behind it. */
 html[data-a11y-mode="modal"] .a11y-panel { z-index: 71; top: 0; right: 0; bottom: 0; width: min(400px, 100vw); max-width: none; border-radius: var(--radius) 0 0 var(--radius); border-right: none; }
 .a11y-backdrop {
-  position: fixed; inset: 0; z-index: 70; background: rgba(6, 26, 64, 0.38);
+  position: fixed; inset: 0; z-index: 70; background: rgba(29, 34, 69, 0.34);
   opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
 html[data-a11y-open][data-a11y-mode="modal"] .a11y-backdrop { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s; }
@@ -62,15 +69,27 @@ html[data-a11y-open][data-a11y-mode="modal"] { overflow: hidden; }
   border: 1px solid var(--border); border-radius: 999px; background: none; color: var(--accent); font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
   transition: background-color 0.15s ease;
 }
-.a11y-close:hover { background: var(--info-bg); }
+.a11y-close:hover { background: var(--lilac-bg); }
 
-.a11y-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0.4rem 1.25rem 1.25rem; }
+.a11y-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0.4rem 1.25rem 0.75rem; }
+.a11y-group > h3 + * { margin-top: 0.2rem; }
+/* Save and Reset stay in view at the bottom. On very short screens everything scrolls together. */
+.a11y-foot { flex: none; padding: 0.85rem 1.25rem 1rem; border-top: 1px solid var(--border); background: var(--surface-2); }
+@media (max-height: 560px) {
+  .a11y-panel { overflow-y: auto; overscroll-behavior: contain; }
+  .a11y-body { flex: none; overflow: visible; }
+}
 .a11y-group { padding: 0.8rem 0 0.4rem; }
 .a11y-group + .a11y-group { border-top: 1px solid var(--border); }
 .a11y-group h3 { margin: 0 0 0.3rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; }
 
-.a11y-row { display: flex; align-items: center; justify-content: space-between; gap: 0.9rem; padding: 0.55rem 0; }
-.a11y-row-text { display: grid; gap: 0.1rem; margin: 0; cursor: pointer; font-weight: 400; min-width: 0; }
+.a11y-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; padding: 0.55rem 0; }
+.a11y-row-text { display: grid; gap: 0.1rem; margin: 0; cursor: pointer; font-weight: 400; min-width: 0; flex: 1; }
+.a11y-row-icon {
+  flex: none; display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 11px;
+  background: var(--lilac-bg); color: var(--lilac-fg); border: 1px solid var(--lilac-edge);
+}
+.a11y-theme legend { display: flex; align-items: center; gap: 0.8rem; }
 .a11y-row-label { font-weight: 600; color: var(--heading); }
 .a11y-row-desc { font-size: 0.86rem; color: var(--muted); line-height: 1.4; }
 
@@ -85,6 +104,7 @@ html[data-a11y-open][data-a11y-mode="modal"] { overflow: hidden; }
   background: var(--paper); border: 1px solid var(--field-border); transition: transform 0.18s ease;
 }
 .a11y-switch:checked { background: var(--accent); border-color: var(--accent); }
+.a11y-switch:checked::before { content: ""; position: absolute; left: 9px; top: 8px; width: 5px; height: 9px; border: solid var(--accent-text); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .a11y-switch:checked::after { transform: translateX(20px); border-color: var(--accent); }
 .a11y-switch:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
@@ -93,7 +113,7 @@ html[data-a11y-open][data-a11y-mode="modal"] { overflow: hidden; }
   min-width: 44px; min-height: 40px; border: none; background: none; color: var(--accent); font: inherit; font-weight: 700; cursor: pointer;
   transition: background-color 0.15s ease;
 }
-.a11y-stepper button:hover:not(:disabled) { background: var(--info-bg); }
+.a11y-stepper button:hover:not(:disabled) { background: var(--lilac-bg); }
 .a11y-stepper button:disabled { color: var(--muted); opacity: 0.55; cursor: not-allowed; }
 .a11y-stepper button:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; border-radius: 999px; }
 .a11y-stepper output { min-width: 3.6rem; text-align: center; font-weight: 650; color: var(--heading); border-inline: 1px solid var(--border); padding: 0.45rem 0.2rem; }
@@ -109,13 +129,13 @@ html[data-a11y-open][data-a11y-mode="modal"] { overflow: hidden; }
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 .a11y-segment:hover span { border-color: var(--accent); }
-.a11y-segment input:checked + span { background: var(--info-bg); color: var(--info-fg); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 650; }
+.a11y-segment input:checked + span { background: var(--lilac-bg); color: var(--lilac-fg); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 650; }
 .a11y-segment input:checked + span::before { content: "✓"; margin-right: 0.35rem; }
 .a11y-segment input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-.a11y-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 0.4rem; }
+.a11y-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .a11y-actions .btn { flex: 1 1 auto; width: auto; }
-.a11y-status { min-height: 1.4em; margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--green-fg); }
+.a11y-status { min-height: 1.4em; margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--ok-fg); }
 .a11y-status:empty { min-height: 0; }
 .a11y-status.error { color: var(--red-fg); }
 .a11y-note { margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--muted); }
@@ -124,7 +144,7 @@ html[data-a11y-open][data-a11y-mode="modal"] { overflow: hidden; }
 .focus-bar { display: none; }
 html[data-focus="on"] .focus-bar {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem;
-  margin-bottom: 1rem; padding: 0.6rem 0.9rem; border-radius: var(--radius-small); background: var(--info-bg); color: var(--info-fg);
+  margin-bottom: 1rem; padding: 0.6rem 0.9rem; border-radius: var(--radius-small); background: var(--lilac-bg); color: var(--lilac-fg); border: 1px solid var(--lilac-edge);
 }
 .focus-bar p { margin: 0; }
 html[data-focus="on"] .focus-bar .btn { width: auto; }
@@ -132,11 +152,10 @@ html[data-focus="on"] .focus-bar .btn { width: auto; }
 /* ---------- The page makes room beside the panel ---------- */
 /* Content keeps its own width up to 1100px and sits in the space left of the panel. */
 html[data-a11y-open][data-a11y-mode="side"] :is(main, .footer-inner) {
-  max-width: min(1100px, calc(100% - var(--a11y-room)));
-  margin-left: max(0px, calc((100% - var(--a11y-room) - 1100px) / 2));
+  max-width: min(1320px, calc(100% - var(--a11y-room)));
+  margin-left: max(0px, calc((100% - var(--a11y-room) - 1320px) / 2));
   margin-right: auto;
 }
-html[data-a11y-open][data-a11y-mode="side"] .queue { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 /* Compass AI moves left with the page, so it never sits under the panel. Its own transitions are
    repeated here with translate added (the .compass-root prefix makes these win over assistant.css). */

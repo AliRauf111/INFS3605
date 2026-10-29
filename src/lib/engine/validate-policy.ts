@@ -155,7 +155,7 @@ export function validatePolicy(input: unknown): PolicyCheck {
           : "Changes that do not affect fees";
       issues.push({
         level: "warning",
-        message: `${what}: no rule covers this, so it will follow the default amber route.`,
+        message: `${what}: no rule covers this, so it will follow the default yellow route.`,
       });
     }
   }

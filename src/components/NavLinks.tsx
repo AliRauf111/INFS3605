@@ -2,14 +2,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/lib/domain/types";
+import { Icon, type IconName } from "@/components/Icons";
 
-const LINKS: Array<{ href: string; label: string; owner?: boolean }> = [
-  { href: "/", label: "Dashboard" },
-  { href: "/requests", label: "Requests" },
-  { href: "/owner", label: "Approval Alley" },
-  { href: "/knowledge", label: "Knowledge Hub" },
-  { href: "/subjects", label: "Subjects" },
-  { href: "/coverage", label: "Coverage" },
+// The main navigation: a slim rail down the left on wide screens, and a row of rounded
+// buttons under the header on smaller ones. Same links, same order, one landmark.
+const LINKS: Array<{ href: string; label: string; icon: IconName }> = [
+  { href: "/", label: "Overview", icon: "overview" },
+  { href: "/requests", label: "Requests", icon: "requests" },
+  { href: "/owner", label: "Approval Alley", icon: "approval" },
+  { href: "/knowledge", label: "Knowledge Hub", icon: "knowledge" },
+  { href: "/subjects", label: "Subjects", icon: "subjects" },
+  { href: "/insights", label: "Insights", icon: "insights" },
+  { href: "/coverage", label: "Coverage", icon: "coverage" },
 ];
 
 export function NavLinks({ role }: { role: Role }) {
@@ -20,7 +24,8 @@ export function NavLinks({ role }: { role: Role }) {
     <nav className="nav" aria-label="Main">
       {LINKS.map((l) => (
         <Link key={l.href} href={l.href} aria-current={current(l.href) ? "page" : undefined}>
-          {l.label}
+          <span className="nav-icon"><Icon name={l.icon} /></span>
+          <span className="nav-label">{l.label}</span>
           {l.href === "/owner" && role !== "owner" ? <span className="sr-only"> (view only)</span> : null}
         </Link>
       ))}

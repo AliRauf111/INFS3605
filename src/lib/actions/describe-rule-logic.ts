@@ -18,7 +18,7 @@ export function describeRuleSimulated(
   const escalate = { ...base, permittedActions: ["prepare_parent_response" as const, "prepare_escalation_summary" as const, "send_to_owner" as const] };
 
   if (!config.numeric) {
-    ambiguities.push("The draft makes fee-free changes green and fee changes amber. The tutor must also be free at the new time.");
+    ambiguities.push("The draft makes fee-free changes green and fee changes yellow. The tutor must also be free at the new time.");
     return {
       ambiguities,
       definition: {
@@ -37,7 +37,7 @@ export function describeRuleSimulated(
   const pattern = isCents ? /\$\s?(\d+(?:\.\d{1,2})?)/g : /(\d{1,3})\s*days?/g;
   const values = [...new Set([...instruction.matchAll(pattern)].map((m) => (isCents ? Math.round(Number(m[1]) * 100) : Number(m[1]))))].sort((a, b) => a - b);
   if (values.length === 0) {
-    ambiguities.push(`No ${isCents ? "dollar amounts" : "numbers of days"} were found, so the draft has a single amber rule. Add thresholds yourself.`);
+    ambiguities.push(`No ${isCents ? "dollar amounts" : "numbers of days"} were found, so the draft has a single yellow rule. Add thresholds yourself.`);
   }
   // "up to $50" or "$50 or less" puts the boundary in the lower band.
   const inclusive = /(up to|or less|or under|inclusive|at most)/.test(lower);

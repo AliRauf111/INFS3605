@@ -65,6 +65,8 @@ export function prefsAttributes(p: DisplayPrefs, deviceDark: boolean): Record<st
     "data-focus": p.focusView ? "on" : null,
     "data-motion": p.reduceMotion ? "reduce" : null,
     "data-controls": p.largerControls ? "large" : null,
+    // Lets the layout switch earlier (for example the navigation rail) when text is enlarged.
+    "data-text": p.textSize === 100 ? null : String(p.textSize),
   };
 }
 
@@ -107,5 +109,5 @@ h.setAttribute("data-theme",t);
 if(p.focusView===true)h.setAttribute("data-focus","on");
 if(p.reduceMotion===true)h.setAttribute("data-motion","reduce");
 if(p.largerControls===true)h.setAttribute("data-controls","large");
-if(${JSON.stringify(TEXT_SIZES.filter((s) => s !== 100))}.indexOf(p.textSize)>=0)h.style.fontSize=p.textSize+"%";
+if(${JSON.stringify(TEXT_SIZES.filter((s) => s !== 100))}.indexOf(p.textSize)>=0){h.style.fontSize=p.textSize+"%";h.setAttribute("data-text",String(p.textSize));}
 }catch(e){}})();`;

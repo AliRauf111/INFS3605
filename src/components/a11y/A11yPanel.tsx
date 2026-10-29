@@ -27,7 +27,7 @@ function AccessIcon() {
   );
 }
 
-/** The Accessibility button. Each page has one, in its page header's action area (see PageHeader). */
+/** The Display and Accessibility button. Each page has one, in its page header's action area (see PageHeader). */
 export function A11yTrigger() {
   const s = useA11y();
   return (
@@ -39,7 +39,9 @@ export function A11yTrigger() {
       data-a11y-trigger=""
       onClick={(e) => toggleFrom(e.currentTarget)}
     >
-      <AccessIcon /> <span className="a11y-trigger-text">Accessibility</span>
+      <AccessIcon />
+      <span className="a11y-trigger-text">Display and Accessibility</span>
+      <span className="a11y-trigger-short" aria-hidden="true">Display</span>
     </button>
   );
 }
@@ -54,9 +56,26 @@ export function FocusViewBar() {
   );
 }
 
-function Switch({ id, label, desc, checked, onChange }: { id: string; label: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) {
+const ROW_ICONS = {
+  focus: <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M9 12h6" />,
+  motion: <path d="M4 12h3l2-5 4 10 2-5h5" />,
+  controls: <path d="M8 11V6.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V11m0-.5a1.5 1.5 0 0 1 3 0V15a5 5 0 0 1-5 5h-1.5a5 5 0 0 1-4-2l-2.3-3a1.5 1.5 0 0 1 2.3-1.9L8 14" />,
+  text: <path d="M4 18l4.5-12h1L14 18M5.7 14h6.6M15 18l2.8-7h.4L21 18M15.9 16h4.2" />,
+  theme: <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 3v18M12 8h6M12 12h9M12 16h7" />,
+};
+
+function RowIcon({ name }: { name: keyof typeof ROW_ICONS }) {
+  return (
+    <span className="a11y-row-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" focusable="false">{ROW_ICONS[name]}</svg>
+    </span>
+  );
+}
+
+function Switch({ id, icon, label, desc, checked, onChange }: { id: string; icon: keyof typeof ROW_ICONS; label: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <div className="a11y-row">
+      <RowIcon name={icon} />
       <label htmlFor={id} className="a11y-row-text">
         <span className="a11y-row-label">{label}</span>
         <span className="a11y-row-desc" id={`${id}-desc`}>{desc}</span>
@@ -66,7 +85,7 @@ function Switch({ id, label, desc, checked, onChange }: { id: string; label: str
   );
 }
 
-const BACKGROUND = [".skip-link", ".demo-strip", ".site-header", "#main", ".site-footer", ".compass-root"];
+const BACKGROUND = [".skip-link", ".site-rail", ".site-header", "#main", ".site-footer", ".compass-root"];
 
 export function A11yPanel() {
   const s = useA11y();
@@ -196,15 +215,19 @@ export function A11yPanel() {
         <div className="a11y-body">
           <section className="a11y-group" aria-labelledby={`${uid}-focus`}>
             <h3 id={`${uid}-focus`}>Focus and Comfort</h3>
-            <Switch id={`${uid}-fv`} label="Focus View" desc="Hide extra detail so the main tasks stand out. Warnings and actions stay." checked={p.focusView} onChange={(v) => set({ focusView: v })} />
-            <Switch id={`${uid}-rm`} label="Reduce Motion" desc="Turn off animation and moving layout changes across the site." checked={p.reduceMotion} onChange={(v) => set({ reduceMotion: v })} />
-            <Switch id={`${uid}-lc`} label="Larger Controls" desc="Use bigger buttons and form controls with more space around them." checked={p.largerControls} onChange={(v) => set({ largerControls: v })} />
+            <Switch id={`${uid}-fv`} icon="focus" label="Focus View" desc="Hide extra detail so the main tasks stand out. Warnings, request details needed for decisions and actions stay." checked={p.focusView} onChange={(v) => set({ focusView: v })} />
+            <Switch id={`${uid}-rm`} icon="motion" label="Reduce Motion" desc="Turn off animation, the moving Compass character and smooth scrolling across the site." checked={p.reduceMotion} onChange={(v) => set({ reduceMotion: v })} />
+            <Switch id={`${uid}-lc`} icon="controls" label="Larger Controls" desc="Use bigger buttons, links and form controls with more space around them." checked={p.largerControls} onChange={(v) => set({ largerControls: v })} />
           </section>
 
           <section className="a11y-group" aria-labelledby={`${uid}-reading`}>
             <h3 id={`${uid}-reading`}>Reading</h3>
             <div className="a11y-row">
-              <span className="a11y-row-label" id={`${uid}-ts`}>Text Size</span>
+              <RowIcon name="text" />
+              <span className="a11y-row-text">
+                <span className="a11y-row-label" id={`${uid}-ts`}>Text Size</span>
+                <span className="a11y-row-desc">From 100% to 200%.</span>
+              </span>
               <div className="a11y-stepper" role="group" aria-labelledby={`${uid}-ts`}>
                 <button type="button" onClick={() => set({ textSize: stepTextSize(p.textSize, -1) })} disabled={minSize} aria-label="Decrease text size">A−</button>
                 <output aria-live="polite" aria-label={`Text size ${p.textSize}%`}>{p.textSize}%</output>
@@ -212,7 +235,7 @@ export function A11yPanel() {
               </div>
             </div>
             <fieldset className="a11y-theme">
-              <legend className="a11y-row-label">Colour Theme</legend>
+              <legend className="a11y-row-label"><RowIcon name="theme" /> Colour Theme</legend>
               <div className="a11y-segments">
                 {THEMES.map((t) => (
                   <label key={t.value} className="a11y-segment">
@@ -223,15 +246,17 @@ export function A11yPanel() {
               </div>
             </fieldset>
           </section>
+        </div>
 
+        <div className="a11y-foot">
           <div className="a11y-actions">
             <button type="button" className="btn" onClick={savePrefs}>Save Preferences</button>
             <button type="button" className="btn secondary" onClick={resetPrefs}>Reset</button>
           </div>
           <p className={`a11y-status${s.message?.tone === "error" ? " error" : ""}`} role="status">
-            {s.message ? s.message.text : unsaved ? "Changes show straight away. Save to keep them after a reload." : ""}
+            {s.message ? s.message.text : unsaved ? "You have unsaved changes." : ""}
           </p>
-          <p className="a11y-note">Saved in this browser on this device.</p>
+          <p className="a11y-note">Changes preview straight away. Save Preferences keeps them in this browser, across pages, refreshes and demo resets. Reset goes back to the defaults.</p>
         </div>
       </aside>
     </>

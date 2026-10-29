@@ -40,6 +40,7 @@ import {
   type Pipeline,
   type RunState,
   type WorkflowData,
+  withChoices,
 } from "./logic";
 import {
   WorkflowsNotSetUp,
@@ -86,7 +87,7 @@ const TRI_OPTIONS = (field: string) => [
 ];
 
 function options(ctx: TurnCtx, runId: string, label: string, list: Array<{ label: string; value: string }>, op: "pick" | "decide" = "pick") {
-  ctx.blocks.push({ kind: "options", label, options: list.map((o) => ({ label: o.label, command: { type: "workflow", runId, op, value: o.value } as Command })) });
+  ctx.blocks.push({ kind: "options", label, options: withChoices(runId, list.map((o) => ({ label: o.label, command: { type: "workflow", runId, op, value: o.value } as Command }))) });
 }
 
 const continueCommand = (runId: string): Command => ({ type: "workflow", runId, op: "continue" });
@@ -135,6 +136,7 @@ async function runInner(ctx: TurnCtx, input: WorkflowInput, active: ActiveRun | 
       return runInner(ctx, { runId: row.id, text: input.text }, { id: row.id, workflow: input.start });
     }
     say(ctx, OPENING_QUESTIONS[input.start]);
+    ctx.blocks.push({ kind: "options", label: "Or", options: withChoices(row.id, [{ label: "What Needs My Attention?", command: { type: "attention" } }], input.start) });
     return { mood: "clarify", run: { id: row.id, workflow: input.start } };
   }
 
@@ -272,7 +274,7 @@ const WHO: Record<string, string> = { green: "Admin can go ahead", amber: "Owner
 function policyLines(p: PolicySnapshot): string[] {
   return p.definition.rules.map((r) => {
     const when = CATEGORY_CONFIG[p.category].numeric ? describeRange(p.category, r.range) : r.financialImpact === "yes" ? "Fees affected" : r.financialImpact === "no" ? "No fee change" : "Any";
-    return `${r.label} (${when}): ${r.colour === "green" ? "Green" : r.colour === "amber" ? "Amber" : "Red"}, ${WHO[r.colour].toLowerCase()}.`;
+    return `${r.label} (${when}): ${r.colour === "green" ? "Green" : r.colour === "amber" ? "Yellow" : "Red"}, ${WHO[r.colour].toLowerCase()}.`;
   });
 }
 
@@ -407,7 +409,7 @@ async function pipeline(env: Env, p: Pipeline, spec: PipelineSpec): Promise<Out>
     case "complete_details":
       say(ctx, "Some required details are missing on the request, so it can't go to the owner or be approved yet. Complete them on the request, then come back and press Continue.");
       ctx.blocks.push({ kind: "found", items: [`Request: ${req?.reference}`], links: [{ label: "Complete Missing Details", href: `/requests/${p.requestId}?details=1` }] });
-      ctx.blocks.push({ kind: "options", label: "Next", options: [{ label: "Continue", command: continueCommand(env.runId) }] });
+      ctx.blocks.push({ kind: "options", label: "Next", options: withChoices(env.runId, [{ label: "Continue", command: continueCommand(env.runId) }]) });
       return waiting("complete_details");
     case "declined":
       p.stopped = true;

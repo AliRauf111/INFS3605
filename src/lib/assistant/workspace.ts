@@ -7,6 +7,8 @@ export const LAUNCHER = { right: 24, size: 76 } as const;
 export const COLUMN_GAP = 16;
 /** Below this width the workspace uses the whole screen so messages and controls aren't cramped. */
 export const FULL_WIDTH_BELOW = 600;
+/** The workspace keeps at least this width when the rail stays in view; otherwise it covers the rail too. */
+export const MIN_BESIDE_RAIL = 520;
 /** The conversation and composer never grow wider than this, so lines stay readable. */
 export const READING_WIDTH = 840;
 
@@ -16,6 +18,8 @@ export type ViewportBox = {
   height: number;
   /** How far the visible viewport is from the top of the layout viewport (on-screen keyboards). */
   offsetTop: number;
+  /** Width of the navigation rail on the left, which stays in view beside the workspace. 0 or missing when there is none. */
+  rail?: number;
 };
 
 export type WorkspaceGeometry = {
@@ -27,6 +31,8 @@ export type WorkspaceGeometry = {
   /** The narrow strip on the right kept clear for the floating launcher. 0 in full mode. */
   column: number;
   margin: number;
+  /** The navigation rail kept in view on the left. 0 in full mode. */
+  rail: number;
 };
 
 /** Small, even margins: a little more room on large screens. */
@@ -36,7 +42,8 @@ export function workspaceMargin(width: number): number {
 
 /**
  * The workspace covers almost the whole visible viewport. On desktop and tablet a narrow
- * column on the right stays clear for the launcher and the workspace ends just before it.
+ * column on the right stays clear for the launcher and the workspace ends just before it,
+ * and the navigation rail on the left (with the logo) stays in view.
  * On phones it uses the full width and height of what is visible above the keyboard.
  */
 export function workspaceGeometry(vp: ViewportBox): WorkspaceGeometry {
@@ -44,18 +51,22 @@ export function workspaceGeometry(vp: ViewportBox): WorkspaceGeometry {
   const height = Math.max(0, vp.height);
   const top = Math.max(0, vp.offsetTop);
   if (width < FULL_WIDTH_BELOW) {
-    return { mode: "full", top, left: 0, width, height, column: 0, margin: 0 };
+    return { mode: "full", top, left: 0, width, height, column: 0, margin: 0, rail: 0 };
   }
   const margin = workspaceMargin(width);
   const column = LAUNCHER.right + LAUNCHER.size + COLUMN_GAP;
+  // The rail stays visible only while it leaves the workspace a sensible width.
+  const wanted = Math.max(0, vp.rail ?? 0);
+  const rail = width - wanted - column - margin >= MIN_BESIDE_RAIL ? wanted : 0;
   return {
     mode: "column",
     top: top + margin,
-    left: margin,
-    width: Math.max(0, width - margin - column),
+    left: rail + margin,
+    width: Math.max(0, width - rail - margin - column),
     height: Math.max(0, height - margin * 2),
     column,
     margin,
+    rail,
   };
 }
 

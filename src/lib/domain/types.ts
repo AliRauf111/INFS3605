@@ -27,13 +27,13 @@ export type Colour = (typeof COLOURS)[number];
 
 export const COLOUR_LABELS: Record<Colour, string> = {
   green: "Green: you may follow the approved steps",
-  amber: "Amber: clarification or owner approval needed",
+  amber: "Yellow: clarification or owner approval needed",
   red: "Red: stop and escalate to the owner",
 };
 
 export const COLOUR_SHORT: Record<Colour, string> = {
   green: "Green",
-  amber: "Amber",
+  amber: "Yellow",
   red: "Red",
 };
 

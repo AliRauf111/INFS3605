@@ -55,7 +55,7 @@ export default async function KnowledgePage() {
         <p className="hint">PAY-2002 and PAY-2003 deliberately conflict (same invoice, different amounts), and PAY-2005 is deliberately stale, to show how missing or conflicting evidence blocks green.</p>
       </section>
 
-      <section>
+      <section id="lessons">
         <h2>Upcoming Lessons</h2>
         {k.lessons.length ? (
           <div className="table-wrap"><table>
@@ -84,7 +84,7 @@ export default async function KnowledgePage() {
         <h2>Procedures</h2>
         {k.articles.map((a) => (
           <details key={a.id} id={`article-${a.id}`} className="card">
-            <summary><strong>{a.title}</strong> ({a.id}, v{a.version}) {a.owner_approved && <span className="badge green">Owner Approved</span>} <DataBadge label={a.data_label} /></summary>
+            <summary><strong>{a.title}</strong> ({a.id}, v{a.version}) {a.owner_approved && <span className="badge lilac">Owner Approved</span>} <DataBadge label={a.data_label} /></summary>
             <pre>{a.body}</pre>
           </details>
         ))}

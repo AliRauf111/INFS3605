@@ -30,7 +30,7 @@ export function RulesSection({ user, versions }: { user: Pick<SessionUser, "role
             </div>
             {active ? (
               <div>
-                <p><span className="badge green">Active</span> <Link href={`/rules/${active.id}`}>{active.definition.title}, version {active.version}</Link> <small>since {formatDateTime(active.activated_at)}</small></p>
+                <p><span className="badge lilac">Active</span> <Link href={`/rules/${active.id}`}>{active.definition.title}, version {active.version}</Link> <small>since {formatDateTime(active.activated_at)}</small></p>
                 <ul>{active.definition.rules.map((r) => <li key={r.id}><ColourBadge colour={r.colour} /> {r.label}{r.range ? `: ${describeRange(cat, r.range)}` : ""}{r.financialImpact ? ` (fees affected: ${r.financialImpact})` : ""}</li>)}</ul>
               </div>
             ) : <p className="notice warning">No active version. Every {cat.replace("_", " ")} request is amber until one is activated.</p>}

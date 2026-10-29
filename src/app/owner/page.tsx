@@ -67,7 +67,7 @@ export default async function OwnerQueuePage() {
         </section>
       )}
       <h2>{owner ? "Waiting for Missing Details" : "Prepared but Not Yet Sent"} ({other.length})</h2>
-      <p className="hint">{owner ? "Required details are missing, so these can't be decided yet. They move to Requires Your Review once the details are complete." : "Amber and red requests still being clarified or not sent yet."}</p>
+      <p className="hint">{owner ? "Required details are missing, so these can't be decided yet. They move to Requires Your Review once the details are complete." : "Yellow and red requests still being clarified or not sent yet."}</p>
       {other.length === 0 ? <p className="muted">None.</p> : (
         <ul>
           {other.map(({ request: r, wf }) => (

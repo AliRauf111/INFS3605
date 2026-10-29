@@ -338,7 +338,7 @@ export function evaluate({ facts, evidence, policy }: EngineInput): DecisionResu
       policyVersionId: policy.id,
       explanation: missingInfo
         ? "Key information is missing or uncertain, so no rule can be applied yet."
-        : `None of the rules in ${def.title} cover these facts, so the default amber route applies.`,
+        : `None of the rules in ${def.title} cover these facts, so the default yellow route applies.`,
       evidence: refs,
       missing,
       blockers,
