@@ -11,7 +11,7 @@ import { CapacityCard, type CapacityPeriod, type PeriodKey } from "@/components/
 import { OverviewBoard, type Tile } from "@/components/OverviewBoard";
 import { upcomingLessons } from "@/lib/insights/data";
 import { isAway, sydneyPeriod } from "@/lib/insights/logic";
-import { activePolicies, calendarWeeks, recentEvents, studentsByBooking } from "@/lib/overview/data";
+import { activePolicies, calendarWeeks, overviewHiddenIds, recentEvents, studentsByBooking } from "@/lib/overview/data";
 import { ruleLines } from "@/lib/overview/rules";
 import { monthSeries, monthWeekStarts, niceMax, pointsChange, weekSeries, type CapacitySeries } from "@/lib/overview/capacity";
 import {
@@ -110,22 +110,24 @@ export default async function Overview({ searchParams }: { searchParams: Promise
   let calendar: Awaited<ReturnType<typeof calendarWeeks>>;
   let events: Awaited<ReturnType<typeof recentEvents>>;
   let policies: Awaited<ReturnType<typeof activePolicies>>;
+  let hidden: Set<string>;
   try {
-    [rows, lessons, calendar, events, policies] = await Promise.all([
+    [rows, lessons, calendar, events, policies, hidden] = await Promise.all([
       listRequests({ limit: 200 }).then(withWorkflowState),
       upcomingLessons(now, 8),
       calendarWeeks(from, to),
       recentEvents(2),
       activePolicies(),
+      overviewHiddenIds(),
     ]);
   } catch (e) {
     return <LoadError error={e} />;
   }
 
-  // Status cards and "Over to you"
+  // Status cards and "Over to you". Requests kept off the Overview still count in the cards.
   const cards = rows.map(asCard);
   const counts = countGroups(cards);
-  const pending = pendingRequests(cards);
+  const pending = pendingRequests(cards).filter((r) => !hidden.has(r.id));
   const students = await studentsByBooking(rows.filter((r) => pending.some((s) => s.id === r.id)).map((r) => r.booking_id ?? ""));
   const byId = new Map(rows.map((r) => [r.id, r]));
   const tiles: Tile[] = pending.map((r) => {

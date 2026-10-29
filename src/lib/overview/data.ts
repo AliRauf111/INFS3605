@@ -48,3 +48,10 @@ export async function activePolicies(): Promise<PolicyLite[]> {
   const res = await db().from("policy_versions").select("category, definition").eq("status", "active");
   return res.error ? [] : ((res.data ?? []) as PolicyLite[]);
 }
+
+/** Requests kept off the Overview cards. Empty when the database hasn't had that update yet. */
+export async function overviewHiddenIds(): Promise<Set<string>> {
+  const res = await db().from("requests").select("id").eq("overview_hidden", true);
+  if (res.error) return new Set();
+  return new Set(((res.data ?? []) as Array<{ id: string }>).map((r) => r.id));
+}
