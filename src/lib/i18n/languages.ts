@@ -11,22 +11,23 @@
 //             same on every browser and match what the server sends. Marathi and Bengali
 //             use Western digits (like Arabic), so amounts, times and booking references
 //             read the same way in every language.
+//   speech    the language for voice typing and reading replies aloud in the browser
 
 export const LANGUAGES = [
-  { code: "en", short: "EN", english: "English", native: "English", htmlLang: "en-AU", intl: "en-AU", dir: "ltr" },
-  { code: "zh-Hans", short: "普", english: "Mandarin (Simplified Chinese)", native: "普通话（简体中文）", htmlLang: "zh-Hans", intl: "zh-CN", dir: "ltr" },
-  { code: "ar", short: "ع", english: "Arabic", native: "العربية", htmlLang: "ar", intl: "ar-u-nu-latn", dir: "rtl" },
-  { code: "vi", short: "VI", english: "Vietnamese", native: "Tiếng Việt", htmlLang: "vi", intl: "vi-VN", dir: "ltr" },
-  { code: "yue-Hant", short: "粵", english: "Cantonese (Traditional Chinese)", native: "廣東話（繁體中文）", htmlLang: "yue-Hant", intl: "zh-HK", dir: "ltr" },
-  { code: "pa", short: "ਪੰ", english: "Punjabi (Gurmukhi)", native: "ਪੰਜਾਬੀ", htmlLang: "pa-Guru", intl: "en-AU", dir: "ltr" },
-  { code: "el", short: "EL", english: "Greek", native: "Ελληνικά", htmlLang: "el", intl: "el-GR", dir: "ltr" },
-  { code: "it", short: "IT", english: "Italian", native: "Italiano", htmlLang: "it", intl: "it-IT", dir: "ltr" },
-  { code: "hi", short: "हि", english: "Hindi", native: "हिन्दी", htmlLang: "hi", intl: "hi-IN", dir: "ltr" },
-  { code: "es", short: "ES", english: "Spanish", native: "Español", htmlLang: "es", intl: "es-ES", dir: "ltr" },
-  { code: "ta", short: "த", english: "Tamil", native: "தமிழ்", htmlLang: "ta", intl: "ta-IN", dir: "ltr" },
-  { code: "te", short: "తె", english: "Telugu", native: "తెలుగు", htmlLang: "te", intl: "te-IN", dir: "ltr" },
-  { code: "mr", short: "म", english: "Marathi", native: "मराठी", htmlLang: "mr", intl: "mr-IN-u-nu-latn", dir: "ltr" },
-  { code: "bn", short: "বা", english: "Bengali", native: "বাংলা", htmlLang: "bn", intl: "bn-IN-u-nu-latn", dir: "ltr" },
+  { code: "en", short: "EN", english: "English", native: "English", htmlLang: "en-AU", intl: "en-AU", dir: "ltr", speech: "en-AU" },
+  { code: "zh-Hans", short: "普", english: "Mandarin (Simplified Chinese)", native: "普通话（简体中文）", htmlLang: "zh-Hans", intl: "zh-CN", dir: "ltr", speech: "zh-CN" },
+  { code: "ar", short: "ع", english: "Arabic", native: "العربية", htmlLang: "ar", intl: "ar-u-nu-latn", dir: "rtl", speech: "ar-SA" },
+  { code: "vi", short: "VI", english: "Vietnamese", native: "Tiếng Việt", htmlLang: "vi", intl: "vi-VN", dir: "ltr", speech: "vi-VN" },
+  { code: "yue-Hant", short: "粵", english: "Cantonese (Traditional Chinese)", native: "廣東話（繁體中文）", htmlLang: "yue-Hant", intl: "zh-HK", dir: "ltr", speech: "yue-Hant-HK" },
+  { code: "pa", short: "ਪੰ", english: "Punjabi (Gurmukhi)", native: "ਪੰਜਾਬੀ", htmlLang: "pa-Guru", intl: "en-AU", dir: "ltr", speech: "pa-IN" },
+  { code: "el", short: "EL", english: "Greek", native: "Ελληνικά", htmlLang: "el", intl: "el-GR", dir: "ltr", speech: "el-GR" },
+  { code: "it", short: "IT", english: "Italian", native: "Italiano", htmlLang: "it", intl: "it-IT", dir: "ltr", speech: "it-IT" },
+  { code: "hi", short: "हि", english: "Hindi", native: "हिन्दी", htmlLang: "hi", intl: "hi-IN", dir: "ltr", speech: "hi-IN" },
+  { code: "es", short: "ES", english: "Spanish", native: "Español", htmlLang: "es", intl: "es-ES", dir: "ltr", speech: "es-ES" },
+  { code: "ta", short: "த", english: "Tamil", native: "தமிழ்", htmlLang: "ta", intl: "ta-IN", dir: "ltr", speech: "ta-IN" },
+  { code: "te", short: "తె", english: "Telugu", native: "తెలుగు", htmlLang: "te", intl: "te-IN", dir: "ltr", speech: "te-IN" },
+  { code: "mr", short: "म", english: "Marathi", native: "मराठी", htmlLang: "mr", intl: "mr-IN-u-nu-latn", dir: "ltr", speech: "mr-IN" },
+  { code: "bn", short: "বা", english: "Bengali", native: "বাংলা", htmlLang: "bn", intl: "bn-IN-u-nu-latn", dir: "ltr", speech: "bn-IN" },
 ] as const;
 
 export type Language = (typeof LANGUAGES)[number]["code"];

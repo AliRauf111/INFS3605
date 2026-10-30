@@ -271,6 +271,8 @@ export type TurnResponse = {
   blocks: Block[];
   state: AssistantState;
   mood: Mood;
+  /** The language the reply is written in (a lang attribute value), so the page can mark it. */
+  lang?: string;
 };
 
 // ---------------------------------------------------------------------------

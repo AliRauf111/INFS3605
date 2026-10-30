@@ -7,7 +7,7 @@
   "demoMode": "Demo mode",
   "welcomeLive": "Live AI is on. It only reads your messages and words summaries. Records, permissions and the owner's rules decide everything. The four shortcuts use no AI.",
   "welcomeDemo": "Demo mode: no AI service is connected. Keyword rules, current records and the owner's rules run everything, and every workflow works in full.",
-  "repliesEnglish": "Compass replies are written in English. Buttons and labels follow your chosen language.",
+  "repliesEnglish": "Compass replies in your chosen language. Messages drafted for families, the owner's own policy text and saved notes stay in English.",
   "stopReading": "Stop reading aloud",
   "startOver": "Start over",
   "settings": "Compass settings",
@@ -63,7 +63,7 @@
     "typeInstead": "Type Instead",
     "cancel": "Cancel",
     "privacy": "Voice typing uses your browser's speech service. Nothing is sent to Tutor Compass until you press Send.",
-    "englishNote": "Voice typing listens for English.",
+    "englishNote": "Voice typing listens in your chosen language. Without live AI, Compass reads typed and spoken requests in English only, so use the buttons if it doesn't follow.",
     "error": {
       "unsupported": "Voice input isn't available in this browser. Try Chrome, Edge or Safari, or type instead.",
       "blocked": "Microphone access is blocked. Allow it in your browser's site settings, then try again, or type instead.",

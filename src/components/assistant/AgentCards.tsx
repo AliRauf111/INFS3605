@@ -11,7 +11,10 @@ import { enT, type Translate } from "@/lib/i18n/core";
 import type { Format } from "@/lib/i18n/format";
 
 // Compass replies are English (see EN in Messages.tsx). Labels around them follow the page language.
-const EN = { lang: "en", dir: "auto" } as const;
+// Compass writes its replies in the reader's language, and the message sets that language,
+// so server text only needs its direction worked out. Messages to families stay English.
+const EN = { dir: "auto" } as const;
+const ENGLISH = { lang: "en", dir: "auto" } as const;
 
 // Compass's owner and enquiry cards: the briefing, decision-ready reviews, drafts and the
 // confirmation card every saved change goes through. The server holds the real state.
@@ -484,7 +487,7 @@ export function DraftCard({ block, sessionKey, state, onState, onCommand, onAnno
       ) : (
         <>
           <label htmlFor={id} className="sr-only">{block.title}</label>
-          <textarea id={id} rows={9} dir="auto" value={text} disabled={Boolean(state.p)} onChange={(e) => onState({ ...state, text: e.target.value })} />
+          <textarea id={id} rows={9} dir="auto" lang="en" value={text} disabled={Boolean(state.p)} onChange={(e) => onState({ ...state, text: e.target.value })} />
         </>
       )}
       {block.staffChecks.length > 0 && (
@@ -657,7 +660,7 @@ export function SimulatedCard({ block, onAnnounce }: { block: Extract<Block, { k
       <p className="cp-sim-tag">{t("compass.card.simulated")}</p>
       <h3 {...EN}>{block.title}</h3>
       <p className="cp-small">{t("compass.card.to", { to: block.to })}</p>
-      <div className="cp-quote"><p {...EN}>{block.body}</p></div>
+      <div className="cp-quote"><p {...ENGLISH}>{block.body}</p></div>
       <p className="cp-small" {...EN}>{block.note}</p>
       <div className="cp-row">
         <button type="button" className="cp-btn secondary" onClick={() => void copy()}>{copied ? t("compass.card.copiedButton") : t("compass.card.copyText")}</button>

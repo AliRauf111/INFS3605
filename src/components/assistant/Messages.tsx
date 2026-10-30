@@ -8,7 +8,8 @@ import { useI18n } from "@/components/i18n/I18nProvider";
 
 // Compass writes its replies in English, whatever language the page is in. Text from the
 // server is marked as English so screen readers pronounce it correctly.
-export const EN = { lang: "en", dir: "auto" } as const;
+/** Server text: the message carries the language it was written in, so only the direction is set here. */
+export const EN = { dir: "auto" } as const;
 
 // What a conversation looks like on screen: bubbles, the steps Compass actually ran,
 // what it found and the decision cards. Cards keep their own progress in `action` so
@@ -28,6 +29,8 @@ export type ChatItem = {
   blocks?: Block[];
   steps?: Step[];
   modeNote?: string;
+  /** The language Compass wrote this reply in, as a lang attribute value. */
+  lang?: string;
   error?: boolean;
   actions?: Record<number, ActionState>;
 };
@@ -198,7 +201,7 @@ export function AssistantMessage({ item, last, busy, sessionKey, onPick, onActio
     onAnnounce,
   });
   return (
-    <div className="cp-msg assistant">
+    <div className="cp-msg assistant" lang={item.lang}>
       <CompassAvatar size={28} className="cp-msg-avatar" />
       <div className="cp-msg-body">
         {item.steps && <Steps steps={item.steps} />}

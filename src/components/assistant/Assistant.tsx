@@ -14,6 +14,7 @@ import { motionReduced } from "@/lib/a11y/motion";
 import { DEMO_EPOCH_COOKIE, freshChat, readCookie } from "@/lib/demo/mode";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import type { Translate } from "@/lib/i18n/core";
+import { languageInfo } from "@/lib/i18n/languages";
 import { VOICE_MESSAGES } from "./voice-session";
 import { isNearBottom, lockPageScroll, makeSiblingsInert, scrollTargetForNew, stopMedia, workspaceGeometry, type WorkspaceGeometry } from "@/lib/assistant/workspace";
 
@@ -54,8 +55,8 @@ function voiceError(message: string, t: Translate): string {
   return key ? t(`compass.voice.error.${key}`) : message;
 }
 
-// Read aloud with an English voice alongside the English replies, so this stays English.
-function spokenText(blocks: Block[]): string {
+// Read aloud in the reader's language, with the browser's voice for that language.
+function spokenText(blocks: Block[], t: Translate): string {
   return blocks
     .map((b) => {
       switch (b.kind) {
@@ -67,11 +68,11 @@ function spokenText(blocks: Block[]): string {
         case "policy":
           return b.answer;
         case "review":
-          return `Review of ${b.request.reference}. ${b.request.statusLabel}. ${b.readiness.ready ? "Ready for a decision." : "Not ready for a clean decision."}`;
+          return `${t("reply.spoken.review", { reference: b.request.reference })} ${b.request.statusLabel}. ${t(b.readiness.ready ? "reply.spoken.ready" : "reply.spoken.notReady")}`;
         case "proposal":
-          return `${b.proposal.preview.title}. Prepared, not saved. Awaiting your confirmation.`;
+          return `${b.proposal.preview.title}. ${t("reply.spoken.proposal")}`;
         case "draft":
-          return `${b.title} prepared. Not saved and not sent.`;
+          return t("reply.spoken.draft", { title: b.title });
         default:
           return "";
       }
@@ -146,8 +147,8 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   // Set when a confirmed change was saved, so the page underneath refreshes its counts on close.
   const changedRef = useRef(false);
 
-  const voice = useVoice();
-  const speech = useSpeech();
+  const voice = useVoice(languageInfo(lang).speech);
+  const speech = useSpeech(languageInfo(lang).speech);
 
   // Restore this tab's conversation, and greet once per session. Reloading the page
   // starts a fresh, empty chat; only the read-aloud setting is kept. So does any page load
@@ -492,12 +493,12 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error((json as { error?: string }).error ?? t("compass.problem", { status: res.status }));
       const turn = json as TurnResponse;
-      setItems((xs) => [...xs, { id: uid(), role: "assistant", blocks: turn.blocks, steps: turn.steps, modeNote: turn.modeNote }]);
+      setItems((xs) => [...xs, { id: uid(), role: "assistant", blocks: turn.blocks, steps: turn.steps, modeNote: turn.modeNote, lang: turn.lang }]);
       setConv(turn.state);
       setServerNote(turn.modeNote);
       setAvailable(true);
       flash(turn.mood === "success" ? "success" : turn.mood === "clarify" ? "clarify" : turn.mood === "error" ? "error" : "replying");
-      const spoken = spokenText(turn.blocks);
+      const spoken = spokenText(turn.blocks, t);
       setAnnounce(t("compass.said", { text: spoken }));
       if (readAloud) speech.speak(spoken);
     } catch (e) {
@@ -698,7 +699,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
                   <button type="button" role="menuitemcheckbox" aria-checked={readAloud} disabled={!speech.available} onClick={() => { setReadAloud((v) => !v); speech.cancel(); }}>
                     <span className={`cp-check${readAloud ? " on" : ""}`} aria-hidden="true">{readAloud ? "✓" : ""}</span> {t("compass.readAloud")}
                   </button>
-                  <p className="cp-menu-note" lang={serverNote ? "en" : undefined}>{modeNote}</p>
+                  <p className="cp-menu-note" dir="auto">{modeNote}</p>
                   {lang !== "en" && <p className="cp-menu-note">{t("compass.repliesEnglish")}</p>}
                 </div>
               )}

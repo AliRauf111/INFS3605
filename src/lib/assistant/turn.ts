@@ -11,7 +11,8 @@ import type { ProposalAction } from "@/lib/agent/permissions";
 import { approvedProcedures } from "@/lib/agent/reads";
 import { factSources, procedureChecks } from "@/lib/agent/review-logic";
 import { screenSensitive } from "@/lib/agent/sensitive";
-import { aiLanguageInstruction, tr } from "@/lib/i18n/reply";
+import { aiLanguageInstruction, replyLanguage, tr } from "@/lib/i18n/reply";
+import { languageInfo } from "@/lib/i18n/languages";
 import { toolEvaluate, toolRetrievePolicy, toolRetrieveRecords } from "@/lib/agent/tools";
 import { freeSlotsForBooking, resolveBooking } from "@/lib/context/retrieve";
 import { formatAud } from "@/lib/domain/money";
@@ -657,5 +658,5 @@ function noPolicy(ctx: Ctx, articles: Article[]): TurnResponse {
 
 function finish(ctx: Ctx, next: Next, mood: Mood): TurnResponse {
   const usedAi = ctx.live && !ctx.sensitive && !ctx.noAi && !ctx.aiDown;
-  return { mode: usedAi ? "live_ai" : "demo", modeNote: ctx.modeNote, steps: ctx.steps, blocks: ctx.blocks, state: { ...next, focus: ctx.focus, run: ctx.run }, mood };
+  return { lang: languageInfo(replyLanguage()).htmlLang, mode: usedAi ? "live_ai" : "demo", modeNote: ctx.modeNote, steps: ctx.steps, blocks: ctx.blocks, state: { ...next, focus: ctx.focus, run: ctx.run }, mood };
 }

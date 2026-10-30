@@ -1,8 +1,9 @@
-import { ACTION_RULES, type ProposalAction } from "@/lib/agent/permissions";
+import { PROPOSAL_ACTIONS, actionLabel, type ProposalAction } from "@/lib/agent/permissions";
+import { tr } from "@/lib/i18n/reply";
 import { describeRequest, formatWaiting, priorityTier, shortId, tierReason, type BriefingRow } from "@/lib/agent/briefing-logic";
 import type { AttentionBlock, AttentionItem, AttentionKey, Command } from "@/lib/assistant/logic";
-import { WORKFLOW_LABELS, type WorkflowId } from "@/lib/assistant/shortcuts";
-import { STATUS_LABELS, type Colour, type RequestStatus, type Role } from "@/lib/domain/types";
+import type { WorkflowId } from "@/lib/assistant/shortcuts";
+import { type Colour, type RequestStatus, type Role } from "@/lib/domain/types";
 import { workflowFor } from "@/lib/workflow/next-step";
 
 // Pure logic for "What Needs My Attention?". The server reads the records and the
@@ -20,14 +21,10 @@ export const ATTENTION_LABELS: Record<AttentionKey, string> = {
   outcomes: "Outcomes to Record",
 };
 
-/** The same labels for a count of one. */
-const ATTENTION_ONE: Record<AttentionKey, string> = {
-  failed: "Failed Action",
-  approval: "Decision Awaiting Approval",
-  workflows: "Workflow Waiting or Blocked",
-  clarification: "Request Needing Clarification",
-  outcomes: "Outcome to Record",
-};
+/** A category's name for a count, in the reader's language. ATTENTION_LABELS keeps the English. */
+const attentionLabel = (key: AttentionKey, count: number) => tr(`reply.att.label.${key}`, { count });
+const statusLabel = (s: RequestStatus) => tr(`domain.status.${s}`);
+const labelOf = (a: ProposalAction) => ((PROPOSAL_ACTIONS as readonly string[]).includes(a) ? actionLabel(a) : a);
 
 export const ATTENTION_LIMIT = 8;
 
@@ -71,7 +68,7 @@ const COLOUR_RANK: Record<Colour, number> = { red: 0, amber: 1, green: 2 };
 
 function cleanError(e: string): string {
   let t = e.replace(/^[a-z_]+:\s*/, "").trim();
-  if (!t) return "The database refused the change.";
+  if (!t) return tr("reply.wf.dbRefused");
   if (t.length > 160) t = `${t.slice(0, 157)}...`;
   t = t.charAt(0).toUpperCase() + t.slice(1);
   return /[.!?]$/.test(t) ? t : `${t}.`;
@@ -90,58 +87,53 @@ function requestItem(r: AttentionRequest, role: Role, now: Date): Ranked | null 
     href: `/requests/${r.id}`,
     rank: [COLOUR_RANK[r.decision], priorityTier(r), new Date(r.updated_at).getTime()],
   };
-  const meta = `${STATUS_LABELS[r.status]} · waiting ${waited}${flag ? ` · ${flag}` : ""}`;
+  const meta = `${statusLabel(r.status)} · ${tr("reply.att.waiting", { time: waited })}${flag ? ` · ${flag}` : ""}`;
   const review = (label: string): AttentionItem["action"] => ({ label, command: { type: "review", requestId: r.id } as Command });
-  const followup: AttentionItem["action"] = { label: "Prepare Follow-up", command: { type: "followup", requestId: r.id } as Command };
+  const followup: AttentionItem["action"] = { label: tr("reply.brief.next.followup"), command: { type: "followup", requestId: r.id } as Command };
 
   if (wf.queue === "review") {
-    return { ...base, category: "approval", reason: r.status === "awaiting_owner" ? "Sent to you by the admin team. Your decision is needed before anything changes." : "The owner's rules say you decide this. You can decide here without sending it to yourself.", meta, action: review("Review and Decide") };
+    return { ...base, category: "approval", reason: tr(r.status === "awaiting_owner" ? "reply.att.reason.sentToYou" : "reply.att.reason.youDecide"), meta, action: review(tr("reply.att.reviewDecide")) };
   }
   if (wf.queue === "send") {
-    if (r.status === "more_info_requested") return { ...base, category: "clarification", reason: "The owner asked for more information before deciding.", meta, action: followup };
-    return { ...base, category: "approval", reason: "The owner's rules say the owner must approve this. It hasn't been sent to the owner yet.", meta, action: review("Review and Send") };
+    if (r.status === "more_info_requested") return { ...base, category: "clarification", reason: tr("reply.brief.why.moreInfo"), meta, action: followup };
+    return { ...base, category: "approval", reason: tr("reply.att.reason.notSent"), meta, action: review(tr("reply.att.reviewSend")) };
   }
   if (wf.queue === "clarify") {
-    return { ...base, category: "clarification", reason: wf.missingDetails ? `${wf.detail}, so no rule can be applied yet.` : "Facts are missing or conflicting, so no rule can be applied yet.", meta, action: followup };
+    return { ...base, category: "clarification", reason: wf.missingDetails ? tr("reply.att.reason.missingDetail", { detail: wf.detail }) : tr("reply.brief.why.clarify"), meta, action: followup };
   }
   if (wf.queue === "record") {
-    return { ...base, category: "outcomes", reason: r.status === "ready" ? "Inside the owner's rules. Act on it, then record the outcome." : `${STATUS_LABELS[r.status]}. Act on the decision, then record the outcome.`, meta, action: review("Record Outcome") };
+    return { ...base, category: "outcomes", reason: r.status === "ready" ? tr("reply.att.reason.ready") : tr("reply.att.reason.decided", { status: statusLabel(r.status) }), meta, action: review(tr("reply.brief.next.outcome")) };
   }
   // "owner" (an admin waiting for the owner) and "done" are not the viewer's to act on.
   return null;
 }
 
-const STAGE_REASONS: Record<string, string> = {
-  waiting_owner: "Waiting for the owner's decision. Nothing changes until they decide.",
-  waiting_family: "Waiting for the family to choose or agree.",
-  waiting_tutor: "Waiting for the tutor to agree to cover.",
-  complete_details: "Blocked: the request is missing required details.",
-  confirm: "A preview is waiting for your confirmation.",
-  prepare_failed: "Blocked: the last step couldn't be prepared.",
-};
+const STAGES = ["waiting_owner", "waiting_family", "waiting_tutor", "complete_details", "confirm", "prepare_failed"] as const;
+const stageReason = (stage: string) =>
+  tr((STAGES as readonly string[]).includes(stage) ? `reply.att.stage.${stage as (typeof STAGES)[number]}` : "reply.att.stage.paused");
 
 function runItem(run: AttentionRun, role: Role, now: Date): Ranked {
   const req = run.request;
-  let reason = STAGE_REASONS[run.stage] ?? "Paused part way. Continue where you left off.";
+  let reason = stageReason(run.stage);
   let urgent = 1;
   if (req && (req.status === "approved" || req.status === "ready") && run.stage === "waiting_owner") {
-    reason = req.status === "approved" ? "The owner approved this. Continue to apply the change." : "Ready to apply. Continue to make the change.";
+    reason = tr(req.status === "approved" ? "reply.att.run.approved" : "reply.att.run.ready");
     urgent = 0;
   } else if (req?.status === "declined") {
-    reason = "The owner declined this. Continue to close the workflow.";
+    reason = tr("reply.att.run.declined");
     urgent = 0;
   } else if (req && run.stage === "waiting_owner" && role === "owner" && req.status === "awaiting_owner") {
-    reason = "Waiting for your decision. Continue to decide here.";
+    reason = tr("reply.att.run.yourDecision");
     urgent = 0;
   }
   return {
     key: `workflow:${run.id}`,
     category: "workflows",
-    title: `${WORKFLOW_LABELS[run.workflow]}: ${run.summary || "just started"}`,
+    title: `${tr(`reply.workflow.${run.workflow}`)}: ${run.summary || tr("reply.att.justStarted")}`,
     reason,
     colour: null,
-    meta: `${run.status === "waiting" ? "Waiting" : "In progress"} · updated ${formatWaiting(run.updated_at, now)} ago`,
-    action: { label: "Continue", command: { type: "workflow", runId: run.id, op: "continue" } },
+    meta: `${tr(run.status === "waiting" ? "reply.att.waitingWord" : "reply.att.inProgress")} · ${tr("reply.att.updatedAgo", { time: formatWaiting(run.updated_at, now) })}`,
+    action: { label: tr("reply.common.continue"), command: { type: "workflow", runId: run.id, op: "continue" } },
     href: req ? `/requests/${req.id}` : null,
     rank: [urgent, -new Date(run.updated_at).getTime()],
   };
@@ -153,21 +145,21 @@ export function buildAttention(input: AttentionInput): AttentionBlock {
   const runRequests = new Set(input.runs.map((r) => r.request?.id).filter(Boolean));
 
   for (const f of input.failed) {
-    const label = ACTION_RULES[f.action]?.label ?? f.action;
+    const label = labelOf(f.action);
     const action: AttentionItem["action"] = f.runId
-      ? { label: "Continue", command: { type: "workflow", runId: f.runId, op: "continue" } }
+      ? { label: tr("reply.common.continue"), command: { type: "workflow", runId: f.runId, op: "continue" } }
       : f.targetId
-        ? { label: "Open Request", command: { type: "review", requestId: f.targetId } as Command }
+        ? { label: tr("reply.common.openRequest"), command: { type: "review", requestId: f.targetId } as Command }
         : f.mine
-          ? { label: "View Details", command: { type: "proposal", proposalId: f.id } }
-          : { label: "Open Activity", href: "/activity" };
+          ? { label: tr("reply.att.viewDetails"), command: { type: "proposal", proposalId: f.id } }
+          : { label: tr("reply.att.openActivity"), href: "/activity" };
     items.push({
       key: `failed:${f.id}`,
       category: "failed",
-      title: `${label} didn't go through`,
-      reason: `${cleanError(f.error)} Nothing was changed.`,
+      title: tr("reply.att.failedTitle", { action: label }),
+      reason: `${cleanError(f.error)} ${tr("reply.common.nothingChanged")}`,
       colour: null,
-      meta: `Failed ${formatWaiting(f.created_at, now)} ago${f.mine ? "" : " · prepared by the admin team"}`,
+      meta: `${tr("reply.att.failedAgo", { time: formatWaiting(f.created_at, now) })}${f.mine ? "" : ` · ${tr("reply.att.byAdmin")}`}`,
       action,
       href: f.targetId ? `/requests/${f.targetId}` : null,
       rank: [-new Date(f.created_at).getTime()],
@@ -175,15 +167,15 @@ export function buildAttention(input: AttentionInput): AttentionBlock {
   }
 
   for (const p of input.pending) {
-    const label = ACTION_RULES[p.action]?.label ?? p.action;
+    const label = labelOf(p.action);
     items.push({
       key: `proposal:${p.id}`,
       category: "approval",
-      title: `${label}${p.target ? ` for ${p.target}` : ""}`,
-      reason: "You prepared this change and it's waiting for your confirmation. Nothing changes until you confirm.",
+      title: p.target ? tr("reply.att.forTarget", { action: label, target: p.target }) : label,
+      reason: tr("reply.att.reason.prepared"),
       colour: null,
-      meta: `Prepared ${formatWaiting(p.created_at, now)} ago`,
-      action: { label: "Open Preview", command: { type: "proposal", proposalId: p.id } },
+      meta: tr("reply.att.preparedAgo", { time: formatWaiting(p.created_at, now) }),
+      action: { label: tr("reply.att.openPreview"), command: { type: "proposal", proposalId: p.id } },
       href: null,
       rank: [-1, new Date(p.created_at).getTime()],
     });
@@ -207,11 +199,11 @@ export function buildAttention(input: AttentionInput): AttentionBlock {
     return a.key.localeCompare(b.key);
   });
   const ordered = ATTENTION_ORDER.flatMap(byCategory);
-  const counts = ATTENTION_ORDER.map((key) => ({ key, label: ATTENTION_LABELS[key], count: items.filter((i) => i.category === key).length }));
+  const counts = ATTENTION_ORDER.map((key) => ({ key, label: attentionLabel(key, 2), count: items.filter((i) => i.category === key).length }));
   const notes: string[] = [];
-  if (waitingOnOwner) notes.push(`${waitingOnOwner} request${waitingOnOwner === 1 ? " is" : "s are"} with the owner. There's nothing for you to do on ${waitingOnOwner === 1 ? "it" : "them"} until the owner decides.`);
-  if (ordered.length > ATTENTION_LIMIT) notes.push(`Showing the first ${ATTENTION_LIMIT} of ${ordered.length}. Open the Dashboard to see everything.`);
-  notes.push("Order: failed actions, then decisions awaiting approval, then workflows, then clarifications, then outcomes to record. Red before yellow before green within each.");
+  if (waitingOnOwner) notes.push(tr("reply.att.withOwner", { count: waitingOnOwner }));
+  if (ordered.length > ATTENTION_LIMIT) notes.push(tr("reply.att.showingFirst", { limit: ATTENTION_LIMIT, total: ordered.length }));
+  notes.push(tr("reply.att.order"));
 
   return {
     kind: "attention",
@@ -226,8 +218,8 @@ export function buildAttention(input: AttentionInput): AttentionBlock {
 
 /** The sentence above the list. */
 export function attentionHeadline(block: AttentionBlock): string {
-  if (block.total === 0) return "Nothing needs your attention right now. There are no decisions, clarifications, waiting workflows or failed actions.";
-  const parts = block.counts.filter((c) => c.count > 0).map((c) => `${c.count} ${(c.count === 1 ? ATTENTION_ONE[c.key] : c.label).toLowerCase()}`);
-  const joined = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0];
-  return `${block.total} item${block.total === 1 ? " needs" : "s need"} your attention: ${joined}.`;
+  if (block.total === 0) return tr("reply.att.nothing");
+  const parts = block.counts.filter((c) => c.count > 0).map((c) => tr("reply.att.part", { count: c.count, label: attentionLabel(c.key, c.count).toLowerCase() }));
+  const joined = parts.length > 1 ? tr("reply.att.join", { list: parts.slice(0, -1).join(", "), last: parts.at(-1) }) : parts[0];
+  return tr("reply.att.headline", { count: block.total, list: joined });
 }

@@ -1,5 +1,6 @@
 import { enT, type Translate } from "./core";
 import { languageInfo, type Language } from "./languages";
+import { makeFormat, type Format } from "./format";
 
 // Compass writes its replies on the server, in code the browser also imports for types and
 // small helpers. The assistant routes set the reader's language for one turn (see
@@ -33,3 +34,6 @@ export function aiLanguageInstruction(): string {
   const { english } = languageInfo(lang);
   return `Write in ${english}. Keep booking, invoice and request IDs (such as BK-1042), amounts, dates, policy IDs and product names (Tutor Compass, Compass AI, Knowledge Hub) exactly as given. Keep the meaning exact: never soften, strengthen or change a rule, a colour or a decision.`;
 }
+
+/** Numbers, money and dates for the reader, for helpers that take a Format. */
+export const replyFormat = (): Format => makeFormat(replyLanguage(), tr);

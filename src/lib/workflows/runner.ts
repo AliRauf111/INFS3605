@@ -14,7 +14,7 @@ import { formatAud } from "@/lib/domain/money";
 import type { RequestStatus, TriState } from "@/lib/domain/types";
 import { CATEGORY_CONFIG, describeRange, policyVersionLabel, type PolicySnapshot } from "@/lib/engine/policy";
 import type { FactsForm } from "@/lib/validation/facts";
-import { tr } from "@/lib/i18n/reply";
+import { replyFormat, tr } from "@/lib/i18n/reply";
 import { reminderLabel, type ReminderKind, daysBetween, formatDay, formatRange, formatSlot, hoursUntil, parseExtension, parseRange, reminderSchedule, sydneyToday } from "./dates";
 import {
   APPLY_ACTION,
@@ -272,7 +272,7 @@ export function applyText(d: WorkflowData, awaiting: string | null, raw: string,
 
 function policyLines(p: PolicySnapshot): string[] {
   return p.definition.rules.map((r) => {
-    const when = CATEGORY_CONFIG[p.category].numeric ? describeRange(p.category, r.range) : tr(`reply.wf.fee.${r.financialImpact === "yes" || r.financialImpact === "no" ? r.financialImpact : "any"}`);
+    const when = CATEGORY_CONFIG[p.category].numeric ? describeRange(p.category, r.range, tr, replyFormat()) : tr(`reply.wf.fee.${r.financialImpact === "yes" || r.financialImpact === "no" ? r.financialImpact : "any"}`);
     return tr("reply.wf.policyLine", { rule: r.label, when, colour: tr(`reply.colour.${r.colour}`), who: tr(`reply.wf.who.${r.colour}`) });
   });
 }

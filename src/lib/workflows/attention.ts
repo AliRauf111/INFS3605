@@ -8,6 +8,7 @@ import type { TurnCtx } from "@/lib/assistant/owner";
 import type { AttentionBlock, Mood } from "@/lib/assistant/logic";
 import type { RequestStatus } from "@/lib/domain/types";
 import { countMissing } from "@/lib/workflow/next-step";
+import { tr } from "@/lib/i18n/reply";
 import { buildAttention, attentionHeadline, type AttentionFailure, type AttentionProposal, type AttentionRun } from "./attention-logic";
 import { RunStateSchema, type WorkflowData } from "./logic";
 import { openRuns } from "./records";
@@ -107,8 +108,8 @@ export async function attentionTurn(ctx: TurnCtx): Promise<Mood> {
   const { user } = ctx;
   try {
     const block = await readAttention(user, new Date());
-    ctx.steps.push({ label: "Reading unfinished requests, your workflows, your previews and failed actions", state: "done" });
-    ctx.steps.push({ label: "Applying your permissions and the next-step rules", state: "done" });
+    ctx.steps.push({ label: tr("reply.att.stepReading"), state: "done" });
+    ctx.steps.push({ label: tr("reply.att.stepApplying"), state: "done" });
     ctx.blocks.push({ kind: "text", text: attentionHeadline(block) });
     ctx.blocks.push(block);
     await logActivity({
@@ -119,8 +120,8 @@ export async function attentionTurn(ctx: TurnCtx): Promise<Mood> {
     return block.total === 0 ? "success" : "neutral";
   } catch (e) {
     console.error("[compass] attention failed:", e instanceof Error ? e.message : e);
-    ctx.steps.push({ label: "Reading what needs attention", state: "failed" });
-    ctx.blocks.push({ kind: "notice", tone: "error", text: "I couldn't read everything that needs attention just now, so I won't guess. Nothing was changed. Try again shortly, or open the Dashboard to check." });
+    ctx.steps.push({ label: tr("reply.att.stepFailed"), state: "failed" });
+    ctx.blocks.push({ kind: "notice", tone: "error", text: tr("reply.att.readFailed") });
     return "error";
   }
 }
