@@ -7,7 +7,7 @@
   "demoMode": "Modalità demo",
   "welcomeLive": "L'IA attiva è accesa. Legge solo i tuoi messaggi e scrive i riepiloghi. Archivi, permessi e regole del titolare decidono tutto. Le quattro scorciatoie non usano l'IA.",
   "welcomeDemo": "Modalità demo: nessun servizio di IA collegato. Regole per parole chiave, archivi attuali e regole del titolare gestiscono tutto, e ogni flusso di lavoro funziona per intero.",
-  "repliesEnglish": "Compass risponde in inglese. Pulsanti ed etichette seguono la lingua che scegli.",
+  "repliesEnglish": "Compass risponde nella lingua che scegli. I messaggi preparati per le famiglie, il testo delle politiche del titolare e le note salvate restano in inglese.",
   "stopReading": "Interrompi la lettura ad alta voce",
   "startOver": "Ricomincia",
   "settings": "Impostazioni di Compass",
@@ -63,7 +63,7 @@
     "typeInstead": "Scrivi invece",
     "cancel": "Annulla",
     "privacy": "La dettatura usa il servizio vocale del tuo browser. Non viene inviato nulla a Tutor Compass finché non premi Invia.",
-    "englishNote": "La dettatura ascolta in inglese.",
+    "englishNote": "La dettatura vocale ascolta nella lingua che scegli. Senza IA in tempo reale, Compass capisce solo richieste scritte e parlate in inglese, quindi usa i pulsanti se non ti segue.",
     "error": {
       "unsupported": "L'input vocale non è disponibile in questo browser. Prova Chrome, Edge o Safari, oppure scrivi.",
       "blocked": "L'accesso al microfono è bloccato. Consentilo nelle impostazioni del sito del browser e riprova, oppure scrivi.",
