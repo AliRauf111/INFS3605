@@ -7,7 +7,7 @@
   "demoMode": "Modo demo",
   "welcomeLive": "La IA en directo está activada. Solo lee tus mensajes y redacta resúmenes. Los registros, los permisos y las reglas del propietario lo deciden todo. Los cuatro accesos directos no usan IA.",
   "welcomeDemo": "Modo demo: no hay ningún servicio de IA conectado. Las reglas por palabras clave, los registros actuales y las reglas del propietario lo gestionan todo, y cada flujo de trabajo funciona por completo.",
-  "repliesEnglish": "Compass responde en inglés. Los botones y las etiquetas siguen el idioma que elijas.",
+  "repliesEnglish": "Compass responde en el idioma que elijas. Los mensajes redactados para las familias, el texto de las políticas del propietario y las notas guardadas siguen en inglés.",
   "stopReading": "Dejar de leer en voz alta",
   "startOver": "Empezar de nuevo",
   "settings": "Ajustes de Compass",
@@ -63,7 +63,7 @@
     "typeInstead": "Escribir en su lugar",
     "cancel": "Cancelar",
     "privacy": "El dictado por voz usa el servicio de voz de tu navegador. No se envía nada a Tutor Compass hasta que pulses Enviar.",
-    "englishNote": "El dictado por voz escucha en inglés.",
+    "englishNote": "El dictado por voz escucha en el idioma que elijas. Sin IA en vivo, Compass solo entiende peticiones escritas y habladas en inglés, así que usa los botones si no te sigue.",
     "error": {
       "unsupported": "La entrada de voz no está disponible en este navegador. Prueba Chrome, Edge o Safari, o escribe.",
       "blocked": "El acceso al micrófono está bloqueado. Permítelo en los ajustes del sitio de tu navegador y vuelve a intentarlo, o escribe.",
