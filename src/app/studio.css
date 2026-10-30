@@ -277,7 +277,7 @@ html[data-motion="reduce"] :is(.studio, .compass-root) .bot, html[data-motion="r
   .wordmark { font-size:1.062rem; order:0; }
   .top-actions { order:1; margin-inline-start:auto; }
   .profile .avatar { width:31px; height:31px; }
-  .topbar .tabs { order:2; width:100%; justify-content:space-around; padding:4px; }
+  .topbar .tabs { order:2; width:100%; min-width:0; justify-content:space-around; padding:4px; flex-wrap:wrap; row-gap:2px; border-radius:24px; } /* longer names (Tamil, for example) wrap to a second row rather than shrinking */
   .topbar .tabs :is(button, a) { padding:10px; font-size:0.625rem; }
   .edition { display:none; }
   .workspace > main { padding:14px 17px; }

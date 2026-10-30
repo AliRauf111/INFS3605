@@ -24,7 +24,12 @@ export const POST = apiRoute(async (req) => {
   if (user) {
     const { error } = await db().from("app_users").update({ preferred_language: language }).eq("id", user.id);
     if (!error) saved = "account";
-    else console.warn("[language] not saved to the account, keeping it on this device", error.code ?? error.message);
+    else {
+      // For example a database that hasn't had the newer languages added yet. Clear the
+      // older account choice so it doesn't win over the one kept on this device.
+      console.warn("[language] not saved to the account, keeping it on this device", error.code ?? error.message);
+      await db().from("app_users").update({ preferred_language: null }).eq("id", user.id);
+    }
   }
 
   const res = NextResponse.json({ ok: true, language, saved });
