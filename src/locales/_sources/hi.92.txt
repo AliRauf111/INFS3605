@@ -264,3 +264,6 @@ reply.spoken.proposal=तैयार, सहेजा नहीं गया।
 reply.spoken.draft={{title}} तैयार। सहेजा नहीं गया और भेजा नहीं गया।
 compass.repliesEnglish=Compass आपकी चुनी हुई भाषा में जवाब देता है। परिवारों के लिए लिखे संदेश, मालिक की नीति का पाठ और सहेजे गए नोट अंग्रेज़ी में ही रहते हैं।
 compass.voice.englishNote=वॉइस टाइपिंग आपकी चुनी हुई भाषा में सुनती है। लाइव AI के बिना Compass टाइप किए और बोले गए अनुरोध केवल अंग्रेज़ी में समझता है, इसलिए अगर वह न समझे तो बटन इस्तेमाल करें।
+
+# Second review pass: school year label was left in English.
+subjects.year=कक्षा {{year}}

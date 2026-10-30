@@ -264,3 +264,7 @@ reply.spoken.proposal=ਤਿਆਰ, ਸੇਵ ਨਹੀਂ ਹੋਇਆ। ਤ�
 reply.spoken.draft={{title}} ਤਿਆਰ। ਸੇਵ ਨਹੀਂ ਹੋਇਆ ਅਤੇ ਭੇਜਿਆ ਨਹੀਂ ਗਿਆ।
 compass.repliesEnglish=Compass ਤੁਹਾਡੀ ਚੁਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਜਵਾਬ ਦਿੰਦਾ ਹੈ। ਪਰਿਵਾਰਾਂ ਲਈ ਲਿਖੇ ਸੁਨੇਹੇ, ਮਾਲਕ ਦੀ ਨੀਤੀ ਦੀ ਲਿਖਤ ਅਤੇ ਸੇਵ ਕੀਤੇ ਨੋਟ ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਹੀ ਰਹਿੰਦੇ ਹਨ।
 compass.voice.englishNote=ਵੌਇਸ ਟਾਈਪਿੰਗ ਤੁਹਾਡੀ ਚੁਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਸੁਣਦੀ ਹੈ। ਲਾਈਵ AI ਤੋਂ ਬਿਨਾਂ Compass ਟਾਈਪ ਕੀਤੀਆਂ ਅਤੇ ਬੋਲੀਆਂ ਬੇਨਤੀਆਂ ਸਿਰਫ਼ ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਸਮਝਦਾ ਹੈ, ਇਸ ਲਈ ਜੇ ਉਹ ਨਾ ਸਮਝੇ ਤਾਂ ਬਟਨ ਵਰਤੋ।
+
+# Second review pass: school year label was left in English.
+subjects.year=ਜਮਾਤ {{year}}
+subjects.yearCode=ਜਮਾਤ {{year}} ({{code}})

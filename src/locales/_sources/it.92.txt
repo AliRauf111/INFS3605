@@ -264,3 +264,7 @@ reply.spoken.proposal=Preparata, non salvata. In attesa della tua conferma.
 reply.spoken.draft={{title}} preparata. Non salvata e non inviata.
 compass.repliesEnglish=Compass risponde nella lingua che scegli. I messaggi preparati per le famiglie, il testo delle politiche del titolare e le note salvate restano in inglese.
 compass.voice.englishNote=La dettatura vocale ascolta nella lingua che scegli. Senza IA in tempo reale, Compass capisce solo richieste scritte e parlate in inglese, quindi usa i pulsanti se non ti segue.
+
+# Second review pass: school year label was left in English.
+subjects.year=Anno {{year}}
+subjects.yearCode=Anno {{year}} ({{code}})

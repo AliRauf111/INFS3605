@@ -1,5 +1,5 @@
 {
-  "year": "Year {{year}}",
+  "year": "Anno {{year}}",
   "intro": "Corsi HSC del Nuovo Galles del Sud per Year 11 e 12. Codici come MTH1011 sono codici di categoria di Tutor Compass, non numeri di corso NESA. Un tutor corrisponde solo se insegna esattamente quel corso e quell'anno. I nomi dei corsi sono i titoli ufficiali in inglese.",
   "needsUpdate": "Il database ha bisogno dell'aggiornamento del catalogo delle materie.",
   "needsUpdateText": "Fino ad allora puoi consultare il catalogo, ma non si può salvare nulla.",
@@ -37,7 +37,7 @@
   "catalogue": "Catalogo",
   "switchOn": "Attiva un corso quando l'attività inizia a offrirlo.",
   "ownerSwitches": "Solo il titolare può attivare o disattivare i corsi.",
-  "yearCode": "Year {{year}} ({{code}})",
+  "yearCode": "Anno {{year}} ({{code}})",
   "notYearCourse": "Non è un corso di Year {{year}}",
   "offered": "Offerto",
   "notOffered": "Non offerto",

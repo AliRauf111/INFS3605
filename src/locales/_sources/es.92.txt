@@ -264,3 +264,7 @@ reply.spoken.proposal=Preparado, sin guardar. Pendiente de tu confirmación.
 reply.spoken.draft={{title}} preparado. Sin guardar y sin enviar.
 compass.repliesEnglish=Compass responde en el idioma que elijas. Los mensajes redactados para las familias, el texto de las políticas del propietario y las notas guardadas siguen en inglés.
 compass.voice.englishNote=El dictado por voz escucha en el idioma que elijas. Sin IA en vivo, Compass solo entiende peticiones escritas y habladas en inglés, así que usa los botones si no te sigue.
+
+# Second review pass: school year label was left in English.
+subjects.year=Año {{year}}
+subjects.yearCode=Año {{year}} ({{code}})
