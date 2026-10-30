@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "इंग्रजी",
+    "mathematics": "गणित",
+    "science": "विज्ञान",
+    "business_humanities": "व्यवसाय आणि मानव्यविद्या",
+    "history": "इतिहास",
+    "technology_design": "तंत्रज्ञान आणि डिझाइन",
+    "creative_arts": "सर्जनशील कला",
+    "health_community": "आरोग्य आणि समाज",
+    "languages": "भाषा",
+    "vocational": "व्यावसायिक शिक्षण"
+  }
+}

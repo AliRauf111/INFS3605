@@ -1,4 +1,4 @@
-// The ten languages Tutor Compass is offered in. English is the default and the fallback
+// The languages Tutor Compass is offered in. English is the default and the fallback
 // for any text a translation doesn't have yet. Mandarin and Cantonese are separate
 // languages with their own translations, not one Chinese with two scripts.
 //
@@ -8,7 +8,9 @@
 //   intl      the locale for dates, numbers and money (Cantonese uses Hong Kong formats,
 //             which browsers support more widely than "yue"). Punjabi uses Australian English
 //             formats because Chrome has no Punjabi date data, so dates and amounts look the
-//             same on every browser and match what the server sends.
+//             same on every browser and match what the server sends. Marathi and Bengali
+//             use Western digits (like Arabic), so amounts, times and booking references
+//             read the same way in every language.
 
 export const LANGUAGES = [
   { code: "en", short: "EN", english: "English", native: "English", htmlLang: "en-AU", intl: "en-AU", dir: "ltr" },
@@ -21,6 +23,10 @@ export const LANGUAGES = [
   { code: "it", short: "IT", english: "Italian", native: "Italiano", htmlLang: "it", intl: "it-IT", dir: "ltr" },
   { code: "hi", short: "हि", english: "Hindi", native: "हिन्दी", htmlLang: "hi", intl: "hi-IN", dir: "ltr" },
   { code: "es", short: "ES", english: "Spanish", native: "Español", htmlLang: "es", intl: "es-ES", dir: "ltr" },
+  { code: "ta", short: "த", english: "Tamil", native: "தமிழ்", htmlLang: "ta", intl: "ta-IN", dir: "ltr" },
+  { code: "te", short: "తె", english: "Telugu", native: "తెలుగు", htmlLang: "te", intl: "te-IN", dir: "ltr" },
+  { code: "mr", short: "म", english: "Marathi", native: "मराठी", htmlLang: "mr", intl: "mr-IN-u-nu-latn", dir: "ltr" },
+  { code: "bn", short: "বা", english: "Bengali", native: "বাংলা", htmlLang: "bn", intl: "bn-IN-u-nu-latn", dir: "ltr" },
 ] as const;
 
 export type Language = (typeof LANGUAGES)[number]["code"];

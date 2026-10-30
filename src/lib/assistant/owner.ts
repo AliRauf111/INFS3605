@@ -69,6 +69,8 @@ export type TurnCtx = {
   mood: Mood;
   modeNote: string;
   focus: Focus | null;
+  /** Set when live AI was tried and failed this turn, so the reply isn't labelled as AI. */
+  aiDown?: boolean;
 };
 
 const say = (ctx: TurnCtx, text: string) => ctx.blocks.push({ kind: "text", text });

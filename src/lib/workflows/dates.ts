@@ -2,6 +2,8 @@
 // due date and the reminder schedule. Dates are plain calendar days in Sydney, written
 // YYYY-MM-DD. Nothing here reads the clock: callers pass "today", so it is unit tested.
 
+import { replyIntl, tr } from "@/lib/i18n/reply";
+
 const TZ = "Australia/Sydney";
 const DAY_MS = 86_400_000;
 
@@ -122,11 +124,10 @@ export function parseExtension(text: string, dueDate: string | null, today: stri
 export type ReminderKind = "before_due" | "due_today" | "overdue";
 export type Reminder = { date: string; kind: ReminderKind };
 
-export const REMINDER_LABELS: Record<ReminderKind, string> = {
-  before_due: "Reminder before the due date",
-  due_today: "Due today reminder",
-  overdue: "Overdue reminder",
-};
+/** The reminder's name, in the reader's language. */
+export function reminderLabel(kind: ReminderKind): string {
+  return tr(`reply.reminder.${kind}`);
+}
 
 /** Three days before (if still ahead), on the day (if not past) and three days after. */
 export function reminderSchedule(newDue: string, today: string): Reminder[] {
@@ -138,19 +139,25 @@ export function reminderSchedule(newDue: string, today: string): Reminder[] {
   return out;
 }
 
-/** "Fri 24 Oct 2026". */
-export function formatDay(iso: string): string {
-  return new Date(toUtc(iso)).toLocaleDateString("en-AU", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short", year: "numeric" });
+/** "Fri 24 Oct 2026". Text that is saved passes "en-AU" so records read the same for everyone. */
+export function formatDay(iso: string, intl = replyIntl()): string {
+  return new Date(toUtc(iso)).toLocaleDateString(intl, { timeZone: "UTC", weekday: "short", day: "numeric", month: "short", year: "numeric" });
 }
 
 /** "24 to 26 Oct 2026", or one day. */
-export function formatRange(start: string, end: string): string {
-  return start === end ? formatDay(start) : `${formatDay(start)} to ${formatDay(end)}`;
+export function formatRange(start: string, end: string, intl = replyIntl()): string {
+  if (start === end) return formatDay(start, intl);
+  return intl === "en-AU" ? `${formatDay(start, intl)} to ${formatDay(end, intl)}` : tr("reply.range", { start: formatDay(start, intl), end: formatDay(end, intl) });
 }
 
 /** "Thu 23 Oct, 4:00 pm" in Sydney time. */
-export function formatSlot(iso: string): string {
-  return new Date(iso).toLocaleString("en-AU", { timeZone: TZ, weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+export function formatSlot(iso: string, intl = replyIntl()): string {
+  return new Date(iso).toLocaleString(intl, { timeZone: TZ, weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+}
+
+/** A date and time in Sydney, such as "24 Oct 2026, 5:00 pm", for "last changed" lines. */
+export function formatStamp(iso: string, intl = replyIntl()): string {
+  return new Date(iso).toLocaleString(intl, { timeZone: TZ, day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 }
 
 /** Hours from now until the instant. Negative once it has passed. */

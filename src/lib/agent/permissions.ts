@@ -1,4 +1,5 @@
 import type { RequestStatus, Role } from "@/lib/domain/types";
+import { tr } from "@/lib/i18n/reply";
 import { CLARIFY_STATUSES, OWNER_REVIEW_STATUSES, RECORD_STATUSES, allowedTransitions, type TransitionAction } from "@/lib/workflow/next-step";
 
 // One map of what Compass may prepare, who may confirm it and from which statuses. The
@@ -132,6 +133,14 @@ export const ACTION_RULES: Record<ProposalAction, ActionRule> = {
   },
 };
 
+type ActionKey = { [A in ProposalAction]: A extends `${infer X}.${infer Y}` ? `${X}_${Y}` : never }[ProposalAction];
+const actionKey = (a: ProposalAction) => a.replace(".", "_") as ActionKey;
+
+/** The action's name in the reader's language. ACTION_RULES keeps the English one for records. */
+export const actionLabel = (a: ProposalAction): string => tr(`reply.action.${actionKey(a)}.label`);
+/** What confirming the action means, in the reader's language. */
+export const actionOutcome = (a: ProposalAction): string => tr(`reply.action.${actionKey(a)}.outcome`);
+
 /** Workflow actions that change a lesson, an invoice or a tutor's calendar. */
 export const WORKFLOW_ACTIONS: ProposalAction[] = ["booking.reschedule", "invoice.extend_due_date", "tutor.record_absence"];
 
@@ -155,7 +164,7 @@ const TRANSITION_OF: Partial<Record<ProposalAction, TransitionAction>> = {
 export function canPrepare(action: ProposalAction, role: Role, status: RequestStatus | null, missing = 0): Permission {
   const rule = ACTION_RULES[action];
   if (action === "request.send_to_owner" && role === "owner") {
-    return { ok: false, reason: "You're the owner, so there's nothing to send. Open the request and use Start Review instead.", alternative: null };
+    return { ok: false, reason: tr("reply.perm.ownerNothingToSend"), alternative: null };
   }
   if (!rule.prepare.includes(role)) {
     const alternative = status && CLARIFY_STATUSES.includes(status) && missing === 0 ? "request.send_to_owner" : null;
@@ -163,21 +172,21 @@ export function canPrepare(action: ProposalAction, role: Role, status: RequestSt
       ok: false,
       reason:
         status === "awaiting_owner"
-          ? "Only the owner can make this decision. The request is already waiting for the owner."
-          : `Only the owner can ${rule.label.toLowerCase()} a request.${alternative ? " You can send it to the owner instead." : ""}`,
+          ? tr("reply.perm.ownerOnlyWaiting")
+          : `${tr("reply.perm.ownerOnly", { action: actionLabel(action).toLowerCase() })}${alternative ? ` ${tr("reply.perm.sendInstead")}` : ""}`,
       alternative,
     };
   }
   if (rule.from && (!status || !rule.from.includes(status))) {
-    return { ok: false, reason: `${rule.label} isn't available while the request is ${status ?? "unsaved"}.`, alternative: null };
+    return { ok: false, reason: tr("reply.perm.notWhile", { action: actionLabel(action), status: status ?? tr("reply.perm.unsaved") }), alternative: null };
   }
   const transition = TRANSITION_OF[action];
   if (transition && status && !allowedTransitions({ role, status, missing }).has(transition)) {
     return {
       ok: false,
       reason: missing > 0
-        ? `${rule.label} isn't available until the missing details are complete. Use Complete Missing Details on the request first.`
-        : `${rule.label} isn't available while the request is ${status}.`,
+        ? tr("reply.perm.missingFirst", { action: actionLabel(action) })
+        : tr("reply.perm.notWhile", { action: actionLabel(action), status }),
       alternative: null,
     };
   }

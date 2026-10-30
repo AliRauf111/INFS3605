@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "ఇంగ్లీష్",
+    "mathematics": "గణితం",
+    "science": "సైన్స్",
+    "business_humanities": "వ్యాపారం మరియు మానవీయ శాస్త్రాలు",
+    "history": "చరిత్ర",
+    "technology_design": "సాంకేతికత మరియు డిజైన్",
+    "creative_arts": "సృజనాత్మక కళలు",
+    "health_community": "ఆరోగ్యం మరియు సమాజం",
+    "languages": "భాషలు",
+    "vocational": "వృత్తి విద్య"
+  }
+}

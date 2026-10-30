@@ -1,0 +1,134 @@
+{
+  "role": {
+    "owner": "मालक",
+    "admin": "ॲडमिन"
+  },
+  "requestType": {
+    "refund": "परतावा",
+    "lesson_change": "तासात बदल",
+    "payment_extension": "पेमेंट मुदतवाढ",
+    "other": "दुसरे काही"
+  },
+  "triState": {
+    "yes": "हो",
+    "no": "नाही",
+    "unsure": "निश्चित नाही"
+  },
+  "colour": {
+    "green": "हिरवा: तुम्ही मंजूर पायऱ्या पाळू शकता",
+    "amber": "पिवळा: स्पष्टीकरण किंवा मालकाची मंजुरी हवी",
+    "red": "लाल: थांबा आणि मालकाकडे पाठवा"
+  },
+  "colourShort": {
+    "green": "हिरवा",
+    "amber": "पिवळा",
+    "red": "लाल"
+  },
+  "decisionLabel": "निर्णय: {{colour}}",
+  "status": {
+    "ready": "ॲडमिनसाठी तयार",
+    "needs_clarification": "स्पष्टीकरण हवे",
+    "review_required": "मालकाची तपासणी आवश्यक",
+    "awaiting_owner": "मालकाची वाट पाहत आहे",
+    "more_info_requested": "मालकाने माहिती मागितली",
+    "approved": "मालकाने मंजूर केले",
+    "declined": "मालकाने नाकारले",
+    "closed": "बंद"
+  },
+  "action": {
+    "prepare_parent_response": "पालकांसाठी उत्तर तयार करा",
+    "prepare_tutor_message": "शिक्षकासाठी संदेश तयार करा",
+    "prepare_escalation_summary": "मालकाकडे पाठवण्यासाठी सारांश तयार करा",
+    "prepare_reschedule_proposal": "वेळ बदलण्याचा प्रस्ताव तयार करा",
+    "prepare_admin_checklist": "ॲडमिन तपाससूची तयार करा",
+    "send_to_owner": "तपासणीसाठी मालकाकडे पाठवा"
+  },
+  "draft": {
+    "parent_response": "पालकांसाठी उत्तर",
+    "tutor_message": "शिक्षकासाठी संदेश",
+    "escalation_summary": "मालकाकडे पाठवण्याचा सारांश",
+    "reschedule_proposal": "वेळ बदलण्याचा प्रस्ताव",
+    "admin_checklist": "ॲडमिन तपाससूची"
+  },
+  "dataLabel": {
+    "live_connected": "थेट जोडलेले",
+    "imported": "आयात केलेले",
+    "fictional_demo": "काल्पनिक डेमो डेटा"
+  },
+  "group": {
+    "owner": "मालकाची तपासणी आवश्यक",
+    "info": "अधिक माहिती हवी",
+    "ready": "ॲडमिनसाठी तयार"
+  },
+  "groupText": {
+    "ownerForOwner": "तुमचा निर्णय हवा आहे",
+    "ownerForAdmin": "मालकाच्या निर्णयाची वाट पाहत आहे",
+    "info": "स्पष्ट करायचे काही तपशील",
+    "readyForOwner": "निश्चित करण्यासाठी ॲडमिन टीमकडे आहे",
+    "readyForAdmin": "तपासून निश्चित करण्यासाठी तयार"
+  },
+  "groupEmpty": {
+    "owner": "कोणत्याही विनंतीला मालकाच्या तपासणीची गरज नाही.",
+    "info": "कोणतीही विनंती अधिक माहितीची वाट पाहत नाही.",
+    "ready": "सध्या कोणतीही विनंती ॲडमिनसाठी तयार नाही."
+  },
+  "card": {
+    "refundAmount": "{{amount}} परतावा",
+    "refund": "परताव्याची विनंती",
+    "extension": "भरण्यासाठी अधिक वेळ",
+    "lessonChange": "तास हलवणे",
+    "request": "एक विनंती",
+    "welfareLine": "कल्याणविषयक चिंता नोंदवली आहे. मालक हे स्वतः हाताळतील.",
+    "typeFor": "{{reference}} साठी {{type}}.",
+    "typeOnly": "{{type}}.",
+    "extensionDays_one": "भरण्यासाठी आणखी {{count}} दिवस",
+    "extensionDays_other": "भरण्यासाठी आणखी {{count}} दिवस"
+  },
+  "step": {
+    "submitted": "सादर केले",
+    "ruleCheck": "नियम तपासणी",
+    "ownerReview": "मालकाची तपासणी",
+    "recorded": "नोंदवले",
+    "reviewStarted": "तपासणी सुरू झाली",
+    "notNeeded": "गरज नाही",
+    "needsMoreFacts": "अधिक तपशील हवेत",
+    "allDone": "सर्व पायऱ्या पूर्ण",
+    "nothingLeft": "करण्यासारखे काही उरले नाही",
+    "lastStep": "ही शेवटची पायरी आहे",
+    "heading": "पायरी {{n}} / {{total}}: {{label}}",
+    "stepsAfter_one": "यानंतर एक पायरी",
+    "stepsAfter_other": "यानंतर {{count}} पायऱ्या"
+  },
+  "stepInSentence": {
+    "submitted": "सादरीकरण",
+    "ruleCheck": "नियम तपासणी",
+    "ownerReview": "मालकाची तपासणी",
+    "recorded": "नोंद"
+  },
+  "ruleHeading": {
+    "missing": "काही तपशील गहाळ आहेत",
+    "ownerWelfare": "कल्याणविषयक चिंता. हे तुम्ही स्वतः हाताळा",
+    "ownerRed": "इतर काहीही होण्यापूर्वी यासाठी तुमची तपासणी हवी",
+    "adminWelfare": "थांबा. मालकाने हे स्वतः हाताळले पाहिजे",
+    "adminRed": "इतर काहीही होण्यापूर्वी मालकाने हे तपासले पाहिजे",
+    "ownerAmber": "पुढे जाण्यापूर्वी यासाठी तुमची मंजुरी हवी",
+    "adminAmber": "पुढे जाण्यापूर्वी मालकाला विचारा",
+    "green": "तुम्ही पुढे जाऊ शकता"
+  },
+  "ruleName": {
+    "safety_complaint": "सुरक्षाविषयक तक्रार",
+    "safety_welfare": "कल्याणविषयक चिंता",
+    "default_unsupported": "यासाठी धोरण नाही",
+    "default_missing_policy": "सक्रिय धोरण नाही",
+    "default_missing_information": "गहाळ माहिती",
+    "default_no_matching_rule": "जुळणारा नियम नाही",
+    "refund_under_50": "$50 पेक्षा कमी परतावा",
+    "refund_50_to_200": "$50 ते $200 परतावा",
+    "refund_over_200": "$200 पेक्षा जास्त परतावा",
+    "lesson_change_no_fee": "शुल्कात बदल नाही",
+    "lesson_change_fee_impact": "शुल्कावर परिणाम",
+    "payment_extension_up_to_7": "7 दिवसांपर्यंत मुदतवाढ",
+    "payment_extension_8_to_30": "8 ते 30 दिवस मुदतवाढ",
+    "payment_extension_over_30": "30 दिवसांपेक्षा जास्त मुदतवाढ"
+  }
+}

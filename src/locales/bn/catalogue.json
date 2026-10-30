@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "ইংরেজি",
+    "mathematics": "গণিত",
+    "science": "বিজ্ঞান",
+    "business_humanities": "ব্যবসা ও মানবিক",
+    "history": "ইতিহাস",
+    "technology_design": "প্রযুক্তি ও ডিজাইন",
+    "creative_arts": "সৃজনশীল শিল্পকলা",
+    "health_community": "স্বাস্থ্য ও সমাজ",
+    "languages": "ভাষা",
+    "vocational": "বৃত্তিমূলক শিক্ষা"
+  }
+}

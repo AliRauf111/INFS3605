@@ -26,8 +26,10 @@ const enFlat = flatten(en as unknown as Tree);
 const others = LANGUAGE_CODES.filter((c) => c !== "en") as Exclude<Language, "en">[];
 
 describe("languages", () => {
-  it("offers exactly the ten agreed languages, English first", () => {
-    expect(LANGUAGE_CODES).toEqual(["en", "zh-Hans", "ar", "vi", "yue-Hant", "pa", "el", "it", "hi", "es"]);
+  it("offers exactly the fourteen agreed languages, English first", () => {
+    expect(LANGUAGE_CODES).toEqual([
+      "en", "zh-Hans", "ar", "vi", "yue-Hant", "pa", "el", "it", "hi", "es", "ta", "te", "mr", "bn",
+    ]);
     expect(LANGUAGES.every((l) => l.native && l.english)).toBe(true);
   });
   it("keeps Mandarin and Cantonese separate", () => {
@@ -37,6 +39,14 @@ describe("languages", () => {
   });
   it("only Arabic is right to left", () => {
     expect(LANGUAGE_CODES.filter((c) => textDirection(c) === "rtl")).toEqual(["ar"]);
+  });
+  it("names Tamil, Telugu, Marathi and Bengali in their own scripts", () => {
+    const native = Object.fromEntries(LANGUAGES.map((l) => [l.code, l.native]));
+    expect(native).toMatchObject({ ta: "தமிழ்", te: "తెలుగు", mr: "मराठी", bn: "বাংলা" });
+  });
+  it("the database check allows every listed language", () => {
+    const sql = readFileSync("supabase/migrations/20261030000002_language_preference.sql", "utf8");
+    for (const code of LANGUAGE_CODES) expect(sql).toContain(`'${code}'`);
   });
   it("picks the account choice, then the device choice, then English", () => {
     expect(pickLanguage("vi", "es")).toBe("vi");
@@ -86,6 +96,24 @@ describe("translating", () => {
     const ar = await tFor("ar");
     expect(stripIsolates(ar("schedule.lessonCount", { count: 2 }))).toBe("درسان");
     expect(stripIsolates(ar("schedule.lessonCount", { count: 5 }))).toContain("دروس");
+  });
+
+  it("uses one and other plural forms in Tamil, Telugu, Marathi and Bengali", async () => {
+    const ta = await tFor("ta");
+    expect(ta("schedule.lessonCount", { count: 1 })).toBe("1 வகுப்பு");
+    expect(ta("schedule.lessonCount", { count: 4 })).toBe("4 வகுப்புகள்");
+    const te = await tFor("te");
+    expect(te("schedule.lessonCount", { count: 2 })).toBe("2 క్లాసులు");
+    const bn = await tFor("bn");
+    expect(bn("schedule.lessonCount", { count: 3 })).toBe("3টি ক্লাস");
+    const mr = await tFor("mr");
+    expect(mr("rules.range.days", { count: 1 })).toBe("1 दिवस");
+  });
+
+  it("writes Marathi and Bengali numbers with Western digits, like the stored records", () => {
+    const intl = Object.fromEntries(LANGUAGES.map((l) => [l.code, l.intl]));
+    expect(new Intl.NumberFormat(intl.mr).format(1042)).toBe("1,042");
+    expect(new Intl.NumberFormat(intl.bn).format(42)).toBe("42");
   });
 
   it("falls back to English when a translation is missing", async () => {

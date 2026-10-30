@@ -130,3 +130,19 @@ td .badge { white-space: normal; }
   :root .workspace > main .filter-form { flex-wrap: wrap; min-inline-size: 0; max-inline-size: 100%; }
   :root .workspace > main .filter-form select { min-width: 0; flex: 1 1 9rem; }
 }
+
+/* ---- Indian scripts ----
+   The Noto fonts (see src/app/fonts.ts) come after the Latin fonts, so English words keep
+   Inter or the system font and each script uses its own Noto font. The variables are only
+   defined when the fonts load, and an undefined variable falls back to the next font. */
+:root body, :root body.app-shell {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial,
+    var(--font-tamil, "Noto Sans Tamil"), var(--font-telugu, "Noto Sans Telugu"),
+    var(--font-devanagari, "Noto Sans Devanagari"), var(--font-bengali, "Noto Sans Bengali"), sans-serif;
+}
+/* Letter spacing pulls apart the joined letters of these scripts and of Arabic, so it is
+   switched off for them. Their vowel marks also sit above and below the line, so lines get
+   a little more room. */
+:root:is(:lang(ar), :lang(hi), :lang(pa), :lang(ta), :lang(te), :lang(mr), :lang(bn)) * { letter-spacing: normal !important; }
+:root:is(:lang(hi), :lang(pa), :lang(ta), :lang(te), :lang(mr), :lang(bn)) body { line-height: 1.6; }
+:root:is(:lang(hi), :lang(pa), :lang(ta), :lang(te), :lang(mr), :lang(bn)) :is(h1, h2, h3) { line-height: 1.4; }

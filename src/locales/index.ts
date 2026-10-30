@@ -2,7 +2,7 @@ import type { Resources } from "@/lib/i18n/core";
 import type { Language } from "@/lib/i18n/languages";
 
 // Each language other than English is its own file bundle, loaded only when it is chosen,
-// so nobody downloads ten languages to read one. English is built in (see src/lib/i18n/core.ts).
+// so nobody downloads every language to read one. English is built in (see src/lib/i18n/core.ts).
 const LOADERS: Record<Exclude<Language, "en">, () => Promise<{ default: Record<string, unknown> }>> = {
   "zh-Hans": () => import("./zh-Hans"),
   ar: () => import("./ar"),
@@ -13,6 +13,10 @@ const LOADERS: Record<Exclude<Language, "en">, () => Promise<{ default: Record<s
   it: () => import("./it"),
   hi: () => import("./hi"),
   es: () => import("./es"),
+  ta: () => import("./ta"),
+  te: () => import("./te"),
+  mr: () => import("./mr"),
+  bn: () => import("./bn"),
 };
 
 /** The interface text for one language. Throws if it can't be loaded, for example offline. */

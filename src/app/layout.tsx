@@ -25,6 +25,7 @@ import { getI18n } from "@/lib/i18n/server";
 import { languageInfo } from "@/lib/i18n/languages";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { LanguageMenu } from "@/components/i18n/LanguageMenu";
+import { scriptFonts } from "@/app/fonts";
 
 export const metadata: Metadata = {
   title: { default: "Tutor Compass", template: "%s | Tutor Compass" },
@@ -49,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { lang, dir, t, resources } = await getI18n();
   return (
     // suppressHydrationWarning: the boot script below may set data-boot on <html> before React starts.
-    <html lang={languageInfo(lang).htmlLang} dir={dir} suppressHydrationWarning>
+    <html lang={languageInfo(lang).htmlLang} dir={dir} className={scriptFonts} suppressHydrationWarning>
       <head>
         {/* In <head> so it is listening before the app's script files start to load. */}
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />

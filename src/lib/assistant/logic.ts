@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { REQUEST_TYPES, TRI_STATES, type Colour, type RequestStatus, type RequestType, type Role, type TriState } from "@/lib/domain/types";
 import type { FactsForm } from "@/lib/validation/facts";
+import { replyIntl, tr } from "@/lib/i18n/reply";
 import { BUCKET_KEYS, COLOURS, type BucketKey } from "@/lib/agent/briefing-logic";
 import { PROPOSAL_ACTIONS, type ProposalAction } from "@/lib/agent/permissions";
 import type { ProposalView } from "@/lib/agent/proposal-logic";
@@ -427,45 +428,43 @@ export function nextField(task: Task): TaskField | null {
   return null;
 }
 
-const TRI_CHOICES: Choice[] = [
-  { label: "Yes", value: "yes" },
-  { label: "No", value: "no" },
-  { label: "Not sure", value: "unsure" },
+const triChoices = (): Choice[] => [
+  { label: tr("domain.triState.yes"), value: "yes" },
+  { label: tr("domain.triState.no"), value: "no" },
+  { label: tr("domain.triState.unsure"), value: "unsure" },
 ];
 
 export function questionFor(field: TaskField, task: Task): { text: string; choices: Choice[] } {
   switch (field) {
     case "requestType":
       return {
-        text: "What does the family need?",
+        text: tr("reply.q.requestType"),
         choices: [
-          { label: "Refund", value: "refund" },
-          { label: "Lesson Change", value: "lesson_change" },
-          { label: "More time to pay", value: "payment_extension" },
-          { label: "Something else", value: "other" },
+          { label: tr("domain.requestType.refund"), value: "refund" },
+          { label: tr("domain.requestType.lesson_change"), value: "lesson_change" },
+          { label: tr("reply.q.moreTime"), value: "payment_extension" },
+          { label: tr("domain.requestType.other"), value: "other" },
         ],
       };
     case "referenceId":
       return {
-        text: task.studentHint
-          ? `I couldn't match ${task.studentHint} to one booking. What is the booking reference? For example BK-1042 or FAM-07.`
-          : "I can help. What is the booking reference? For example BK-1042, FAM-07 or PAY-2001.",
+        text: task.studentHint ? tr("reply.q.noMatch", { student: task.studentHint }) : tr("reply.q.reference"),
         choices: [],
       };
     case "bookingId":
-      return { text: "That reference covers more than one booking. Which one is it?", choices: [] };
+      return { text: tr("reply.q.booking"), choices: [] };
     case "amount":
-      return { text: "How much is the family asking for, in AUD?", choices: [] };
+      return { text: tr("reply.q.amount"), choices: [] };
     case "extensionDays":
-      return { text: "How many extra days do they need to pay?", choices: [] };
+      return { text: tr("reply.q.days"), choices: [] };
     case "financialImpact":
-      return { text: "Does the change affect fees, for example a longer lesson or a cancellation fee?", choices: TRI_CHOICES };
+      return { text: tr("reply.lesson.feesQ"), choices: triChoices() };
     case "proposedSlotId":
-      return { text: "Which free time would suit?", choices: [] };
+      return { text: tr("reply.q.slot"), choices: [] };
     case "complaint":
-      return { text: "Is the family making a complaint about the service or a tutor?", choices: TRI_CHOICES };
+      return { text: tr("reply.wf.complaintQ"), choices: triChoices() };
     case "welfare":
-      return { text: "Is there any concern about a child's safety or wellbeing? If you're unsure, say so. It won't be treated as no.", choices: TRI_CHOICES };
+      return { text: tr("reply.wf.welfareQ"), choices: triChoices() };
   }
 }
 
@@ -490,19 +489,19 @@ export function taskToForm(task: Task): FactsForm {
 // Decision wording. The colour and rule come from the engine; this only labels them.
 
 export function decisionTitle(colour: Colour, needsInfo: boolean): string {
-  if (colour === "green") return "Within your authority";
-  if (colour === "red") return "Owner Review Required";
-  return needsInfo ? "More information needed" : "Owner approval required";
+  if (colour === "green") return tr("reply.decision.green");
+  if (colour === "red") return tr("reply.decision.red");
+  return tr(needsInfo ? "reply.decision.needsInfo" : "reply.decision.amber");
 }
 
 export function decisionAction(colour: Colour, type: RequestType): string {
   if (colour === "green") {
-    if (type === "refund") return "Prepare refund";
-    if (type === "lesson_change") return "Prepare lesson change";
-    if (type === "payment_extension") return "Prepare extension";
-    return "Prepare request";
+    if (type === "refund") return tr("reply.decision.prepareRefund");
+    if (type === "lesson_change") return tr("reply.decision.prepareLesson");
+    if (type === "payment_extension") return tr("reply.decision.prepareExtension");
+    return tr("reply.decision.prepareRequest");
   }
-  return colour === "red" ? "Prepare owner review" : "Prepare approval request";
+  return tr(colour === "red" ? "reply.decision.prepareReview" : "reply.decision.prepareApproval");
 }
 
 // ---------------------------------------------------------------------------
@@ -518,7 +517,7 @@ function localParts(iso: string) {
 }
 
 export function slotLabel(iso: string): string {
-  return new Date(iso).toLocaleString("en-AU", { timeZone: TZ, weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+  return new Date(iso).toLocaleString(replyIntl(), { timeZone: TZ, weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 }
 
 /** Free slots that fit the day and time of day the person mentioned. */
@@ -535,7 +534,8 @@ export function filterSlots<T extends { startsAt: string; status: string }>(slot
 }
 
 export function dayName(day: number): string {
-  return WEEKDAYS[day][0].toUpperCase() + WEEKDAYS[day].slice(1);
+  // 4 January 2026 was a Sunday, so day 0 to 6 lands on Sunday to Saturday.
+  return new Date(Date.UTC(2026, 0, 4 + day)).toLocaleDateString(replyIntl(), { timeZone: "UTC", weekday: "long" });
 }
 
 // ---------------------------------------------------------------------------
