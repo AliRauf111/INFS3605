@@ -7,7 +7,7 @@
   "demoMode": "示範模式",
   "welcomeLive": "即時 AI 開咗。佢只會讀你嘅訊息同寫摘要。所有嘢都由紀錄、權限同老闆嘅規則決定。四個捷徑唔會用 AI。",
   "welcomeDemo": "示範模式：冇連接任何 AI 服務。關鍵字規則、現有紀錄同老闆嘅規則負責晒所有嘢，每個流程都可以完整運作。",
-  "repliesEnglish": "Compass 嘅回覆用英文寫。按鈕同標籤會跟你揀嘅語言。",
+  "repliesEnglish": "Compass 用你揀嘅語言回覆。為家長草擬嘅訊息、老闆嘅政策原文同已儲存嘅備註仍然係英文。",
   "stopReading": "停止朗讀",
   "startOver": "由頭嚟過",
   "settings": "Compass 設定",
@@ -63,7 +63,7 @@
     "typeInstead": "改用打字",
     "cancel": "取消",
     "privacy": "語音輸入用你瀏覽器嘅語音服務。你撳傳送之前，乜都唔會傳去 Tutor Compass。",
-    "englishNote": "語音輸入只聽英文。",
+    "englishNote": "語音輸入會聽你揀嘅語言。冇即時 AI 嘅時候，Compass 只明英文嘅輸入同語音請求，所以如果佢唔明，請用按鈕。",
     "error": {
       "unsupported": "呢個瀏覽器用唔到語音輸入。試吓 Chrome、Edge 或者 Safari，或者改用打字。",
       "blocked": "咪高峰權限被封鎖咗。喺瀏覽器嘅網站設定度允許，再試，或者改用打字。",
