@@ -103,7 +103,7 @@ export function OverviewBoard({ tiles, counts, texts, initial, children }: {
                 <p dir="auto">{tile.line}</p>
                 <span className={`request-signal signal-${GROUP_SIGNAL[tile.group]}`}><i aria-hidden="true" />{label(tile.group)}</span>
                 <div className="tile-footer">
-                  <span className="tile-meta"><Icon name="clock" />{tile.reference ? <><bdi>{tile.reference}</bdi> · </> : null}{tile.when}</span>
+                  <span className="tile-meta"><Icon name="clock" />{tile.reference ? <><bdi>{tile.reference}</bdi> · </> : null}<span className="tile-when">{tile.when}</span></span>
                   <span className={`avatar ${AVATAR[tile.colour]}`} title={tile.who ? t("overview.student", { name: tile.who }) : undefined} aria-label={tile.who ? t("overview.studentLabel", { name: tile.who }) : undefined} role={tile.who ? "img" : undefined} aria-hidden={tile.who ? undefined : true}>{tile.initials}</span>
                 </div>
               </Link>
