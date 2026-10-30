@@ -1,18 +1,17 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { DRAFT_LABELS, type DraftKind } from "@/lib/domain/types";
+import type { DraftKind } from "@/lib/domain/types";
 import type { DraftRow } from "@/lib/data/queries";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
-const SOURCE_TEXT: Record<string, string> = {
-  template: "Template",
-  live_ai: "Written by live AI",
-  simulated: "Simulated",
-  edited: "Edited by a person",
-};
+const SOURCES = ["template", "live_ai", "simulated", "edited"] as const;
+type Source = (typeof SOURCES)[number];
+const isSource = (s: string): s is Source => (SOURCES as readonly string[]).includes(s);
 
 function DraftBox({ requestId, kind, existing, aiAvailable }: { requestId: string; kind: DraftKind; existing?: DraftRow; aiAvailable: boolean }) {
   const router = useRouter();
+  const { t } = useI18n();
   const [body, setBody] = useState(existing?.body ?? "");
   const [source, setSource] = useState(existing?.generated_by ?? "");
   const [busy, setBusy] = useState(false);
@@ -25,10 +24,10 @@ function DraftBox({ requestId, kind, existing, aiAvailable }: { requestId: strin
     try {
       const res = await fetch(`/api/requests/${requestId}/drafts`, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error ?? "That did not work.");
+      if (!res.ok) throw new Error(json.error ?? t("drafts.didNotWork"));
       return json;
     } catch (e) {
-      setMessage({ kind: "error", text: e instanceof Error ? e.message : "Could not reach the server." });
+      setMessage({ kind: "error", text: e instanceof Error ? e.message : t("drafts.unreachable") });
       return null;
     } finally {
       setBusy(false);
@@ -51,8 +50,8 @@ function DraftBox({ requestId, kind, existing, aiAvailable }: { requestId: strin
       setSource("edited");
       setMessage(
         json.warnings?.length
-          ? { kind: "warning", text: `Saved, but check this wording: "${json.warnings.join('", "')}". It may promise something that has not happened.` }
-          : { kind: "info", text: "Draft saved." },
+          ? { kind: "warning", text: t("drafts.checkWording", { words: `"${json.warnings.join('", "')}"` }) }
+          : { kind: "info", text: t("drafts.saved") },
       );
     }
   }
@@ -60,19 +59,19 @@ function DraftBox({ requestId, kind, existing, aiAvailable }: { requestId: strin
   return (
     <div className="card">
       <div className="row" style={{ justifyContent: "space-between" }}>
-        <h3 style={{ margin: 0 }}>{DRAFT_LABELS[kind]}</h3>
-        {source && <span className="badge">{SOURCE_TEXT[source] ?? source}</span>}
+        <h3 style={{ margin: 0 }}>{t(`domain.draft.${kind}`)}</h3>
+        {source && <span className="badge">{isSource(source) ? t(`drafts.source.${source}`) : source}</span>}
       </div>
-      <label htmlFor={id} className="sr-only">{DRAFT_LABELS[kind]} text</label>
-      <textarea id={id} value={body} onChange={(e) => setBody(e.target.value)} maxLength={6000} placeholder="No draft yet." style={{ marginTop: "0.5rem" }} />
+      <label htmlFor={id} className="sr-only">{t("drafts.textLabel", { kind: t(`domain.draft.${kind}`) })}</label>
+      <textarea id={id} dir="auto" value={body} onChange={(e) => setBody(e.target.value)} maxLength={6000} placeholder={t("drafts.noDraft")} style={{ marginTop: "0.5rem" }} />
       {message && <p className={`notice ${message.kind === "error" ? "error" : message.kind === "warning" ? "warning" : "info"}`} role="status" style={{ marginTop: "0.5rem" }}>{message.text}</p>}
       <div className="row" style={{ marginTop: "0.5rem" }}>
-        <button className="btn secondary small" type="button" onClick={() => prepare(false)} disabled={busy}>{body ? "Replace with template" : "Prepare draft"}</button>
-        {aiAvailable && <button className="btn secondary small" type="button" onClick={() => prepare(true)} disabled={busy}>Draft with AI</button>}
-        <button className="btn small" type="button" onClick={save} disabled={busy || !body.trim()}>Save edits</button>
+        <button className="btn secondary small" type="button" onClick={() => prepare(false)} disabled={busy}>{body ? t("drafts.replace") : t("drafts.prepare")}</button>
+        {aiAvailable && <button className="btn secondary small" type="button" onClick={() => prepare(true)} disabled={busy}>{t("drafts.withAi")}</button>}
+        <button className="btn small" type="button" onClick={save} disabled={busy || !body.trim()}>{t("drafts.saveEdits")}</button>
         {body && (
-          <button className="btn secondary small" type="button" onClick={() => navigator.clipboard?.writeText(body).then(() => setMessage({ kind: "info", text: "Copied. Paste it into your email or messaging tool." }))}>
-            Copy
+          <button className="btn secondary small" type="button" onClick={() => navigator.clipboard?.writeText(body).then(() => setMessage({ kind: "info", text: t("drafts.copied") }))}>
+            {t("drafts.copy")}
           </button>
         )}
       </div>
@@ -81,14 +80,16 @@ function DraftBox({ requestId, kind, existing, aiAvailable }: { requestId: strin
 }
 
 export function DraftsEditor({ requestId, kinds, drafts, aiAvailable, welfare }: { requestId: string; kinds: DraftKind[]; drafts: DraftRow[]; aiAvailable: boolean; welfare: boolean }) {
+  const { t } = useI18n();
   return (
     <section className="stack" aria-labelledby="drafts-heading">
       <div>
-        <h2 id="drafts-heading">Drafts</h2>
+        <h2 id="drafts-heading">{t("drafts.heading")}</h2>
         <p className="hint">
-          Drafts are for you to check, edit and send yourself. Tutor Compass never sends messages.
-          {welfare ? " For welfare cases only a restricted factual handover is offered, and it is never sent to the AI." : ""}
+          {t("drafts.hint")}
+          {welfare ? ` ${t("drafts.welfareHint")}` : ""}
         </p>
+        <p className="hint">{t("drafts.languageHint")}</p>
       </div>
       <div className="grid grid-2">
         {kinds.map((k) => <DraftBox key={k} requestId={requestId} kind={k} existing={drafts.find((d) => d.kind === k)} aiAvailable={aiAvailable} />)}

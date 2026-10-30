@@ -1,0 +1,15 @@
+{
+  "pageTitle": "Something went wrong",
+  "pageBody": "The page could not be shown. Nothing has been changed by this error.",
+  "notFoundTitle": "Not found",
+  "notFoundBody": "That page or record does not exist.",
+  "goToDashboard": "Go to the dashboard",
+  "sameOrigin": "Requests must come from the Tutor Compass app.",
+  "badJson": "The request body must be valid JSON.",
+  "notConfigured": "The server is not configured yet. See README.md.",
+  "server": "Something went wrong on the server. Check the request log before trying again.",
+  "signIn": "Please sign in.",
+  "ownerOnly": "Only the owner can do this.",
+  "adminOnly": "Only the admin team can do this.",
+  "unknownLanguage": "Choose one of the listed languages."
+}

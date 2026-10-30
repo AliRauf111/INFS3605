@@ -2,6 +2,8 @@
 import { useSyncExternalStore } from "react";
 import { DEFAULT_PREFS, applyPrefs, readSavedPrefs, samePrefs, writeSavedPrefs, type DisplayPrefs } from "@/lib/a11y/prefs";
 
+export type A11yNote = "saveFailed" | "saved" | "defaultsRestored" | "defaultsThisVisit";
+
 // Shared state for the Display and Accessibility drawer: whether it is open, the
 // preferences being previewed and the ones saved. As in the Studio design, changes preview
 // straight away, Save Preferences keeps them and closes the drawer, and closing without
@@ -12,9 +14,10 @@ export type A11yState = {
   open: boolean;
   prefs: DisplayPrefs;
   saved: DisplayPrefs;
-  message: { text: string; tone: "ok" | "error" } | null;
+  /** Translation keys, so the note follows the chosen language. */
+  message: { text: A11yNote; tone: "ok" | "error" } | null;
   /** A short note shown after the drawer closes, such as "saved". */
-  toast: string | null;
+  toast: A11yNote | null;
 };
 
 const SERVER: A11yState = { open: false, prefs: DEFAULT_PREFS, saved: DEFAULT_PREFS, message: null, toast: null };
@@ -89,18 +92,18 @@ export function updatePrefs(patch: Partial<DisplayPrefs>): void {
 export function savePrefs(): void {
   const ok = writeSavedPrefs(state.prefs);
   if (!ok) {
-    state = { ...state, message: { text: "Preferences could not be saved in this browser. You can keep previewing them while this panel is open.", tone: "error" } };
+    state = { ...state, message: { text: "saveFailed", tone: "error" } };
     emit();
     return;
   }
-  state = { ...state, saved: state.prefs, toast: "Your display preferences have been saved." };
+  state = { ...state, saved: state.prefs, toast: "saved" };
   setOpen(false);
 }
 
 export function resetPrefs(): void {
   const ok = writeSavedPrefs(null);
   updatePrefs(DEFAULT_PREFS);
-  state = { ...state, saved: DEFAULT_PREFS, message: { text: ok ? "Default display preferences restored." : "Defaults restored for this visit.", tone: "ok" } };
+  state = { ...state, saved: DEFAULT_PREFS, message: { text: ok ? "defaultsRestored" : "defaultsThisVisit", tone: "ok" } };
   emit();
 }
 

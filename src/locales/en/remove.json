@@ -1,0 +1,10 @@
+{
+  "didntWork": "That didn't work. Try again.",
+  "puttingBack": "Putting it back…",
+  "putBack": "Put back in the list",
+  "ownerOnly": "Only the owner can remove a request that is waiting for them or raises a welfare concern.",
+  "confirmLabel": "Confirm removing this request",
+  "confirmText": "Remove this request from the list? Its full record is kept, and you can put it back from this page.",
+  "removing": "Removing…",
+  "yes": "Yes, remove it"
+}

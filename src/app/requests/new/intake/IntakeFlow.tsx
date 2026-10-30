@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Wizard, type WizardState } from "@/components/Wizard";
 import type { Suggestion } from "@/lib/ai/intake-logic";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 type Result = {
   mode: "live_ai" | "simulated";
@@ -15,6 +16,7 @@ type Result = {
   dropped: string[];
 };
 
+// Fictional sample messages. They stay in English because the simulated reader only understands English.
 const EXAMPLES = [
   "Hi, this is Grace (Leo's mum). Leo missed his maths lesson last week because of a school excursion. Could we please get $30 back? Booking BK-1042. Thanks!",
   "Hello, Sophie here. Ella's lessons moved and the new time doesn't work. Can we have $75 refunded? Our family reference is FAM-07.",
@@ -26,6 +28,7 @@ export function IntakeFlow({ sessionKey, live }: { sessionKey: string; live: boo
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
+  const { t, lang } = useI18n();
 
   async function extract() {
     setBusy(true);
@@ -37,10 +40,10 @@ export function IntakeFlow({ sessionKey, live }: { sessionKey: string; live: boo
         body: JSON.stringify({ sessionKey, message }),
       });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error ?? "Extraction failed.");
+      if (!res.ok) throw new Error(body.error ?? t("intake.failed"));
       setResult(body);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Extraction failed.");
+      setError(e instanceof Error && e.message !== "Failed to fetch" ? e.message : t("common.networkError"));
     } finally {
       setBusy(false);
     }
@@ -69,34 +72,35 @@ export function IntakeFlow({ sessionKey, live }: { sessionKey: string; live: boo
         intro={
           <section className="card stack">
             <div className="row">
-              <span className="badge info">{result.mode === "live_ai" ? "Live AI" : "Simulated (no AI)"}</span>
-              <small>{result.modeNote}</small>
+              <span className="badge info">{result.mode === "live_ai" ? t("intake.liveAi") : t("intake.simulated")}</span>
+              <small lang="en" dir="auto">{result.modeNote}</small>
             </div>
-            <p>These are suggestions only. Check each one against the message. Nothing has been evaluated or saved.</p>
-            {result.warnings.map((w) => <p key={w} className="notice warning">{w}</p>)}
+            <p>{t("intake.suggestionsOnly")}</p>
+            {lang !== "en" && <p className="hint">{t("intake.englishOnly")}</p>}
+            {result.warnings.map((w) => <p key={w} className="notice warning" lang="en" dir="auto">{w}</p>)}
             {result.questions.length > 0 && (
               <div>
-                <h3>Questions to confirm</h3>
-                <ul>{result.questions.map((q) => <li key={q}>{q}</li>)}</ul>
+                <h3>{t("intake.questions")}</h3>
+                <ul lang="en" dir="auto">{result.questions.map((q) => <li key={q}>{q}</li>)}</ul>
               </div>
             )}
             {result.excerpts.length > 0 && (
               <div>
-                <h3>Supporting excerpts</h3>
-                <ul>{result.excerpts.map((e, i) => <li key={i}><strong>{e.field}:</strong> &ldquo;{e.text}&rdquo;</li>)}</ul>
+                <h3>{t("intake.excerpts")}</h3>
+                <ul lang="en" dir="auto">{result.excerpts.map((e, i) => <li key={i}><strong>{e.field}:</strong> &ldquo;{e.text}&rdquo;</li>)}</ul>
               </div>
             )}
             {result.dropped.length > 0 && (
               <details>
-                <summary>Suggestions removed because the message did not support them ({result.dropped.length})</summary>
-                <ul>{result.dropped.map((d) => <li key={d}>{d}</li>)}</ul>
+                <summary>{t("intake.dropped", { count: result.dropped.length })}</summary>
+                <ul lang="en" dir="auto">{result.dropped.map((d) => <li key={d}>{d}</li>)}</ul>
               </details>
             )}
             <details>
-              <summary>Original message</summary>
-              <pre>{message}</pre>
+              <summary>{t("intake.original")}</summary>
+              <pre dir="auto">{message}</pre>
             </details>
-            <button type="button" className="link-button" onClick={() => setResult(null)}>Start again with a different message</button>
+            <button type="button" className="link-button" onClick={() => setResult(null)}>{t("intake.startAgain")}</button>
           </section>
         }
       />
@@ -105,29 +109,30 @@ export function IntakeFlow({ sessionKey, live }: { sessionKey: string; live: boo
 
   return (
     <section className="card">
-      <p>{live ? "The message is sent to Claude, on the server, with emails and phone numbers removed." : "No AI key is configured, so a simple keyword reader suggests answers instead. It is labelled as simulated."}</p>
+      <p>{live ? t("intake.liveNote") : t("intake.simNote")}</p>
       <div className="field">
-        <label htmlFor="message">Message from a parent or tutor (fictional)</label>
-        <p className="hint">The message is treated as data. Instructions inside it cannot change rules or permissions.</p>
-        <textarea id="message" rows={8} maxLength={4000} value={message} onChange={(e) => setMessage(e.target.value)} />
+        <label htmlFor="message">{t("intake.messageLabel")}</label>
+        <p className="hint">{t("intake.messageHint")}</p>
+        <textarea id="message" dir="auto" rows={8} maxLength={4000} value={message} onChange={(e) => setMessage(e.target.value)} />
       </div>
       <details className="field">
-        <summary>Use an example message</summary>
+        <summary>{t("intake.examples")}</summary>
         <div className="stack" style={{ marginTop: "0.5rem" }}>
+          {lang !== "en" && <p className="hint">{t("intake.examplesNote")}</p>}
           {EXAMPLES.map((ex) => (
-            <button key={ex} type="button" className="btn secondary small" style={{ textAlign: "left", width: "100%" }} onClick={() => setMessage(ex)}>{ex}</button>
+            <button key={ex} type="button" className="btn secondary small" lang="en" dir="ltr" style={{ textAlign: "start", width: "100%" }} onClick={() => setMessage(ex)}>{ex}</button>
           ))}
         </div>
       </details>
       {error && (
         <div className="notice error" role="alert">
           <p>{error}</p>
-          <p>You can try again, or <Link href="/requests/new/wizard">use the manual wizard</Link>, which always works.</p>
+          <p>{t("intake.errorAfter")} <Link href="/requests/new/wizard">{t("intake.useManual")}</Link>{t("intake.alwaysWorks")}</p>
         </div>
       )}
       <div className="row">
-        <button type="button" className="btn" onClick={extract} disabled={busy || message.trim().length < 10}>{busy ? "Reading message…" : "Suggest answers"}</button>
-        <Link className="btn secondary" href="/requests/new/wizard">Use the wizard instead</Link>
+        <button type="button" className="btn" onClick={extract} disabled={busy || message.trim().length < 10}>{busy ? t("intake.reading") : t("intake.suggest")}</button>
+        <Link className="btn secondary" href="/requests/new/wizard">{t("intake.useWizard")}</Link>
       </div>
     </section>
   );

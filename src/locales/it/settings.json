@@ -1,0 +1,9 @@
+{
+  "title": "Impostazioni",
+  "intro": "Le tue preferenze di lingua e visualizzazione.",
+  "savedToAccount": "La tua lingua è salvata nel tuo account, quindi ti segue quando accedi da un altro dispositivo.",
+  "savedToDevice": "La tua lingua è ricordata su questo dispositivo. Sceglila qui per salvarla anche nel tuo account.",
+  "displayText": "Dimensione del testo, tema colori, vista essenziale, movimento ridotto e controlli più grandi si trovano nel pannello Visualizzazione e accessibilità. Usa il suo pulsante in cima a questa pagina. Queste impostazioni sono salvate in questo browser.",
+  "integrationsText": "A cosa è collegata questa installazione è indicato nella pagina Regole e copertura.",
+  "integrationsLink": "Vedi integrazioni"
+}

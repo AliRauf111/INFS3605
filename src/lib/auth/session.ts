@@ -4,6 +4,7 @@ import type { Session } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { authClient, db } from "@/lib/db/supabase";
 import type { Role } from "@/lib/domain/types";
+import { isLanguage, type Language } from "@/lib/i18n/languages";
 
 // Sign-in uses Supabase Auth, called from the server. The tokens are stored in
 // httpOnly cookies, which browser JavaScript cannot read, so the browser never talks to
@@ -12,7 +13,7 @@ import type { Role } from "@/lib/domain/types";
 
 import { ACCESS_COOKIE } from "./cookies";
 
-export type SessionUser = { id: string; email: string; displayName: string; role: Role };
+export type SessionUser = { id: string; email: string; displayName: string; role: Role; language: Language | null };
 
 export type SignInResult =
   | { ok: true; session: Session }
@@ -37,7 +38,8 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   if (error || !data.user) return null;
   const { data: profile } = await db()
     .from("app_users")
-    .select("display_name, role")
+    // Every column, so a database that hasn't added preferred_language yet still signs in.
+    .select("*")
     .eq("id", data.user.id)
     .maybeSingle();
   if (!profile) return null; // signed in to Supabase, but not a Tutor Compass user
@@ -46,11 +48,12 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
     email: data.user.email ?? "",
     displayName: profile.display_name,
     role: profile.role as Role,
+    language: isLanguage(profile.preferred_language) ? profile.preferred_language : null,
   };
 });
 
 export class AuthError extends Error {
-  constructor(public status: 401 | 403, message: string) {
+  constructor(public status: 401 | 403, message: string, public role?: Role) {
     super(message);
   }
 }
@@ -59,6 +62,6 @@ export class AuthError extends Error {
 export async function requireUser(role?: Role): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) throw new AuthError(401, "Please sign in.");
-  if (role && user.role !== role) throw new AuthError(403, `Only the ${role} can do this.`);
+  if (role && user.role !== role) throw new AuthError(403, `Only the ${role} can do this.`, role);
   return user;
 }

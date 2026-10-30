@@ -1,30 +1,36 @@
 import { InfoPage } from "@/components/InfoPage";
+import { getI18n } from "@/lib/i18n/server";
 
-export const metadata = { title: "Terms" };
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t("info.terms") };
+}
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const { t } = await getI18n();
   return (
-    <InfoPage title="Terms of use" updated="18 October 2026">
-      <p>Tutor Compass is a student project built for a university course. It is provided as it is, and it may change.</p>
+    <InfoPage title={t("info.termsPage.title")} updated="2026-10-30">
+      <p>{t("info.termsPage.intro")}</p>
       <section>
-        <h2>Who can use it</h2>
-        <p>Only people the owner of the business has given access. Keep your password to yourself and sign out on shared computers.</p>
+        <h2>{t("info.termsPage.whoHeading")}</h2>
+        <p>{t("info.termsPage.who")}</p>
       </section>
       <section>
-        <h2>What it does and doesn&apos;t do</h2>
+        <h2>{t("info.termsPage.whatHeading")}</h2>
         <ul>
-          <li>It checks each request against the rules the owner has set and shows the reason for the outcome.</li>
-          <li>It doesn&apos;t move money, issue refunds or change bookings. You still do those in your own systems, then record what you did.</li>
-          <li>Compass AI can prepare drafts and suggestions. Check them before using them. The owner&apos;s rules decide the outcome, not the AI.</li>
+          <li>{t("info.termsPage.what1")}</li>
+          <li>{t("info.termsPage.what2")}</li>
+          <li>{t("info.termsPage.what3")}</li>
+          <li>{t("info.termsPage.what4")}</li>
         </ul>
       </section>
       <section>
-        <h2>Safety and welfare</h2>
-        <p>Safety and welfare concerns always go to the owner. If someone is in danger, contact emergency services first.</p>
+        <h2>{t("info.termsPage.safetyHeading")}</h2>
+        <p>{t("info.termsPage.safety")}</p>
       </section>
       <section>
-        <h2>Not professional advice</h2>
-        <p>Nothing in Tutor Compass is legal or financial advice. The owner stays responsible for the business&apos;s decisions.</p>
+        <h2>{t("info.termsPage.adviceHeading")}</h2>
+        <p>{t("info.termsPage.advice")}</p>
       </section>
     </InfoPage>
   );

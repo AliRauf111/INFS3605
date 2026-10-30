@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { SubjectPicker } from "@/components/SubjectPicker";
 import { EMPTY_SELECTION, course, validateSelection, type Selection, type YearLevel } from "@/lib/catalogue/hsc";
 import type { RequestClass as ClassLabel } from "@/lib/data/catalogue";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 // The class this request is about, under Details. Admins and the owner can choose or
 // change it, for example when an older request had no class or its booking covers a
@@ -18,6 +19,7 @@ export function RequestClass({ requestId, saved, fromBooking, notSetUp }: {
   notSetUp: boolean;
 }) {
   const router = useRouter();
+  const { t } = useI18n();
   const [editing, setEditing] = useState(false);
   const [sel, setSel] = useState<Selection>(EMPTY_SELECTION);
   const [busy, setBusy] = useState(false);
@@ -47,11 +49,11 @@ export function RequestClass({ requestId, saved, fromBooking, notSetUp }: {
         }),
       });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error ?? "The class couldn't be saved. Try again.");
+      if (!res.ok) throw new Error(body.error ?? t("requestClass.saveFailed"));
       setEditing(false);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "The class couldn't be saved. Try again.");
+      setError(e instanceof Error ? e.message : t("requestClass.saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -63,15 +65,15 @@ export function RequestClass({ requestId, saved, fromBooking, notSetUp }: {
     <div className="rq-class">
       {shown ? (
         <div>
-          <span className="class-code">{shown.code}</span>
+          <span className="class-code"><bdi>{shown.code}</bdi></span>
           <div className="class-subject">{shown.subject}</div>
-          <div className="sub">Year {shown.year}{!saved && fromBooking ? ` · from booking ${fromBooking.bookingId}` : ""}</div>
+          <div className="sub">{t("subjects.year", { year: shown.year })}{!saved && fromBooking ? ` · ${t("requestClass.fromBooking", { id: fromBooking.bookingId })}` : ""}</div>
         </div>
       ) : (
-        <span className="muted">No class linked</span>
+        <span className="muted">{t("requestClass.none")}</span>
       )}
       {notSetUp ? (
-        <p className="hint">Choosing a class needs a quick database update first.</p>
+        <p className="hint">{t("requestClass.notSetUp")}</p>
       ) : editing ? (
         <form
           className="stack rq-class-form"
@@ -80,17 +82,17 @@ export function RequestClass({ requestId, saved, fromBooking, notSetUp }: {
             if (valid) save(sel);
           }}
         >
-          <SubjectPicker value={sel} onChange={setSel} legend="Class this request is about" />
+          <SubjectPicker value={sel} onChange={setSel} legend={t("requestClass.legend")} />
           {error && <p className="error-text" role="alert">{error}</p>}
           <div className="row">
-            <button className="btn small" type="submit" disabled={busy || !valid}>{busy ? "Saving…" : "Save class"}</button>
-            <button className="btn secondary small" type="button" disabled={busy} onClick={() => setEditing(false)}>Cancel</button>
+            <button className="btn small" type="submit" disabled={busy || !valid}>{busy ? t("common.saving") : t("requestClass.save")}</button>
+            <button className="btn secondary small" type="button" disabled={busy} onClick={() => setEditing(false)}>{t("common.cancel")}</button>
           </div>
         </form>
       ) : (
         <div className="row rq-class-actions">
-          <button type="button" className="link-btn" onClick={start}>{saved ? "Change class" : "Choose class"}</button>
-          {saved && <button type="button" className="link-btn" disabled={busy} onClick={() => save(null)}>Remove class</button>}
+          <button type="button" className="link-btn" onClick={start}>{saved ? t("requestClass.change") : t("requestClass.choose")}</button>
+          {saved && <button type="button" className="link-btn" disabled={busy} onClick={() => save(null)}>{t("requestClass.remove")}</button>}
           {error && <p className="error-text" role="alert">{error}</p>}
         </div>
       )}

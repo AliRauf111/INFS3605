@@ -4,6 +4,11 @@ import Link from "next/link";
 import type { Block, Choice, Command, Step, TaskField } from "@/lib/assistant/logic";
 import { AttentionCard, BriefingCard, ChecklistCard, DraftCard, OptionsRow, ProposalCard, ResultCard, ReviewCard, RulesCard, SimulatedCard, prepare, type CardState } from "./AgentCards";
 import { CompassAvatar } from "./CompassAvatar";
+import { useI18n } from "@/components/i18n/I18nProvider";
+
+// Compass writes its replies in English, whatever language the page is in. Text from the
+// server is marked as English so screen readers pronounce it correctly.
+export const EN = { lang: "en", dir: "auto" } as const;
 
 // What a conversation looks like on screen: bubbles, the steps Compass actually ran,
 // what it found and the decision cards. Cards keep their own progress in `action` so
@@ -30,14 +35,15 @@ export type ChatItem = {
 const ICON: Record<string, string> = { green: "✓", amber: "!", red: "■" };
 
 export function Steps({ steps }: { steps: Step[] }) {
+  const { t } = useI18n();
   if (!steps.length) return null;
   return (
-    <ul className="cp-steps" aria-label="What Compass checked">
+    <ul className="cp-steps" aria-label={t("compass.msg.checked")}>
       {steps.map((s, i) => (
         <li key={i} className={`cp-step ${s.state}`}>
           <span aria-hidden="true">{s.state === "done" ? "✓" : s.state === "blocked" ? "!" : "×"}</span>
-          {s.label}
-          <span className="sr-only">{s.state === "done" ? " (done)" : s.state === "blocked" ? " (needs attention)" : " (failed)"}</span>
+          <span {...EN}>{s.label}</span>
+          <span className="sr-only">{s.state === "done" ? t("compass.msg.stepDone") : s.state === "blocked" ? t("compass.msg.stepBlocked") : t("compass.msg.stepFailed")}</span>
         </li>
       ))}
     </ul>
@@ -45,10 +51,11 @@ export function Steps({ steps }: { steps: Step[] }) {
 }
 
 function ChoiceRow({ field, options, disabled, onPick }: { field: TaskField; options: Choice[]; disabled: boolean; onPick: (field: TaskField, c: Choice) => void }) {
+  const { t } = useI18n();
   return (
-    <div className="cp-chips" role="group" aria-label="Quick answers">
+    <div className="cp-chips" role="group" aria-label={t("compass.msg.quickAnswers")}>
       {options.map((o) => (
-        <button key={o.value} type="button" className="cp-chip" disabled={disabled} onClick={() => onPick(field, o)}>{o.label}</button>
+        <button key={o.value} type="button" className="cp-chip" {...EN} disabled={disabled} onClick={() => onPick(field, o)}>{o.label}</button>
       ))}
     </div>
   );
@@ -63,6 +70,7 @@ function DecisionCard({ block, action, onAction, sessionKey, onCommand, onAnnoun
   onAnnounce: (t: string) => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);
+  const { t } = useI18n();
   const card = action.card ?? {};
 
   // Saving goes through the same server-side approval as every other Compass change:
@@ -70,70 +78,71 @@ function DecisionCard({ block, action, onAction, sessionKey, onCommand, onAnnoun
   const start = async () => {
     onAction({ ...action, stage: "preparing", error: undefined });
     try {
-      const proposal = await prepare({ sessionKey, action: "request.create", facts: block.facts });
+      const proposal = await prepare({ sessionKey, action: "request.create", facts: block.facts }, t);
       onAction({ ...action, stage: "idle", error: undefined, card: { p: { stage: "pending", proposal } } });
-      onAnnounce("Prepared. Check what will be saved, then confirm.");
+      onAnnounce(t("compass.msg.preparedCheck"));
     } catch (e) {
-      onAction({ ...action, stage: "error", error: e instanceof Error ? e.message : "Couldn't prepare that. Nothing was saved." });
+      onAction({ ...action, stage: "error", error: e instanceof Error ? e.message : t("compass.msg.couldntPrepareNothing") });
     }
   };
 
   const done = card.p?.stage === "done" ? card.p.result : undefined;
   const doneMessage = block.requestType === "refund"
-    ? "You can now process the refund in your payment system. Tutor Compass never moves money."
+    ? t("compass.msg.doneRefund")
     : block.requestType === "lesson_change"
-      ? "You can now update the booking in your booking system. Tutor Compass doesn't change bookings."
-      : "You can now follow the next steps under this rule.";
+      ? t("compass.msg.doneLesson")
+      : t("compass.msg.doneOther");
 
   return (
-    <section className={`cp-decision ${block.colour}`} aria-label={`Decision: ${block.title}`}>
+    <section className={`cp-decision ${block.colour}`} aria-label={t("compass.msg.decision", { title: block.title })}>
       <div className="cp-decision-head">
         <span className="cp-decision-icon" aria-hidden="true">{ICON[block.colour]}</span>
-        <div>
+        <div {...EN}>
           <h3>{block.title}</h3>
           <p className="cp-rule">{block.ruleLabel}</p>
         </div>
       </div>
-      <p>{block.explanation}</p>
+      <p {...EN}>{block.explanation}</p>
       {block.missing.length > 0 && (
-        <ul className="cp-missing">{block.missing.map((m, i) => <li key={i}>{m}</li>)}</ul>
+        <ul className="cp-missing" {...EN}>{block.missing.map((m, i) => <li key={i}>{m}</li>)}</ul>
       )}
-      {block.findings && block.findings.length > 0 && <ul className="cp-warnings">{block.findings.map((f, i) => <li key={i}>{f}</li>)}</ul>}
+      {block.findings && block.findings.length > 0 && <ul className="cp-warnings" {...EN}>{block.findings.map((f, i) => <li key={i}>{f}</li>)}</ul>}
       <button type="button" className="cp-link" aria-expanded={showDetails} onClick={() => setShowDetails((v) => !v)}>
-        {showDetails ? "Hide details" : "View details"}
+        {showDetails ? t("compass.msg.hideDetails") : t("compass.msg.viewDetails")}
       </button>
       {showDetails && (
         <div className="cp-details">
           {block.sources && (
             <>
-              <strong>From records</strong>
-              <ul>{block.sources.retrieved.length ? block.sources.retrieved.map((x, i) => <li key={i}>{x}</li>) : <li>None.</li>}</ul>
-              <strong>Supplied by you</strong>
-              <ul>{block.sources.supplied.map((x, i) => <li key={i}>{x}</li>)}</ul>
-              <strong>Still missing</strong>
-              <ul>{block.sources.missing.length ? block.sources.missing.map((x, i) => <li key={i}>{x}</li>) : <li>Nothing.</li>}</ul>
+              <strong>{t("compass.msg.fromRecords")}</strong>
+              <ul>{block.sources.retrieved.length ? block.sources.retrieved.map((x, i) => <li key={i} {...EN}>{x}</li>) : <li>{t("compass.msg.noneDot")}</li>}</ul>
+              <strong>{t("compass.msg.suppliedByYou")}</strong>
+              <ul {...EN}>{block.sources.supplied.map((x, i) => <li key={i}>{x}</li>)}</ul>
+              <strong>{t("compass.msg.stillMissing")}</strong>
+              <ul>{block.sources.missing.length ? block.sources.missing.map((x, i) => <li key={i} {...EN}>{x}</li>) : <li>{t("compass.msg.nothingDot")}</li>}</ul>
             </>
           )}
           {block.nextSteps.length > 0 && (
             <>
-              <strong>Next steps under this rule</strong>
-              <ol>{block.nextSteps.map((s, i) => <li key={i}>{s}</li>)}</ol>
+              <strong>{t("compass.msg.nextSteps")}</strong>
+              <ol {...EN}>{block.nextSteps.map((s, i) => <li key={i}>{s}</li>)}</ol>
             </>
           )}
-          {block.policy && <Link href={block.policy.href}>{block.policy.label}</Link>}
+          {block.policy && <Link href={block.policy.href} {...EN}>{block.policy.label}</Link>}
         </div>
       )}
 
       {!card.p && (
         <button type="button" className="cp-btn" onClick={() => void start()} disabled={action.stage === "preparing"}>
-          {action.stage === "preparing" ? "Preparing…" : block.actionLabel}
+          {action.stage === "preparing" ? t("compass.msg.preparing") : <span {...EN}>{block.actionLabel}</span>}
         </button>
       )}
       {action.error && <p className="cp-error" role="alert">{action.error}</p>}
       {card.p && (
         <ProposalCard
           state={card.p}
-          intro="Saving creates a request in Tutor Compass with this rule result. It doesn't refund money, change a booking or send a message."
+          intro={t("compass.msg.saveIntro")}
+          introTranslated
           onState={(p) => onAction({ ...action, card: { ...card, p: p.stage === "closed" ? undefined : p }, error: p.stage === "closed" ? p.message : undefined })}
           onAnnounce={onAnnounce}
           onCommand={onCommand}
@@ -142,7 +151,7 @@ function DecisionCard({ block, action, onAction, sessionKey, onCommand, onAnnoun
       {done?.status === "ready" && <p className="cp-small">{doneMessage}</p>}
       {done?.requestId && done.status !== "ready" && done.status !== "closed" && (
         <div className="cp-row">
-          <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "followup", requestId: done.requestId! }, "Prepare Follow-up")}>Prepare Follow-up</button>
+          <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "followup", requestId: done.requestId! }, t("compass.msg.prepareFollowUp"))}>{t("compass.msg.prepareFollowUp")}</button>
         </div>
       )}
     </section>
@@ -151,17 +160,18 @@ function DecisionCard({ block, action, onAction, sessionKey, onCommand, onAnnoun
 
 function PolicyBlock({ block }: { block: Extract<Block, { kind: "policy" }> }) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
   return (
     <section className="cp-policy" aria-label={block.title}>
-      <h3>{block.title} {block.approved && <span className="cp-tag">Owner approved</span>}</h3>
-      <p>{block.answer}</p>
+      <h3><span {...EN}>{block.title}</span> {block.approved && <span className="cp-tag">{t("compass.msg.ownerApproved")}</span>}</h3>
+      <p {...EN}>{block.answer}</p>
       {block.details !== block.answer && (
         <>
-          <button type="button" className="cp-link" aria-expanded={open} onClick={() => setOpen((v) => !v)}>{open ? "Hide details" : "View details"}</button>
-          {open && <p className="cp-details">{block.details}</p>}
+          <button type="button" className="cp-link" aria-expanded={open} onClick={() => setOpen((v) => !v)}>{open ? t("compass.msg.hideDetails") : t("compass.msg.viewDetails")}</button>
+          {open && <p className="cp-details" {...EN}>{block.details}</p>}
         </>
       )}
-      <Link href={block.link.href}>{block.link.label}</Link>
+      <Link href={block.link.href} {...EN}>{block.link.label}</Link>
     </section>
   );
 }
@@ -177,6 +187,7 @@ export function AssistantMessage({ item, last, busy, sessionKey, onPick, onActio
   onAnnounce: (t: string) => void;
   onRetry: () => void;
 }) {
+  const { t } = useI18n();
   const actionFor = (i: number): ActionState => item.actions?.[i] ?? { stage: "idle", key: "" };
   const cardProps = (i: number) => ({
     sessionKey,
@@ -191,25 +202,25 @@ export function AssistantMessage({ item, last, busy, sessionKey, onPick, onActio
       <CompassAvatar size={28} className="cp-msg-avatar" />
       <div className="cp-msg-body">
         {item.steps && <Steps steps={item.steps} />}
-        {item.text && <div className={`cp-bubble ${item.error ? "error" : ""}`}>{item.text}</div>}
-        {item.error && last && <button type="button" className="cp-link" onClick={onRetry}>Try again</button>}
+        {item.text && <div className={`cp-bubble ${item.error ? "error" : ""}`} dir="auto">{item.text}</div>}
+        {item.error && last && <button type="button" className="cp-link" onClick={onRetry}>{t("compass.msg.tryAgain")}</button>}
         {item.blocks?.map((b, i) => {
           switch (b.kind) {
             case "text":
-              return <div key={i} className="cp-bubble">{b.text}</div>;
+              return <div key={i} className="cp-bubble" {...EN}>{b.text}</div>;
             case "notice":
-              return <div key={i} className={`cp-notice ${b.tone}`}>{b.text}</div>;
+              return <div key={i} className={`cp-notice ${b.tone}`} {...EN}>{b.text}</div>;
             case "choices":
               return <ChoiceRow key={i} field={b.field} options={b.options} disabled={!last || busy} onPick={onPick} />;
             case "options":
               return <OptionsRow key={i} block={b} disabled={busy} onCommand={onCommand} />;
             case "found":
               return (
-                <section key={i} className="cp-found" aria-label="What I found">
-                  <h3>What I found</h3>
-                  <ul>{b.items.map((t, j) => <li key={j}>{t}</li>)}</ul>
-                  {b.links.map((l) => <Link key={l.href} href={l.href}>{l.label}</Link>)}
-                  {b.note && <p className="cp-small">{b.note}</p>}
+                <section key={i} className="cp-found" aria-label={t("compass.msg.whatIFound")}>
+                  <h3>{t("compass.msg.whatIFound")}</h3>
+                  <ul {...EN}>{b.items.map((x, j) => <li key={j}>{x}</li>)}</ul>
+                  {b.links.map((l) => <Link key={l.href} href={l.href} {...EN}>{l.label}</Link>)}
+                  {b.note && <p className="cp-small" {...EN}>{b.note}</p>}
                 </section>
               );
             case "policy":

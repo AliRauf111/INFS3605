@@ -1,3 +1,4 @@
+import type { Translate } from "@/lib/i18n/core";
 import "server-only";
 import { db } from "@/lib/db/supabase";
 import type { Colour, DraftKind, RequestStatus, RequestType, Role, TriState } from "@/lib/domain/types";
@@ -126,7 +127,7 @@ export async function withWorkflowState<T extends RequestRow>(rows: T[]): Promis
 }
 
 /** The shared next step for a row that went through withWorkflowState. */
-export function rowWorkflow(row: RequestRow, role: Role) {
+export function rowWorkflow(row: RequestRow, role: Role, t?: Translate) {
   return workflowFor({
     role,
     status: row.status,
@@ -134,7 +135,7 @@ export function rowWorkflow(row: RequestRow, role: Role) {
     reviewStartedAt: row.owner_review_started_at ?? null,
     colour: row.decision,
     welfare: row.welfare_status === "yes",
-  });
+  }, t);
 }
 
 export type ListVisibility = { hiddenAt: string | null; hiddenBy: string | null; archivedAt: string | null } | "not_set_up";

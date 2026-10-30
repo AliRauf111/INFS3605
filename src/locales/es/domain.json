@@ -1,0 +1,136 @@
+{
+  "role": {
+    "owner": "Propietario",
+    "admin": "Administrador"
+  },
+  "requestType": {
+    "refund": "Reembolso",
+    "lesson_change": "Cambio de clase",
+    "payment_extension": "Prórroga de pago",
+    "other": "Otra cosa"
+  },
+  "triState": {
+    "yes": "Sí",
+    "no": "No",
+    "unsure": "No estoy seguro"
+  },
+  "colour": {
+    "green": "Verde: puedes seguir los pasos aprobados",
+    "amber": "Amarillo: hace falta aclarar o la aprobación del propietario",
+    "red": "Rojo: para y escala al propietario"
+  },
+  "colourShort": {
+    "green": "Verde",
+    "amber": "Amarillo",
+    "red": "Rojo"
+  },
+  "decisionLabel": "Decisión: {{colour}}",
+  "status": {
+    "ready": "Lista para administración",
+    "needs_clarification": "Necesita aclaración",
+    "review_required": "Requiere revisión del propietario",
+    "awaiting_owner": "Pendiente del propietario",
+    "more_info_requested": "El propietario pidió información",
+    "approved": "Aprobada por el propietario",
+    "declined": "Rechazada por el propietario",
+    "closed": "Cerrada"
+  },
+  "action": {
+    "prepare_parent_response": "Preparar una respuesta para la familia",
+    "prepare_tutor_message": "Preparar un mensaje para el tutor",
+    "prepare_escalation_summary": "Preparar un resumen de escalado para el propietario",
+    "prepare_reschedule_proposal": "Preparar una propuesta de cambio de horario",
+    "prepare_admin_checklist": "Preparar una lista de comprobación administrativa",
+    "send_to_owner": "Enviar al propietario para revisión"
+  },
+  "draft": {
+    "parent_response": "Respuesta a la familia",
+    "tutor_message": "Mensaje al tutor",
+    "escalation_summary": "Resumen de escalado para el propietario",
+    "reschedule_proposal": "Propuesta de cambio de horario",
+    "admin_checklist": "Lista de comprobación administrativa"
+  },
+  "dataLabel": {
+    "live_connected": "Conectado en directo",
+    "imported": "Importado",
+    "fictional_demo": "Datos de demostración ficticios"
+  },
+  "group": {
+    "owner": "Requiere revisión del propietario",
+    "info": "Falta información",
+    "ready": "Lista para administración"
+  },
+  "groupText": {
+    "ownerForOwner": "Hace falta tu criterio",
+    "ownerForAdmin": "Pendiente de la decisión del propietario",
+    "info": "Hay que aclarar algunos detalles",
+    "readyForOwner": "El equipo administrativo debe confirmarla",
+    "readyForAdmin": "Lista para revisar y confirmar"
+  },
+  "groupEmpty": {
+    "owner": "Ninguna solicitud necesita revisión del propietario.",
+    "info": "Ninguna solicitud está esperando más información.",
+    "ready": "Ahora mismo no hay solicitudes listas para administración."
+  },
+  "card": {
+    "refundAmount": "Un reembolso de {{amount}}",
+    "refund": "Una solicitud de reembolso",
+    "extension": "Más tiempo para pagar",
+    "lessonChange": "Mover una clase",
+    "request": "Una solicitud",
+    "welfareLine": "Se ha señalado una preocupación de bienestar. El propietario se encarga personalmente.",
+    "typeFor": "{{type}} para {{reference}}.",
+    "typeOnly": "{{type}}.",
+    "extensionDays_many": "{{count}} días más para pagar",
+    "extensionDays_one": "{{count}} día más para pagar",
+    "extensionDays_other": "{{count}} días más para pagar"
+  },
+  "step": {
+    "submitted": "Enviada",
+    "ruleCheck": "Comprobación de reglas",
+    "ownerReview": "Revisión del propietario",
+    "recorded": "Registrada",
+    "reviewStarted": "Revisión iniciada",
+    "notNeeded": "No hace falta",
+    "needsMoreFacts": "Faltan datos",
+    "allDone": "Todos los pasos hechos",
+    "nothingLeft": "No queda nada por hacer",
+    "lastStep": "Este es el último paso",
+    "heading": "Paso {{n}} de {{total}}: {{label}}",
+    "stepsAfter_many": "Quedan {{count}} pasos después de este",
+    "stepsAfter_one": "Queda un paso después de este",
+    "stepsAfter_other": "Quedan {{count}} pasos después de este"
+  },
+  "stepInSentence": {
+    "submitted": "enviada",
+    "ruleCheck": "comprobación de reglas",
+    "ownerReview": "revisión del propietario",
+    "recorded": "registrada"
+  },
+  "ruleHeading": {
+    "missing": "Faltan algunos datos",
+    "ownerWelfare": "Preocupación de bienestar. Te encargas tú personalmente",
+    "ownerRed": "Esto necesita tu revisión antes de que pase nada más",
+    "adminWelfare": "Para. El propietario debe encargarse personalmente",
+    "adminRed": "El propietario debe revisarlo antes de que pase nada más",
+    "ownerAmber": "Esto necesita tu aprobación antes de seguir",
+    "adminAmber": "Consulta con el propietario antes de seguir",
+    "green": "Puedes seguir adelante"
+  },
+  "ruleName": {
+    "safety_complaint": "Queja de seguridad",
+    "safety_welfare": "Preocupación de bienestar",
+    "default_unsupported": "Sin política para esto",
+    "default_missing_policy": "Sin política activa",
+    "default_missing_information": "Falta información",
+    "default_no_matching_rule": "Ninguna regla coincide",
+    "refund_under_50": "Reembolso de menos de 50 $",
+    "refund_50_to_200": "Reembolso de 50 $ a 200 $",
+    "refund_over_200": "Reembolso de más de 200 $",
+    "lesson_change_no_fee": "Sin cambio de tarifa",
+    "lesson_change_fee_impact": "Afecta a las tarifas",
+    "payment_extension_up_to_7": "Prórroga de hasta 7 días",
+    "payment_extension_8_to_30": "Prórroga de 8 a 30 días",
+    "payment_extension_over_30": "Prórroga de más de 30 días"
+  }
+}

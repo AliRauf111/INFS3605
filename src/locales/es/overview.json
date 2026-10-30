@@ -1,0 +1,148 @@
+{
+  "eyebrow": "Tu día, en primer plano",
+  "greeting": {
+    "morning": "Buenos días, {{name}}",
+    "afternoon": "Buenas tardes, {{name}}",
+    "evening": "Buenas noches, {{name}}"
+  },
+  "subheading": "Una vista más tranquila de tu negocio de clases. Vamos decisión a decisión.",
+  "removed": "Solicitud quitada de la lista. Puedes encontrarla de nuevo en",
+  "removedLink": "Solicitudes quitadas",
+  "filterLabel": "Filtrar las solicitudes del resumen por estado",
+  "showing": "Mostrando",
+  "viewRequests": "Ver solicitudes",
+  "overToYou": "Te toca a ti",
+  "humanTouch": "Algunas cosas que necesitan un toque humano",
+  "showAllRequests": "Mostrar todas las solicitudes",
+  "student": "Alumno: {{name}}",
+  "studentLabel": "Alumno {{name}}",
+  "allCaughtUp": "Lo tienes todo al día.",
+  "chooseAnother": "Elige otro estado o muestra todas las solicitudes.",
+  "everyDealtWith": "Todas las solicitudes están resueltas. Disfruta de un poco más de calma.",
+  "viewAll": "Ver todas las solicitudes",
+  "capacity": {
+    "heading": "Un poco de margen para crecer",
+    "caption": "Clases reservadas frente a las horas disponibles de los tutores",
+    "periodLabel": "Periodo del gráfico de capacidad",
+    "booked": "Reservadas",
+    "available": "Disponibles",
+    "thisWeek": "Esta semana",
+    "nextWeek": "La próxima semana",
+    "thisMonth": "Este mes",
+    "thisWeekLower": "esta semana",
+    "nextWeekLower": "la próxima semana",
+    "thisMonthLower": "este mes",
+    "nothingToCompare": {
+      "lastWeek": "No se ofreció nada la semana pasada para comparar",
+      "thisWeek": "No se ofrece nada esta semana para comparar"
+    },
+    "same": {
+      "lastWeek": "Igual que la semana pasada",
+      "thisWeek": "Igual que esta semana"
+    },
+    "percentBooked": "{{percent}} % reservado",
+    "noHoursOffered": "No se ofrecen horas",
+    "noTutorHours": "Los tutores no ofrecen horas",
+    "ofCapacity": "de la capacidad de los tutores reservada",
+    "tipLine": "{{label}} · {{booked}} de {{offered}} h",
+    "chartLabel": "Capacidad de los tutores, {{period}}. {{summary}} Pasa el cursor o el foco por cada punto para ver sus horas.",
+    "chartNone": "No se ofrecen horas.",
+    "chartPercent": "{{percent}} % de las horas disponibles reservado.",
+    "pointLabel": "{{label}}: {{booked}} de {{offered}} horas reservadas",
+    "pointTitle": "{{label}}: {{booked}} / {{offered}} h",
+    "hours": "{{n}} h",
+    "weekShort": "Sem. {{n}}",
+    "note": "Según el calendario de tutores · pasa el cursor por el gráfico para explorarlo",
+    "acrossWeeks_many": "En {{count}} semanas de este mes",
+    "acrossWeeks_one": "En {{count}} semana de este mes",
+    "acrossWeeks_other": "En {{count}} semanas de este mes",
+    "more": {
+      "lastWeek_many": "{{count}} puntos más que la semana pasada",
+      "lastWeek_one": "{{count}} punto más que la semana pasada",
+      "lastWeek_other": "{{count}} puntos más que la semana pasada",
+      "thisWeek_many": "{{count}} puntos más que esta semana",
+      "thisWeek_one": "{{count}} punto más que esta semana",
+      "thisWeek_other": "{{count}} puntos más que esta semana"
+    },
+    "fewer": {
+      "lastWeek_many": "{{count}} puntos menos que la semana pasada",
+      "lastWeek_one": "{{count}} punto menos que la semana pasada",
+      "lastWeek_other": "{{count}} puntos menos que la semana pasada",
+      "thisWeek_many": "{{count}} puntos menos que esta semana",
+      "thisWeek_one": "{{count}} punto menos que esta semana",
+      "thisWeek_other": "{{count}} puntos menos que esta semana"
+    }
+  },
+  "today": {
+    "headingToday": "Hoy, a continuación",
+    "headingNext": "Lo próximo",
+    "snapshot": {
+      "morning": "Un vistazo a tu mañana",
+      "afternoon": "Un vistazo a tu tarde",
+      "evening": "Un vistazo a tu noche"
+    },
+    "nothingToday": "Hoy no hay nada en el horario. Estas son las próximas clases.",
+    "openSchedule": "Abrir el horario completo",
+    "notSetUp": "El horario de clases todavía no está configurado en esta base de datos.",
+    "noLessons": "No hay clases en el horario.",
+    "coverNeeded": "Hace falta sustituto",
+    "confirmed": "Confirmada"
+  },
+  "rules": {
+    "heading": "Tu negocio, tus reglas",
+    "caption": "Compass respeta los límites que fijas",
+    "open": "Abrir las reglas del negocio",
+    "exceptions": "Aprobación del propietario para las excepciones",
+    "none": "Todavía no hay reglas activas",
+    "bottom": "Tú mantienes el control de cada decisión importante.",
+    "refunds": "El equipo gestiona los reembolsos de menos de {{amount}}",
+    "lessonChanges": "Cambios de clase comprobados con tus reglas",
+    "extensions_many": "Prórrogas de pago de hasta {{count}} días",
+    "extensions_one": "Prórrogas de pago de hasta {{count}} día",
+    "extensions_other": "Prórrogas de pago de hasta {{count}} días"
+  },
+  "activity": {
+    "heading": "Avanzando sin ruido",
+    "none": "Todavía no ha pasado nada en ninguna solicitud.",
+    "updated": "Actualizada",
+    "event": {
+      "sent_to_owner": {
+        "lead": "Enviada al propietario",
+        "rest": "para que decida"
+      },
+      "owner_approved": {
+        "lead": "Aprobada por el propietario",
+        "rest": "y de vuelta al equipo"
+      },
+      "owner_declined": {
+        "lead": "Rechazada por el propietario",
+        "rest": "con el motivo registrado"
+      },
+      "owner_requested_info": {
+        "lead": "El propietario pidió",
+        "rest": "algunos detalles más"
+      },
+      "admin_replied": {
+        "lead": "Detalles devueltos",
+        "rest": "al propietario"
+      },
+      "closed": {
+        "lead": "Resultado registrado",
+        "rest": "y solicitud cerrada"
+      },
+      "reevaluated": {
+        "lead": "Reglas comprobadas de nuevo",
+        "rest": "con los datos nuevos"
+      }
+    }
+  },
+  "cardLabel_many": "{{group}}: {{count}} solicitudes. Filtrar el resumen",
+  "cardLabel_one": "{{group}}: {{count}} solicitud. Filtrar el resumen",
+  "cardLabel_other": "{{group}}: {{count}} solicitudes. Filtrar el resumen",
+  "groupCount_many": "{{group}} · {{count}} solicitudes",
+  "groupCount_one": "{{group}} · {{count}} solicitud",
+  "groupCount_other": "{{group}} · {{count}} solicitudes",
+  "viewAllCount_many": "Ver las {{count}} solicitudes",
+  "viewAllCount_one": "Ver {{count}} solicitud",
+  "viewAllCount_other": "Ver las {{count}} solicitudes"
+}

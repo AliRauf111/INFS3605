@@ -1,0 +1,134 @@
+{
+  "role": {
+    "owner": "Owner",
+    "admin": "Administrator"
+  },
+  "requestType": {
+    "refund": "Refund",
+    "lesson_change": "Lesson Change",
+    "payment_extension": "Payment Extension",
+    "other": "Something else"
+  },
+  "triState": {
+    "yes": "Yes",
+    "no": "No",
+    "unsure": "Not sure"
+  },
+  "colour": {
+    "green": "Green: you may follow the approved steps",
+    "amber": "Yellow: clarification or owner approval needed",
+    "red": "Red: stop and escalate to the owner"
+  },
+  "colourShort": {
+    "green": "Green",
+    "amber": "Yellow",
+    "red": "Red"
+  },
+  "decisionLabel": "Decision: {{colour}}",
+  "status": {
+    "ready": "Ready for Admin",
+    "needs_clarification": "Needs Clarification",
+    "review_required": "Owner Review Required",
+    "awaiting_owner": "Waiting for Owner",
+    "more_info_requested": "Owner Asked for Information",
+    "approved": "Approved by Owner",
+    "declined": "Declined by Owner",
+    "closed": "Closed"
+  },
+  "action": {
+    "prepare_parent_response": "Prepare a parent response",
+    "prepare_tutor_message": "Prepare a tutor message",
+    "prepare_escalation_summary": "Prepare an owner escalation summary",
+    "prepare_reschedule_proposal": "Prepare a rescheduling proposal",
+    "prepare_admin_checklist": "Prepare an admin checklist",
+    "send_to_owner": "Send to the owner for review"
+  },
+  "draft": {
+    "parent_response": "Parent response",
+    "tutor_message": "Tutor message",
+    "escalation_summary": "Owner escalation summary",
+    "reschedule_proposal": "Rescheduling proposal",
+    "admin_checklist": "Admin checklist"
+  },
+  "dataLabel": {
+    "live_connected": "Live Connected",
+    "imported": "Imported",
+    "fictional_demo": "Fictional Demonstration Data"
+  },
+  "group": {
+    "owner": "Owner Review Required",
+    "info": "More Information Needed",
+    "ready": "Ready for Admin"
+  },
+  "groupText": {
+    "ownerForOwner": "Your judgement is needed",
+    "ownerForAdmin": "Waiting on the owner's decision",
+    "info": "A few details to clarify",
+    "readyForOwner": "With the admin team to confirm",
+    "readyForAdmin": "Ready to review and confirm"
+  },
+  "groupEmpty": {
+    "owner": "No requests need owner review.",
+    "info": "No requests are waiting for more information.",
+    "ready": "No requests are ready for admin right now."
+  },
+  "card": {
+    "refundAmount": "A {{amount}} refund",
+    "refund": "A refund request",
+    "extensionDays_one": "{{count}} more day to pay",
+    "extensionDays_other": "{{count}} more days to pay",
+    "extension": "More time to pay",
+    "lessonChange": "Move a lesson",
+    "request": "A request",
+    "welfareLine": "A welfare concern was flagged. The owner handles this personally.",
+    "typeFor": "{{type}} for {{reference}}.",
+    "typeOnly": "{{type}}."
+  },
+  "step": {
+    "submitted": "Submitted",
+    "ruleCheck": "Rule check",
+    "ownerReview": "Owner review",
+    "recorded": "Recorded",
+    "reviewStarted": "Review started",
+    "notNeeded": "Not needed",
+    "needsMoreFacts": "Needs more facts",
+    "allDone": "All steps done",
+    "nothingLeft": "Nothing left to do",
+    "lastStep": "This is the last step",
+    "stepsAfter_one": "One step after this one",
+    "stepsAfter_other": "{{count}} steps after this one",
+    "heading": "Step {{n}} of {{total}}: {{label}}"
+  },
+  "stepInSentence": {
+    "submitted": "submitted",
+    "ruleCheck": "rule check",
+    "ownerReview": "owner review",
+    "recorded": "recorded"
+  },
+  "ruleHeading": {
+    "missing": "Some facts are missing",
+    "ownerWelfare": "Welfare concern. You handle this personally",
+    "ownerRed": "This needs your review before anything else happens",
+    "adminWelfare": "Stop. The owner must handle this personally",
+    "adminRed": "The owner must review this before anything else happens",
+    "ownerAmber": "This needs your approval before going ahead",
+    "adminAmber": "Check with the owner before going ahead",
+    "green": "You can go ahead"
+  },
+  "ruleName": {
+    "safety_complaint": "Safety complaint",
+    "safety_welfare": "Welfare concern",
+    "default_unsupported": "No policy for this",
+    "default_missing_policy": "No active policy",
+    "default_missing_information": "Missing information",
+    "default_no_matching_rule": "No matching rule",
+    "refund_under_50": "Refund under $50",
+    "refund_50_to_200": "Refund $50 to $200",
+    "refund_over_200": "Refund over $200",
+    "lesson_change_no_fee": "No fee change",
+    "lesson_change_fee_impact": "Affects fees",
+    "payment_extension_up_to_7": "Extension up to 7 days",
+    "payment_extension_8_to_30": "Extension 8 to 30 days",
+    "payment_extension_over_30": "Extension over 30 days"
+  }
+}

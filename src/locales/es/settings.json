@@ -1,0 +1,9 @@
+{
+  "title": "Ajustes",
+  "intro": "Tus preferencias de idioma y de pantalla.",
+  "savedToAccount": "Tu idioma se guarda en tu cuenta, así que te sigue cuando inicias sesión en otro dispositivo.",
+  "savedToDevice": "Tu idioma se recuerda en este dispositivo. Elige uno aquí para guardarlo también en tu cuenta.",
+  "displayText": "El tamaño del texto, el tema de color, la vista enfocada, el movimiento reducido y los controles más grandes están en el panel Pantalla y accesibilidad. Usa su botón en la parte superior de esta página. Estos ajustes se guardan en este navegador.",
+  "integrationsText": "Con qué está conectada esta instalación aparece en la página Reglas y cobertura.",
+  "integrationsLink": "Ver integraciones"
+}

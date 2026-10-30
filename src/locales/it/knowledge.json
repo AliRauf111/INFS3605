@@ -1,0 +1,37 @@
+{
+  "intro": "Regole del titolare, prenotazioni, pagamenti, disponibilità dei tutor e procedure in un unico posto. I record sono mostrati così come sono salvati.",
+  "stale": "! Potrebbe non essere aggiornato",
+  "synced": "{{system}}, sincronizzato {{when}}",
+  "col": {
+    "id": "ID",
+    "student": "Studente",
+    "family": "Famiglia",
+    "subject": "Materia",
+    "lessons": "Lezioni",
+    "price": "Prezzo",
+    "invoice": "Fattura",
+    "paidDue": "Pagato / scadenza",
+    "slot": "Spazio",
+    "starts": "Inizio"
+  },
+  "lessonsUsed": "{{used}} di {{purchased}} usate",
+  "payments": "Pagamenti",
+  "paymentStatus": {
+    "paid": "Pagato",
+    "pending": "In attesa",
+    "overdue": "Scaduto",
+    "refunded": "Rimborsato",
+    "disputed": "Contestato"
+  },
+  "slotStatus": {
+    "free": "Libero",
+    "booked": "Prenotato",
+    "held": "Riservato"
+  },
+  "due": "Scade il {{date}}",
+  "conflictHint": "PAY-2002 e PAY-2003 sono in conflitto di proposito (stessa fattura, importi diversi), e PAY-2005 è volutamente non aggiornato, per mostrare come dati mancanti o contraddittori impediscono il verde.",
+  "availability": "Disponibilità dei tutor",
+  "procedures": "Procedure",
+  "proceduresHint": "Le procedure sono mostrate esattamente come le ha scritte il titolare.",
+  "ownerApproved": "Approvato dal titolare"
+}

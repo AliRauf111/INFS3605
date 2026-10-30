@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icons";
 import { addMonths, dayLabel, longDay, monthLabel, monthOf, moveDay } from "@/lib/schedule/calendar";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import { textDirection } from "@/lib/i18n/languages";
 
 // The Schedule page's month calendar. A day shows its first two lessons and "+ N more";
 // choosing a day lists all its lessons underneath. The grid works like a date picker: one
@@ -26,7 +28,13 @@ export type CalendarLesson = {
   warn: boolean;
 };
 
-const WEEKDAYS: Array<[string, string]> = [["Mon", "Monday"], ["Tue", "Tuesday"], ["Wed", "Wednesday"], ["Thu", "Thursday"], ["Fri", "Friday"], ["Sat", "Saturday"], ["Sun", "Sunday"]];
+// 2 November 2026 was a Monday: the seven days from it give the weekday names in any language.
+const MONDAY = Date.UTC(2026, 10, 2);
+function weekdays(locale: string): Array<[string, string]> {
+  const short = new Intl.DateTimeFormat(locale, { timeZone: "UTC", weekday: "short" });
+  const long = new Intl.DateTimeFormat(locale, { timeZone: "UTC", weekday: "long" });
+  return Array.from({ length: 7 }, (_, i) => { const d = new Date(MONDAY + i * 86_400_000); return [short.format(d), long.format(d)]; });
+}
 const CHIPS = 2;
 
 function LessonRows({ lessons }: { lessons: CalendarLesson[] }) {
@@ -38,7 +46,7 @@ function LessonRows({ lessons }: { lessons: CalendarLesson[] }) {
           <span className={`subject-icon ${l.iconClass}`} aria-hidden="true">{l.letter}</span>
           <div className="lesson-info">
             <strong>{l.subject}</strong>
-            <span>{l.student} · {l.tutor}</span>
+            <span><bdi>{l.student}</bdi> · <bdi>{l.tutor}</bdi></span>
           </div>
           <span className={`status-dot${l.warn ? " warn" : ""}`}>{l.status}</span>
         </div>
@@ -56,6 +64,8 @@ export function MonthCalendar({ month, today, weeks, lessons, initialDay, keyboa
   keyboard: boolean;
 }) {
   const router = useRouter();
+  const { t, fmt, lang } = useI18n();
+  const loc = fmt.locale;
   const [selected, setSelected] = useState(initialDay);
   const [focusDay, setFocusDay] = useState(initialDay);
   const grid = useRef<HTMLTableElement>(null);
@@ -85,7 +95,7 @@ export function MonthCalendar({ month, today, weeks, lessons, initialDay, keyboa
   };
 
   const onKeyDown = (e: React.KeyboardEvent, day: string) => {
-    const next = moveDay(day, e.key);
+    const next = moveDay(day, e.key, textDirection(lang));
     if (!next) return;
     e.preventDefault();
     if (days.includes(next)) {
@@ -107,19 +117,19 @@ export function MonthCalendar({ month, today, weeks, lessons, initialDay, keyboa
     <>
       <div className="calendar-head">
         <div>
-          <h2 id="calendar-month" aria-live="polite">{monthLabel(month)}</h2>
-          <p className="caption">Sydney time</p>
+          <h2 id="calendar-month" aria-live="polite">{monthLabel(month, loc)}</h2>
+          <p className="caption">{t("schedule.sydneyTime")}</p>
         </div>
         <div className="calendar-controls">
-          <button type="button" className="btn outline today-btn" onClick={() => (monthOf(today) === month ? choose(today) : go(today))}>Today</button>
-          <button type="button" className="round-btn" aria-label={`Previous month, ${monthLabel(addMonths(month, -1))}`} onClick={() => router.push(`/schedule?month=${addMonths(month, -1)}`, { scroll: false })}><Icon name="chevron-left" /></button>
-          <button type="button" className="round-btn" aria-label={`Next month, ${monthLabel(addMonths(month, 1))}`} onClick={() => router.push(`/schedule?month=${addMonths(month, 1)}`, { scroll: false })}><Icon name="chevron-right" /></button>
+          <button type="button" className="btn outline today-btn" onClick={() => (monthOf(today) === month ? choose(today) : go(today))}>{t("schedule.today")}</button>
+          <button type="button" className="round-btn" aria-label={t("schedule.previousMonth", { month: monthLabel(addMonths(month, -1), loc) })} onClick={() => router.push(`/schedule?month=${addMonths(month, -1)}`, { scroll: false })}><Icon name="chevron-left" /></button>
+          <button type="button" className="round-btn" aria-label={t("schedule.nextMonth", { month: monthLabel(addMonths(month, 1), loc) })} onClick={() => router.push(`/schedule?month=${addMonths(month, 1)}`, { scroll: false })}><Icon name="chevron-right" /></button>
         </div>
       </div>
 
       <table className="month-grid" role="grid" aria-labelledby="calendar-month" ref={grid}>
         <thead>
-          <tr>{WEEKDAYS.map(([short, long]) => <th key={short} scope="col" abbr={long}>{short}</th>)}</tr>
+          <tr>{weekdays(loc).map(([short, long]) => <th key={short} scope="col" abbr={long}>{short}</th>)}</tr>
         </thead>
         <tbody>
           {weeks.map((week) => (
@@ -135,17 +145,17 @@ export function MonthCalendar({ month, today, weeks, lessons, initialDay, keyboa
                       data-day={day}
                       className={`month-day${on ? " active" : ""}${outside ? " outside" : ""}${day === today ? " today" : ""}`}
                       tabIndex={day === focusDay ? 0 : -1}
-                      aria-label={dayLabel(day, list.length, today)}
+                      aria-label={dayLabel(day, list.length, today, t, loc)}
                       aria-controls="day-lessons"
                       onClick={() => choose(day)}
                       onKeyDown={(e) => onKeyDown(e, day)}
                     >
-                      <span className="month-date" aria-hidden="true">{Number(day.slice(8))}</span>
+                      <span className="month-date" aria-hidden="true">{fmt.number(Number(day.slice(8)))}</span>
                       <span className="month-chips" aria-hidden="true">
                         {list.slice(0, CHIPS).map((l) => (
                           <span key={l.id} className={`lesson-chip ${l.iconClass}${l.warn ? " warn" : ""}`}>{l.time}{l.period} {l.subject}</span>
                         ))}
-                        {list.length > CHIPS && <span className="more-chip">+ {list.length - CHIPS} more</span>}
+                        {list.length > CHIPS && <span className="more-chip">{t("schedule.more", { count: list.length - CHIPS })}</span>}
                       </span>
                     </button>
                   </td>
@@ -158,22 +168,22 @@ export function MonthCalendar({ month, today, weeks, lessons, initialDay, keyboa
 
       <section className="day-lessons" id="day-lessons" aria-labelledby="day-lessons-heading">
         <div className="card-head">
-          <h2 id="day-lessons-heading">{longDay(selected)}</h2>
-          <span className="caption">{chosen.length ? `${chosen.length} ${chosen.length === 1 ? "lesson" : "lessons"}` : "No lessons"}</span>
+          <h2 id="day-lessons-heading">{longDay(selected, loc)}</h2>
+          <span className="caption">{chosen.length ? t("schedule.lessonCount", { count: chosen.length }) : t("schedule.noLessons")}</span>
         </div>
-        {chosen.length ? <LessonRows lessons={chosen} /> : <p className="caption empty-day">Nothing on the timetable for this day.</p>}
+        {chosen.length ? <LessonRows lessons={chosen} /> : <p className="caption empty-day">{t("schedule.nothingThisDay")}</p>}
       </section>
 
-      <section className="agenda" aria-label={`Lessons in ${monthLabel(month)}`}>
+      <section className="agenda" aria-label={t("schedule.lessonsIn", { month: monthLabel(month, loc) })}>
         {!showEarlier && monthOf(today) === month && earlier.length > 0 && (
-          <button type="button" className="btn outline today-btn agenda-earlier" onClick={() => setShowEarlier(true)}>Show earlier days this month</button>
+          <button type="button" className="btn outline today-btn agenda-earlier" onClick={() => setShowEarlier(true)}>{t("schedule.showEarlier")}</button>
         )}
         {agenda.length ? agenda.map((day) => (
           <div key={day} className="agenda-day">
-            <h3>{longDay(day)}{day === today ? <span className="badge lilac">Today</span> : null}</h3>
+            <h3>{longDay(day, loc)}{day === today ? <span className="badge lilac">{t("schedule.today")}</span> : null}</h3>
             <LessonRows lessons={byDay.get(day) ?? []} />
           </div>
-        )) : <p className="caption empty-day">{inMonth.length ? "No more lessons this month." : "No lessons this month."}</p>}
+        )) : <p className="caption empty-day">{inMonth.length ? t("schedule.noMoreThisMonth") : t("schedule.noneThisMonth")}</p>}
       </section>
     </>
   );

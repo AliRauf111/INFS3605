@@ -1,0 +1,24 @@
+{
+  "didNotWork": "Non ha funzionato.",
+  "unreachable": "Impossibile raggiungere il server.",
+  "checkWording": "Salvato, ma controlla questa frase: {{words}}. Potrebbe promettere qualcosa che non è successo.",
+  "saved": "Bozza salvata.",
+  "source": {
+    "template": "Modello",
+    "live_ai": "Scritto dall'IA attiva",
+    "simulated": "Simulato",
+    "edited": "Modificato da una persona"
+  },
+  "textLabel": "Testo: {{kind}}",
+  "noDraft": "Ancora nessuna bozza.",
+  "replace": "Sostituisci con il modello",
+  "prepare": "Prepara bozza",
+  "withAi": "Scrivi con l'IA",
+  "saveEdits": "Salva modifiche",
+  "copied": "Copiato. Incollalo nella tua email o app di messaggistica.",
+  "copy": "Copia",
+  "heading": "Bozze",
+  "hint": "Le bozze servono a te per controllarle, modificarle e inviarle. Tutor Compass non invia mai messaggi.",
+  "welfareHint": "Nei casi di benessere si offre solo un passaggio di consegne essenziale e riservato, che non viene mai inviato all'IA.",
+  "languageHint": "I modelli delle bozze sono in inglese. Cambiare la lingua dell'interfaccia non cambia il testo di una bozza."
+}

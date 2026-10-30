@@ -1,0 +1,10 @@
+{
+  "didntWork": "Non ha funzionato. Riprova.",
+  "puttingBack": "Ripristino in corso…",
+  "putBack": "Rimetti nell'elenco",
+  "ownerOnly": "Solo il titolare può togliere una richiesta che aspetta lui o che segnala una preoccupazione per il benessere.",
+  "confirmLabel": "Conferma la rimozione di questa richiesta",
+  "confirmText": "Togliere questa richiesta dall'elenco? Il registro completo viene conservato e puoi rimetterla da questa pagina.",
+  "removing": "Rimozione…",
+  "yes": "Sì, toglila"
+}

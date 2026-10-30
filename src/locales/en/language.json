@@ -1,0 +1,9 @@
+{
+  "title": "Language",
+  "buttonLabel": "Language: {{language}} ({{english}}). Change language",
+  "changed": "Language changed to {{language}}.",
+  "loadFailed": "{{language}} could not be loaded. The page stays in the current language. Check your connection and try again.",
+  "loading": "Loading…",
+  "settingsHint": "Changes the language of menus, buttons, forms and messages straight away. Names, booking references and anything people have written stay as they were entered.",
+  "reviewNote": "Translations other than English are first drafts and are still being checked by fluent speakers. If something reads oddly, English is always in this list."
+}

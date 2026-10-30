@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "complete_details": "Complete Missing Details",
+    "send_to_owner": "Send to Owner",
+    "awaiting_owner": "Awaiting Owner Decision",
+    "start_review": "Start Review",
+    "continue_review": "Continue Review",
+    "record_outcome": "Record Outcome"
+  },
+  "approveBlocked": "Approve is not available until the missing details are complete.",
+  "detailsMissing_one": "{{count}} required detail is missing",
+  "detailsMissing_other": "{{count}} required details are missing",
+  "done": "Done",
+  "recordedClosed": "Recorded and closed",
+  "nothingMore": "Nothing more to do. The full record stays on this page.",
+  "insideRules": "Inside the rules",
+  "reviewAndHandle": "Review and Handle",
+  "detail": {
+    "sentByAdmin": "Sent by the admin team",
+    "youAsked": "You asked for information",
+    "detailsComplete": "Details complete",
+    "notSentYet": "Not sent by the admin team yet",
+    "ownerAskedMore": "Owner asked for more",
+    "recordsNeedChecking": "Records need checking",
+    "ownerDecidesFirst": "Owner decides first"
+  },
+  "pending": {
+    "notRecorded": "Not recorded yet. Use Record Outcome above.",
+    "waitingDetails": "Waiting for the missing details. {{details}}. Use Complete Missing Details above.",
+    "reviewStarted": "Review started. Use Continue Review above to approve, decline or ask for information.",
+    "waitingReview": "Waiting for your review. Use Start Review above. Opening this page doesn't start it.",
+    "ownerNeedsMore": "The owner needs more information. Update the facts if needed, then use Send to Owner above.",
+    "notSent": "Not sent yet. Use Send to Owner above.",
+    "sent": "Sent. Waiting for the owner's decision.",
+    "detailsOnly": "{{details}}."
+  },
+  "whatNext": {
+    "ready": "This is inside the rules. Do it in your own systems, then record what you did here. Tutor Compass doesn't move money or change bookings.",
+    "approved": "The owner approved this request. Do it in your own systems, then record what you did here.",
+    "declined": "The owner declined this request. Let the family know, then record what you did here.",
+    "details": "{{details}} before a decision can be made. Add them with Complete Missing Details and the rules will check the request again.",
+    "detailsOwner": "{{details}} before a decision can be made. Add them with Complete Missing Details and the rules will check the request again. You can still start a review, but you can't approve it yet.",
+    "continue": "Continue your review and record your decision. The admin team then records what was done.",
+    "continueSensitive": "Continue your review and record your decision. You can also add handling notes and next steps as you go. The admin team then records what was done.",
+    "start": "Start the review when you're ready. Starting it records that you're handling this. It doesn't approve, close or change anything else.",
+    "ownerNeedsMore": "The owner needs more information. Update the facts if needed, then send it back to the owner.",
+    "send": "Send this to the owner. Once the owner decides, you record the outcome here. That is the last step.",
+    "ownerLooking": "The owner is looking at this. You'll see their decision here, then you record the outcome.",
+    "detailsBefore": "{{details}}. Add them before a decision is made."
+  }
+}

@@ -1,43 +1,44 @@
 import { InfoPage } from "@/components/InfoPage";
+import { getI18n } from "@/lib/i18n/server";
 
-export const metadata = { title: "Privacy" };
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t("info.privacy") };
+}
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const { t } = await getI18n();
   return (
-    <InfoPage title="Privacy" updated="18 October 2026">
-      <p>
-        Tutor Compass is a student project built for a university course. Each tutoring business that uses it runs its own copy, and that
-        business decides what is stored and who can see it. This page explains what the app itself collects and why.
-      </p>
+    <InfoPage title={t("info.privacy")} updated="2026-10-30">
+      <p>{t("info.privacyPage.intro")}</p>
       <section>
-        <h2>What we store</h2>
+        <h2>{t("info.privacyPage.storeHeading")}</h2>
         <ul>
-          <li>Your account: your name, email address and whether you are an admin or the owner.</li>
-          <li>Requests you enter, such as refunds, lesson changes and payment extensions, with the facts, the rule that was applied and the outcome.</li>
-          <li>A history of who did what on each request, so decisions can be checked later.</li>
+          <li>{t("info.privacyPage.store1")}</li>
+          <li>{t("info.privacyPage.store2")}</li>
+          <li>{t("info.privacyPage.store3")}</li>
+          <li>{t("info.privacyPage.store4")}</li>
         </ul>
-        <p>This is kept in the business&apos;s own Supabase database. The demonstration families, bookings and payments are fictional.</p>
+        <p>{t("info.privacyPage.storeWhere")}</p>
       </section>
       <section>
-        <h2>Cookies and your browser</h2>
-        <p>
-          Two cookies keep you signed in, and short-lived ones are used while you confirm an email or reset a password. Your browser&apos;s
-          scripts can&apos;t read them. There are no advertising or tracking cookies. Your browser also keeps your Compass AI conversation for that tab
-          only, and forgets it when the tab is closed.
-        </p>
+        <h2>{t("info.privacyPage.cookiesHeading")}</h2>
+        <p>{t("info.privacyPage.cookies")}</p>
+        <p>{t("info.privacyPage.cookiesLanguage")}</p>
       </section>
       <section>
-        <h2>Services that receive data</h2>
+        <h2>{t("info.privacyPage.servicesHeading")}</h2>
         <ul>
-          <li>Supabase stores the database and handles sign-in.</li>
-          <li>If the business turns on live AI, the text you give Compass AI or paste into a request is sent to Anthropic to read it. Without that setting, nothing is sent and the assistant runs in a labelled demo mode.</li>
-          <li>If you sign in with Apple, Google or Microsoft, that company shares your name and email with the app.</li>
-          <li>Voice input uses your browser&apos;s own speech recognition, which may send audio to the browser maker.</li>
+          <li>{t("info.privacyPage.services1")}</li>
+          <li>{t("info.privacyPage.services2")}</li>
+          <li>{t("info.privacyPage.services3")}</li>
+          <li>{t("info.privacyPage.services4")}</li>
+          <li>{t("info.privacyPage.services5")}</li>
         </ul>
       </section>
       <section>
-        <h2>Your choices</h2>
-        <p>Ask the owner of your business to correct your details or remove your account. Keep the information you enter to what a request needs, especially about students.</p>
+        <h2>{t("info.privacyPage.choicesHeading")}</h2>
+        <p>{t("info.privacyPage.choices")}</p>
       </section>
     </InfoPage>
   );

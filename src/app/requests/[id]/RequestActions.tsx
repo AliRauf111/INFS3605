@@ -7,6 +7,7 @@ import { centsToInput } from "@/lib/domain/money";
 import type { Colour, RequestStatus, Role } from "@/lib/domain/types";
 import type { ConfirmedFacts } from "@/lib/validation/facts";
 import { A11yTrigger } from "@/components/a11y/A11yPanel";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 function toWizard(f: ConfirmedFacts): Partial<WizardState> {
   return {
@@ -44,6 +45,7 @@ export function RequestActions(props: {
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const { t } = useI18n();
   const wf = props.workflow;
   type Panel = "none" | "facts" | "send" | "owner" | "close";
   const [panel, setPanel] = useState<Panel>(props.openDetails && wf.can.completeDetails ? "facts" : "none");
@@ -77,18 +79,18 @@ export function RequestActions(props: {
         body: JSON.stringify(body),
       });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error ?? `That did not work (${res.status}).`);
+      if (!res.ok) throw new Error(json.error ?? t("actions.didNotWork", { status: res.status }));
       setDone(ok);
       after?.();
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not reach the server. Nothing was confirmed as saved.");
+      setError(e instanceof Error ? e.message : t("actions.unreachable"));
     } finally {
       setBusy(false);
     }
   }
 
-  const transition = (action: string, text: string, ok = "Saved.") =>
+  const transition = (action: string, text: string, ok = t("actions.saved")) =>
     post("transition", { action, note: text }, ok, () => {
       setSentFrom(props.status);
       setPanel("none");
@@ -97,7 +99,7 @@ export function RequestActions(props: {
     });
 
   const startReview = () =>
-    post("review", {}, "Review started. Nothing else has changed.", () => {
+    post("review", {}, t("actions.reviewStarted"), () => {
       setPanel("owner");
     });
 
@@ -130,10 +132,10 @@ export function RequestActions(props: {
       <div className="rq-head">
         <div className="rq-title">{props.children}</div>
         <div className="rq-actions">
-          {showUpdateFacts && <button className="btn secondary" type="button" aria-expanded={panel === "facts"} onClick={() => open("facts")}>Update Facts</button>}
+          {showUpdateFacts && <button className="btn secondary" type="button" aria-expanded={panel === "facts"} onClick={() => open("facts")}>{t("actions.updateFacts")}</button>}
           {showSecondaryReview && (
             <button className="btn secondary" type="button" disabled={locked} aria-expanded={panel === "owner"} onClick={() => (wf.reviewStarted ? open("owner") : void startReview())}>
-              {wf.reviewStarted ? "Continue Review" : "Start Review"}
+              {wf.reviewStarted ? t("workflow.primary.continue_review") : t("workflow.primary.start_review")}
             </button>
           )}
           {primary && (
@@ -144,8 +146,8 @@ export function RequestActions(props: {
               aria-expanded={primaryPanel ? panel === primaryPanel : undefined}
               onClick={onPrimary}
             >
-              {busy && primary.kind === "start_review" ? "Starting…" : primary.label}
-              {primary.kind === "send_to_owner" && <span aria-hidden="true"> →</span>}
+              {busy && primary.kind === "start_review" ? t("actions.starting") : primary.label}
+              {primary.kind === "send_to_owner" && <span aria-hidden="true" className="dir-arrow"> →</span>}
             </button>
           )}
           <A11yTrigger />
@@ -164,30 +166,30 @@ export function RequestActions(props: {
       )}
 
       {panel === "send" && wf.can.sendToOwner && (
-        <form className="card" onSubmit={(e) => { e.preventDefault(); if (!locked) transition("send_to_owner", note, "Sent to the owner. Awaiting the owner's decision."); }}>
+        <form className="card" onSubmit={(e) => { e.preventDefault(); if (!locked) transition("send_to_owner", note, t("actions.sentToOwner")); }}>
           <div className="field">
-            <label htmlFor="summary">Summary for the owner</label>
-            <p className="hint">Prepare an escalation summary draft below to fill this in, or write your own. Stick to the facts.</p>
+            <label htmlFor="summary">{t("actions.summaryLabel")}</label>
+            <p className="hint">{t("actions.summaryHint")}</p>
             <textarea id="summary" required value={note} maxLength={4000} onChange={(e) => setNote(e.target.value)} />
           </div>
           <label className="check">
             <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
-            I have checked this summary and want to create an owner review request.
+            {t("actions.summaryConfirm")}
           </label>
           {error && <p className="notice error" role="alert">{error}</p>}
-          <button className="btn" type="submit" disabled={locked || !confirmed || !note.trim()}>{busy ? "Sending…" : "Create Owner Review Request"}</button>
+          <button className="btn" type="submit" disabled={locked || !confirmed || !note.trim()}>{busy ? t("actions.sending") : t("actions.createOwnerReview")}</button>
         </form>
       )}
 
       {panel === "owner" && wf.can.startReview && (
         <div className="stack">
-          <form className="card" onSubmit={(e) => { e.preventDefault(); if (ownerAction && !locked) transition(ownerAction, note, "Decision saved."); }}>
+          <form className="card" onSubmit={(e) => { e.preventDefault(); if (ownerAction && !locked) transition(ownerAction, note, t("actions.decisionSaved")); }}>
             {props.reviewStartedText && <p className="hint">{props.reviewStartedText}</p>}
-            {wf.missingDetails && <p className="notice warning">Some required details are missing. You can decline or ask for information, but you can&apos;t approve until the details are complete.</p>}
+            {wf.missingDetails && <p className="notice warning">{t("actions.missingWarning")}</p>}
             <fieldset>
-              <legend>Your decision for this request only</legend>
+              <legend>{t("actions.decisionLegend")}</legend>
               <div className="choices">
-                {([["approve", "Approve", wf.can.approve], ["decline", "Decline", wf.can.decline], ["request_info", "Ask for Information", wf.can.requestInfo]] as const).map(([v, l, allowed]) => (
+                {([["approve", t("actions.approve"), wf.can.approve], ["decline", t("actions.decline"), wf.can.decline], ["request_info", t("actions.askInfo"), wf.can.requestInfo]] as const).map(([v, l, allowed]) => (
                   <label className="choice" key={v}>
                     <input type="radio" name="ownerAction" checked={ownerAction === v} disabled={!allowed} onChange={() => setOwnerAction(v)} />{l}
                   </label>
@@ -196,40 +198,40 @@ export function RequestActions(props: {
               {wf.approveBlocked && <p className="hint">{wf.approveBlocked}</p>}
             </fieldset>
             <div className="field">
-              <label htmlFor="reason">{ownerAction === "request_info" ? "What do you need to know?" : "Reason (required)"}</label>
-              <p className="hint">{props.colour !== "green" && ownerAction === "approve" ? "Approving this is an exception to the rule, so explain why. " : ""}The reason is shown to the admin and kept in the history. It does not change the general policy.</p>
+              <label htmlFor="reason">{ownerAction === "request_info" ? t("actions.whatNeedToKnow") : t("actions.reasonRequired")}</label>
+              <p className="hint">{props.colour !== "green" && ownerAction === "approve" ? `${t("actions.exceptionHint")} ` : ""}{t("actions.reasonHint")}</p>
               <textarea id="reason" required value={note} maxLength={4000} onChange={(e) => setNote(e.target.value)} />
             </div>
             {error && <p className="notice error" role="alert">{error}</p>}
-            <button className="btn" type="submit" disabled={locked || !ownerAction || !note.trim()}>{busy ? "Saving…" : "Save Decision"}</button>
+            <button className="btn" type="submit" disabled={locked || !ownerAction || !note.trim()}>{busy ? t("common.saving") : t("actions.saveDecision")}</button>
           </form>
 
           {wf.can.handlingNote && sensitive && (
-            <form className="card" onSubmit={(e) => { e.preventDefault(); if (!busy && handling.trim()) void post("handling", { note: handling }, "Handling note saved. The status hasn't changed.", () => setHandling("")); }}>
+            <form className="card" onSubmit={(e) => { e.preventDefault(); if (!busy && handling.trim()) void post("handling", { note: handling }, t("actions.handlingSaved"), () => setHandling("")); }}>
               <div className="field">
-                <label htmlFor="handling">Handling notes and next steps</label>
-                <p className="hint">Record what you have done so far and what happens next, for example who you called and when you will follow up. This is kept in the activity history. It doesn&apos;t change the status or the rule result.</p>
+                <label htmlFor="handling">{t("actions.handlingLabel")}</label>
+                <p className="hint">{t("actions.handlingHint")}</p>
                 <textarea id="handling" required value={handling} maxLength={4000} onChange={(e) => setHandling(e.target.value)} />
               </div>
-              <button className="btn secondary" type="submit" disabled={busy || !handling.trim()}>{busy ? "Saving…" : "Save Handling Note"}</button>
+              <button className="btn secondary" type="submit" disabled={busy || !handling.trim()}>{busy ? t("common.saving") : t("actions.saveHandling")}</button>
             </form>
           )}
         </div>
       )}
 
       {panel === "close" && wf.can.recordOutcome && (
-        <form className="card" onSubmit={(e) => { e.preventDefault(); if (!locked) transition("record_and_close", `Admin recorded: ${note}`, "Recorded and closed."); }}>
+        <form className="card" onSubmit={(e) => { e.preventDefault(); if (!locked) transition("record_and_close", `Admin recorded: ${note}`, t("actions.recordedClosed")); }}>
           <div className="field">
-            <label htmlFor="did">What did you do?</label>
-            <p className="hint">For example: &ldquo;Processed the $30 refund in the payment system and emailed the parent.&rdquo; Tutor Compass records your note. It did not do these things itself.</p>
+            <label htmlFor="did">{t("actions.whatDidYouDo")}</label>
+            <p className="hint">{t("actions.whatDidYouDoHint")}</p>
             <textarea id="did" required value={note} maxLength={3900} onChange={(e) => setNote(e.target.value)} />
           </div>
           <label className="check">
             <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
-            I completed these steps outside Tutor Compass, or I am recording that no action will be taken.
+            {t("actions.completedOutside")}
           </label>
           {error && <p className="notice error" role="alert">{error}</p>}
-          <button className="btn" type="submit" disabled={locked || !confirmed || !note.trim()}>{busy ? "Saving…" : "Record and Close"}</button>
+          <button className="btn" type="submit" disabled={locked || !confirmed || !note.trim()}>{busy ? t("common.saving") : t("actions.recordAndClose")}</button>
         </form>
       )}
     </div>

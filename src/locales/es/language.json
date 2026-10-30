@@ -1,0 +1,9 @@
+{
+  "title": "Idioma",
+  "buttonLabel": "Idioma: {{language}} ({{english}}). Cambiar idioma",
+  "changed": "Idioma cambiado a {{language}}.",
+  "loadFailed": "No se pudo cargar {{language}}. La página sigue en el idioma actual. Revisa tu conexión y vuelve a intentarlo.",
+  "loading": "Cargando…",
+  "settingsHint": "Cambia al momento el idioma de los menús, botones, formularios y mensajes. Los nombres, las referencias de reserva y todo lo que haya escrito la gente se quedan tal como se introdujeron.",
+  "reviewNote": "Las traducciones que no son en inglés son primeras versiones y todavía las están revisando hablantes nativos. Si algo suena raro, el inglés siempre está en esta lista."
+}

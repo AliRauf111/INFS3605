@@ -12,6 +12,9 @@ import { AssistantMessage, type ActionState, type ChatItem } from "./Messages";
 import { useSpeech, useVoice } from "./useVoice";
 import { motionReduced } from "@/lib/a11y/motion";
 import { DEMO_EPOCH_COOKIE, freshChat, readCookie } from "@/lib/demo/mode";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import type { Translate } from "@/lib/i18n/core";
+import { VOICE_MESSAGES } from "./voice-session";
 import { isNearBottom, lockPageScroll, makeSiblingsInert, scrollTargetForNew, stopMedia, workspaceGeometry, type WorkspaceGeometry } from "@/lib/assistant/workspace";
 
 // Compass AI: the floating assistant on every signed-in page. This component owns the
@@ -41,12 +44,17 @@ const uid = () => crypto.randomUUID();
 /** What the welcome screen says about AI. It only changes with the server's AI setting. */
 const SHORTCUT_ICON: Record<ShortcutId, IconName> = { attention: "requests", lesson_change: "calendar", payment_extension: "wallet", tutor_absence: "people" };
 
-function welcomeMode(aiLive: boolean): string {
-  return aiLive
-    ? "Live AI is on. It only reads your messages and words summaries. Records, permissions and the owner's rules decide everything. The four shortcuts use no AI."
-    : "Demo mode: no AI service is connected. Keyword rules, current records and the owner's rules run everything, and every workflow works in full.";
+function welcomeMode(aiLive: boolean, t: Translate): string {
+  return aiLive ? t("compass.welcomeLive") : t("compass.welcomeDemo");
 }
 
+/** The voice session reports its fixed English messages; show them in the chosen language. */
+function voiceError(message: string, t: Translate): string {
+  const key = (Object.keys(VOICE_MESSAGES) as (keyof typeof VOICE_MESSAGES)[]).find((k) => VOICE_MESSAGES[k] === message);
+  return key ? t(`compass.voice.error.${key}`) : message;
+}
+
+// Read aloud with an English voice alongside the English replies, so this stays English.
 function spokenText(blocks: Block[]): string {
   return blocks
     .map((b) => {
@@ -85,7 +93,7 @@ const Icon = {
 };
 function Svg({ name, label }: { name: keyof typeof Icon; label?: string }) {
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill={name === "stop" ? "currentColor" : "none"} stroke="currentColor" strokeWidth={name === "more" ? 3.2 : 2} strokeLinecap="round" strokeLinejoin="round" aria-hidden={label ? undefined : true} role={label ? "img" : undefined} aria-label={label}>
+    <svg viewBox="0 0 24 24" width="20" height="20" fill={name === "stop" ? "currentColor" : "none"} stroke="currentColor" strokeWidth={name === "more" ? 3.2 : 2} strokeLinecap="round" strokeLinejoin="round" aria-hidden={label ? undefined : true} role={label ? "img" : undefined} aria-label={label} data-flip={name === "send" ? "" : undefined}>
       {Icon[name]}
     </svg>
   );
@@ -112,7 +120,10 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const [attachNote, setAttachNote] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [modeNote, setModeNote] = useState(() => welcomeMode(aiLive));
+  const { t, lang } = useI18n();
+  // The server's own note (English) once Compass has replied; until then the welcome text.
+  const [serverNote, setServerNote] = useState<string | null>(null);
+  const modeNote = serverNote ?? welcomeMode(aiLive, t);
   const [geom, setGeom] = useState<WorkspaceGeometry | null>(null);
   const [demoEpoch, setDemoEpoch] = useState<string | null>(null);
 
@@ -202,11 +213,15 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const measure = useCallback(() => {
     const vv = window.visualViewport;
     const rail = document.querySelector<HTMLElement>(".rail");
+    // Right to left, the rail sits on the right, so measure it from that edge.
+    const rtl = document.documentElement.dir === "rtl";
+    const width = document.documentElement.clientWidth || window.innerWidth;
+    const railBox = rail && getComputedStyle(rail).position === "fixed" ? rail.getBoundingClientRect() : null;
     const next = workspaceGeometry({
-      width: document.documentElement.clientWidth || window.innerWidth,
+      width,
       height: vv?.height ?? window.innerHeight,
       offsetTop: vv?.offsetTop ?? 0,
-      rail: rail && getComputedStyle(rail).position === "fixed" ? rail.getBoundingClientRect().right : 0,
+      rail: railBox ? (rtl ? width - railBox.left : railBox.right) : 0,
     });
     setGeom((g) => (g && g.mode === next.mode && g.top === next.top && g.left === next.left && g.width === next.width && g.height === next.height && g.rail === next.rail ? g : next));
   }, []);
@@ -223,6 +238,12 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       vv?.removeEventListener("scroll", measure);
     };
   }, [hydrated, measure]);
+  // Switching to or from Arabic moves the rail to the other side, so measure again.
+  useEffect(() => {
+    if (!hydrated) return;
+    const frame = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(frame);
+  }, [hydrated, measure, lang]);
 
   const flash = useCallback((m: AvatarState, ms = 1100) => {
     if (moodTimer.current) clearTimeout(moodTimer.current);
@@ -327,13 +348,15 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   // A button can also start one of the shortcuts straight away, such as "Change a lesson"
   // on the Schedule page.
   const startRef = useRef<((input: SendInput, label: string) => unknown) | null>(null);
+  const labelRef = useRef((id: ShortcutId) => t(`compass.shortcut.${id}.label`));
+  labelRef.current = (id: ShortcutId) => t(`compass.shortcut.${id}.label`);
   useEffect(() => {
     const onOpen = (e: Event) => {
       const detail = (e as CustomEvent<{ opener?: HTMLElement; shortcut?: string }>).detail;
       openerRef.current = detail?.opener instanceof HTMLElement ? detail.opener : null;
       openRef.current();
       const shortcut = SHORTCUTS.find((s) => s.id === detail?.shortcut);
-      if (shortcut) void startRef.current?.({ start: shortcut.id }, shortcut.label);
+      if (shortcut) void startRef.current?.({ start: shortcut.id }, labelRef.current(shortcut.id));
     };
     window.addEventListener("compass:open", onOpen);
     return () => window.removeEventListener("compass:open", onOpen);
@@ -343,8 +366,8 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   // message box so they aren't lost. Only New conversation clears anything.
   const closePanel = () => {
     if (mode === "voice") {
-      const t = voice.transcript.trim();
-      if (t) setDraft((d) => (d ? `${d} ${t}` : t));
+      const words = voice.transcript.trim();
+      if (words) setDraft((d) => (d ? `${d} ${words}` : words));
       voice.setTranscript("");
     }
     stopMedia({ releaseMic: voice.release, stopSpeaking: speech.cancel });
@@ -467,15 +490,15 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
         signal: ctrl.signal,
       });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((json as { error?: string }).error ?? `Compass hit a problem (${res.status}).`);
+      if (!res.ok) throw new Error((json as { error?: string }).error ?? t("compass.problem", { status: res.status }));
       const turn = json as TurnResponse;
       setItems((xs) => [...xs, { id: uid(), role: "assistant", blocks: turn.blocks, steps: turn.steps, modeNote: turn.modeNote }]);
       setConv(turn.state);
-      setModeNote(turn.modeNote);
+      setServerNote(turn.modeNote);
       setAvailable(true);
       flash(turn.mood === "success" ? "success" : turn.mood === "clarify" ? "clarify" : turn.mood === "error" ? "error" : "replying");
       const spoken = spokenText(turn.blocks);
-      setAnnounce(`Compass: ${spoken}`);
+      setAnnounce(t("compass.said", { text: spoken }));
       if (readAloud) speech.speak(spoken);
     } catch (e) {
       const stopped = e instanceof DOMException && e.name === "AbortError";
@@ -484,8 +507,8 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
         {
           id: uid(), role: "assistant", error: !stopped,
           text: stopped
-            ? "Stopped. Your message is back in the box if you want to change it."
-            : `${e instanceof Error ? e.message : "Compass couldn't reply."} Your message is back in the box, so nothing is lost.`,
+            ? t("compass.stopped")
+            : t("compass.errorKept", { error: e instanceof Error && e.message !== "Failed to fetch" ? e.message : t("compass.couldntReply") }),
         },
       ]);
       if (input.message) setDraft(input.message);
@@ -493,12 +516,12 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
         setAvailable(false);
         flash("error", 2500);
       }
-      setAnnounce(stopped ? "Stopped." : "Compass couldn't reply.");
+      setAnnounce(stopped ? t("compass.stoppedShort") : t("compass.couldntReply"));
     } finally {
       setBusy(false);
       abortRef.current = null;
     }
-  }, [busy, sessionKey, conv, flash, readAloud, speech]);
+  }, [busy, sessionKey, conv, flash, readAloud, speech, t]);
   startRef.current = send;
 
   const submitDraft = () => {
@@ -528,30 +551,30 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
   const newConversation = () => {
     setMenuOpen(false);
-    if (items.length && !window.confirm("Start a new conversation? This clears the current one.")) return;
+    if (items.length && !window.confirm(t("compass.confirmNew"))) return;
     abortRef.current?.abort();
     speech.cancel();
     setItems([]);
     setConv(EMPTY_STATE);
     setSessionKey(uid());
     setDraft("");
-    setModeNote(welcomeMode(aiLive));
+    setServerNote(null);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   const onFile = async (file: File | undefined) => {
     if (!file) return;
     if (!(file.type === "text/plain" || /\.txt$/i.test(file.name))) {
-      setAttachNote("Only plain text (.txt) files can be read. Paste anything else into the message box.");
+      setAttachNote(t("compass.onlyTxt"));
       return;
     }
     if (file.size > 20_000) {
-      setAttachNote("That file is too long. Paste the part that matters instead.");
+      setAttachNote(t("compass.tooLong"));
       return;
     }
     const text = (await file.text()).trim().slice(0, 3500);
     setDraft((d) => (d ? `${d}\n\n${text}` : text));
-    setAttachNote(`Added the text from ${file.name}. Check it, then send.`);
+    setAttachNote(t("compass.addedFile", { name: file.name }));
     inputRef.current?.focus();
   };
 
@@ -562,15 +585,15 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     voice.release();
     voice.setTranscript("");
     setMode("voice");
-    setAnnounce("Voice mode.");
+    setAnnounce(t("compass.voiceModeOn"));
     voice.start();
     // The button pressed is replaced by voice mode, so put focus on its main control.
     requestAnimationFrame(() => rootRef.current?.querySelector<HTMLElement>(".cp-mic-btn")?.focus({ preventScroll: true }));
   };
   const leaveVoice = (keepWords: boolean) => {
     voice.release();
-    const t = voice.transcript.trim();
-    if (keepWords && t) setDraft((d) => (d ? `${d} ${t}` : t));
+    const words = voice.transcript.trim();
+    if (keepWords && words) setDraft((d) => (d ? `${d} ${words}` : words));
     voice.setTranscript("");
     setMode("chat");
     setTimeout(() => inputRef.current?.focus(), 0);
@@ -580,12 +603,12 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const backToTyping = () => leaveVoice(true);
   const cancelVoice = () => leaveVoice(false);
   const sendVoice = async () => {
-    const t = voice.transcript.trim();
-    if (!t || busy) return;
+    const words = voice.transcript.trim();
+    if (!words || busy) return;
     // Give the microphone back before waiting for Compass to reply.
     voice.release();
     voice.setTranscript("");
-    await send({ message: t }, t);
+    await send({ message: words }, words);
     setMode("chat");
   };
 
@@ -602,22 +625,23 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const showWelcome = items.length === 0;
 
   const voiceLabel = busy
-    ? "Processing…"
+    ? t("compass.voice.processing")
     : voice.phase === "requesting"
-      ? "Waiting for Microphone Permission"
+      ? t("compass.voice.waitingPermission")
       : voice.phase === "listening"
-        ? "Listening…"
+        ? t("compass.voice.listening")
         : voice.phase === "finishing"
-          ? "Processing…"
+          ? t("compass.voice.processing")
           : voice.transcript.trim() && !voice.error
-            ? "Microphone Off. Check your words, then send."
-            : "Microphone Off";
+            ? t("compass.voice.offCheck")
+            : t("compass.voice.off");
 
 
+  // geom.left is the distance from the rail's side, which is the right edge in Arabic.
   const panelStyle: CSSProperties | undefined = geom
-    ? { top: geom.top, left: geom.left, width: geom.width, height: geom.height }
+    ? { top: geom.top, insetInlineStart: geom.left, width: geom.width, height: geom.height }
     : undefined;
-  const indicator = aiLive ? "Live AI" : "Demo mode";
+  const indicator = aiLive ? t("compass.liveAi") : t("compass.demoMode");
 
   // Rendered into <body> once mounted, so no page container or stacking context can clip it.
   if (!hydrated) return null;
@@ -639,8 +663,8 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
       {greeting && !open && !dodge && (
         <div className="cl-greeting" role="status">
-          <span>Hi {firstName}. Need a hand?</span>
-          <button type="button" className="cl-greeting-close" aria-label="Dismiss greeting" onClick={() => setGreeting(false)}><Svg name="close" /></button>
+          <span>{t("compass.greeting", { name: firstName })}</span>
+          <button type="button" className="cl-greeting-close" aria-label={t("compass.dismissGreeting")} onClick={() => setGreeting(false)}><Svg name="close" /></button>
         </div>
       )}
 
@@ -655,30 +679,31 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
           <div className="ai-brand">
             <span className="small-orb" aria-hidden="true">✦</span>
             <div>
-              <h2 id="compass-title" ref={titleRef} tabIndex={-1}>Compass AI</h2>
-              <span>{mode === "voice" ? "Voice mode" : "Your business. Your call."}</span>
+              <h2 id="compass-title" ref={titleRef} tabIndex={-1}>{t("compass.title")}</h2>
+              <span>{mode === "voice" ? t("compass.voiceMode") : t("compass.tagline")}</span>
             </div>
             <span className="badge lilac" title={modeNote}>{indicator}</span>
           </div>
           <div className="ai-actions">
             {speech.speaking && (
-              <button type="button" className="cp-icon-btn" onClick={speech.cancel} aria-label="Stop reading aloud" title="Stop reading aloud"><Svg name="stop" /></button>
+              <button type="button" className="cp-icon-btn" onClick={speech.cancel} aria-label={t("compass.stopReading")} title={t("compass.stopReading")}><Svg name="stop" /></button>
             )}
             <button type="button" className="text-btn" onClick={newConversation}>
-              <StudioIcon name="refresh" /> Start over
+              <StudioIcon name="refresh" /> {t("compass.startOver")}
             </button>
             <div className="cp-menu-wrap">
-              <button type="button" className="cp-icon-btn" aria-label="Compass settings" title="Compass settings" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><Svg name="more" /></button>
+              <button type="button" className="cp-icon-btn" aria-label={t("compass.settings")} title={t("compass.settings")} aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><Svg name="more" /></button>
               {menuOpen && (
                 <div className="cp-menu" role="menu">
                   <button type="button" role="menuitemcheckbox" aria-checked={readAloud} disabled={!speech.available} onClick={() => { setReadAloud((v) => !v); speech.cancel(); }}>
-                    <span className={`cp-check${readAloud ? " on" : ""}`} aria-hidden="true">{readAloud ? "✓" : ""}</span> Read replies aloud
+                    <span className={`cp-check${readAloud ? " on" : ""}`} aria-hidden="true">{readAloud ? "✓" : ""}</span> {t("compass.readAloud")}
                   </button>
-                  <p className="cp-menu-note">{modeNote}</p>
+                  <p className="cp-menu-note" lang={serverNote ? "en" : undefined}>{modeNote}</p>
+                  {lang !== "en" && <p className="cp-menu-note">{t("compass.repliesEnglish")}</p>}
                 </div>
               )}
             </div>
-            <button type="button" className="icon-btn" onClick={closePanel} aria-label="Close Compass AI" title="Close Compass AI"><StudioIcon name="close" /></button>
+            <button type="button" className="icon-btn" onClick={closePanel} aria-label={t("compass.close")} title={t("compass.close")}><StudioIcon name="close" /></button>
           </div>
         </header>
 
@@ -697,24 +722,25 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
                   {showWelcome && (
                     <section className="cp-welcome ai-welcome">
                       <BotScene />
-                      <p className="eyebrow">A clearer next step</p>
-                      <h3>Let us take something<br />off your plate.</h3>
-                      <p>Hi {firstName}. Your bookings, policies and business context, brought together.<br />Choose a starting point. We will work through it together.</p>
-                      <nav className="shortcuts" aria-label="Shortcuts">
+                      <p className="eyebrow">{t("compass.eyebrow")}</p>
+                      <h3>{t("compass.welcomeLine1")}<br />{t("compass.welcomeLine2")}</h3>
+                      <p>{t("compass.welcomeIntro1", { name: firstName })}<br />{t("compass.welcomeIntro2")}</p>
+                      {lang !== "en" && <p className="hint">{t("compass.repliesEnglish")}</p>}
+                      <nav className="shortcuts" aria-label={t("compass.shortcutsLabel")}>
                         {SHORTCUTS.map((x) => (
-                          <button key={x.id} type="button" className="shortcut" data-shortcut={x.id} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
+                          <button key={x.id} type="button" className="shortcut" data-shortcut={x.id} disabled={busy} onClick={() => void send({ start: x.id }, t(`compass.shortcut.${x.id}.label`))}>
                             <span className="sc-icon" aria-hidden="true"><StudioIcon name={SHORTCUT_ICON[x.id]} /></span>
-                            <div><strong>{x.label}</strong><p>{x.hint}</p></div>
+                            <div><strong>{t(`compass.shortcut.${x.id}.label`)}</strong><p>{t(`compass.shortcut.${x.id}.hint`)}</p></div>
                             {x.layout === "wide" && <StudioIcon name="arrow" />}
                           </button>
                         ))}
                       </nav>
-                      <div className="welcome-foot"><StudioIcon name="info" />{aiLive ? "Live AI on" : "Demo mode, no AI service connected"} · plans need your confirmation · nothing is sent without you</div>
+                      <div className="welcome-foot"><StudioIcon name="info" />{aiLive ? t("compass.welcomeFootLive") : t("compass.welcomeFootDemo")} · {t("compass.welcomeFootRest")}</div>
                     </section>
                   )}
                   {items.map((item, i) =>
                     item.role === "user" ? (
-                      <div key={item.id} className="cp-msg user"><div className="cp-bubble user">{item.text}</div></div>
+                      <div key={item.id} className="cp-msg user"><div className="cp-bubble user" dir="auto">{item.text}</div></div>
                     ) : (
                       <AssistantMessage
                         key={item.id}
@@ -734,40 +760,41 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
                     <div className="cp-msg assistant cp-pending">
                       <CompassAvatar size={28} state="thinking" className="cp-msg-avatar" />
                       <div className="cp-msg-body">
-                        <div className="cp-bubble cp-typing" role="status"><span className="cp-dots" aria-hidden="true"><i /><i /><i /></span> Compass is checking…</div>
+                        <div className="cp-bubble cp-typing" role="status"><span className="cp-dots" aria-hidden="true"><i /><i /><i /></span> {t("compass.checking")}</div>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
-              {showNew && <button type="button" className="cp-new" onClick={scrollToEnd}>New message ↓</button>}
+              {showNew && <button type="button" className="cp-new" onClick={scrollToEnd}>{t("compass.newMessage")}</button>}
             </div>
 
             <form className="cp-composer" onSubmit={(e) => { e.preventDefault(); submitDraft(); }}>
               <div className="cp-col">
                 {attachNote && <p className="cp-attach-note" role="status">{attachNote}</p>}
                 <div className="cp-input">
-                  <button type="button" className="cp-icon-btn" aria-label="Attach a text file" title="Attach a text file" onClick={() => fileRef.current?.click()}><Svg name="clip" /></button>
+                  <button type="button" className="cp-icon-btn" aria-label={t("compass.attach")} title={t("compass.attach")} onClick={() => fileRef.current?.click()}><Svg name="clip" /></button>
                   <input ref={fileRef} type="file" accept=".txt,text/plain" hidden onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = ""; }} />
-                  <label htmlFor="compass-input" className="sr-only">Message Compass</label>
+                  <label htmlFor="compass-input" className="sr-only">{t("compass.messageLabel")}</label>
                   <textarea
                     id="compass-input"
                     ref={inputRef}
                     rows={1}
                     value={draft}
-                    placeholder="Ask Compass…"
+                    placeholder={t("compass.placeholder")}
+                    dir="auto"
                     maxLength={4000}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={onKeyDown}
                   />
-                  <button type="button" className="cp-icon-btn" aria-label="Start Voice Input" title="Start Voice Input" onClick={enterVoice} disabled={busy}><Svg name="mic" /></button>
+                  <button type="button" className="cp-icon-btn" aria-label={t("compass.startVoice")} title={t("compass.startVoice")} onClick={enterVoice} disabled={busy}><Svg name="mic" /></button>
                   {busy ? (
-                    <button type="button" className="cp-send stop" aria-label="Stop the reply" title="Stop the reply" onClick={() => abortRef.current?.abort()}><Svg name="stop" /></button>
+                    <button type="button" className="cp-send stop" aria-label={t("compass.stopReply")} title={t("compass.stopReply")} onClick={() => abortRef.current?.abort()}><Svg name="stop" /></button>
                   ) : (
-                    <button type="submit" className="cp-send" aria-label="Send message" title="Send message" disabled={!draft.trim()}><Svg name="send" /></button>
+                    <button type="submit" className="cp-send" aria-label={t("compass.send")} title={t("compass.send")} disabled={!draft.trim()}><Svg name="send" /></button>
                   )}
                 </div>
-                <p className="cp-footnote">AI suggests. Owner rules decide.</p>
+                <p className="cp-footnote">{t("compass.footnote")}</p>
               </div>
             </form>
           </>
@@ -782,43 +809,44 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
               {WAVE.map((i) => <span key={i} style={{ animationDelay: `${(i % 7) * -0.13 - i * 0.03}s` }} />)}
             </div>
             <p className="cp-voice-status" role="status">{voiceLabel}</p>
-            {voice.error && <p className="cp-error" role="alert">{voice.error}</p>}
-            <label htmlFor="compass-transcript" className="sr-only">Your words</label>
+            {voice.error && <p className="cp-error" role="alert">{voiceError(voice.error, t)}</p>}
+            <label htmlFor="compass-transcript" className="sr-only">{t("compass.voice.yourWords")}</label>
             <textarea
               id="compass-transcript"
               className="cp-transcript"
               rows={3}
               value={voice.transcript}
-              placeholder={voice.phase === "listening" ? "Start speaking…" : "Your words will appear here."}
+              placeholder={voice.phase === "listening" ? t("compass.voice.startSpeaking") : t("compass.voice.wordsAppear")}
+              dir="auto"
               onChange={(e) => voice.setTranscript(e.target.value)}
               readOnly={busy}
             />
-            <p className="cp-small center">Review your words before sending.</p>
+            <p className="cp-small center">{t("compass.voice.review")}{lang !== "en" ? ` ${t("compass.voice.englishNote")}` : ""}</p>
             <div className="cp-voice-actions">
               <div className="cp-mic-wrap">
                 {voice.active ? (
-                  <button type="button" className="cp-mic-btn on" onClick={voice.stop} aria-label={voice.phase === "requesting" ? "Stop Waiting for Microphone" : "Stop Voice Input"}>
+                  <button type="button" className="cp-mic-btn on" onClick={voice.stop} aria-label={voice.phase === "requesting" ? t("compass.voice.stopWaiting") : t("compass.voice.stopVoice")}>
                     <Svg name="stop" />
                   </button>
                 ) : (
-                  <button type="button" className="cp-mic-btn" onClick={voice.start} disabled={busy || !voice.supported} aria-label={voice.error ? "Try Voice Input Again" : "Start Voice Input"}>
+                  <button type="button" className="cp-mic-btn" onClick={voice.start} disabled={busy || !voice.supported} aria-label={voice.error ? t("compass.voice.tryAgainVoice") : t("compass.startVoice")}>
                     <Svg name="mic" />
                   </button>
                 )}
-                <span className="cp-mic-caption" aria-hidden="true">{voice.active ? (voice.phase === "requesting" ? "Stop Waiting" : "Stop Voice Input") : voice.error ? "Try Again" : "Start Voice Input"}</span>
+                <span className="cp-mic-caption" aria-hidden="true">{voice.active ? (voice.phase === "requesting" ? t("compass.voice.stopWaitingShort") : t("compass.voice.stopVoice")) : voice.error ? t("compass.voice.tryAgain") : t("compass.startVoice")}</span>
               </div>
               <div className="cp-voice-side">
-                <button type="button" className="cp-btn" onClick={() => void sendVoice()} disabled={!voice.transcript.trim() || busy}>Send</button>
-                <button type="button" className="cp-btn secondary" onClick={backToTyping} disabled={busy}><Svg name="keyboard" /> Type Instead</button>
-                <button type="button" className="cp-btn secondary" onClick={cancelVoice} disabled={busy}>Cancel</button>
+                <button type="button" className="cp-btn" onClick={() => void sendVoice()} disabled={!voice.transcript.trim() || busy}>{t("compass.voice.send")}</button>
+                <button type="button" className="cp-btn secondary" onClick={backToTyping} disabled={busy}><Svg name="keyboard" /> {t("compass.voice.typeInstead")}</button>
+                <button type="button" className="cp-btn secondary" onClick={cancelVoice} disabled={busy}>{t("compass.voice.cancel")}</button>
               </div>
             </div>
             <label className="cp-toggle">
               <input type="checkbox" checked={readAloud} disabled={!speech.available} onChange={(e) => { setReadAloud(e.target.checked); speech.cancel(); }} />
               <span className="cp-switch" aria-hidden="true" />
-              Read replies aloud
+              {t("compass.readAloud")}
             </label>
-            <p className="cp-small center">Voice typing uses your browser&apos;s speech service. Nothing is sent to Tutor Compass until you press Send.</p>
+            <p className="cp-small center">{t("compass.voice.privacy")}</p>
           </div>
         )}
       </div>
@@ -827,7 +855,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       <div ref={launcherBoxRef} className={`cl-launcher${open ? " is-open" : ""}${dodge && !open ? ` is-${dodge}` : ""}`}>
         <button type="button" className="cl-pill" onClick={open ? closePanel : () => { openerRef.current = null; openPanel(); }} tabIndex={-1} aria-hidden="true">
           <StudioIcon name="sparkle" />
-          Ask Compass
+          {t("compass.launcher")}
         </button>
         <button
           ref={launcherRef}
@@ -836,7 +864,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
           onClick={open ? closePanel : () => { openerRef.current = null; openPanel(); }}
           aria-expanded={open}
           aria-controls="compass-panel"
-          aria-label={open ? "Close Compass AI" : `Open Compass AI assistant${available ? "" : ". Having trouble connecting"}`}
+          aria-label={open ? t("compass.close") : available ? t("compass.openLauncher") : t("compass.openLauncherTrouble")}
         >
           {/* The Studio robot, as on the welcome screen. */}
           <span className="bot launcher-bot" aria-hidden="true"><span className="antenna" /><span className="bot-face"><i className="bot-eye" /><i className="bot-eye" /></span></span>

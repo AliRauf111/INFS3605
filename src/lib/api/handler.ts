@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
 import { AuthError } from "@/lib/auth/session";
 import { ConfigError, DbError } from "@/lib/db/supabase";
+import { getI18n } from "@/lib/i18n/server";
 
 // Shared wrapper for API routes: checks the request came from our own pages, reads
 // JSON safely and turns known errors into clear responses. It never sends stack traces
@@ -40,7 +41,7 @@ export async function readJson(req: NextRequest): Promise<unknown> {
   try {
     return await req.json();
   } catch {
-    throw new ApiError(400, "The request body must be valid JSON.");
+    throw new ApiError(400, (await getI18n()).t("errors.badJson"));
   }
 }
 
@@ -50,18 +51,22 @@ export function apiRoute<P = Record<string, never>>(handler: (req: NextRequest, 
   return async (req: NextRequest, ctx: Ctx<P>) => {
     try {
       if (req.method !== "GET" && !sameOrigin(req)) {
-        throw new ApiError(403, "Requests must come from the Tutor Compass app.");
+        throw new ApiError(403, (await getI18n()).t("errors.sameOrigin"));
       }
       const body = await handler(req, ctx);
       if (body instanceof NextResponse) return body; // routes that also set cookies
       return NextResponse.json(body ?? { ok: true });
     } catch (error) {
       if (error instanceof ApiError) return NextResponse.json({ error: error.message, details: error.details }, { status: error.status });
-      if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.status });
+      if (error instanceof AuthError) {
+        const { t } = await getI18n();
+        const message = error.status === 401 ? t("errors.signIn") : error.role === "owner" ? t("errors.ownerOnly") : error.role === "admin" ? t("errors.adminOnly") : error.message;
+        return NextResponse.json({ error: message }, { status: error.status });
+      }
       if (error instanceof DbError) return NextResponse.json({ error: error.message }, { status: DB_STATUS[error.code] });
-      if (error instanceof ConfigError) return NextResponse.json({ error: "The server is not configured yet. See README.md." }, { status: 503 });
+      if (error instanceof ConfigError) return NextResponse.json({ error: (await getI18n()).t("errors.notConfigured") }, { status: 503 });
       console.error("[api] unexpected error", error instanceof Error ? error.message : error);
-      return NextResponse.json({ error: "Something went wrong on the server. Check the request log before trying again." }, { status: 500 });
+      return NextResponse.json({ error: (await getI18n().catch(() => null))?.t("errors.server") ?? "Something went wrong on the server. Check the request log before trying again." }, { status: 500 });
     }
   };
 }

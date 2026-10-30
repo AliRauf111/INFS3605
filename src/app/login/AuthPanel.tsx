@@ -2,19 +2,22 @@
 import { useEffect, useState } from "react";
 import { PROVIDERS, type ProviderId } from "@/lib/auth/providers";
 import { LoginForm } from "./LoginForm";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import type { TKey } from "@/lib/i18n/core";
 
 export type Mode = "signin" | "signup" | "forgot";
 export type Message = { tone: "error" | "info" | "success"; text: string } | null;
 
-const HEADINGS: Record<Mode, { title: string; sub: string }> = {
-  signin: { title: "Welcome Back!", sub: "" },
-  signup: { title: "Create Your Account!", sub: "" },
-  forgot: { title: "Reset your password", sub: "We'll email you a link to choose a new one." },
+const HEADINGS: Record<Mode, { title: TKey; sub?: TKey }> = {
+  signin: { title: "auth.heading.signin" },
+  signup: { title: "auth.heading.signup" },
+  forgot: { title: "auth.heading.forgot", sub: "auth.heading.forgotSub" },
 };
 
 export function AuthPanel({ next, initialMode, message, demo }: { next: string; initialMode: Mode; message: Message; demo?: React.ReactNode }) {
   const [mode, setMode] = useState<Mode>(initialMode);
   const [note, setNote] = useState<Message>(message);
+  const { t } = useI18n();
   const switchTo = (m: Mode) => {
     setMode(m);
     setNote(null);
@@ -33,13 +36,13 @@ export function AuthPanel({ next, initialMode, message, demo }: { next: string; 
 
   return (
     <>
-      <h2 id="signin-heading">{h.title}</h2>
-      {h.sub ? <p className="landing-sub">{h.sub}</p> : <div className="landing-sub-gap" />}
+      <h2 id="signin-heading">{t(h.title)}</h2>
+      {h.sub ? <p className="landing-sub">{t(h.sub)}</p> : <div className="landing-sub-gap" />}
 
       {mode !== "forgot" && (
-        <div className="auth-tabs" role="tablist" aria-label="Sign in or create an account">
-          <button type="button" role="tab" id="tab-signin" aria-selected={mode === "signin"} aria-controls="auth-panel" onClick={() => switchTo("signin")}>Sign in</button>
-          <button type="button" role="tab" id="tab-signup" aria-selected={mode === "signup"} aria-controls="auth-panel" onClick={() => switchTo("signup")}>Create account</button>
+        <div className="auth-tabs" role="tablist" aria-label={t("auth.tabsLabel")}>
+          <button type="button" role="tab" id="tab-signin" aria-selected={mode === "signin"} aria-controls="auth-panel" onClick={() => switchTo("signin")}>{t("auth.signIn")}</button>
+          <button type="button" role="tab" id="tab-signup" aria-selected={mode === "signup"} aria-controls="auth-panel" onClick={() => switchTo("signup")}>{t("auth.createAccount")}</button>
         </div>
       )}
 
@@ -52,11 +55,11 @@ export function AuthPanel({ next, initialMode, message, demo }: { next: string; 
               {PROVIDERS.map((p) => (
                 <a key={p.id} className="sso-btn" href={`/api/auth/oauth?provider=${p.id}&next=${encodeURIComponent(next)}`}>
                   <ProviderIcon id={p.id} />
-                  Continue with {p.label}
+                  {t("auth.continueWith", { provider: p.label })}
                 </a>
               ))}
             </div>
-            <div className="auth-divider"><span>or use your email</span></div>
+            <div className="auth-divider"><span>{t("auth.orEmail")}</span></div>
           </>
         )}
 
@@ -65,11 +68,11 @@ export function AuthPanel({ next, initialMode, message, demo }: { next: string; 
         {mode === "forgot" && <ForgotForm onBack={() => switchTo("signin")} />}
 
         {mode === "signin" && (
-          <p className="auth-switch">New to Tutor Compass? <button type="button" className="link-btn" onClick={() => switchTo("signup")}>Create an account</button></p>
+          <p className="auth-switch">{t("auth.newHere")} <button type="button" className="link-btn" onClick={() => switchTo("signup")}>{t("auth.createAnAccount")}</button></p>
         )}
         {mode === "signin" && demo}
         {mode === "signup" && (
-          <p className="auth-switch">Already have an account? <button type="button" className="link-btn" onClick={() => switchTo("signin")}>Sign in</button></p>
+          <p className="auth-switch">{t("auth.haveAccount")} <button type="button" className="link-btn" onClick={() => switchTo("signin")}>{t("auth.signIn")}</button></p>
         )}
       </div>
     </>
@@ -82,6 +85,7 @@ async function post(url: string, body: unknown): Promise<{ ok: boolean; body: Re
 }
 
 function SignupForm({ onDone }: { onDone: (text: string) => void }) {
+  const { t } = useI18n();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -89,16 +93,16 @@ function SignupForm({ onDone }: { onDone: (text: string) => void }) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const password = String(form.get("password") ?? "");
-    if (password.length < 8) return setError("Use at least 8 characters for your password.");
+    if (password.length < 8) return setError(t("auth.passwordShort"));
     setBusy(true);
     setError(null);
     const { ok, body } = await post("/api/auth/signup", { name: form.get("name"), email: form.get("email"), password });
     setBusy(false);
-    if (!ok) return setError(typeof body.error === "string" ? body.error : "Your account couldn't be created. Try again.");
+    if (!ok) return setError(typeof body.error === "string" ? body.error : t("auth.signupFailed"));
     onDone(
       body.needsConfirm
-        ? "Check your email for a link to confirm your account. After that, the owner needs to give you access before you can sign in."
-        : "Your account is set up. The owner needs to give you access before you can sign in.",
+        ? t("auth.signupConfirm")
+        : t("auth.signupDone"),
     );
   }
 
@@ -106,23 +110,24 @@ function SignupForm({ onDone }: { onDone: (text: string) => void }) {
     <form className="login-form" onSubmit={onSubmit} noValidate>
       {error && <div className="notice error" role="alert">{error}</div>}
       <div className="field">
-        <label htmlFor="su-name">Your name</label>
-        <input id="su-name" name="name" type="text" autoComplete="name" maxLength={80} required />
+        <label htmlFor="su-name">{t("auth.yourName")}</label>
+        <input id="su-name" name="name" type="text" autoComplete="name" maxLength={80} dir="auto" required />
       </div>
       <div className="field">
-        <label htmlFor="su-email">Work email</label>
-        <input id="su-email" name="email" type="email" autoComplete="email" placeholder="you@tutoringcentre.com.au" required />
+        <label htmlFor="su-email">{t("auth.workEmail")}</label>
+        <input id="su-email" name="email" type="email" autoComplete="email" placeholder={t("auth.emailPlaceholder")} dir="ltr" required />
       </div>
       <div className="field">
-        <label htmlFor="su-password">Password</label>
-        <input id="su-password" name="password" type="password" autoComplete="new-password" minLength={8} required placeholder="At least 8 characters" />
+        <label htmlFor="su-password">{t("auth.password")}</label>
+        <input id="su-password" name="password" type="password" autoComplete="new-password" minLength={8} required placeholder={t("auth.passwordPlaceholder")} />
       </div>
-      <button className="btn login-btn" type="submit" disabled={busy}>{busy ? "Creating account…" : "Create account"}</button>
+      <button className="btn login-btn" type="submit" disabled={busy}>{busy ? t("auth.creating") : t("auth.createAccount")}</button>
     </form>
   );
 }
 
 function ForgotForm({ onBack }: { onBack: () => void }) {
+  const { t } = useI18n();
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -133,25 +138,25 @@ function ForgotForm({ onBack }: { onBack: () => void }) {
     setError(null);
     const { ok, body } = await post("/api/auth/forgot", { email: new FormData(e.currentTarget).get("email") });
     setBusy(false);
-    if (!ok) return setError(typeof body.error === "string" ? body.error : "The email couldn't be sent. Try again.");
+    if (!ok) return setError(typeof body.error === "string" ? body.error : t("auth.forgotFailed"));
     setSent(true);
   }
 
   return (
     <>
       {sent ? (
-        <div className="notice success" role="status">If that email has an account, a reset link is on its way. Open it in this browser.</div>
+        <div className="notice success" role="status">{t("auth.forgotSent")}</div>
       ) : (
         <form className="login-form" onSubmit={onSubmit} noValidate>
           {error && <div className="notice error" role="alert">{error}</div>}
           <div className="field">
-            <label htmlFor="fp-email">Email</label>
-            <input id="fp-email" name="email" type="email" autoComplete="username" placeholder="you@tutoringcentre.com.au" required />
+            <label htmlFor="fp-email">{t("auth.email")}</label>
+            <input id="fp-email" name="email" type="email" autoComplete="username" placeholder={t("auth.emailPlaceholder")} dir="ltr" required />
           </div>
-          <button className="btn login-btn" type="submit" disabled={busy}>{busy ? "Sending…" : "Send reset link"}</button>
+          <button className="btn login-btn" type="submit" disabled={busy}>{busy ? t("auth.sending") : t("auth.sendReset")}</button>
         </form>
       )}
-      <p className="auth-switch"><button type="button" className="link-btn" onClick={onBack}>Back to sign in</button></p>
+      <p className="auth-switch"><button type="button" className="link-btn" onClick={onBack}>{t("auth.backToSignIn")}</button></p>
     </>
   );
 }

@@ -6,6 +6,12 @@ import type { AttentionBlock, BriefingBlock, Block, Command, DraftBlock, ReviewA
 import type { ProposalAction } from "@/lib/agent/permissions";
 import type { ProposalView } from "@/lib/agent/proposal-logic";
 import { motionReduced } from "@/lib/a11y/motion";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import { enT, type Translate } from "@/lib/i18n/core";
+import type { Format } from "@/lib/i18n/format";
+
+// Compass replies are English (see EN in Messages.tsx). Labels around them follow the page language.
+const EN = { lang: "en", dir: "auto" } as const;
 
 // Compass's owner and enquiry cards: the briefing, decision-ready reviews, drafts and the
 // confirmation card every saved change goes through. The server holds the real state.
@@ -43,15 +49,15 @@ export type CardProps = {
   onAnnounce: (text: string) => void;
 };
 
-async function postJson<T>(url: string, body: unknown): Promise<T> {
+async function postJson<T>(url: string, body: unknown, t: Translate = enT): Promise<T> {
   const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body ?? {}) });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((json as { error?: string }).error ?? `Something went wrong (${res.status}). Nothing was changed.`);
+  if (!res.ok) throw new Error((json as { error?: string }).error ?? t("compass.card.genericError", { status: res.status }));
   return json as T;
 }
 
-export async function prepare(body: Record<string, unknown>): Promise<ProposalView> {
-  return postJson<ProposalView>("/api/agent/proposals", body);
+export async function prepare(body: Record<string, unknown>, t?: Translate): Promise<ProposalView> {
+  return postJson<ProposalView>("/api/agent/proposals", body, t);
 }
 
 type ConfirmOutcome =
@@ -59,19 +65,21 @@ type ConfirmOutcome =
   | { outcome: "changed"; message: string; reasons: string[]; proposal: ProposalView | null }
   | { outcome: "expired" | "cancelled" | "superseded" | "failed" | "stale"; message: string };
 
-const time = (iso: string) => new Date(iso).toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" });
-
-const COLOUR_TEXT: Record<string, string> = { green: "Green", amber: "Yellow", red: "Red" };
+const time = (iso: string, fmt: Format) => fmt.time(iso);
+const stamp = (iso: string, fmt: Format) => fmt.date(iso, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+const colourText = (c: string, t: Translate) => (c === "green" || c === "amber" || c === "red" ? t(`domain.colourShort.${c}`) : c);
 
 // ---------------------------------------------------------------------------
 // Confirmation card: Confirm, Edit or Cancel. Used by every saved change.
 
-export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, next, disabled }: {
+export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, introTranslated, next, disabled }: {
   state: ProposalState;
   onState: (s: ProposalState) => void;
   onAnnounce: (t: string) => void;
   onCommand: (c: Command, label: string) => void;
   intro?: string | null;
+  /** True when the intro was written on this page in the chosen language, not by the server. */
+  introTranslated?: boolean;
   /** The workflow's next step, offered once this preview is finished. */
   next?: { label: string; command: Command };
   disabled?: boolean;
@@ -80,6 +88,7 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
   const v = p.preview;
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { t, fmt } = useI18n();
   const busy = state.stage === "confirming" || state.stage === "updating" || state.stage === "cancelling";
   const set = (patch: Partial<ProposalState>) => onState({ ...state, ...patch });
 
@@ -92,7 +101,7 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
     if (busy) return;
     set({ stage: "confirming", error: undefined });
     try {
-      const r = await postJson<ConfirmOutcome>(`/api/agent/proposals/${p.id}/confirm`, {});
+      const r = await postJson<ConfirmOutcome>(`/api/agent/proposals/${p.id}/confirm`, {}, t);
       if (r.outcome === "succeeded") {
         onState({ ...state, stage: "done", message: r.message, error: undefined, result: { requestId: r.requestId, status: r.status, duplicate: r.duplicate } });
         onAnnounce(r.message);
@@ -110,7 +119,7 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
         onAnnounce(r.message);
       }
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "That didn't go through. Nothing was changed.";
+      const msg = e instanceof Error && e.message !== "Failed to fetch" ? e.message : t("compass.card.didntGoThrough");
       onState({ ...state, stage: "pending", error: msg });
       onAnnounce(msg);
     }
@@ -120,12 +129,12 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
     if (!v.editable || busy) return;
     set({ stage: "updating", error: undefined });
     try {
-      const next = await postJson<ProposalView>(`/api/agent/proposals/${p.id}/edit`, { [v.editable.field]: state.editText ?? "" });
+      const next = await postJson<ProposalView>(`/api/agent/proposals/${p.id}/edit`, { [v.editable.field]: state.editText ?? "" }, t);
       const replaced = next.id !== p.id;
-      onState({ stage: "pending", proposal: next, replacedNote: replaced ? "Preview updated. The earlier preview can no longer be confirmed." : undefined });
-      onAnnounce(replaced ? "Preview updated. Check it, then confirm." : "No changes made.");
+      onState({ stage: "pending", proposal: next, replacedNote: replaced ? t("compass.card.previewReplaced") : undefined });
+      onAnnounce(replaced ? t("compass.card.previewUpdated") : t("compass.card.noChanges"));
     } catch (e) {
-      set({ stage: "editing", error: e instanceof Error ? e.message : "The edit couldn't be applied." });
+      set({ stage: "editing", error: e instanceof Error ? e.message : t("compass.card.editFailed") });
     }
   };
 
@@ -133,11 +142,11 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
     if (busy) return;
     set({ stage: "cancelling", error: undefined });
     try {
-      const r = await postJson<{ message: string }>(`/api/agent/proposals/${p.id}/cancel`, {});
+      const r = await postJson<{ message: string }>(`/api/agent/proposals/${p.id}/cancel`, {}, t);
       onState({ ...state, stage: "closed", message: r.message });
       onAnnounce(r.message);
     } catch (e) {
-      set({ stage: "pending", error: e instanceof Error ? e.message : "Couldn't cancel." });
+      set({ stage: "pending", error: e instanceof Error ? e.message : t("compass.card.couldntCancel") });
     }
   };
 
@@ -145,13 +154,13 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
     const id = state.result?.requestId;
     return (
       <div className="cp-proposal done" role="status">
-        <p className="cp-status"><strong>Done.</strong> {state.message}</p>
-        {state.result?.duplicate && <p className="cp-small">This was already confirmed, so it wasn&apos;t done twice.</p>}
+        <p className="cp-status"><strong>{t("compass.card.done")}</strong> <span {...EN}>{state.message}</span></p>
+        {state.result?.duplicate && <p className="cp-small">{t("compass.card.alreadyConfirmed")}</p>}
         {(next || id) && (
           <div className="cp-row">
-            {next && <button type="button" className="cp-btn" disabled={disabled} onClick={() => onCommand(next.command, next.label)}>{next.label}</button>}
-            {id && !next && <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "review", requestId: id }, "Review Request")}>Review Request</button>}
-            {id && <Link className="cp-btn secondary" href={`/requests/${id}`}>Open Request</Link>}
+            {next && <button type="button" className="cp-btn" disabled={disabled} onClick={() => onCommand(next.command, next.label)} {...EN}>{next.label}</button>}
+            {id && !next && <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "review", requestId: id }, t("compass.card.reviewRequest"))}>{t("compass.card.reviewRequest")}</button>}
+            {id && <Link className="cp-btn secondary" href={`/requests/${id}`}>{t("compass.card.openRequest")}</Link>}
           </div>
         )}
       </div>
@@ -160,11 +169,11 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
   if (state.stage === "closed") {
     return (
       <div className="cp-proposal closed" role="status">
-        <p className="cp-status">{state.message}</p>
-        {state.reasons?.length ? <ul className="cp-missing">{state.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul> : null}
+        <p className="cp-status" {...EN}>{state.message}</p>
+        {state.reasons?.length ? <ul className="cp-missing" {...EN}>{state.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul> : null}
         {next && (
           <div className="cp-row">
-            <button type="button" className="cp-btn secondary" disabled={disabled} onClick={() => onCommand(next.command, next.label)}>{next.label}</button>
+            <button type="button" className="cp-btn secondary" disabled={disabled} onClick={() => onCommand(next.command, next.label)} {...EN}>{next.label}</button>
           </div>
         )}
       </div>
@@ -173,66 +182,66 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
 
   const expired = new Date(p.expiresAt).getTime() < Date.now();
   return (
-    <div ref={ref} className="cp-proposal" role="group" aria-label={`Confirm: ${v.title}`}>
-      {intro && <p className="cp-small">{intro}</p>}
+    <div ref={ref} className="cp-proposal" role="group" aria-label={t("compass.card.confirmLabel", { title: v.title })}>
+      {intro && <p className="cp-small" {...(introTranslated ? {} : EN)}>{intro}</p>}
       {state.message && (
-        <div className="cp-notice warning" role="alert">
+        <div className="cp-notice warning" role="alert" {...EN}>
           {state.message}
           {state.reasons?.length ? <ul>{state.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul> : null}
         </div>
       )}
       {state.replacedNote && <p className="cp-small" role="status">{state.replacedNote}</p>}
-      <p className="cp-status"><strong>Prepared, not saved.</strong> Awaiting your confirmation.</p>
-      <h4>{v.title}</h4>
+      <p className="cp-status"><strong>{t("compass.card.preparedNotSaved")}</strong> {t("compass.card.awaiting")}</p>
+      <h4 {...EN}>{v.title}</h4>
       <p className="cp-small">
-        {v.target.typeLabel} · {v.target.reference}{v.target.shortId ? ` · ${v.target.shortId}` : ""}{v.target.statusLabel ? ` · ${v.target.statusLabel}` : ""}
-        {v.target.href && <> · <Link href={v.target.href}>Open</Link></>}
+        <span {...EN}>{v.target.typeLabel}</span> · <bdi>{v.target.reference}</bdi>{v.target.shortId ? <> · <bdi>{v.target.shortId}</bdi></> : ""}{v.target.statusLabel ? <> · <span {...EN}>{v.target.statusLabel}</span></> : ""}
+        {v.target.href && <> · <Link href={v.target.href}>{t("compass.card.open")}</Link></>}
       </p>
       {v.changes.length > 0 && (
         <table className="cp-changes">
-          <caption className="sr-only">What will change</caption>
-          <thead><tr><th scope="col">Field</th><th scope="col">Now</th><th scope="col">After</th></tr></thead>
-          <tbody>{v.changes.map((c, i) => <tr key={i}><th scope="row">{c.field}</th><td>{c.current}</td><td>{c.proposed}</td></tr>)}</tbody>
+          <caption className="sr-only">{t("compass.card.whatChanges")}</caption>
+          <thead><tr><th scope="col">{t("compass.card.field")}</th><th scope="col">{t("compass.card.now")}</th><th scope="col">{t("compass.card.after")}</th></tr></thead>
+          <tbody {...EN}>{v.changes.map((c, i) => <tr key={i}><th scope="row">{c.field}</th><td>{c.current}</td><td>{c.proposed}</td></tr>)}</tbody>
         </table>
       )}
       {state.stage === "editing" || state.stage === "updating" ? (
         <div className="cp-draft">
-          <label htmlFor={`edit-${p.id}`}>{v.editable?.label ?? "Edit"}</label>
-          <textarea id={`edit-${p.id}`} rows={v.editable?.field === "body" ? 8 : 4} value={state.editText ?? ""} onChange={(e) => set({ editText: e.target.value })} disabled={state.stage === "updating"} />
+          <label htmlFor={`edit-${p.id}`} {...(v.editable?.label ? EN : {})}>{v.editable?.label ?? t("compass.card.edit")}</label>
+          <textarea id={`edit-${p.id}`} dir="auto" rows={v.editable?.field === "body" ? 8 : 4} value={state.editText ?? ""} onChange={(e) => set({ editText: e.target.value })} disabled={state.stage === "updating"} />
           {state.error && <p className="cp-error" role="alert">{state.error}</p>}
           <div className="cp-row">
-            <button type="button" className="cp-btn" onClick={saveEdit} disabled={state.stage === "updating" || !(state.editText ?? "").trim()}>{state.stage === "updating" ? "Updating…" : "Update Preview"}</button>
-            <button type="button" className="cp-btn secondary" onClick={() => set({ stage: "pending", error: undefined })} disabled={state.stage === "updating"}>Back</button>
+            <button type="button" className="cp-btn" onClick={saveEdit} disabled={state.stage === "updating" || !(state.editText ?? "").trim()}>{state.stage === "updating" ? t("compass.card.updating") : t("compass.card.updatePreview")}</button>
+            <button type="button" className="cp-btn secondary" onClick={() => set({ stage: "pending", error: undefined })} disabled={state.stage === "updating"}>{t("compass.card.back")}</button>
           </div>
         </div>
       ) : (
         <>
-          {v.note && <div className="cp-quote"><span className="cp-label">Note recorded</span><p>{v.note}</p></div>}
-          {v.body && <div className="cp-quote"><span className="cp-label">Draft text</span><p>{v.body}</p></div>}
+          {v.note && <div className="cp-quote"><span className="cp-label">{t("compass.card.noteRecorded")}</span><p dir="auto">{v.note}</p></div>}
+          {v.body && <div className="cp-quote"><span className="cp-label">{t("compass.card.draftText")}</span><p dir="auto">{v.body}</p></div>}
         </>
       )}
-      {v.warnings.length > 0 && <ul className="cp-warnings">{v.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>}
-      <p className="cp-small"><strong>What happens:</strong> {v.outcome}</p>
-      <p className="cp-small"><strong>Who can confirm:</strong> {v.requiredRoleText}</p>
+      {v.warnings.length > 0 && <ul className="cp-warnings" {...EN}>{v.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>}
+      <p className="cp-small"><strong>{t("compass.card.whatHappens")}</strong> <span {...EN}>{v.outcome}</span></p>
+      <p className="cp-small"><strong>{t("compass.card.whoConfirms")}</strong> <span {...EN}>{v.requiredRoleText}</span></p>
       {(v.policyRefs.length > 0 || v.versions.length > 0) && (
         <details className="cp-more">
-          <summary>Policy and record versions</summary>
-          <ul>{[...v.policyRefs, ...v.versions].map((x, i) => <li key={i}>{x}</li>)}</ul>
+          <summary>{t("compass.card.versions")}</summary>
+          <ul {...EN}>{[...v.policyRefs, ...v.versions].map((x, i) => <li key={i}>{x}</li>)}</ul>
         </details>
       )}
-      <p className="cp-small">{expired ? "This preview has expired. Confirming will check the records again." : `Preview valid until ${time(p.expiresAt)}.`}</p>
+      <p className="cp-small">{expired ? t("compass.card.expired") : t("compass.card.validUntil", { time: time(p.expiresAt, fmt) })}</p>
       {state.stage !== "editing" && state.stage !== "updating" && (
         <>
           {state.error && <p className="cp-error" role="alert">{state.error}</p>}
-          {!p.canConfirm && <p className="cp-notice info">Only the owner can confirm this. Send the request to the owner instead.</p>}
+          {!p.canConfirm && <p className="cp-notice info">{t("compass.card.ownerOnly")}</p>}
           <div className="cp-row">
             <button type="button" className="cp-btn" onClick={confirm} disabled={busy || !p.canConfirm} aria-busy={state.stage === "confirming"}>
-              {state.stage === "confirming" ? "Checking and saving…" : "Confirm"}
+              {state.stage === "confirming" ? t("compass.card.saving") : t("compass.card.confirm")}
             </button>
             {v.editable && (
-              <button type="button" className="cp-btn secondary" disabled={busy} onClick={() => set({ stage: "editing", editText: v.editable!.field === "body" ? v.body ?? "" : v.note ?? "", error: undefined })}>Edit</button>
+              <button type="button" className="cp-btn secondary" disabled={busy} onClick={() => set({ stage: "editing", editText: v.editable!.field === "body" ? v.body ?? "" : v.note ?? "", error: undefined })}>{t("compass.card.edit")}</button>
             )}
-            <button type="button" className="cp-btn secondary" onClick={cancel} disabled={busy}>{state.stage === "cancelling" ? "Cancelling…" : "Cancel"}</button>
+            <button type="button" className="cp-btn secondary" onClick={cancel} disabled={busy}>{state.stage === "cancelling" ? t("compass.card.cancelling") : t("compass.card.cancel")}</button>
           </div>
         </>
       )}
@@ -244,60 +253,61 @@ export function ProposalCard({ state, onState, onAnnounce, onCommand, intro, nex
 // Briefing
 
 export function BriefingCard({ block, disabled, onCommand }: { block: BriefingBlock; disabled: boolean; onCommand: (c: Command, label: string) => void }) {
-  const generated = new Date(block.generatedAt).toLocaleString("en-AU", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
-  const refresh = () => onCommand(block.scope === "all" ? { type: "briefing" } : { type: "briefing", bucket: block.scope }, "Refresh");
+  const { t, fmt } = useI18n();
+  const generated = stamp(block.generatedAt, fmt);
+  const refresh = () => onCommand(block.scope === "all" ? { type: "briefing" } : { type: "briefing", bucket: block.scope }, t("compass.card.refresh"));
   return (
-    <section className="cp-briefing" aria-label={block.scope === "all" ? "All Unfinished Requests" : block.sections[0]?.title}>
+    <section className="cp-briefing" aria-label={block.scope === "all" ? t("compass.card.allUnfinished") : block.sections[0]?.title}>
       <div className="cp-card-head">
-        <h3>{block.scope === "all" ? "All Unfinished Requests" : block.sections[0]?.title}</h3>
-        <button type="button" className="cp-link" onClick={refresh} disabled={disabled}>Refresh</button>
+        <h3 {...(block.scope === "all" ? {} : EN)}>{block.scope === "all" ? t("compass.card.allUnfinished") : block.sections[0]?.title}</h3>
+        <button type="button" className="cp-link" onClick={refresh} disabled={disabled}>{t("compass.card.refresh")}</button>
       </div>
-      <p className="cp-small">Generated {generated} from current records. Counts include every active request.</p>
+      <p className="cp-small">{t("compass.card.generated", { when: generated })}</p>
       {block.total === 0 ? (
-        <p className="cp-empty">Nothing is waiting. No requests need a decision, a follow-up or an outcome right now.</p>
+        <p className="cp-empty">{t("compass.card.nothingWaiting")}</p>
       ) : (
         <>
-          {block.scope === "all" && <p className="cp-small">{block.ordering}</p>}
+          {block.scope === "all" && <p className="cp-small" {...EN}>{block.ordering}</p>}
           {block.sections.map((s) => (
             <div key={s.key} className="cp-section">
               <h4 className="cp-section-title">
                 {(s.key === "red" || s.key === "amber" || s.key === "green") && <span className={`cp-dot-c ${s.key}`} aria-hidden="true" />}
-                {block.scope === "all" ? s.title : "Requests"} <span className="cp-count" aria-label={`${s.count} requests`}>{s.count}</span>
+                {block.scope === "all" ? <span {...EN}>{s.title}</span> : t("compass.card.requests")} <span className="cp-count" aria-label={t("compass.card.countLabel", { count: s.count })}>{fmt.number(s.count)}</span>
               </h4>
               {s.count === 0 ? (
-                <p className="cp-small">None.</p>
+                <p className="cp-small">{t("compass.msg.noneDot")}</p>
               ) : (
                 <ol className="cp-items">
                   {s.items.map((it) => (
                     <li key={it.id} className={`cp-item ${it.colour}`}>
                       <div className="cp-item-top">
                         <span className={`cp-dot-c ${it.colour}`} aria-hidden="true" />
-                        <span className="sr-only">{COLOUR_TEXT[it.colour]}. </span>
-                        <strong>{it.description}</strong>
+                        <span className="sr-only">{colourText(it.colour, t)}. </span>
+                        <strong {...EN}>{it.description}</strong>
                       </div>
-                      <p className="cp-small">{it.statusLabel} · waiting {it.waiting} · {it.shortId}</p>
-                      {it.flag && <p className="cp-flag">{it.flag}</p>}
-                      <p className="cp-why">{it.why}</p>
+                      <p className="cp-small"><span {...EN}>{it.statusLabel}</span> · {t("compass.card.waiting", { time: it.waiting })} · <bdi>{it.shortId}</bdi></p>
+                      {it.flag && <p className="cp-flag" {...EN}>{it.flag}</p>}
+                      <p className="cp-why" {...EN}>{it.why}</p>
                       <div className="cp-row">
-                        <button type="button" className="cp-btn" disabled={disabled} onClick={() => onCommand(it.next.command, `${it.next.label}: ${it.reference}`)}>{it.next.label}</button>
-                        <Link className="cp-btn secondary" href={it.href}>Open</Link>
+                        <button type="button" className="cp-btn" disabled={disabled} onClick={() => onCommand(it.next.command, `${it.next.label}: ${it.reference}`)} {...EN}>{it.next.label}</button>
+                        <Link className="cp-btn secondary" href={it.href}>{t("compass.card.open")}</Link>
                       </div>
                     </li>
                   ))}
                 </ol>
               )}
               {s.count > s.page * s.pageSize && (
-                <button type="button" className="cp-link" disabled={disabled} onClick={() => onCommand({ type: "briefing", bucket: s.key, page: block.scope === "all" ? 1 : s.page + 1 }, block.scope === "all" ? `Show all: ${s.title}` : "Show more")}>
-                  {block.scope === "all" ? `Show all ${s.count}` : `Show more (${s.page * s.pageSize} of ${s.count} shown)`}
+                <button type="button" className="cp-link" disabled={disabled} onClick={() => onCommand({ type: "briefing", bucket: s.key, page: block.scope === "all" ? 1 : s.page + 1 }, block.scope === "all" ? t("compass.card.showAllLabel", { title: s.title }) : t("compass.card.showMoreLabel"))}>
+                  {block.scope === "all" ? t("compass.card.showAll", { count: s.count }) : t("compass.card.showMore", { shown: fmt.number(s.page * s.pageSize), count: s.count })}
                 </button>
               )}
-              {s.page > 1 && <p className="cp-small">Page {s.page}. Earlier pages are in the messages above.</p>}
-              {!s.orderedAll && <p className="cp-small">This queue is very large, so ordering used the oldest 2000 requests. The count is still exact.</p>}
+              {s.page > 1 && <p className="cp-small">{t("compass.card.page", { page: fmt.number(s.page) })}</p>}
+              {!s.orderedAll && <p className="cp-small">{t("compass.card.largeQueue")}</p>}
             </div>
           ))}
           {block.scope === "all" && block.pendingOutcomes > 0 && (
             <div className="cp-row">
-              <button type="button" className="cp-btn secondary" disabled={disabled} onClick={() => onCommand({ type: "briefing", bucket: "pending_outcome" }, "Show Pending Outcomes")}>Show Pending Outcomes</button>
+              <button type="button" className="cp-btn secondary" disabled={disabled} onClick={() => onCommand({ type: "briefing", bucket: "pending_outcome" }, t("compass.card.pendingOutcomes"))}>{t("compass.card.pendingOutcomes")}</button>
             </div>
           )}
         </>
@@ -311,6 +321,7 @@ export function BriefingCard({ block, disabled, onCommand }: { block: BriefingBl
 
 export function ReviewCard({ block, sessionKey, disabled, state, onState, onCommand, onAnnounce }: CardProps & { block: ReviewBlock }) {
   const r = block.request;
+  const { t } = useI18n();
   const runAction = async (a: ReviewAction, note?: string) => {
     if (a.command) return onCommand(a.command, a.label);
     if (!a.action) return;
@@ -318,107 +329,107 @@ export function ReviewCard({ block, sessionKey, disabled, state, onState, onComm
     if (note === undefined && !a.note) return onState({ ...state, composing: a.action, text: "", error: undefined });
     onState({ ...state, preparing: a.action, error: undefined });
     try {
-      const proposal = await prepare({ sessionKey, action: a.action as ProposalAction, requestId: r.id, note: note ?? a.note ?? "" });
+      const proposal = await prepare({ sessionKey, action: a.action as ProposalAction, requestId: r.id, note: note ?? a.note ?? "" }, t);
       onState({ preparing: undefined, composing: undefined, p: { stage: "pending", proposal } });
-      onAnnounce(`Prepared ${a.label}. Check the preview, then confirm.`);
+      onAnnounce(t("compass.card.preparedAction", { label: a.label }));
     } catch (e) {
-      onState({ ...state, preparing: undefined, error: e instanceof Error ? e.message : "Couldn't prepare that." });
+      onState({ ...state, preparing: undefined, error: e instanceof Error ? e.message : t("compass.card.couldntPrepare") });
     }
   };
   return (
-    <section className={`cp-review ${block.rule.colour}`} aria-label={`Review of ${r.reference}`}>
+    <section className={`cp-review ${block.rule.colour}`} aria-label={t("compass.card.reviewOf", { reference: r.reference })}>
       <div className="cp-card-head">
         <div>
-          <h3>{r.typeLabel} · {r.reference}</h3>
-          <p className="cp-small">{r.shortId} · {r.statusLabel} · waiting {r.waiting}</p>
+          <h3><span {...EN}>{r.typeLabel}</span> · <bdi>{r.reference}</bdi></h3>
+          <p className="cp-small"><bdi>{r.shortId}</bdi> · <span {...EN}>{r.statusLabel}</span> · {t("compass.card.waiting", { time: r.waiting })}</p>
         </div>
-        <Link className="cp-link" href={r.href}>Open</Link>
+        <Link className="cp-link" href={r.href}>{t("compass.card.open")}</Link>
       </div>
-      {(r.student || r.tutor) && <p className="cp-small">{[r.student, r.subject, r.tutor && `with ${r.tutor}`, r.classCode].filter(Boolean).join(" · ")}</p>}
+      {(r.student || r.tutor) && <p className="cp-small" dir="auto">{[r.student, r.subject, r.tutor && t("compass.card.withTutor", { tutor: r.tutor }), r.classCode].filter(Boolean).join(" · ")}</p>}
 
-      <h4>What the parent wants</h4>
-      <p>{block.summary}{block.summarySource === "live_ai" && <span className="cp-tag ai">AI wording</span>}</p>
-      {block.restricted && <p className="cp-notice warning">A welfare concern is recorded. The details are restricted to the owner, and none of it was sent to the AI service.</p>}
+      <h4>{t("compass.card.parentWants")}</h4>
+      <p><span {...EN}>{block.summary}</span>{block.summarySource === "live_ai" && <span className="cp-tag ai">{t("compass.card.aiWording")}</span>}</p>
+      {block.restricted && <p className="cp-notice warning">{t("compass.card.welfareRestricted")}</p>}
 
       {block.figures.length > 0 && (
         <>
-          <h4>Money</h4>
+          <h4>{t("compass.card.money")}</h4>
           <dl className="cp-figures">
             {block.figures.map((f, i) => (
-              <div key={i}><dt>{f.label}</dt><dd>{f.value}<span className="cp-src"> ({f.source === "record" ? "records" : f.source === "request" ? "request" : "calculated"})</span></dd></div>
+              <div key={i}><dt {...EN}>{f.label}</dt><dd><bdi dir="ltr">{f.value}</bdi><span className="cp-src"> ({f.source === "record" ? t("compass.card.srcRecords") : f.source === "request" ? t("compass.card.srcRequest") : t("compass.card.srcCalculated")})</span></dd></div>
             ))}
           </dl>
-          {block.figuresNote && <p className="cp-small">{block.figuresNote}</p>}
+          {block.figuresNote && <p className="cp-small" {...EN}>{block.figuresNote}</p>}
         </>
       )}
 
-      <h4>Rule result</h4>
-      <p className={`cp-rule-line ${block.rule.colour}`}><strong>{COLOUR_TEXT[block.rule.colour]}:</strong> {block.rule.ruleLabel}</p>
-      <p>{block.rule.explanation}</p>
-      {block.rule.escalation && <p className="cp-small">{block.rule.escalation}</p>}
-      <p className="cp-small">
+      <h4>{t("compass.card.ruleResult")}</h4>
+      <p className={`cp-rule-line ${block.rule.colour}`}><strong>{colourText(block.rule.colour, t)}:</strong> <span {...EN}>{block.rule.ruleLabel}</span></p>
+      <p {...EN}>{block.rule.explanation}</p>
+      {block.rule.escalation && <p className="cp-small" {...EN}>{block.rule.escalation}</p>}
+      <p className="cp-small" {...EN}>
         {block.rule.policyHref ? <Link href={block.rule.policyHref}>{block.rule.policyLabel}</Link> : block.rule.policyLabel} · {block.rule.checkedAt}
       </p>
 
       {block.issues.length > 0 && (
-        <ul className="cp-issues">{block.issues.map((x, i) => <li key={i} className={x.tone}>{x.text}</li>)}</ul>
+        <ul className="cp-issues" {...EN}>{block.issues.map((x, i) => <li key={i} className={x.tone}>{x.text}</li>)}</ul>
       )}
 
       <details className="cp-more">
-        <summary>Facts: from records, supplied and missing</summary>
-        <h5>From records</h5>
-        <ul>{block.sources.retrieved.length ? block.sources.retrieved.map((x, i) => <li key={i}>{x}</li>) : <li>None.</li>}</ul>
-        <h5>Supplied by staff</h5>
-        <ul>{block.sources.supplied.map((x, i) => <li key={i}>{x}</li>)}</ul>
-        <h5>Still missing</h5>
-        <ul>{block.sources.missing.length ? block.sources.missing.map((x, i) => <li key={i}>{x}</li>) : <li>Nothing.</li>}</ul>
+        <summary>{t("compass.card.facts")}</summary>
+        <h5>{t("compass.msg.fromRecords")}</h5>
+        <ul>{block.sources.retrieved.length ? block.sources.retrieved.map((x, i) => <li key={i} {...EN}>{x}</li>) : <li>{t("compass.msg.noneDot")}</li>}</ul>
+        <h5>{t("compass.msg.suppliedByStaff")}</h5>
+        <ul {...EN}>{block.sources.supplied.map((x, i) => <li key={i}>{x}</li>)}</ul>
+        <h5>{t("compass.msg.stillMissing")}</h5>
+        <ul>{block.sources.missing.length ? block.sources.missing.map((x, i) => <li key={i} {...EN}>{x}</li>) : <li>{t("compass.msg.nothingDot")}</li>}</ul>
       </details>
       {block.procedures.length > 0 && (
         <details className="cp-more">
-          <summary>Approved procedures</summary>
-          <ul>{block.procedures.map((p) => <li key={p.id}><Link href={p.href}>{p.id} {p.title}</Link> (version {p.version})</li>)}</ul>
+          <summary>{t("compass.card.procedures")}</summary>
+          <ul>{block.procedures.map((p) => <li key={p.id}><Link href={p.href} {...EN}>{p.id} {p.title}</Link> {t("compass.card.procedureVersion", { version: p.version })}</li>)}</ul>
         </details>
       )}
       {block.history.length > 0 && (
         <details className="cp-more">
-          <summary>History</summary>
-          <ol className="cp-history">{block.history.map((h, i) => <li key={i}><strong>{h.what}</strong> · {h.who} · {h.when}{h.note && <p>{h.note}</p>}</li>)}</ol>
+          <summary>{t("compass.card.history")}</summary>
+          <ol className="cp-history" {...EN}>{block.history.map((h, i) => <li key={i}><strong>{h.what}</strong> · {h.who} · {h.when}{h.note && <p dir="auto">{h.note}</p>}</li>)}</ol>
         </details>
       )}
 
       <div className={`cp-ready ${block.readiness.ready ? "yes" : "no"}`}>
         {block.readiness.ready ? (
-          <p><strong>Ready for a decision.</strong> The evidence is complete. Compass doesn&apos;t recommend an outcome.</p>
+          <p><strong>{t("compass.card.ready")}</strong> {t("compass.card.readyText")}</p>
         ) : (
           <>
-            <p><strong>Not ready for a clean decision.</strong></p>
-            <ul>{block.readiness.reasons.map((x, i) => <li key={i}>{x}</li>)}</ul>
+            <p><strong>{t("compass.card.notReady")}</strong></p>
+            <ul {...EN}>{block.readiness.reasons.map((x, i) => <li key={i}>{x}</li>)}</ul>
           </>
         )}
       </div>
-      {block.roleNote && <p className="cp-notice info">{block.roleNote}</p>}
+      {block.roleNote && <p className="cp-notice info" {...EN}>{block.roleNote}</p>}
 
       {!state.p && state.composing && (() => {
         const a = block.actions.find((x) => x.action === state.composing)!;
         const id = `compose-${r.id}`;
         return (
           <div className="cp-draft">
-            <label htmlFor={id}>{a.action === "request.record_outcome" ? "What was done? For example, refund paid in the payment system on 20 October." : `Note for ${a.label}`}</label>
-            <textarea id={id} rows={3} value={state.text ?? ""} onChange={(e) => onState({ ...state, text: e.target.value })} autoFocus />
+            <label htmlFor={id}>{a.action === "request.record_outcome" ? t("compass.card.outcomePrompt") : t("compass.card.noteFor", { label: a.label })}</label>
+            <textarea id={id} rows={3} dir="auto" value={state.text ?? ""} onChange={(e) => onState({ ...state, text: e.target.value })} autoFocus />
             <div className="cp-row">
-              <button type="button" className="cp-btn" disabled={!(state.text ?? "").trim() || Boolean(state.preparing)} onClick={() => void runAction(a, state.text ?? "")}>{state.preparing ? "Preparing…" : "Preview"}</button>
-              <button type="button" className="cp-btn secondary" onClick={() => onState({ ...state, composing: undefined })}>Back</button>
+              <button type="button" className="cp-btn" disabled={!(state.text ?? "").trim() || Boolean(state.preparing)} onClick={() => void runAction(a, state.text ?? "")}>{state.preparing ? t("compass.msg.preparing") : t("compass.card.preview")}</button>
+              <button type="button" className="cp-btn secondary" onClick={() => onState({ ...state, composing: undefined })}>{t("compass.card.back")}</button>
             </div>
           </div>
         );
       })()}
       {!state.p && !state.composing && (
-        <div className="cp-row" role="group" aria-label="Next actions">
+        <div className="cp-row" role="group" aria-label={t("compass.card.nextActions")}>
           {block.actions.map((a, i) => a.href
-            ? <Link key={i} className={`cp-btn${a.primary ? "" : " secondary"}`} href={a.href}>{a.label}</Link>
+            ? <Link key={i} className={`cp-btn${a.primary ? "" : " secondary"}`} href={a.href} {...EN}>{a.label}</Link>
             : (
               <button key={i} type="button" className={`cp-btn${a.primary ? "" : " secondary"}`} disabled={disabled || Boolean(state.preparing)} onClick={() => void runAction(a)}>
-                {a.action && state.preparing === a.action ? "Preparing…" : a.label}
+                {a.action && state.preparing === a.action ? t("compass.msg.preparing") : <span {...EN}>{a.label}</span>}
               </button>
             ))}
         </div>
@@ -442,53 +453,54 @@ export function ReviewCard({ block, sessionKey, disabled, state, onState, onComm
 export function DraftCard({ block, sessionKey, state, onState, onCommand, onAnnounce }: CardProps & { block: DraftBlock }) {
   const text = state.text ?? block.body;
   const [copied, setCopied] = useState(false);
+  const { t } = useI18n();
   const save = async () => {
     onState({ ...state, preparing: "draft.save", error: undefined });
     try {
-      const proposal = await prepare({ sessionKey, action: "draft.save", requestId: block.requestId, kind: block.draftKind, body: text, generatedBy: text === block.body ? block.generatedBy : "edited" });
+      const proposal = await prepare({ sessionKey, action: "draft.save", requestId: block.requestId, kind: block.draftKind, body: text, generatedBy: text === block.body ? block.generatedBy : "edited" }, t);
       onState({ ...state, preparing: undefined, p: { stage: "pending", proposal } });
-      onAnnounce("Prepared to save the draft. Check it, then confirm.");
+      onAnnounce(t("compass.card.preparedDraft"));
     } catch (e) {
-      onState({ ...state, preparing: undefined, error: e instanceof Error ? e.message : "Couldn't prepare that." });
+      onState({ ...state, preparing: undefined, error: e instanceof Error ? e.message : t("compass.card.couldntPrepare") });
     }
   };
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      onAnnounce("Copied.");
+      onAnnounce(t("compass.card.copied"));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      onState({ ...state, error: "Copying isn't allowed here. Select the text and copy it instead." });
+      onState({ ...state, error: t("compass.card.copyBlocked") });
     }
   };
   const id = `draft-${block.requestId}-${block.draftKind}`;
   return (
     <section className="cp-draftcard" aria-label={block.title}>
-      <h3>{block.title}</h3>
-      <p className="cp-small">{block.reference} · {block.note}{block.generatedBy === "live_ai" && <span className="cp-tag ai">AI wording</span>}</p>
+      <h3 {...EN}>{block.title}</h3>
+      <p className="cp-small"><bdi>{block.reference}</bdi> · <span {...EN}>{block.note}</span>{block.generatedBy === "live_ai" && <span className="cp-tag ai">{t("compass.card.aiWording")}</span>}</p>
       {block.restricted ? (
-        <p className="cp-notice warning">{block.body}</p>
+        <p className="cp-notice warning" {...EN}>{block.body}</p>
       ) : (
         <>
           <label htmlFor={id} className="sr-only">{block.title}</label>
-          <textarea id={id} rows={9} value={text} disabled={Boolean(state.p)} onChange={(e) => onState({ ...state, text: e.target.value })} />
+          <textarea id={id} rows={9} dir="auto" value={text} disabled={Boolean(state.p)} onChange={(e) => onState({ ...state, text: e.target.value })} />
         </>
       )}
       {block.staffChecks.length > 0 && (
         <>
-          <h4>For staff to check (not in the message)</h4>
-          <ul>{block.staffChecks.map((s, i) => <li key={i}>{s}</li>)}</ul>
+          <h4>{t("compass.card.staffChecks")}</h4>
+          <ul {...EN}>{block.staffChecks.map((s, i) => <li key={i}>{s}</li>)}</ul>
         </>
       )}
       {!block.restricted && !state.p && (
         <div className="cp-row">
-          <button type="button" className="cp-btn secondary" onClick={() => void copy()}>{copied ? "Copied" : "Copy"}</button>
-          <button type="button" className="cp-btn" onClick={() => void save()} disabled={Boolean(state.preparing) || !text.trim()}>{state.preparing ? "Preparing…" : "Save Draft"}</button>
-          <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "review", requestId: block.requestId }, "Review Request")}>Review Request</button>
+          <button type="button" className="cp-btn secondary" onClick={() => void copy()}>{copied ? t("compass.card.copiedButton") : t("compass.card.copy")}</button>
+          <button type="button" className="cp-btn" onClick={() => void save()} disabled={Boolean(state.preparing) || !text.trim()}>{state.preparing ? t("compass.msg.preparing") : t("compass.card.saveDraft")}</button>
+          <button type="button" className="cp-btn secondary" onClick={() => onCommand({ type: "review", requestId: block.requestId }, t("compass.card.reviewRequest"))}>{t("compass.card.reviewRequest")}</button>
         </div>
       )}
-      <p className="cp-small">Tutor Compass never sends emails or texts. Copy the message into your email when you&apos;re ready.</p>
+      <p className="cp-small">{t("compass.card.neverSends")}</p>
       {state.error && <p className="cp-error" role="alert">{state.error}</p>}
       {state.p && (
         <ProposalCard
@@ -507,7 +519,7 @@ export function DraftCard({ block, sessionKey, state, onState, onCommand, onAnno
 
 export function OptionsRow({ block, disabled, onCommand }: { block: Extract<Block, { kind: "options" }>; disabled: boolean; onCommand: (c: Command, label: string) => void }) {
   return (
-    <div className="cp-chips" role="group" aria-label={block.label}>
+    <div className="cp-chips" role="group" aria-label={block.label} {...EN}>
       {block.options.map((o, i) => (
         <button key={i} type="button" className="cp-chip" disabled={disabled} onClick={() => onCommand(o.command, o.label)}>{o.label}</button>
       ))}
@@ -516,46 +528,48 @@ export function OptionsRow({ block, disabled, onCommand }: { block: Extract<Bloc
 }
 
 export function ChecklistCard({ block }: { block: Extract<Block, { kind: "checklist" }> }) {
+  const { t } = useI18n();
   const mark = { have: "✓", missing: "!", check: "○" } as const;
-  const word = { have: "Have", missing: "Missing", check: "To check" } as const;
+  const word = { have: t("compass.card.have"), missing: t("compass.card.missing"), check: t("compass.card.toCheck") } as const;
   return (
     <section className="cp-found" aria-label={block.title}>
-      <h3>{block.title}</h3>
+      <h3 {...EN}>{block.title}</h3>
       <ul className="cp-checklist">
         {block.items.map((it, i) => (
           <li key={i} className={it.state}>
-            <span aria-hidden="true">{mark[it.state]}</span> <span className="sr-only">{word[it.state]}: </span>{it.label}{it.detail && <span className="cp-small"> ({it.detail})</span>}
+            <span aria-hidden="true">{mark[it.state]}</span> <span className="sr-only">{word[it.state]}: </span><span {...EN}>{it.label}{it.detail && <span className="cp-small"> ({it.detail})</span>}</span>
           </li>
         ))}
       </ul>
-      {block.notes.length > 0 && <ul className="cp-warnings">{block.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>}
-      {block.refs.length > 0 && <p className="cp-small">Sources: {block.refs.join("; ")}</p>}
-      {block.link && <Link href={block.link.href}>{block.link.label}</Link>}
+      {block.notes.length > 0 && <ul className="cp-warnings" {...EN}>{block.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>}
+      {block.refs.length > 0 && <p className="cp-small">{t("compass.card.sources", { list: block.refs.join("; ") })}</p>}
+      {block.link && <Link href={block.link.href} {...EN}>{block.link.label}</Link>}
     </section>
   );
 }
 
 export function RulesCard({ block }: { block: RulesBlock }) {
+  const { t } = useI18n();
   return (
-    <section className="cp-found" aria-label="Current rules">
+    <section className="cp-found" aria-label={t("compass.card.currentRules")}>
       {block.sections.map((s, i) => (
         <div key={i} className="cp-section">
-          <h3>{s.title} <span className="cp-small">({s.policyLabel})</span></h3>
+          <h3 {...EN}>{s.title} <span className="cp-small">({s.policyLabel})</span></h3>
           <table className="cp-changes">
             <caption className="sr-only">{s.title}</caption>
-            <thead><tr><th scope="col">When</th><th scope="col">Result</th><th scope="col">Who</th></tr></thead>
+            <thead><tr><th scope="col">{t("compass.card.when")}</th><th scope="col">{t("compass.card.result")}</th><th scope="col">{t("compass.card.who")}</th></tr></thead>
             <tbody>
               {s.rules.map((r, j) => (
-                <tr key={j}><td>{r.when}</td><td><span className={`cp-dot-c ${r.colour}`} aria-hidden="true" /> {COLOUR_TEXT[r.colour]}</td><td>{r.who}</td></tr>
+                <tr key={j}><td {...EN}>{r.when}</td><td><span className={`cp-dot-c ${r.colour}`} aria-hidden="true" /> {colourText(r.colour, t)}</td><td {...EN}>{r.who}</td></tr>
               ))}
             </tbody>
           </table>
-          {s.notes.length > 0 && <ul className="cp-warnings">{s.notes.map((n, j) => <li key={j}>{n}</li>)}</ul>}
-          <Link href={s.href}>View policy</Link>
+          {s.notes.length > 0 && <ul className="cp-warnings" {...EN}>{s.notes.map((n, j) => <li key={j}>{n}</li>)}</ul>}
+          <Link href={s.href}>{t("compass.card.viewPolicy")}</Link>
         </div>
       ))}
-      <h4>Always</h4>
-      <ul>{block.systemRules.map((r, i) => <li key={i}>{r}</li>)}</ul>
+      <h4>{t("compass.card.always")}</h4>
+      <ul {...EN}>{block.systemRules.map((r, i) => <li key={i}>{r}</li>)}</ul>
     </section>
   );
 }
@@ -564,43 +578,45 @@ export function RulesCard({ block }: { block: RulesBlock }) {
 // What Needs My Attention?
 
 export function AttentionCard({ block, disabled, onCommand }: { block: AttentionBlock; disabled: boolean; onCommand: (c: Command, label: string) => void }) {
-  const generated = new Date(block.generatedAt).toLocaleString("en-AU", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+  const { t, fmt } = useI18n();
+  const generated = stamp(block.generatedAt, fmt);
+  const countLabel = (key: AttentionBlock["counts"][number]["key"], count: number) => t(`compass.attentionKey.${key}`, { count });
   return (
-    <section className="cp-briefing cp-attention" aria-label="What Needs My Attention?">
+    <section className="cp-briefing cp-attention" aria-label={t("compass.card.attention")}>
       <div className="cp-card-head">
-        <h3>What Needs My Attention?</h3>
-        <button type="button" className="cp-link" onClick={() => onCommand({ type: "attention" }, "Refresh")} disabled={disabled}>Refresh</button>
+        <h3>{t("compass.card.attention")}</h3>
+        <button type="button" className="cp-link" onClick={() => onCommand({ type: "attention" }, t("compass.card.refresh"))} disabled={disabled}>{t("compass.card.refresh")}</button>
       </div>
-      <p className="cp-small">Checked {generated} against current records and your permissions.</p>
-      <ul className="cp-counts" aria-label="Counts">
+      <p className="cp-small">{t("compass.card.checkedAt", { when: generated })}</p>
+      <ul className="cp-counts" aria-label={t("compass.card.counts")}>
         {block.counts.map((c) => (
-          <li key={c.key} className={c.count ? "has" : ""}><span className="cp-count">{c.count}</span> {c.label}</li>
+          <li key={c.key} className={c.count ? "has" : ""}><span className="cp-count">{fmt.number(c.count)}</span> {countLabel(c.key, c.count)}</li>
         ))}
       </ul>
       {block.total === 0 ? (
-        <p className="cp-empty">Nothing is outstanding. No decisions, clarifications, waiting workflows or failed actions need you right now.</p>
+        <p className="cp-empty">{t("compass.card.nothingOutstanding")}</p>
       ) : (
         <ol className="cp-items">
           {block.items.map((it) => (
             <li key={it.key} className={`cp-item ${it.colour ?? "none"} cat-${it.category}`}>
               <div className="cp-item-top">
                 {it.colour && <span className={`cp-dot-c ${it.colour}`} aria-hidden="true" />}
-                {it.colour && <span className="sr-only">{COLOUR_TEXT[it.colour]}. </span>}
-                <strong>{it.title}</strong>
+                {it.colour && <span className="sr-only">{colourText(it.colour, t)}. </span>}
+                <strong {...EN}>{it.title}</strong>
               </div>
-              <p className="cp-small">{block.counts.find((c) => c.key === it.category)?.label} · {it.meta}</p>
-              <p className="cp-why">{it.reason}</p>
+              <p className="cp-small">{countLabel(it.category, 1)} · <span {...EN}>{it.meta}</span></p>
+              <p className="cp-why" {...EN}>{it.reason}</p>
               <div className="cp-row">
                 {it.action.command
-                  ? <button type="button" className="cp-btn" disabled={disabled} onClick={() => onCommand(it.action.command!, `${it.action.label}: ${it.title}`)}>{it.action.label}</button>
-                  : it.action.href && <Link className="cp-btn" href={it.action.href}>{it.action.label}</Link>}
-                {it.href && <Link className="cp-btn secondary" href={it.href}>Open</Link>}
+                  ? <button type="button" className="cp-btn" disabled={disabled} onClick={() => onCommand(it.action.command!, `${it.action.label}: ${it.title}`)} {...EN}>{it.action.label}</button>
+                  : it.action.href && <Link className="cp-btn" href={it.action.href} {...EN}>{it.action.label}</Link>}
+                {it.href && <Link className="cp-btn secondary" href={it.href}>{t("compass.card.open")}</Link>}
               </div>
             </li>
           ))}
         </ol>
       )}
-      {block.notes.map((n, i) => <p key={i} className="cp-small">{n}</p>)}
+      {block.notes.map((n, i) => <p key={i} className="cp-small" {...EN}>{n}</p>)}
     </section>
   );
 }
@@ -609,40 +625,42 @@ export function AttentionCard({ block, disabled, onCommand }: { block: Attention
 // Read back after a change, and simulated messages
 
 export function ResultCard({ block }: { block: Extract<Block, { kind: "result" }> }) {
+  const { t, fmt } = useI18n();
   return (
     <section className="cp-result" aria-label={block.title} role="status">
-      <h3>{block.title}</h3>
+      <h3 {...EN}>{block.title}</h3>
       <table className="cp-changes">
-        <caption className="sr-only">Before and after</caption>
-        <thead><tr><th scope="col">Field</th><th scope="col">Before</th><th scope="col">Now</th></tr></thead>
-        <tbody>{block.rows.map((r, i) => <tr key={i}><th scope="row">{r.label}</th><td>{r.before}</td><td>{r.after}</td></tr>)}</tbody>
+        <caption className="sr-only">{t("compass.card.beforeAfter")}</caption>
+        <thead><tr><th scope="col">{t("compass.card.field")}</th><th scope="col">{t("compass.card.before")}</th><th scope="col">{t("compass.card.now")}</th></tr></thead>
+        <tbody {...EN}>{block.rows.map((r, i) => <tr key={i}><th scope="row">{r.label}</th><td>{r.before}</td><td>{r.after}</td></tr>)}</tbody>
       </table>
-      {block.notes.map((n, i) => <p key={i} className="cp-small">{n}</p>)}
-      <p className="cp-small">Read back at {time(block.verifiedAt)}.</p>
+      {block.notes.map((n, i) => <p key={i} className="cp-small" {...EN}>{n}</p>)}
+      <p className="cp-small">{t("compass.card.readBack", { time: time(block.verifiedAt, fmt) })}</p>
     </section>
   );
 }
 
 export function SimulatedCard({ block, onAnnounce }: { block: Extract<Block, { kind: "simulated" }>; onAnnounce: (t: string) => void }) {
   const [copied, setCopied] = useState(false);
+  const { t } = useI18n();
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(block.body);
       setCopied(true);
-      onAnnounce("Copied. It hasn't been sent.");
+      onAnnounce(t("compass.card.copiedNotSent"));
     } catch {
-      onAnnounce("Couldn't copy. Select the text instead.");
+      onAnnounce(t("compass.card.couldntCopy"));
     }
   };
   return (
-    <section className="cp-simulated" aria-label={`${block.title}, simulated`}>
-      <p className="cp-sim-tag">Simulated</p>
-      <h3>{block.title}</h3>
-      <p className="cp-small">To: {block.to}</p>
-      <div className="cp-quote"><p>{block.body}</p></div>
-      <p className="cp-small">{block.note}</p>
+    <section className="cp-simulated" aria-label={t("compass.card.simulatedLabel", { title: block.title })}>
+      <p className="cp-sim-tag">{t("compass.card.simulated")}</p>
+      <h3 {...EN}>{block.title}</h3>
+      <p className="cp-small">{t("compass.card.to", { to: block.to })}</p>
+      <div className="cp-quote"><p {...EN}>{block.body}</p></div>
+      <p className="cp-small" {...EN}>{block.note}</p>
       <div className="cp-row">
-        <button type="button" className="cp-btn secondary" onClick={() => void copy()}>{copied ? "Copied" : "Copy Text"}</button>
+        <button type="button" className="cp-btn secondary" onClick={() => void copy()}>{copied ? t("compass.card.copiedButton") : t("compass.card.copyText")}</button>
       </div>
     </section>
   );

@@ -3,22 +3,24 @@ import { z } from "zod";
 import { ApiError, apiRoute, readJson } from "@/lib/api/handler";
 import { FLOW_COOKIE, FLOW_MAX_AGE, cookieOptions, encodeFlow } from "@/lib/auth/cookies";
 import { flowClient } from "@/lib/db/supabase";
+import { getI18n } from "@/lib/i18n/server";
 
 // Sends a password reset link. The answer is the same whether or not the email has an
 // account, so nobody can use this to find out who works at the business.
 
-const Forgot = z.object({ email: z.email("Enter a valid email address.").max(200) }).strict();
+const Forgot = z.object({ email: z.email().max(200) }).strict();
 
 export const POST = apiRoute(async (req) => {
   const parsed = Forgot.safeParse(await readJson(req));
-  if (!parsed.success) throw new ApiError(400, parsed.error.issues[0]?.message ?? "Enter your email address.");
+  const { t } = await getI18n();
+  if (!parsed.success) throw new ApiError(400, t("auth.api.validEmail"));
   const { client, verifier } = flowClient();
   const { error } = await client.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: new URL("/api/auth/callback", req.nextUrl.origin).toString(),
   });
   if (error) {
     console.warn("[auth] reset email failed", error.code ?? error.status);
-    if (error.code === "over_email_send_rate_limit" || error.status === 429) throw new ApiError(429, "Too many emails have been sent. Wait a few minutes and try again.");
+    if (error.code === "over_email_send_rate_limit" || error.status === 429) throw new ApiError(429, t("auth.api.tooManyEmails"));
   }
   const res = NextResponse.json({ ok: true });
   const v = verifier();

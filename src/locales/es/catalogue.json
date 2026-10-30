@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "Inglés",
+    "mathematics": "Matemáticas",
+    "science": "Ciencias",
+    "business_humanities": "Empresa y humanidades",
+    "history": "Historia",
+    "technology_design": "Tecnología y diseño",
+    "creative_arts": "Artes creativas",
+    "health_community": "Salud y comunidad",
+    "languages": "Idiomas",
+    "vocational": "Formación profesional"
+  }
+}

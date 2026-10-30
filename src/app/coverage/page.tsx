@@ -2,20 +2,26 @@ import Link from "next/link";
 import { requirePageUser } from "@/lib/auth/page";
 import { coverageData } from "@/lib/data/queries";
 import { FACT_TEXT, RULE_REASON_LABELS } from "@/lib/coverage/logic";
-import { REQUEST_TYPE_LABELS, type RequestType } from "@/lib/domain/types";
-import { EmptyState, LoadError, formatDateTime } from "@/components/ui";
+import { REQUEST_TYPES, type RequestType } from "@/lib/domain/types";
+import { EmptyState, LoadError } from "@/components/ui";
+import { getI18n } from "@/lib/i18n/server";
 import { SuggestionControls, RefreshSuggestions } from "./SuggestionControls";
 import { IntegrationsSection } from "@/app/settings/integrations/IntegrationsSection";
 import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Coverage" };
-
-const pct = (x: number) => `${Math.round(x * 100)}%`;
-const reason = (rule: string) => RULE_REASON_LABELS[rule] ?? `Owner rule ${rule}`;
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t("coverage.title") };
+}
 
 export default async function CoveragePage() {
   const user = await requirePageUser();
+  const { t, fmt } = await getI18n();
+  const pct = (x: number) => fmt.number(x, { style: "percent", maximumFractionDigits: 0 });
+  const reason = (rule: string) => (RULE_REASON_LABELS[rule] ? t(`coverage.reason.${rule.replace(".", "_") as "default_missing_information"}`) : t("coverage.ownerRule", { rule }));
+  const factText = (f: string) => (FACT_TEXT[f] ? t(`coverage.fact.${f as "amount"}`) : f);
+  const statusText = (s: string) => (s === "open" || s === "drafted" || s === "dismissed" ? t(`coverage.suggestionStatus.${s}`) : s);
   let data;
   try {
     data = await coverageData();
@@ -28,40 +34,40 @@ export default async function CoveragePage() {
   return (
     <div className="stack">
       <PageHeader>
-        <h1>Rule coverage</h1>
-        <p className="muted">Calculated from the {m.total} saved requests when this page loads. These figures count records; they do not estimate time saved.</p>
+        <h1>{t("coverage.title")}</h1>
+        <p className="muted">{t("coverage.intro", { count: m.total })}</p>
       </PageHeader>
-      {m.total === 0 ? <EmptyState title="No requests yet"><p>Metrics appear once requests are saved.</p></EmptyState> : (
+      {m.total === 0 ? <EmptyState title={t("requests.table.emptyActive")}><p>{t("coverage.metricsAppear")}</p></EmptyState> : (
         <>
           <div className="grid grid-3">
-            <div className="card"><div className="stat">{pct(m.withinPolicyShare)}</div><div>Handled within existing owner rules</div><small>{m.withinPolicy} of {m.total} requests matched an owner rule, rather than a default yellow route or a safety rule.</small></div>
-            <div className="card"><div className="stat">{pct(m.greenShare)}</div><div>Green</div><small>{m.green} of {m.total} requests could follow approved steps without the owner.</small></div>
-            <div className="card"><div className="stat">{m.awaitingOwner}</div><div>Waiting for owner review</div><small>Status is &ldquo;waiting for owner&rdquo; right now.</small></div>
+            <div className="card"><div className="stat">{pct(m.withinPolicyShare)}</div><div>{t("coverage.withinRules")}</div><small>{t("coverage.withinRulesText", { n: m.withinPolicy, count: m.total })}</small></div>
+            <div className="card"><div className="stat">{pct(m.greenShare)}</div><div>{t("domain.colourShort.green")}</div><small>{t("coverage.greenText", { n: m.green, count: m.total })}</small></div>
+            <div className="card"><div className="stat">{fmt.number(m.awaitingOwner)}</div><div>{t("coverage.waiting")}</div><small>{t("coverage.waitingText")}</small></div>
           </div>
 
           <section className="card">
-            <h2>Requests by category and colour</h2>
+            <h2>{t("coverage.byCategory")}</h2>
             <div className="table-wrap"><table>
-              <thead><tr><th>Category</th><th>Green</th><th>Yellow</th><th>Red</th></tr></thead>
-              <tbody>{m.byCategory.map(([cat, c]) => <tr key={cat}><td>{REQUEST_TYPE_LABELS[cat as RequestType] ?? cat}</td><td>{c.green}</td><td>{c.amber}</td><td>{c.red}</td></tr>)}</tbody>
+              <thead><tr><th>{t("coverage.category")}</th><th>{t("domain.colourShort.green")}</th><th>{t("domain.colourShort.amber")}</th><th>{t("domain.colourShort.red")}</th></tr></thead>
+              <tbody>{m.byCategory.map(([cat, c]) => <tr key={cat}><td>{(REQUEST_TYPES as readonly string[]).includes(cat) ? t(`domain.requestType.${cat as RequestType}`) : cat}</td><td>{fmt.number(c.green)}</td><td>{fmt.number(c.amber)}</td><td>{fmt.number(c.red)}</td></tr>)}</tbody>
             </table></div>
           </section>
 
           <div className="grid grid-2">
             <section className="card">
-              <h2>Common reasons for yellow</h2>
-              <p className="hint">The rule or default route behind each yellow decision.</p>
-              {m.amberReasons.length ? <ul>{m.amberReasons.map(([r, n]) => <li key={r}>{reason(r)}: {n}</li>)}</ul> : <p className="muted">No amber requests.</p>}
+              <h2>{t("coverage.amberReasons")}</h2>
+              <p className="hint">{t("coverage.amberReasonsHint")}</p>
+              {m.amberReasons.length ? <ul>{m.amberReasons.map(([r, n]) => <li key={r}>{reason(r)}: {fmt.number(n)}</li>)}</ul> : <p className="muted">{t("coverage.noAmber")}</p>}
             </section>
             <section className="card">
-              <h2>Repeated missing information</h2>
-              <p className="hint">Facts that were missing or uncertain in the current decision of each request.</p>
-              {m.missingFacts.length ? <ul>{m.missingFacts.map(([f, n]) => <li key={f}>{FACT_TEXT[f] ?? f}: {n}</li>)}</ul> : <p className="muted">Nothing missing.</p>}
+              <h2>{t("coverage.missing")}</h2>
+              <p className="hint">{t("coverage.missingHint")}</p>
+              {m.missingFacts.length ? <ul>{m.missingFacts.map(([f, n]) => <li key={f}>{factText(f)}: {fmt.number(n)}</li>)}</ul> : <p className="muted">{t("coverage.nothingMissing")}</p>}
             </section>
             <section className="card">
-              <h2>Frequently overridden rules</h2>
-              <p className="hint">Yellow or red decisions the owner then approved as an exception, by rule.</p>
-              {m.overrides.length ? <ul>{m.overrides.map(([r, n]) => <li key={r}>{reason(r)}: {n}</li>)}</ul> : <p className="muted">No owner exceptions yet.</p>}
+              <h2>{t("coverage.overridden")}</h2>
+              <p className="hint">{t("coverage.overriddenHint")}</p>
+              {m.overrides.length ? <ul>{m.overrides.map(([r, n]) => <li key={r}>{reason(r)}: {fmt.number(n)}</li>)}</ul> : <p className="muted">{t("coverage.noExceptions")}</p>}
             </section>
           </div>
         </>
@@ -69,16 +75,16 @@ export default async function CoveragePage() {
 
       <section className="card stack">
         <div className="row" style={{ justifyContent: "space-between" }}>
-          <h2 style={{ margin: 0 }}>Rule suggestions</h2>
+          <h2 style={{ margin: 0 }}>{t("coverage.suggestions")}</h2>
           {user.role === "owner" && <RefreshSuggestions pending={pending.length} />}
         </div>
-        <p className="hint">Found by looking for at least two owner approvals of the same yellow or red rule with no complaint or welfare concern. Suggestions use pattern analysis, not AI. They stay inactive until the owner turns one into a draft, tests it and activates it. Past exceptions are not treated as general permission.</p>
-        {open.length === 0 && <p className="muted">No open suggestions.{pending.length ? ` ${pending.length} new pattern${pending.length > 1 ? "s" : ""} found; the owner can add ${pending.length > 1 ? "them" : "it"}.` : ""}</p>}
+        <p className="hint">{t("coverage.suggestionsHint")}</p>
+        {open.length === 0 && <p className="muted">{t("coverage.noOpen")}{pending.length ? ` ${t("coverage.newPatterns", { count: pending.length })}` : ""}</p>}
         {data.suggestions.map((s) => (
           <article key={s.id} className="rule-card">
-            <p>{s.summary}</p>
-            <p><small>Based on: {s.based_on_request_ids.map((id, i) => <span key={id}>{i > 0 && ", "}<Link href={`/requests/${id}`}>case {i + 1}</Link></span>)} · {formatDateTime(s.created_at)} · <span className="badge">{s.status}</span></small></p>
-            {s.status === "drafted" && s.draft_policy_version_id && <p><Link href={`/rules/${s.draft_policy_version_id}`}>Open the draft</Link></p>}
+            <p lang="en" dir="auto">{s.summary}</p>
+            <p><small>{t("coverage.basedOn")} {s.based_on_request_ids.map((id, i) => <span key={id}>{i > 0 && ", "}<Link href={`/requests/${id}`}>{t("coverage.caseN", { n: i + 1 })}</Link></span>)} · {fmt.dateTime(s.created_at)} · <span className="badge">{statusText(s.status)}</span></small></p>
+            {s.status === "drafted" && s.draft_policy_version_id && <p><Link href={`/rules/${s.draft_policy_version_id}`}>{t("coverage.openDraft")}</Link></p>}
             {user.role === "owner" && s.status === "open" && <SuggestionControls id={s.id} />}
           </article>
         ))}

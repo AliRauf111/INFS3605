@@ -1,0 +1,32 @@
+{
+  "heading": "Integrazioni",
+  "intro": "A cosa è davvero collegata questa installazione. Controllato al caricamento della pagina.",
+  "service": "Servizio",
+  "state": "Stato",
+  "meaning": "Cosa significa",
+  "states": {
+    "live": "Attivo",
+    "keySet": "Chiave impostata, non ancora usata",
+    "simulated": "Simulato",
+    "notConnected": "Non collegato",
+    "error": "Errore"
+  },
+  "claude": "Claude (API di Anthropic)",
+  "aiSimulated": "Nessuna ANTHROPIC_API_KEY impostata. La lettura dei messaggi e le proposte di regole usano invece regole per parole chiave indicate chiaramente, e le bozze usano modelli.",
+  "aiLive": "L'ultima chiamata all'IA ha funzionato ({{when}}). Modello: {{model}}. Usata per estrarre i messaggi, scrivere bozze e proporre regole. Non decide mai il colore.",
+  "aiFailed": "L'ultima chiamata all'IA non è riuscita ({{when}}): {{summary}} È stata usata la modalità simulata.",
+  "aiKeySet": "Sul server è impostata una chiave (modello {{model}}), ma non è ancora stata fatta nessuna chiamata all'IA. Prova la lettura dei messaggi con l'IA per verificare che funzioni.",
+  "database": "Database Supabase",
+  "databaseError": "Il server non è riuscito a leggere il database: {{message}}",
+  "databaseLive": "Tutti i record sono letti e scritti dal server Next.js con la chiave segreta. Il browser non si collega mai a Supabase.",
+  "auth": "Supabase Auth (accesso)",
+  "authLive": "Le password sono controllate da Supabase Auth dal server. I ruoli vengono dalla tabella app_users.",
+  "booking": "Sistema di prenotazione",
+  "bookingDetail": "Le prenotazioni sono righe dimostrative fittizie in Supabase, mostrate nel Centro conoscenze. Nessun sistema di prenotazione reale viene modificato.",
+  "payment": "Sistema di pagamento",
+  "paymentDetail": "I pagamenti sono righe dimostrative fittizie. Tutor Compass non elabora né rimborsa mai pagamenti.",
+  "calendar": "Calendario dei tutor",
+  "calendarDetail": "Gli spazi di disponibilità sono righe dimostrative fittizie.",
+  "email": "Email e SMS",
+  "emailDetail": "Le bozze sono preparate perché una persona le copi e le invii. L'app non invia nulla."
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Actividad del agente",
+  "hint": "Pasos reales registrados por el servidor, en orden. No se muestra el razonamiento del modelo.",
+  "none": "Todavía no hay actividad registrada.",
+  "state": {
+    "completed": "Completado",
+    "pending": "Pendiente",
+    "blocked": "Bloqueado",
+    "failed": "Fallido"
+  },
+  "mode": {
+    "live_ai": "IA en directo",
+    "simulated": "Simulado (sin IA)",
+    "system": "Paso del servidor"
+  },
+  "source": "fuente: {{source}}"
+}

@@ -1,0 +1,12 @@
+{
+  "todayAt": "Hoy, {{time}}",
+  "yesterdayAt": "Ayer, {{time}}",
+  "todayAtInSentence": "hoy, {{time}}",
+  "yesterdayAtInSentence": "ayer, {{time}}",
+  "dateAt": "{{date}}, {{time}}",
+  "partOfDay": {
+    "morning": "mañana",
+    "afternoon": "tarde",
+    "evening": "noche"
+  }
+}

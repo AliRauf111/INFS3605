@@ -1,0 +1,24 @@
+{
+  "didNotWork": "That did not work.",
+  "unreachable": "Could not reach the server.",
+  "checkWording": "Saved, but check this wording: {{words}}. It may promise something that has not happened.",
+  "saved": "Draft saved.",
+  "source": {
+    "template": "Template",
+    "live_ai": "Written by live AI",
+    "simulated": "Simulated",
+    "edited": "Edited by a person"
+  },
+  "textLabel": "{{kind}} text",
+  "noDraft": "No draft yet.",
+  "replace": "Replace with template",
+  "prepare": "Prepare draft",
+  "withAi": "Draft with AI",
+  "saveEdits": "Save edits",
+  "copied": "Copied. Paste it into your email or messaging tool.",
+  "copy": "Copy",
+  "heading": "Drafts",
+  "hint": "Drafts are for you to check, edit and send yourself. Tutor Compass never sends messages.",
+  "welfareHint": "For welfare cases only a restricted factual handover is offered, and it is never sent to the AI.",
+  "languageHint": "Draft templates are written in English. Changing the interface language doesn't change a draft's text."
+}

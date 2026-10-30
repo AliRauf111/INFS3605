@@ -1,0 +1,11 @@
+{
+  "saveFailed": "Non è stato possibile salvare la classe. Riprova.",
+  "fromBooking": "dalla prenotazione {{id}}",
+  "none": "Nessuna classe collegata",
+  "notSetUp": "Per scegliere una classe serve prima un piccolo aggiornamento del database.",
+  "legend": "Classe a cui si riferisce questa richiesta",
+  "save": "Salva classe",
+  "change": "Cambia classe",
+  "choose": "Scegli classe",
+  "remove": "Togli classe"
+}

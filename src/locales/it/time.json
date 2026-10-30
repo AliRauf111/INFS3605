@@ -1,0 +1,12 @@
+{
+  "todayAt": "Oggi, {{time}}",
+  "yesterdayAt": "Ieri, {{time}}",
+  "todayAtInSentence": "oggi, {{time}}",
+  "yesterdayAtInSentence": "ieri, {{time}}",
+  "dateAt": "{{date}}, {{time}}",
+  "partOfDay": {
+    "morning": "mattina",
+    "afternoon": "pomeriggio",
+    "evening": "sera"
+  }
+}

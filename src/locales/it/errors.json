@@ -1,0 +1,15 @@
+{
+  "pageTitle": "Qualcosa è andato storto",
+  "pageBody": "Non è stato possibile mostrare la pagina. Questo errore non ha cambiato nulla.",
+  "notFoundTitle": "Non trovato",
+  "notFoundBody": "Quella pagina o quel record non esiste.",
+  "goToDashboard": "Vai alla dashboard",
+  "sameOrigin": "Le richieste devono arrivare dall'app Tutor Compass.",
+  "badJson": "Il corpo della richiesta deve essere JSON valido.",
+  "notConfigured": "Il server non è ancora configurato. Vedi README.md.",
+  "server": "Qualcosa è andato storto sul server. Controlla il registro delle richieste prima di riprovare.",
+  "signIn": "Accedi, per favore.",
+  "ownerOnly": "Solo il titolare può farlo.",
+  "adminOnly": "Solo l'amministrazione può farlo.",
+  "unknownLanguage": "Scegli una delle lingue dell'elenco."
+}

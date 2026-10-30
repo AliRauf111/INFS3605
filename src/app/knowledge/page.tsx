@@ -1,16 +1,23 @@
 import { requirePageUser } from "@/lib/auth/page";
 import { knowledgeHub, listPolicyVersions } from "@/lib/data/queries";
-import { formatAud } from "@/lib/domain/money";
 import { isStale } from "@/lib/context/mappers";
-import { DataBadge, LoadError, formatDateTime } from "@/components/ui";
+import { DataBadge, LoadError } from "@/components/ui";
+import { getI18n } from "@/lib/i18n/server";
+
+const PAYMENT_STATUSES = ["paid", "pending", "overdue", "refunded", "disputed"] as const;
+const SLOT_STATUSES = ["free", "booked", "held"] as const;
 import { RulesSection } from "@/app/rules/RulesSection";
 import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Knowledge Hub" };
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t("nav.knowledgeHub") };
+}
 
 export default async function KnowledgePage() {
   const user = await requirePageUser();
+  const { t, fmt } = await getI18n();
   let k, versions;
   try {
     [k, versions] = await Promise.all([knowledgeHub(), listPolicyVersions()]);
@@ -18,57 +25,61 @@ export default async function KnowledgePage() {
     return <LoadError error={e} />;
   }
   const now = new Date();
-  const tutor = (id: string) => k.tutors.find((t) => t.id === id)?.name ?? id;
+  const tutor = (id: string) => k.tutors.find((tu) => tu.id === id)?.name ?? id;
   const student = (familyId: string) => k.families.find((f) => f.id === familyId)?.student_name ?? familyId;
-  const stale = (iso: string) => isStale(iso, now) ? <span className="badge amber">! May be out of date</span> : null;
+  const stale = (iso: string) => isStale(iso, now) ? <span className="badge amber">{t("knowledge.stale")}</span> : null;
+  const payStatus = (s: string) => ((PAYMENT_STATUSES as readonly string[]).includes(s) ? t(`knowledge.paymentStatus.${s as "paid"}`) : s);
+  const slotStatus = (s: string) => ((SLOT_STATUSES as readonly string[]).includes(s) ? t(`knowledge.slotStatus.${s as "free"}`) : s);
+  const synced = (system: string, at: string) => t("knowledge.synced", { system, when: fmt.dateTime(at) });
   return (
     <div className="stack">
       <PageHeader>
-        <h1>Knowledge Hub</h1>
-        <p className="muted">The owner's rules, bookings, payments, tutor availability and procedures in one place.</p>
+        <h1>{t("nav.knowledgeHub")}</h1>
+        <p className="muted">{t("knowledge.intro")}</p>
       </PageHeader>
 
       <RulesSection user={user} versions={versions} />
 
       <section>
-        <h2>Bookings</h2>
+        <h2>{t("subjects.bookings")}</h2>
         <div className="table-wrap"><table>
-          <thead><tr><th>ID</th><th>Student</th><th>Family</th><th>Subject</th><th>Tutor</th><th>Lessons</th><th>Price</th><th>Source</th></tr></thead>
+          <thead><tr><th>{t("knowledge.col.id")}</th><th>{t("knowledge.col.student")}</th><th>{t("knowledge.col.family")}</th><th>{t("knowledge.col.subject")}</th><th>{t("subjects.col.tutor")}</th><th>{t("knowledge.col.lessons")}</th><th>{t("knowledge.col.price")}</th><th>{t("request.source")}</th></tr></thead>
           <tbody>{k.bookings.map((b) => (
-            <tr key={b.id}><td>{b.id}</td><td>{student(b.family_id)}</td><td>{b.family_id}</td><td>{b.subject}</td><td>{tutor(b.tutor_id)}</td><td>{b.lessons_used} of {b.lessons_purchased} used</td><td>{formatAud(b.price_cents)}</td>
-              <td><DataBadge label={b.data_label} /> {stale(b.last_synced_at)}<br /><small>{b.source_system}, synced {formatDateTime(b.last_synced_at)}</small></td></tr>
+            <tr key={b.id}><td><bdi>{b.id}</bdi></td><td><bdi>{student(b.family_id)}</bdi></td><td><bdi>{b.family_id}</bdi></td><td dir="auto">{b.subject}</td><td><bdi>{tutor(b.tutor_id)}</bdi></td><td>{t("knowledge.lessonsUsed", { used: b.lessons_used, purchased: b.lessons_purchased })}</td><td>{fmt.money(b.price_cents)}</td>
+              <td><DataBadge label={b.data_label} /> {stale(b.last_synced_at)}<br /><small>{synced(b.source_system, b.last_synced_at)}</small></td></tr>
           ))}</tbody>
         </table></div>
       </section>
 
       <section>
-        <h2>Payments</h2>
+        <h2>{t("knowledge.payments")}</h2>
         <div className="table-wrap"><table>
-          <thead><tr><th>ID</th><th>Booking</th><th>Invoice</th><th>Amount</th><th>Status</th><th>Paid / due</th><th>Source</th></tr></thead>
+          <thead><tr><th>{t("knowledge.col.id")}</th><th>{t("subjects.col.booking")}</th><th>{t("knowledge.col.invoice")}</th><th>{t("requests.table.amount")}</th><th>{t("requests.table.status")}</th><th>{t("knowledge.col.paidDue")}</th><th>{t("request.source")}</th></tr></thead>
           <tbody>{k.payments.map((p) => (
-            <tr key={p.id}><td>{p.id}</td><td>{p.booking_id}</td><td>{p.invoice_ref}</td><td>{formatAud(p.amount_cents)}</td><td>{p.status}</td><td>{p.paid_at ? formatDateTime(p.paid_at) : p.due_date ? `Due ${p.due_date}` : "None"}</td>
-              <td><DataBadge label={p.data_label} /> {stale(p.last_synced_at)}<br /><small>{p.source_system}, synced {formatDateTime(p.last_synced_at)}</small></td></tr>
+            <tr key={p.id}><td><bdi>{p.id}</bdi></td><td><bdi>{p.booking_id}</bdi></td><td><bdi>{p.invoice_ref}</bdi></td><td>{fmt.money(p.amount_cents)}</td><td>{payStatus(p.status)}</td><td>{p.paid_at ? fmt.dateTime(p.paid_at) : p.due_date ? t("knowledge.due", { date: fmt.date(`${p.due_date}T12:00:00+10:00`) }) : t("common.none")}</td>
+              <td><DataBadge label={p.data_label} /> {stale(p.last_synced_at)}<br /><small>{synced(p.source_system, p.last_synced_at)}</small></td></tr>
           ))}</tbody>
         </table></div>
-        <p className="hint">PAY-2002 and PAY-2003 deliberately conflict (same invoice, different amounts), and PAY-2005 is deliberately stale, to show how missing or conflicting evidence blocks green.</p>
+        <p className="hint">{t("knowledge.conflictHint")}</p>
       </section>
 
       <section>
-        <h2>Tutor Availability</h2>
+        <h2>{t("knowledge.availability")}</h2>
         <div className="table-wrap"><table>
-          <thead><tr><th>Slot</th><th>Tutor</th><th>Starts</th><th>Status</th><th>Source</th></tr></thead>
+          <thead><tr><th>{t("knowledge.col.slot")}</th><th>{t("subjects.col.tutor")}</th><th>{t("knowledge.col.starts")}</th><th>{t("requests.table.status")}</th><th>{t("request.source")}</th></tr></thead>
           <tbody>{k.slots.map((s) => (
-            <tr key={s.id}><td>{s.id}</td><td>{tutor(s.tutor_id)}</td><td>{formatDateTime(s.starts_at)}</td><td>{s.status.charAt(0).toUpperCase() + s.status.slice(1)}</td><td><DataBadge label={s.data_label} /> {stale(s.last_synced_at)}</td></tr>
+            <tr key={s.id}><td><bdi>{s.id}</bdi></td><td><bdi>{tutor(s.tutor_id)}</bdi></td><td>{fmt.dateTime(s.starts_at)}</td><td>{slotStatus(s.status)}</td><td><DataBadge label={s.data_label} /> {stale(s.last_synced_at)}</td></tr>
           ))}</tbody>
         </table></div>
       </section>
 
       <section id="procedures" className="stack">
-        <h2>Procedures</h2>
+        <h2>{t("knowledge.procedures")}</h2>
+        <p className="hint">{t("knowledge.proceduresHint")}</p>
         {k.articles.map((a) => (
           <details key={a.id} id={`article-${a.id}`} className="card">
-            <summary><strong>{a.title}</strong> ({a.id}, v{a.version}) {a.owner_approved && <span className="badge lilac">Owner Approved</span>} <DataBadge label={a.data_label} /></summary>
-            <pre>{a.body}</pre>
+            <summary><strong dir="auto">{a.title}</strong> (<bdi>{a.id}</bdi>, v{a.version}) {a.owner_approved && <span className="badge lilac">{t("knowledge.ownerApproved")}</span>} <DataBadge label={a.data_label} /></summary>
+            <pre dir="auto">{a.body}</pre>
           </details>
         ))}
       </section>

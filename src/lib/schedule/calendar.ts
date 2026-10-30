@@ -4,6 +4,7 @@
 // clock: callers pass "today", so it is unit tested.
 
 import { addDays } from "@/lib/workflows/dates";
+import { enT, type Translate } from "@/lib/i18n/core";
 
 const DAY_MS = 86_400_000;
 const toUtc = (iso: string) => Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10)));
@@ -45,23 +46,27 @@ export function monthGrid(month: string): string[][] {
 }
 
 /** "October 2026" */
-export function monthLabel(month: string): string {
-  return new Intl.DateTimeFormat("en-AU", { timeZone: "UTC", month: "long", year: "numeric" }).format(utcDate(`${month}-01`));
+export function monthLabel(month: string, locale = "en-AU"): string {
+  return new Intl.DateTimeFormat(locale, { timeZone: "UTC", month: "long", year: "numeric" }).format(utcDate(`${month}-01`));
 }
 
 /** "Friday 30 October" */
-export function longDay(day: string): string {
-  return new Intl.DateTimeFormat("en-AU", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(utcDate(day));
+export function longDay(day: string, locale = "en-AU"): string {
+  return new Intl.DateTimeFormat(locale, { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(utcDate(day));
 }
 
 /** What a screen reader hears for a day in the grid: "Friday 30 October, 2 lessons". */
-export function dayLabel(day: string, lessons: number, today?: string): string {
-  const count = lessons === 0 ? "no lessons" : `${lessons} ${lessons === 1 ? "lesson" : "lessons"}`;
-  return `${longDay(day)}${day === today ? ", today" : ""}, ${count}`;
+export function dayLabel(day: string, lessons: number, today?: string, t: Translate = enT, locale = "en-AU"): string {
+  const count = lessons === 0 ? t("schedule.noLessonsLower") : t("schedule.lessonCountLower", { count: lessons });
+  return day === today ? t("schedule.dayLabelToday", { day: longDay(day, locale), lessons: count }) : t("schedule.dayLabel", { day: longDay(day, locale), lessons: count });
 }
 
-/** Where the arrow keys, Home and End move to from a day. Null for any other key. */
-export function moveDay(day: string, key: string): string | null {
+/**
+ * Where the arrow keys, Home and End move to from a day. Null for any other key. In a
+ * right-to-left layout the week runs from right to left, so Left and Right swap.
+ */
+export function moveDay(day: string, key: string, dir: "ltr" | "rtl" = "ltr"): string | null {
+  if (dir === "rtl") key = key === "ArrowLeft" ? "ArrowRight" : key === "ArrowRight" ? "ArrowLeft" : key;
   const weekdayIndex = (utcDate(day).getUTCDay() + 6) % 7;
   switch (key) {
     case "ArrowLeft": return addDays(day, -1);
@@ -78,11 +83,12 @@ export function daysInRange(from: string, to: string): number {
   return Math.round((toUtc(to) - toUtc(from)) / DAY_MS) + 1;
 }
 
-const clock = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit", hour12: true });
+const clocks = new Map<string, Intl.DateTimeFormat>();
 
-/** "4:00" and "pm", in Sydney. */
-export function timeParts(iso: string): { time: string; period: string } {
-  const parts = clock.formatToParts(new Date(iso));
+/** "4:00" and "pm", in Sydney. Languages that use the 24-hour clock get an empty period. */
+export function timeParts(iso: string, locale = "en-AU"): { time: string; period: string } {
+  if (!clocks.has(locale)) clocks.set(locale, new Intl.DateTimeFormat(locale, { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit" }));
+  const parts = clocks.get(locale)!.formatToParts(new Date(iso));
   const time = parts.filter((p) => p.type === "hour" || p.type === "minute" || p.type === "literal").map((p) => p.value).join("").trim();
   const period = parts.find((p) => p.type === "dayPeriod")?.value.toLowerCase().replace(/\./g, "") ?? "";
   return { time, period };
@@ -98,8 +104,8 @@ export function subjectIcon(subject: string): { letter: string; cls: string } {
 export type LessonState = "scheduled" | "completed" | "cancelled";
 
 /** The words beside a lesson. "warn" marks the ones that need someone to act. */
-export function lessonStatus(status: LessonState, tutorAway: boolean): { label: string; warn: boolean } {
-  if (status === "cancelled") return { label: "Cancelled", warn: false };
-  if (status === "completed") return { label: "Completed", warn: false };
-  return tutorAway ? { label: "Cover needed", warn: true } : { label: "Confirmed", warn: false };
+export function lessonStatus(status: LessonState, tutorAway: boolean, t: Translate = enT): { label: string; warn: boolean } {
+  if (status === "cancelled") return { label: t("schedule.status.cancelled"), warn: false };
+  if (status === "completed") return { label: t("schedule.status.completed"), warn: false };
+  return tutorAway ? { label: t("schedule.status.coverNeeded"), warn: true } : { label: t("schedule.status.confirmed"), warn: false };
 }

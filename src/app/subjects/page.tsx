@@ -1,13 +1,18 @@
 import Link from "next/link";
 import { requirePageUser } from "@/lib/auth/page";
 import { catalogueData, offerKey } from "@/lib/data/catalogue";
-import { COURSES, SUBJECT_AREAS, UNRESOLVED, canTeach, formatSelection, type YearLevel } from "@/lib/catalogue/hsc";
+import { COURSES, SUBJECT_AREAS, UNRESOLVED, canTeach, type YearLevel } from "@/lib/catalogue/hsc";
+import { selectionLabel } from "@/components/SubjectPicker";
+import { getI18n } from "@/lib/i18n/server";
 import { LoadError } from "@/components/ui";
 import { AddStudentCourse, AddTutorCourse, FindTutor, OfferToggle, RemoveLink, SetBookingCourse } from "./SubjectsClient";
 import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Subjects" };
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t("nav.subjects") };
+}
 
 const SOURCES = [
   { href: "https://curriculum.nsw.edu.au/learning-areas/tas/enterprise-computing-11-12-2022/content", label: "NSW Curriculum: Enterprise Computing" },
@@ -17,6 +22,7 @@ const SOURCES = [
 
 export default async function SubjectsPage() {
   const user = await requirePageUser();
+  const { t } = await getI18n();
   let data;
   try {
     data = await catalogueData();
@@ -24,87 +30,85 @@ export default async function SubjectsPage() {
     return <LoadError error={e} />;
   }
   const owner = user.role === "owner";
-  const tutorNames = Object.fromEntries(data.tutors.map((t) => [t.id, t.name]));
+  const tutorNames = Object.fromEntries(data.tutors.map((tu) => [tu.id, tu.name]));
   const label = (x: { course_id: string; year_level: YearLevel; course_level: string; qualification: string }) =>
-    formatSelection({ year: x.year_level, courseId: x.course_id, level: x.course_level, qualification: x.qualification });
+    selectionLabel({ year: x.year_level, courseId: x.course_id, level: x.course_level, qualification: x.qualification }, t);
   const offeredCount = Object.values(data.offered).filter(Boolean).length;
 
   return (
     <div className="stack">
       <PageHeader>
-        <h1>Subjects</h1>
-        <p className="muted" style={{ margin: 0 }}>
-          NSW HSC courses for Years 11 and 12. Codes such as MTH1011 are Tutor Compass category codes, not NESA course numbers. A tutor only matches when they teach the exact course and year.
-        </p>
+        <h1>{t("nav.subjects")}</h1>
+        <p className="muted" style={{ margin: 0 }}>{t("subjects.intro")}</p>
       </PageHeader>
 
       {!data.ready && (
         <div className="notice warning" role="status">
-          <p><strong>The database needs the subject catalogue update.</strong> Until then you can browse the catalogue, but nothing can be saved.</p>
-          <p>In Supabase, open the SQL Editor and run <span className="code">supabase/migrations/20261019000002_hsc_catalogue.sql</span>, then <span className="code">supabase/catalogue.sql</span>. Both are safe to run again.</p>
+          <p><strong>{t("subjects.needsUpdate")}</strong> {t("subjects.needsUpdateText")}</p>
+          <p>{t("subjects.runSqlStart")} <span className="code">supabase/migrations/20261019000002_hsc_catalogue.sql</span>, {t("subjects.runSqlThen")} <span className="code">supabase/catalogue.sql</span>. {t("subjects.runSqlSafe")}</p>
         </div>
       )}
 
       <section className="card stack" aria-labelledby="find-h">
-        <h2 id="find-h" style={{ margin: 0 }}>Find a Tutor</h2>
-        <p className="hint">Choose the student&rsquo;s course. Sharing a category code is not enough: a tutor for Mathematics Standard 2 is not a match for Mathematics Advanced.</p>
+        <h2 id="find-h" style={{ margin: 0 }}>{t("subjects.findTutor")}</h2>
+        <p className="hint">{t("subjects.findTutorHint")}</p>
         <FindTutor tutors={data.tutors} tutorCourses={data.tutorCourses} offered={data.offered} freeSlots={data.freeSlots} />
       </section>
 
       <div className="grid grid-2">
         <section className="card stack" aria-labelledby="tutors-h">
-          <h2 id="tutors-h" style={{ margin: 0 }}>Tutors</h2>
-          <p className="hint">The exact courses and years each tutor teaches. {owner ? "Only you can change these." : "Only the owner can change these."}</p>
-          {data.tutors.map((t) => {
-            const rows = data.tutorCourses.filter((c) => c.tutor_id === t.id);
+          <h2 id="tutors-h" style={{ margin: 0 }}>{t("subjects.tutors")}</h2>
+          <p className="hint">{t("subjects.tutorsHint")} {owner ? t("subjects.onlyYou") : t("subjects.onlyOwner")}</p>
+          {data.tutors.map((tu) => {
+            const rows = data.tutorCourses.filter((c) => c.tutor_id === tu.id);
             return (
-              <div key={t.id}>
-                <h3 style={{ margin: "0 0 0.4rem", fontSize: "1rem" }}>{t.name}</h3>
+              <div key={tu.id}>
+                <h3 style={{ margin: "0 0 0.4rem", fontSize: "1rem" }}><bdi>{tu.name}</bdi></h3>
                 {rows.length ? (
                   <ul className="course-list">
                     {rows.map((r) => (
                       <li key={r.id}>
-                        <span>{label(r)}</span>
-                        {owner && <RemoveLink id={r.id} kind="tutor" label={`${label(r)} from ${t.name}`} />}
+                        <span lang="en">{label(r)}</span>
+                        {owner && <RemoveLink id={r.id} kind="tutor" label={t("subjects.fromTutor", { course: label(r), name: tu.name })} />}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="muted" style={{ margin: 0 }}>No Year 11 or 12 courses recorded.</p>
+                  <p className="muted" style={{ margin: 0 }}>{t("subjects.noTutorCourses")}</p>
                 )}
               </div>
             );
           })}
           {owner && data.ready && data.tutors.length > 0 && (
             <details>
-              <summary>Add a course to a tutor</summary>
+              <summary>{t("subjects.addToTutor")}</summary>
               <AddTutorCourse tutors={data.tutors} />
             </details>
           )}
         </section>
 
         <section className="card stack" aria-labelledby="students-h">
-          <h2 id="students-h" style={{ margin: 0 }}>Students</h2>
-          <p className="hint">The courses each student is studying, kept with their family record.</p>
+          <h2 id="students-h" style={{ margin: 0 }}>{t("subjects.students")}</h2>
+          <p className="hint">{t("subjects.studentsHint")}</p>
           {data.studentCourses.length ? (
             <ul className="course-list">
               {data.studentCourses.map((r) => (
                 <li key={r.id}>
                   <span>
-                    <strong>{r.student_name}</strong> <span className="muted">({r.family_id})</span>
+                    <strong><bdi>{r.student_name}</bdi></strong> <span className="muted">(<bdi>{r.family_id}</bdi>)</span>
                     <br />
-                    {label(r)}
+                    <span lang="en">{label(r)}</span>
                   </span>
-                  <RemoveLink id={r.id} kind="student" label={`${label(r)} for ${r.student_name}`} />
+                  <RemoveLink id={r.id} kind="student" label={t("subjects.forStudent", { course: label(r), name: r.student_name })} />
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="muted" style={{ margin: 0 }}>No courses recorded yet.</p>
+            <p className="muted" style={{ margin: 0 }}>{t("subjects.noCourses")}</p>
           )}
           {data.ready && data.families.length > 0 && (
             <details>
-              <summary>Add a student&rsquo;s course</summary>
+              <summary>{t("subjects.addStudentCourse")}</summary>
               <AddStudentCourse families={data.families} />
             </details>
           )}
@@ -112,12 +116,12 @@ export default async function SubjectsPage() {
       </div>
 
       <section className="card stack" aria-labelledby="bookings-h">
-        <h2 id="bookings-h" style={{ margin: 0 }}>Bookings</h2>
-        <p className="hint">Bookings keep their original subject text. Linking one to an exact course lets Tutor Compass check the tutor really teaches it.</p>
+        <h2 id="bookings-h" style={{ margin: 0 }}>{t("subjects.bookings")}</h2>
+        <p className="hint">{t("subjects.bookingsHint")}</p>
         <div className="table-wrap">
           <table>
             <thead>
-              <tr><th>Booking</th><th>Subject on File</th><th>Tutor</th><th>Course</th><th>Tutor Check</th></tr>
+              <tr><th>{t("subjects.col.booking")}</th><th>{t("subjects.col.subject")}</th><th>{t("subjects.col.tutor")}</th><th>{t("subjects.col.course")}</th><th>{t("subjects.col.check")}</th></tr>
             </thead>
             <tbody>
               {data.bookings.map((b) => {
@@ -125,16 +129,16 @@ export default async function SubjectsPage() {
                 const ok =
                   linked &&
                   canTeach(
-                    data.tutorCourses.filter((t) => t.tutor_id === b.tutor_id).map((t) => ({ courseId: t.course_id, year: t.year_level, level: t.course_level })),
+                    data.tutorCourses.filter((tc) => tc.tutor_id === b.tutor_id).map((tc) => ({ courseId: tc.course_id, year: tc.year_level, level: tc.course_level })),
                     { courseId: linked.course_id, year: linked.year_level, level: linked.course_level },
                   );
                 return (
                   <tr key={b.id}>
-                    <td>{b.id}</td>
-                    <td>{b.subject}</td>
-                    <td>{tutorNames[b.tutor_id] ?? b.tutor_id}</td>
-                    <td>{linked ? label(linked) : <span className="muted">Not linked</span>}</td>
-                    <td>{linked ? (ok ? <span className="badge lilac">Teaches it</span> : <span className="badge">Not recorded</span>) : <span className="muted">Not checked</span>}</td>
+                    <td><bdi>{b.id}</bdi></td>
+                    <td dir="auto">{b.subject}</td>
+                    <td><bdi>{tutorNames[b.tutor_id] ?? b.tutor_id}</bdi></td>
+                    <td>{linked ? <span lang="en">{label(linked)}</span> : <span className="muted">{t("subjects.notLinked")}</span>}</td>
+                    <td>{linked ? (ok ? <span className="badge lilac">{t("subjects.teachesIt")}</span> : <span className="badge">{t("subjects.notRecorded")}</span>) : <span className="muted">{t("subjects.notChecked")}</span>}</td>
                   </tr>
                 );
               })}
@@ -143,30 +147,30 @@ export default async function SubjectsPage() {
         </div>
         {data.ready && data.bookings.length > 0 && (
           <details>
-            <summary>Link a booking to a course</summary>
+            <summary>{t("subjects.linkBooking")}</summary>
             <SetBookingCourse bookings={data.bookings} offered={data.offered} tutorNames={tutorNames} />
           </details>
         )}
       </section>
 
       <section className="card stack" aria-labelledby="catalogue-h">
-        <h2 id="catalogue-h" style={{ margin: 0 }}>Catalogue</h2>
+        <h2 id="catalogue-h" style={{ margin: 0 }}>{t("subjects.catalogue")}</h2>
         <p className="hint">
-          The full list of {COURSES.length} courses. {offeredCount} course and year pairs are switched on for this business.{" "}
-          {owner ? "Switch a course on when the business starts offering it." : "Only the owner can switch courses on or off."}
+          {t("subjects.catalogueCount", { count: COURSES.length })} {t("subjects.offeredCount", { count: offeredCount })}{" "}
+          {owner ? t("subjects.switchOn") : t("subjects.ownerSwitches")}
         </p>
         {SUBJECT_AREAS.map((a) => (
           <div key={a.id} className="area-block">
-            <h3>{a.name} <span className="muted code">{a.codes[11]} · {a.codes[12]}</span></h3>
+            <h3>{t(`catalogue.area.${a.id}`)} <span className="muted code">{a.codes[11]} · {a.codes[12]}</span></h3>
             <div className="table-wrap">
               <table>
                 <thead>
-                  <tr><th>Course</th><th>Year 11 ({a.codes[11]})</th><th>Year 12 ({a.codes[12]})</th></tr>
+                  <tr><th>{t("subjects.col.course")}</th><th>{t("subjects.yearCode", { year: 11, code: a.codes[11] })}</th><th>{t("subjects.yearCode", { year: 12, code: a.codes[12] })}</th></tr>
                 </thead>
                 <tbody>
                   {COURSES.filter((c) => c.areaId === a.id).map((c) => (
                     <tr key={c.id}>
-                      <td>
+                      <td lang="en">
                         {c.name}
                         {c.note && <div className="sub">{c.note}</div>}
                       </td>
@@ -175,11 +179,11 @@ export default async function SubjectsPage() {
                         return (
                           <td key={y}>
                             {!c.years.includes(y) ? (
-                              <span className="muted">Not a Year {y} course</span>
+                              <span className="muted">{t("subjects.notYearCourse", { year: y })}</span>
                             ) : owner && data.ready ? (
                               <OfferToggle courseId={c.id} year={y} offered={on} />
                             ) : (
-                              <span className={`badge ${on ? "lilac" : ""}`}>{on ? "Offered" : "Not Offered"}</span>
+                              <span className={`badge ${on ? "lilac" : ""}`}>{on ? t("subjects.offered") : t("subjects.notOffered")}</span>
                             )}
                           </td>
                         );
@@ -194,15 +198,15 @@ export default async function SubjectsPage() {
       </section>
 
       <section className="card" aria-labelledby="open-h">
-        <h2 id="open-h">Not yet confirmed</h2>
-        <p className="hint">Details that weren&rsquo;t checked course by course. They are noted here rather than guessed.</p>
-        <ul>{UNRESOLVED.map((u) => <li key={u}>{u}</li>)}</ul>
+        <h2 id="open-h">{t("subjects.notConfirmed")}</h2>
+        <p className="hint">{t("subjects.notConfirmedHint")}</p>
+        <ul lang="en">{UNRESOLVED.map((u) => <li key={u}>{u}</li>)}</ul>
         <p className="hint">
-          Checked against:{" "}
+          {t("subjects.checkedAgainst")}{" "}
           {SOURCES.map((s, i) => (
-            <span key={s.href}>{i > 0 && " · "}<a href={s.href} target="_blank" rel="noreferrer">{s.label}</a></span>
+            <span key={s.href}>{i > 0 && " · "}<a href={s.href} target="_blank" rel="noreferrer" lang="en">{s.label}</a></span>
           ))}
-          . Ask Compass AI things like &ldquo;who teaches Maths Advanced Year 12?&rdquo; or see the <Link href="/knowledge">Knowledge Hub</Link> for owner rules.
+          . {t("subjects.askCompass")} <Link href="/knowledge">{t("nav.knowledgeHub")}</Link>.
         </p>
       </section>
     </div>

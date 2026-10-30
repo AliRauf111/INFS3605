@@ -5,20 +5,20 @@
    the main content, with Accessibility last. */
 .page-title { flex: 1 1 18rem; min-width: 0; }
 .page-title > :last-child { margin-bottom: 0; }
-.page-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0.75rem; margin-left: auto; max-width: 100%; }
+.page-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0.75rem; margin-inline-start: auto; max-width: 100%; }
 .page-title + .page-actions { align-self: flex-end; }
 .stack:not(.dash) > .page-head { margin-bottom: 0; }
 .page-actions .btn { width: auto; }
 .page-actions-solo { margin-bottom: 1rem; }
 @media (max-width: 680px) {
-  .page-actions { justify-content: flex-start; margin-left: 0; }
+  .page-actions { justify-content: flex-start; margin-inline-start: 0; }
 }
 
 /* The Accessibility button: the Studio design's dark pill, on every page. */
 .btn.accessibility-trigger {
   display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 0; padding: 13px 18px; border: 0; border-radius: 30px;
   background: #2e2d43; color: #ffffff; font-size: 0.6875rem; font-weight: 500; line-height: 1.5; white-space: normal; letter-spacing: -0.2px;
-  box-shadow: 0 4px 10px #38324c0b; text-align: left;
+  box-shadow: 0 4px 10px #38324c0b; text-align: start;
 }
 .btn.accessibility-trigger:hover { background: #2e2d43; color: #ffffff; filter: brightness(0.98); }
 .btn.accessibility-trigger svg { width: 19px; height: 19px; color: #d4c7f6; }

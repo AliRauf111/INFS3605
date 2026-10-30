@@ -35,13 +35,20 @@ const SHAPES = {
   alert: <path d="M12 4l9 16H3zM12 10v4M12 17.5v.01" />,
   stop: <path d="M8.5 3h7L21 8.5v7L15.5 21h-7L3 15.5v-7zM12 8v5M12 16.5v.01" />,
   signout: <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l4-4-4-4M14 12H4" />,
+  globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z" /></>,
+  "chevron-down": <path d="m6 9 6 6 6-6" />,
+  settings: <><circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9 7 7m10 10 2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" /></>,
 } as const;
+
+// Icons that point along the reading direction. In right-to-left languages they are
+// mirrored (see globals.css); everything else, the logo included, never is.
+const DIRECTIONAL = new Set<string>(["arrow", "chevron-left", "chevron-right", "external", "signout"]);
 
 export type IconName = keyof typeof SHAPES;
 
 export function Icon({ name, size = 20, className }: { name: IconName; size?: number; className?: string }) {
   return (
-    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false" data-flip={DIRECTIONAL.has(name) ? "" : undefined}>
       {SHAPES[name]}
     </svg>
   );
