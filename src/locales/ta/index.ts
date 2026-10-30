@@ -21,6 +21,7 @@ import overview from "./overview.json";
 import owner from "./owner.json";
 import picker from "./picker.json";
 import remove from "./remove.json";
+import reply from "./reply.json";
 import request from "./request.json";
 import requestClass from "./requestClass.json";
 import requests from "./requests.json";
@@ -33,5 +34,5 @@ import time from "./time.json";
 import wizard from "./wizard.json";
 import workflow from "./workflow.json";
 
-const messages = { a11y, actions, activity, auth, catalogue, common, compass, coverage, domain, drafts, errors, info, insights, intake, integrations, knowledge, language, nav, overview, owner, picker, remove, request, requestClass, requests, rules, schedule, settings, shell, subjects, time, wizard, workflow };
+const messages = { a11y, actions, activity, auth, catalogue, common, compass, coverage, domain, drafts, errors, info, insights, intake, integrations, knowledge, language, nav, overview, owner, picker, remove, reply, request, requestClass, requests, rules, schedule, settings, shell, subjects, time, wizard, workflow };
 export default messages;
