@@ -7,7 +7,7 @@
   "demoMode": "演示模式",
   "welcomeLive": "实时 AI 已开启。它只读取你的消息并撰写摘要。一切由记录、权限和负责人的规则决定。四个快捷方式不使用 AI。",
   "welcomeDemo": "演示模式：未连接任何 AI 服务。关键词规则、当前记录和负责人的规则负责一切，所有流程都能完整运行。",
-  "repliesEnglish": "Compass 的回复使用英文。按钮和标签使用你选择的语言。",
+  "repliesEnglish": "Compass 用你选择的语言回复。给家长起草的消息、负责人的政策原文和已保存的备注仍为英文。",
   "stopReading": "停止朗读",
   "startOver": "重新开始",
   "settings": "Compass 设置",
@@ -63,7 +63,7 @@
     "typeInstead": "改为打字",
     "cancel": "取消",
     "privacy": "语音输入使用浏览器的语音服务。在你按下发送之前，不会有任何内容发送到 Tutor Compass。",
-    "englishNote": "语音输入只识别英语。",
+    "englishNote": "语音输入会听取你选择的语言。没有实时 AI 时，Compass 只能理解英文的输入和语音请求，所以如果它没有理解，请使用按钮。",
     "error": {
       "unsupported": "此浏览器不支持语音输入。请试试 Chrome、Edge 或 Safari，或改为打字。",
       "blocked": "麦克风访问被阻止。请在浏览器的网站设置中允许，然后重试，或改为打字。",
