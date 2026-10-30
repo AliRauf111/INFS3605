@@ -8,26 +8,18 @@ import {
   course,
   coursesFor,
   categoryCode,
-  levelName,
   levelsFor,
   searchCatalogue,
   type Selection,
   type YearLevel,
 } from "@/lib/catalogue/hsc";
 import { useI18n } from "@/components/i18n/I18nProvider";
-import type { Translate } from "@/lib/i18n/core";
+import { selectionLabel } from "@/lib/catalogue/label";
 
 // Course and level names are the official HSC course titles, so they stay in English in
 // every language (marked lang="en"). Subject areas and everything around them translate.
 
-/** "Mathematics Advanced · Year 12 · MTH1012", with "Year" in the reader's language. */
-export function selectionLabel(s: { year: YearLevel; courseId: string; level?: string | null; qualification?: string | null }, t: Translate): string {
-  const crs = course(s.courseId);
-  if (!crs) return t("picker.unknownCourse");
-  const name = [crs.name, crs.kind === "language" ? levelName(s.level) : ""].filter(Boolean).join(" ");
-  const qual = crs.kind === "vet" && s.qualification ? ` (${s.qualification})` : "";
-  return `${name}${qual} · ${t("subjects.year", { year: s.year })} · ${categoryCode(crs.areaId, s.year)}`;
-}
+export { selectionLabel };
 
 // Year level, then subject area, then course. The category code follows the year and
 // area on its own, and a course that stops fitting is cleared with a short note. A quick

@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { SubjectPicker, selectionLabel } from "@/components/SubjectPicker";
+import { SubjectPicker } from "@/components/SubjectPicker";
+import { selectionLabel } from "@/lib/catalogue/label";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import {
   EMPTY_SELECTION,

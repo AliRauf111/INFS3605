@@ -119,3 +119,14 @@
 [dir="rtl"] .cp-decision.green { background: linear-gradient(270deg, var(--green-bg), var(--paper, #fff) 55%); }
 [dir="rtl"] .cp-decision.amber { background: linear-gradient(270deg, var(--amber-bg), var(--paper, #fff) 55%); }
 [dir="rtl"] .cp-decision.red { background: linear-gradient(270deg, var(--red-bg), var(--paper, #fff) 55%); }
+
+/* ---- Longer translations ----
+   Some languages need more words than English. Badges with a sentence in them, and status
+   badges in tables, wrap onto a second line instead of pushing the page sideways. */
+.badge.entry-note { white-space: normal; max-inline-size: 100%; }
+td .badge { white-space: normal; }
+/* On phones the status filter can wrap under the heading and its menu can shrink. */
+@media (max-width: 640px) {
+  :root .workspace > main .filter-form { flex-wrap: wrap; min-inline-size: 0; max-inline-size: 100%; }
+  :root .workspace > main .filter-form select { min-width: 0; flex: 1 1 9rem; }
+}

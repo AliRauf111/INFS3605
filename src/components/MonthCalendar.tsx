@@ -30,6 +30,8 @@ export type CalendarLesson = {
 
 // 2 November 2026 was a Monday: the seven days from it give the weekday names in any language.
 const MONDAY = Date.UTC(2026, 10, 2);
+// The server and the browser can name weekdays slightly differently (for example "Th 2" and
+// "Thứ 2" in Vietnamese), so the header keeps whichever the page arrived with.
 function weekdays(locale: string): Array<[string, string]> {
   const short = new Intl.DateTimeFormat(locale, { timeZone: "UTC", weekday: "short" });
   const long = new Intl.DateTimeFormat(locale, { timeZone: "UTC", weekday: "long" });
@@ -129,7 +131,7 @@ export function MonthCalendar({ month, today, weeks, lessons, initialDay, keyboa
 
       <table className="month-grid" role="grid" aria-labelledby="calendar-month" ref={grid}>
         <thead>
-          <tr>{weekdays(loc).map(([short, long]) => <th key={short} scope="col" abbr={long}>{short}</th>)}</tr>
+          <tr>{weekdays(loc).map(([short, long]) => <th key={long} scope="col" abbr={long} suppressHydrationWarning>{short}</th>)}</tr>
         </thead>
         <tbody>
           {weeks.map((week) => (

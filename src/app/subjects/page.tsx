@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requirePageUser } from "@/lib/auth/page";
 import { catalogueData, offerKey } from "@/lib/data/catalogue";
 import { COURSES, SUBJECT_AREAS, UNRESOLVED, canTeach, type YearLevel } from "@/lib/catalogue/hsc";
-import { selectionLabel } from "@/components/SubjectPicker";
+import { selectionLabel } from "@/lib/catalogue/label";
 import { getI18n } from "@/lib/i18n/server";
 import { LoadError } from "@/components/ui";
 import { AddStudentCourse, AddTutorCourse, FindTutor, OfferToggle, RemoveLink, SetBookingCourse } from "./SubjectsClient";

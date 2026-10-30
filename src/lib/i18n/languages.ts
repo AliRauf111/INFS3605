@@ -6,7 +6,9 @@
 //   short     a one or two character tag for the header on small screens
 //   htmlLang  the lang attribute, so screen readers and fonts pick the right language
 //   intl      the locale for dates, numbers and money (Cantonese uses Hong Kong formats,
-//             which browsers support more widely than "yue")
+//             which browsers support more widely than "yue"). Punjabi uses Australian English
+//             formats because Chrome has no Punjabi date data, so dates and amounts look the
+//             same on every browser and match what the server sends.
 
 export const LANGUAGES = [
   { code: "en", short: "EN", english: "English", native: "English", htmlLang: "en-AU", intl: "en-AU", dir: "ltr" },
@@ -14,7 +16,7 @@ export const LANGUAGES = [
   { code: "ar", short: "ع", english: "Arabic", native: "العربية", htmlLang: "ar", intl: "ar-u-nu-latn", dir: "rtl" },
   { code: "vi", short: "VI", english: "Vietnamese", native: "Tiếng Việt", htmlLang: "vi", intl: "vi-VN", dir: "ltr" },
   { code: "yue-Hant", short: "粵", english: "Cantonese (Traditional Chinese)", native: "廣東話（繁體中文）", htmlLang: "yue-Hant", intl: "zh-HK", dir: "ltr" },
-  { code: "pa", short: "ਪੰ", english: "Punjabi (Gurmukhi)", native: "ਪੰਜਾਬੀ", htmlLang: "pa-Guru", intl: "pa-IN", dir: "ltr" },
+  { code: "pa", short: "ਪੰ", english: "Punjabi (Gurmukhi)", native: "ਪੰਜਾਬੀ", htmlLang: "pa-Guru", intl: "en-AU", dir: "ltr" },
   { code: "el", short: "EL", english: "Greek", native: "Ελληνικά", htmlLang: "el", intl: "el-GR", dir: "ltr" },
   { code: "it", short: "IT", english: "Italian", native: "Italiano", htmlLang: "it", intl: "it-IT", dir: "ltr" },
   { code: "hi", short: "हि", english: "Hindi", native: "हिन्दी", htmlLang: "hi", intl: "hi-IN", dir: "ltr" },
