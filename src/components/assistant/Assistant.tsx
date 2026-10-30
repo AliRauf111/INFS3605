@@ -826,6 +826,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       {/* After the workspace in the DOM, so Tab goes from the composer to the launcher and back round. */}
       <div ref={launcherBoxRef} className={`cl-launcher${open ? " is-open" : ""}${dodge && !open ? ` is-${dodge}` : ""}`}>
         <button type="button" className="cl-pill" onClick={open ? closePanel : () => { openerRef.current = null; openPanel(); }} tabIndex={-1} aria-hidden="true">
+          <StudioIcon name="sparkle" />
           Ask Compass
         </button>
         <button
@@ -835,9 +836,10 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
           onClick={open ? closePanel : () => { openerRef.current = null; openPanel(); }}
           aria-expanded={open}
           aria-controls="compass-panel"
-          aria-label={open ? "Close Compass AI" : `Ask Compass, the AI assistant${available ? "" : ". Having trouble connecting"}`}
+          aria-label={open ? "Close Compass AI" : `Open Compass AI assistant${available ? "" : ". Having trouble connecting"}`}
         >
-          <CompassAvatar state={open ? (busy ? "thinking" : "idle") : avatarState} size={72} />
+          {/* The Studio robot, as on the welcome screen. */}
+          <span className="bot launcher-bot" aria-hidden="true"><span className="antenna" /><span className="bot-face"><i className="bot-eye" /><i className="bot-eye" /></span></span>
           <span className={`cl-dot ${available ? "on" : "off"}`} aria-hidden="true" />
         </button>
       </div>

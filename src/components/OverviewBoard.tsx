@@ -76,7 +76,7 @@ export function OverviewBoard({ tiles, counts, texts, initial, children }: {
       </section>
 
       <div className="dashboard-grid overview-dashboard">
-        <section className="card attention-card" id="overviewRequests" aria-labelledby="overviewRequestsHeading" data-compass-avoid="">
+        <section className="card attention-card" id="overviewRequests" aria-labelledby="overviewRequestsHeading">
           <div className="card-head">
             <div>
               <h2 id="overviewRequestsHeading" ref={heading} tabIndex={-1}>Over to You</h2>

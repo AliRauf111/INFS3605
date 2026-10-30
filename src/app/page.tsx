@@ -5,8 +5,6 @@ import { LoadError } from "@/components/ui";
 import { friendlyTime } from "@/lib/domain/progress";
 import { PageActions } from "@/components/PageHeader";
 import { Icon } from "@/components/Icons";
-import { OpenCompassButton } from "@/components/OpenCompassButton";
-import { BotScene } from "@/components/BotScene";
 import { CapacityCard, type CapacityPeriod, type PeriodKey } from "@/components/CapacityChart";
 import { OverviewBoard, type Tile } from "@/components/OverviewBoard";
 import { upcomingLessons } from "@/lib/insights/data";
@@ -194,7 +192,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
       <OverviewBoard tiles={tiles} counts={counts} texts={texts} initial={groupFromParam(status)}>
         <div className="centre-column">
           <CapacityCard periods={periods} initial={initialPeriod} />
-          <section className="card schedule-card" aria-labelledby="today-heading" data-compass-avoid="">
+          <section className="card schedule-card" aria-labelledby="today-heading">
             <div className="card-head">
               <div>
                 <h2 id="today-heading">Coming up {todays.length ? "today" : "next"}</h2>
@@ -229,15 +227,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
           </section>
         </div>
 
-        <div className="right-column" data-compass-avoid="">
-          <section className="card ai-card" aria-labelledby="ai-card-heading">
-            <p className="overline"><Icon name="sparkle" /> COMPASS AI</p>
-            <BotScene />
-            <h2 id="ai-card-heading">Less chasing.<br /> More teaching.</h2>
-            <p>Bring the pieces together.<br />Make the next move with confidence.</p>
-            <OpenCompassButton className="btn dark" />
-          </section>
-
+        <div className="right-column">
           <section className="card rules-card" aria-labelledby="rules-heading">
             <div className="card-head">
               <div>

@@ -584,7 +584,10 @@ html[data-motion="reduce"] :where(.rail, .topbar, .studio-foot, .studio, .access
 
 /* Compass AI: the existing workspace (assistant.css) drawn as the demo's AI layer. The page
    layer is .cp-backdrop.ai-layer; the panel, placed by Assistant.tsx, is .cp-panel.ai-shell. */
-.compass-root .cl-launcher, .compass-root .cl-greeting { display: none !important; }
+/* The floating Ask Compass launcher shows on the Overview only (the rail has Compass AI on
+   every page). Its greeting bubble stays off. */
+.compass-root .cl-greeting { display: none !important; }
+:root:not(:has(.overview-dashboard)) .compass-root .cl-launcher, .compass-root .cl-launcher.is-open { display: none !important; }
 .compass-root .cp-backdrop.ai-layer { left: var(--cp-rail, 0px); padding: 0; animation: none; }
 .compass-root .cp-panel.ai-shell {
   clip-path: none; transform: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--ink);
@@ -737,3 +740,35 @@ html[data-controls="large"] .studio .month-day { min-height:108px; padding:12px 
 /* Requests: the status filter and its Filter button sit side by side. */
 .workspace > main .filter-form { flex-wrap:nowrap; align-items:center; gap:10px; }
 .workspace > main .filter-form select { width:auto; min-width:11rem; }
+
+/* Overview: the floating launcher, a navy "Ask Compass" pill beside the Studio robot. The
+   page keeps room at the bottom so the last cards scroll clear of it. */
+.studio:has(.overview-dashboard) { padding-bottom: 88px; }
+.compass-root .cl-launcher { right: 24px; bottom: calc(24px + env(safe-area-inset-bottom)); gap: 12px; }
+.compass-root .cl-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 30px; background: #2e2d43; color: #fff; font-size: 0.8125rem; font-weight: 500; box-shadow: 0 8px 20px #2e2d4333; transition: transform .18s ease, box-shadow .18s ease, opacity .2s ease; }
+.compass-root .cl-pill svg { width: 16px; height: 16px; }
+.compass-root .cl-pill:hover { background: #2e2d43; transform: translateY(-2px); box-shadow: 0 12px 26px #2e2d4340; }
+.compass-root .cl-avatar-btn { width: 72px; height: 72px; padding: 0; background: #fff; border-radius: 50%; filter: none; box-shadow: 0 10px 26px #6c5a9a33; transition: transform .18s ease, box-shadow .18s ease; }
+.compass-root .cl-avatar-btn:hover, .compass-root .cl-avatar-btn:focus-visible { transform: translateY(-3px); box-shadow: 0 14px 32px #6c5a9a47; }
+.compass-root .cl-avatar-btn:focus-visible { outline: 3px solid #8871d7; outline-offset: 3px; }
+.compass-root .cl-launcher:has(.cl-avatar-btn:focus-visible) .cl-pill { box-shadow: 0 0 0 3px #8871d7; }
+.compass-root .launcher-bot { display: block; transform: scale(.62); animation: none; }
+.compass-root .cl-dot { right: 4px; top: 4px; width: 14px; height: 14px; border: 2.5px solid #fff; }
+.compass-root .cl-dot.on { background: #3fb67a; }
+html[data-motion="reduce"] .compass-root :is(.cl-pill, .cl-avatar-btn, .cl-avatar-btn:hover, .cl-avatar-btn:focus-visible, .cl-pill:hover) { transform: none; transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .compass-root :is(.cl-pill:hover, .cl-avatar-btn:hover, .cl-avatar-btn:focus-visible) { transform: none; }
+}
+@media (max-width: 680px) {
+  .compass-root .cl-pill { display: none; }
+  .compass-root .cl-launcher { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .compass-root .cl-avatar-btn { width: 60px; height: 60px; }
+  .compass-root .launcher-bot { transform: scale(.52); }
+  .studio:has(.overview-dashboard) { padding-bottom: 76px; }
+}
+:root:is([data-theme="dark"], [data-theme="contrast"]) .compass-root .cl-pill { background: #d5c1f3; color: #292035; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .compass-root .cl-avatar-btn { background: #302a40; box-shadow: 0 10px 26px #0006; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .compass-root .cl-dot { border-color: #302a40; }
+:root[data-theme="contrast"] .compass-root .cl-pill { background: #fff; color: #000; }
+:root[data-theme="contrast"] .compass-root .cl-avatar-btn { background: #08080c; border: 1px solid #c3b7d2; }
+:root:has(.overview-dashboard) .site-footer { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
