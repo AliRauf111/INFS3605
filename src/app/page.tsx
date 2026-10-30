@@ -33,7 +33,7 @@ import { REQUEST_TYPE_LABELS } from "@/lib/domain/types";
 
 export const dynamic = "force-dynamic";
 
-// Overview, laid out like the Studio design: three status cards, then "Over to you" on the
+// Overview, laid out like the Studio design: three status cards, then "Over to You" on the
 // left, tutor capacity and today's lessons in the middle, and Compass AI, the owner's rules
 // and recent activity on the right. Every figure comes from the records; nothing here is
 // sample data.
@@ -124,7 +124,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
     return <LoadError error={e} />;
   }
 
-  // Status cards and "Over to you". Requests kept off the Overview still count in the cards.
+  // Status cards and "Over to You". Requests kept off the Overview still count in the cards.
   const cards = rows.map(asCard);
   const counts = countGroups(cards);
   const pending = pendingRequests(cards).filter((r) => !hidden.has(r.id));

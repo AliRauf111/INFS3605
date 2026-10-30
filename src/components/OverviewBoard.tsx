@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { Icon, type IconName } from "@/components/Icons";
 import { GROUP_EMPTY, GROUP_LABEL, GROUP_SIGNAL, STATUS_GROUPS, twoDigits, type StatusGroup } from "@/lib/overview/status-cards";
 
-// The Overview's three status cards and "Over to you". A card filters the list in place
+// The Overview's three status cards and "Over to You". A card filters the list in place
 // (press it again, or Show all requests, to clear); the choice is kept in the address as
 // ?status=, so a refresh or a shared link opens the same view. The centre and right
 // columns come from the server as children.
@@ -23,7 +23,7 @@ export type Tile = {
 
 const GROUP_ICON: Record<StatusGroup, IconName> = { owner: "people", info: "info", ready: "check" };
 const AVATAR: Record<Tile["colour"], string> = { lavender: "lilac", blue: "blue", rose: "rose" };
-const SHOW = 4;
+const SHOW = 3;
 
 export function OverviewBoard({ tiles, counts, texts, initial, children }: {
   tiles: Tile[];
@@ -79,7 +79,7 @@ export function OverviewBoard({ tiles, counts, texts, initial, children }: {
         <section className="card attention-card" id="overviewRequests" aria-labelledby="overviewRequestsHeading" data-compass-avoid="">
           <div className="card-head">
             <div>
-              <h2 id="overviewRequestsHeading" ref={heading} tabIndex={-1}>Over to you</h2>
+              <h2 id="overviewRequestsHeading" ref={heading} tabIndex={-1}>Over to You</h2>
               <p className="caption" aria-live="polite">
                 {filter ? `${GROUP_LABEL[filter]} · ${list.length} ${list.length === 1 ? "request" : "requests"}` : "A few things that need a human touch"}
               </p>

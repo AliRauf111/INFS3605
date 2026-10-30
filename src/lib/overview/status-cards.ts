@@ -1,7 +1,7 @@
 import { REQUEST_TYPE_LABELS, STATUS_LABELS, type Colour, type RequestStatus, type RequestType, type Role } from "@/lib/domain/types";
 import { workflowFor } from "@/lib/workflow/next-step";
 
-// The Overview's three status cards and its "Over to you" list. The cards group requests by
+// The Overview's three status cards and its "Over to You" list. The cards group requests by
 // where they are in the workflow, coloured like the traffic lights: red for an owner
 // decision, yellow for missing information, green for ready for the admin team. The rule
 // result saved with each request is not changed here. Pure, so it can be tested.
@@ -121,7 +121,7 @@ export const TILE_COLOUR: Record<RequestType, "lavender" | "blue" | "rose"> = {
 /** The Studio design's traffic signal key for each group. */
 export const GROUP_SIGNAL: Record<StatusGroup, "red" | "amber" | "green"> = { owner: "red", info: "amber", ready: "green" };
 
-/** What an empty, filtered "Over to you" says. */
+/** What an empty, filtered "Over to You" says. */
 export const GROUP_EMPTY: Record<StatusGroup, string> = {
   owner: "No requests need owner review.",
   info: "No requests are waiting for more information.",
