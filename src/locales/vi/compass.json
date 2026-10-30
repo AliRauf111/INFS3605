@@ -7,7 +7,7 @@
   "demoMode": "Chế độ demo",
   "welcomeLive": "AI trực tiếp đang bật. AI chỉ đọc tin nhắn của bạn và viết phần tóm tắt. Hồ sơ, quyền hạn và quy tắc của chủ quyết định mọi thứ. Bốn lối tắt không dùng AI.",
   "welcomeDemo": "Chế độ demo: chưa kết nối dịch vụ AI nào. Quy tắc từ khóa, hồ sơ hiện tại và quy tắc của chủ vận hành mọi thứ, và mọi quy trình đều hoạt động đầy đủ.",
-  "repliesEnglish": "Compass trả lời bằng tiếng Anh. Nút và nhãn theo ngôn ngữ bạn chọn.",
+  "repliesEnglish": "Compass trả lời bằng ngôn ngữ bạn chọn. Tin nhắn soạn cho gia đình, nội dung chính sách của chủ và ghi chú đã lưu vẫn bằng tiếng Anh.",
   "stopReading": "Dừng đọc to",
   "startOver": "Bắt đầu lại",
   "settings": "Cài đặt Compass",
@@ -63,7 +63,7 @@
     "typeInstead": "Gõ phím thay thế",
     "cancel": "Hủy",
     "privacy": "Nhập bằng giọng nói dùng dịch vụ nhận dạng giọng nói của trình duyệt. Không gì được gửi đến Tutor Compass cho đến khi bạn bấm Gửi.",
-    "englishNote": "Nhập bằng giọng nói chỉ nghe tiếng Anh.",
+    "englishNote": "Nhập bằng giọng nói nghe theo ngôn ngữ bạn chọn. Khi không có AI trực tiếp, Compass chỉ hiểu yêu cầu gõ và nói bằng tiếng Anh, nên hãy dùng các nút nếu nó không hiểu.",
     "error": {
       "unsupported": "Trình duyệt này không hỗ trợ nhập bằng giọng nói. Hãy thử Chrome, Edge hoặc Safari, hoặc gõ phím.",
       "blocked": "Quyền dùng micrô đang bị chặn. Hãy cho phép trong cài đặt trang của trình duyệt rồi thử lại, hoặc gõ phím.",
