@@ -1,0 +1,24 @@
+{
+  "didNotWork": "Không thực hiện được.",
+  "unreachable": "Không kết nối được máy chủ.",
+  "checkWording": "Đã lưu, nhưng hãy kiểm tra câu chữ này: {{words}}. Có thể nó hứa hẹn điều chưa xảy ra.",
+  "saved": "Đã lưu bản nháp.",
+  "source": {
+    "template": "Mẫu",
+    "live_ai": "Do AI trực tiếp viết",
+    "simulated": "Mô phỏng",
+    "edited": "Do người chỉnh sửa"
+  },
+  "textLabel": "Nội dung {{kind}}",
+  "noDraft": "Chưa có bản nháp.",
+  "replace": "Thay bằng mẫu",
+  "prepare": "Chuẩn bị bản nháp",
+  "withAi": "Soạn nháp bằng AI",
+  "saveEdits": "Lưu chỉnh sửa",
+  "copied": "Đã sao chép. Hãy dán vào email hoặc ứng dụng nhắn tin của bạn.",
+  "copy": "Sao chép",
+  "heading": "Bản nháp",
+  "hint": "Bản nháp để bạn tự kiểm tra, chỉnh sửa và gửi. Tutor Compass không bao giờ gửi tin nhắn.",
+  "welfareHint": "Với các trường hợp phúc lợi, chỉ có bản bàn giao thông tin giới hạn, và nó không bao giờ được gửi đến AI.",
+  "languageHint": "Mẫu bản nháp được viết bằng tiếng Anh. Đổi ngôn ngữ giao diện không thay đổi nội dung bản nháp."
+}

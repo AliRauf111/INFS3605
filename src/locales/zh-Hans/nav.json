@@ -1,0 +1,12 @@
+{
+  "overview": "概览",
+  "requests": "请求",
+  "approvalAlley": "Approval Alley",
+  "schedule": "课程表",
+  "knowledgeHub": "Knowledge Hub",
+  "subjects": "科目",
+  "insights": "数据洞察",
+  "rulesCoverage": "规则与覆盖",
+  "viewOnly": "{{page}}（仅查看）",
+  "settings": "设置"
+}

@@ -1,0 +1,142 @@
+{
+  "role": {
+    "owner": "المالك",
+    "admin": "المسؤول"
+  },
+  "requestType": {
+    "refund": "استرداد",
+    "lesson_change": "تغيير درس",
+    "payment_extension": "تمديد الدفع",
+    "other": "شيء آخر"
+  },
+  "triState": {
+    "yes": "نعم",
+    "no": "لا",
+    "unsure": "غير متأكد"
+  },
+  "colour": {
+    "green": "أخضر: يمكنك اتباع الخطوات المعتمدة",
+    "amber": "أصفر: يلزم توضيح أو موافقة المالك",
+    "red": "أحمر: توقّف وصعّد الأمر إلى المالك"
+  },
+  "colourShort": {
+    "green": "أخضر",
+    "amber": "أصفر",
+    "red": "أحمر"
+  },
+  "decisionLabel": "القرار: {{colour}}",
+  "status": {
+    "ready": "جاهز للمسؤول",
+    "needs_clarification": "يحتاج إلى توضيح",
+    "review_required": "تلزم مراجعة المالك",
+    "awaiting_owner": "بانتظار المالك",
+    "more_info_requested": "طلب المالك معلومات",
+    "approved": "وافق عليه المالك",
+    "declined": "رفضه المالك",
+    "closed": "مغلق"
+  },
+  "action": {
+    "prepare_parent_response": "تجهيز رد لوليّ الأمر",
+    "prepare_tutor_message": "تجهيز رسالة للمدرّس",
+    "prepare_escalation_summary": "تجهيز ملخص تصعيد للمالك",
+    "prepare_reschedule_proposal": "تجهيز اقتراح بموعد جديد",
+    "prepare_admin_checklist": "تجهيز قائمة تحقق للمسؤول",
+    "send_to_owner": "إرسال إلى المالك للمراجعة"
+  },
+  "draft": {
+    "parent_response": "رد لوليّ الأمر",
+    "tutor_message": "رسالة للمدرّس",
+    "escalation_summary": "ملخص تصعيد للمالك",
+    "reschedule_proposal": "اقتراح بموعد جديد",
+    "admin_checklist": "قائمة تحقق للمسؤول"
+  },
+  "dataLabel": {
+    "live_connected": "متصل مباشرة",
+    "imported": "مستورد",
+    "fictional_demo": "بيانات تجريبية خيالية"
+  },
+  "group": {
+    "owner": "تلزم مراجعة المالك",
+    "info": "يلزم مزيد من المعلومات",
+    "ready": "جاهز للمسؤول"
+  },
+  "groupText": {
+    "ownerForOwner": "مطلوب رأيك",
+    "ownerForAdmin": "بانتظار قرار المالك",
+    "info": "بعض التفاصيل تحتاج إلى توضيح",
+    "readyForOwner": "لدى فريق الإدارة للتأكيد",
+    "readyForAdmin": "جاهز للمراجعة والتأكيد"
+  },
+  "groupEmpty": {
+    "owner": "لا توجد طلبات تحتاج إلى مراجعة المالك.",
+    "info": "لا توجد طلبات بانتظار مزيد من المعلومات.",
+    "ready": "لا توجد طلبات جاهزة للمسؤول الآن."
+  },
+  "card": {
+    "refundAmount": "استرداد بقيمة {{amount}}",
+    "refund": "طلب استرداد",
+    "extension": "وقت إضافي للدفع",
+    "lessonChange": "نقل درس",
+    "request": "طلب",
+    "welfareLine": "تم الإبلاغ عن مخاوف تتعلق بالرعاية. يتولى المالك هذا الأمر بنفسه.",
+    "typeFor": "{{type}} لـ {{reference}}.",
+    "typeOnly": "{{type}}.",
+    "extensionDays_few": "{{count}} أيام إضافية للدفع",
+    "extensionDays_many": "{{count}} يومًا إضافيًا للدفع",
+    "extensionDays_one": "يوم إضافي واحد للدفع",
+    "extensionDays_two": "يومان إضافيان للدفع",
+    "extensionDays_zero": "{{count}} يوم إضافي للدفع",
+    "extensionDays_other": "{{count}} يوم إضافي للدفع"
+  },
+  "step": {
+    "submitted": "أُرسل",
+    "ruleCheck": "فحص القاعدة",
+    "ownerReview": "مراجعة المالك",
+    "recorded": "سُجّل",
+    "reviewStarted": "بدأت المراجعة",
+    "notNeeded": "غير مطلوب",
+    "needsMoreFacts": "يحتاج إلى وقائع أكثر",
+    "allDone": "اكتملت كل الخطوات",
+    "nothingLeft": "لم يتبقَّ شيء",
+    "lastStep": "هذه هي الخطوة الأخيرة",
+    "heading": "الخطوة {{n}} من {{total}}: {{label}}",
+    "stepsAfter_few": "{{count}} خطوات بعد هذه",
+    "stepsAfter_many": "{{count}} خطوة بعد هذه",
+    "stepsAfter_one": "خطوة واحدة بعد هذه",
+    "stepsAfter_two": "خطوتان بعد هذه",
+    "stepsAfter_zero": "{{count}} خطوة بعد هذه",
+    "stepsAfter_other": "{{count}} خطوة بعد هذه"
+  },
+  "stepInSentence": {
+    "submitted": "الإرسال",
+    "ruleCheck": "فحص القاعدة",
+    "ownerReview": "مراجعة المالك",
+    "recorded": "التسجيل"
+  },
+  "ruleHeading": {
+    "missing": "بعض الوقائع ناقصة",
+    "ownerWelfare": "مخاوف رعاية. تتولاها بنفسك",
+    "ownerRed": "يحتاج هذا إلى مراجعتك قبل أي خطوة أخرى",
+    "adminWelfare": "توقّف. يجب أن يتولى المالك هذا بنفسه",
+    "adminRed": "يجب أن يراجع المالك هذا قبل أي خطوة أخرى",
+    "ownerAmber": "يحتاج هذا إلى موافقتك قبل المتابعة",
+    "adminAmber": "راجع المالك قبل المتابعة",
+    "green": "يمكنك المتابعة"
+  },
+  "ruleName": {
+    "safety_complaint": "شكوى سلامة",
+    "safety_welfare": "مخاوف رعاية",
+    "default_unsupported": "لا توجد سياسة لهذا",
+    "default_missing_policy": "لا توجد سياسة نشطة",
+    "default_missing_information": "معلومات ناقصة",
+    "default_no_matching_rule": "لا توجد قاعدة مطابقة",
+    "refund_under_50": "استرداد أقل من $50",
+    "refund_50_to_200": "استرداد من $50 إلى $200",
+    "refund_over_200": "استرداد أكثر من $200",
+    "lesson_change_no_fee": "دون تغيير في الرسوم",
+    "lesson_change_fee_impact": "يؤثر في الرسوم",
+    "payment_extension_up_to_7": "تمديد حتى 7 أيام",
+    "payment_extension_8_to_30": "تمديد من 8 إلى 30 يومًا",
+    "payment_extension_over_30": "تمديد أكثر من 30 يومًا"
+  }
+}

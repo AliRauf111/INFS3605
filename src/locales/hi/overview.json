@@ -1,0 +1,139 @@
+{
+  "eyebrow": "आपका दिन, एक नज़र में",
+  "greeting": {
+    "morning": "सुप्रभात, {{name}}",
+    "afternoon": "नमस्ते, {{name}}",
+    "evening": "शुभ संध्या, {{name}}"
+  },
+  "subheading": "आपके ट्यूशन व्यवसाय का एक शांत नज़ारा। आइए एक-एक फ़ैसला लें।",
+  "removed": "अनुरोध सूची से हटा दिया गया। आप इसे फिर से यहाँ पा सकते हैं:",
+  "removedLink": "हटाए गए अनुरोध",
+  "filterLabel": "ओवरव्यू के अनुरोधों को स्थिति के अनुसार फ़िल्टर करें",
+  "showing": "दिखा रहे हैं",
+  "viewRequests": "अनुरोध देखें",
+  "overToYou": "अब आपकी बारी",
+  "humanTouch": "कुछ काम जिनमें इंसानी समझ चाहिए",
+  "showAllRequests": "सभी अनुरोध दिखाएँ",
+  "student": "छात्र: {{name}}",
+  "studentLabel": "छात्र {{name}}",
+  "allCaughtUp": "आपका सब काम पूरा है।",
+  "chooseAnother": "दूसरी स्थिति चुनें या सभी अनुरोध दिखाएँ।",
+  "everyDealtWith": "हर अनुरोध निपट गया है। थोड़ा सुकून लीजिए।",
+  "viewAll": "सभी अनुरोध देखें",
+  "capacity": {
+    "heading": "बढ़ने की थोड़ी गुंजाइश",
+    "caption": "उपलब्ध ट्यूटर घंटों के मुकाबले बुक क्लास",
+    "periodLabel": "क्षमता चार्ट की अवधि",
+    "booked": "बुक",
+    "available": "उपलब्ध",
+    "thisWeek": "इस हफ़्ते",
+    "nextWeek": "अगले हफ़्ते",
+    "thisMonth": "इस महीने",
+    "thisWeekLower": "इस हफ़्ते",
+    "nextWeekLower": "अगले हफ़्ते",
+    "thisMonthLower": "इस महीने",
+    "nothingToCompare": {
+      "lastWeek": "तुलना के लिए पिछले हफ़्ते कुछ उपलब्ध नहीं था",
+      "thisWeek": "तुलना के लिए इस हफ़्ते कुछ उपलब्ध नहीं है"
+    },
+    "same": {
+      "lastWeek": "पिछले हफ़्ते जितना",
+      "thisWeek": "इस हफ़्ते जितना"
+    },
+    "percentBooked": "{{percent}}% बुक",
+    "noHoursOffered": "कोई घंटे उपलब्ध नहीं",
+    "noTutorHours": "ट्यूटर के कोई घंटे उपलब्ध नहीं",
+    "ofCapacity": "ट्यूटर क्षमता बुक",
+    "tipLine": "{{label}} · {{offered}} में से {{booked}} घं",
+    "chartLabel": "ट्यूटर क्षमता, {{period}}। {{summary}} घंटे देखने के लिए हर बिंदु पर माउस ले जाएँ या फ़ोकस करें।",
+    "chartNone": "कोई घंटे उपलब्ध नहीं।",
+    "chartPercent": "उपलब्ध घंटों का {{percent}}% बुक।",
+    "pointLabel": "{{label}}: {{offered}} में से {{booked}} घंटे बुक",
+    "pointTitle": "{{label}}: {{booked}} / {{offered}} घं",
+    "hours": "{{n}} घं",
+    "weekShort": "हफ़्ता {{n}}",
+    "note": "ट्यूटर कैलेंडर से · देखने के लिए चार्ट पर माउस ले जाएँ",
+    "acrossWeeks_one": "इस महीने के {{count}} हफ़्ते में",
+    "acrossWeeks_other": "इस महीने के {{count}} हफ़्तों में",
+    "more": {
+      "lastWeek_one": "पिछले हफ़्ते से {{count}} अंक ज़्यादा",
+      "lastWeek_other": "पिछले हफ़्ते से {{count}} अंक ज़्यादा",
+      "thisWeek_one": "इस हफ़्ते से {{count}} अंक ज़्यादा",
+      "thisWeek_other": "इस हफ़्ते से {{count}} अंक ज़्यादा"
+    },
+    "fewer": {
+      "lastWeek_one": "पिछले हफ़्ते से {{count}} अंक कम",
+      "lastWeek_other": "पिछले हफ़्ते से {{count}} अंक कम",
+      "thisWeek_one": "इस हफ़्ते से {{count}} अंक कम",
+      "thisWeek_other": "इस हफ़्ते से {{count}} अंक कम"
+    }
+  },
+  "today": {
+    "headingToday": "आज आने वाली क्लास",
+    "headingNext": "आगे आने वाली क्लास",
+    "snapshot": {
+      "morning": "आपकी सुबह की झलक",
+      "afternoon": "आपकी दोपहर की झलक",
+      "evening": "आपकी शाम की झलक"
+    },
+    "nothingToday": "आज समय-सारणी में कुछ नहीं। ये अगली क्लास हैं।",
+    "openSchedule": "पूरा शेड्यूल खोलें",
+    "notSetUp": "इस डेटाबेस में अभी क्लास की समय-सारणी सेट नहीं है।",
+    "noLessons": "समय-सारणी में कोई क्लास नहीं।",
+    "coverNeeded": "बदले में ट्यूटर चाहिए",
+    "confirmed": "पक्का"
+  },
+  "rules": {
+    "heading": "आपका व्यवसाय, आपके नियम",
+    "caption": "Compass आपकी तय सीमाओं का पालन करता है",
+    "open": "व्यवसाय के नियम खोलें",
+    "exceptions": "अपवादों के लिए मालिक की मंज़ूरी",
+    "none": "अभी कोई सक्रिय नियम नहीं",
+    "bottom": "हर ज़रूरी फ़ैसले पर नियंत्रण आपका रहता है।",
+    "refunds": "{{amount}} से कम के रिफ़ंड टीम संभालती है",
+    "lessonChanges": "क्लास बदलाव आपके नियमों से जाँचे जाते हैं",
+    "extensions_one": "{{count}} दिन तक भुगतान की मोहलत",
+    "extensions_other": "{{count}} दिनों तक भुगतान की मोहलत"
+  },
+  "activity": {
+    "heading": "चुपचाप काम हो रहा है",
+    "none": "अभी किसी अनुरोध पर कुछ नहीं हुआ।",
+    "updated": "अपडेट हुआ",
+    "event": {
+      "sent_to_owner": {
+        "lead": "मालिक को भेजा गया",
+        "rest": "फ़ैसले के लिए"
+      },
+      "owner_approved": {
+        "lead": "मालिक ने मंज़ूर किया",
+        "rest": "और टीम के पास वापस"
+      },
+      "owner_declined": {
+        "lead": "मालिक ने मना किया",
+        "rest": "कारण दर्ज के साथ"
+      },
+      "owner_requested_info": {
+        "lead": "मालिक ने पूछा",
+        "rest": "कुछ और जानकारी"
+      },
+      "admin_replied": {
+        "lead": "जानकारी वापस भेजी गई",
+        "rest": "मालिक को"
+      },
+      "closed": {
+        "lead": "परिणाम दर्ज हुआ",
+        "rest": "और अनुरोध बंद हुआ"
+      },
+      "reevaluated": {
+        "lead": "नियम फिर से जाँचे गए",
+        "rest": "नए तथ्यों के साथ"
+      }
+    }
+  },
+  "cardLabel_one": "{{group}}: {{count}} अनुरोध। ओवरव्यू फ़िल्टर करें",
+  "cardLabel_other": "{{group}}: {{count}} अनुरोध। ओवरव्यू फ़िल्टर करें",
+  "groupCount_one": "{{group}} · {{count}} अनुरोध",
+  "groupCount_other": "{{group}} · {{count}} अनुरोध",
+  "viewAllCount_one": "सभी {{count}} अनुरोध देखें",
+  "viewAllCount_other": "सभी {{count}} अनुरोध देखें"
+}

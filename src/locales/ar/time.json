@@ -1,0 +1,12 @@
+{
+  "todayAt": "اليوم، {{time}}",
+  "yesterdayAt": "أمس، {{time}}",
+  "todayAtInSentence": "اليوم، {{time}}",
+  "yesterdayAtInSentence": "أمس، {{time}}",
+  "dateAt": "{{date}}، {{time}}",
+  "partOfDay": {
+    "morning": "صباحًا",
+    "afternoon": "بعد الظهر",
+    "evening": "مساءً"
+  }
+}

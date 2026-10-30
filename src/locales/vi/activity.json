@@ -1,0 +1,17 @@
+{
+  "title": "Hoạt động của trợ lý",
+  "hint": "Các bước thực tế do máy chủ ghi lại, theo thứ tự. Lập luận của mô hình không được hiển thị.",
+  "none": "Chưa có hoạt động nào được ghi lại.",
+  "state": {
+    "completed": "Hoàn tất",
+    "pending": "Đang chờ",
+    "blocked": "Bị chặn",
+    "failed": "Thất bại"
+  },
+  "mode": {
+    "live_ai": "AI trực tiếp",
+    "simulated": "Mô phỏng (không dùng AI)",
+    "system": "Bước của máy chủ"
+  },
+  "source": "nguồn: {{source}}"
+}

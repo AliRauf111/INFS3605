@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "Tiếng Anh",
+    "mathematics": "Toán",
+    "science": "Khoa học",
+    "business_humanities": "Kinh doanh và khoa học xã hội",
+    "history": "Lịch sử",
+    "technology_design": "Công nghệ và thiết kế",
+    "creative_arts": "Nghệ thuật sáng tạo",
+    "health_community": "Sức khỏe và cộng đồng",
+    "languages": "Ngoại ngữ",
+    "vocational": "Giáo dục nghề nghiệp"
+  }
+}

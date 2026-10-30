@@ -1,0 +1,12 @@
+{
+  "todayAt": "Hôm nay, {{time}}",
+  "yesterdayAt": "Hôm qua, {{time}}",
+  "todayAtInSentence": "hôm nay, {{time}}",
+  "yesterdayAtInSentence": "hôm qua, {{time}}",
+  "dateAt": "{{date}}, {{time}}",
+  "partOfDay": {
+    "morning": "buổi sáng",
+    "afternoon": "buổi chiều",
+    "evening": "buổi tối"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "intro": "老闆嘅規則、預約、付款、導師得閒時間同程序擺埋一齊。紀錄按儲存原樣顯示。",
+  "stale": "! 可能過咗時",
+  "synced": "{{system}}，{{when}} 同步",
+  "col": {
+    "id": "編號",
+    "student": "學生",
+    "family": "家庭",
+    "subject": "科目",
+    "lessons": "堂數",
+    "price": "價錢",
+    "invoice": "發票",
+    "paidDue": "已付 / 應付",
+    "slot": "時段",
+    "starts": "開始"
+  },
+  "lessonsUsed": "用咗 {{used}}/{{purchased}}",
+  "payments": "付款",
+  "paymentStatus": {
+    "paid": "已付款",
+    "pending": "未付",
+    "overdue": "過咗期",
+    "refunded": "已退款",
+    "disputed": "有爭議"
+  },
+  "slotStatus": {
+    "free": "空檔",
+    "booked": "已預約",
+    "held": "留住咗"
+  },
+  "due": "{{date}} 到期",
+  "conflictHint": "PAY-2002 同 PAY-2003 係刻意互相矛盾（同一張發票，金額唔同），PAY-2005 係刻意過咗時，用嚟示範欠缺或者矛盾嘅證據點樣擋住綠色。",
+  "availability": "導師得閒時間",
+  "procedures": "程序",
+  "proceduresHint": "程序完全按老闆寫嘅原文顯示。",
+  "ownerApproved": "老闆批准咗"
+}

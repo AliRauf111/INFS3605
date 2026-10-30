@@ -1,0 +1,9 @@
+{
+  "title": "Ngôn ngữ",
+  "buttonLabel": "Ngôn ngữ: {{language}} ({{english}}). Đổi ngôn ngữ",
+  "changed": "Đã đổi ngôn ngữ sang {{language}}.",
+  "loadFailed": "Không tải được {{language}}. Trang vẫn giữ ngôn ngữ hiện tại. Hãy kiểm tra kết nối và thử lại.",
+  "loading": "Đang tải…",
+  "settingsHint": "Đổi ngay ngôn ngữ của menu, nút, biểu mẫu và thông báo. Tên, mã đặt lịch và mọi nội dung do người dùng viết vẫn giữ nguyên như khi nhập.",
+  "reviewNote": "Các bản dịch khác tiếng Anh là bản nháp đầu tiên và đang được người bản ngữ kiểm tra. Nếu câu chữ nghe lạ, tiếng Anh luôn có trong danh sách này."
+}

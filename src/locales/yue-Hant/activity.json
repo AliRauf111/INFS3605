@@ -1,0 +1,17 @@
+{
+  "title": "助手活動",
+  "hint": "伺服器按次序記低嘅實際步驟。唔會顯示模型嘅推理。",
+  "none": "暫時未有活動紀錄。",
+  "state": {
+    "completed": "完成咗",
+    "pending": "等緊",
+    "blocked": "卡住咗",
+    "failed": "失敗"
+  },
+  "mode": {
+    "live_ai": "即時 AI",
+    "simulated": "模擬（冇用 AI）",
+    "system": "伺服器步驟"
+  },
+  "source": "來源：{{source}}"
+}

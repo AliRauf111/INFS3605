@@ -1,0 +1,15 @@
+{
+  "pageTitle": "出咗問題",
+  "pageBody": "顯示唔到呢頁。呢個錯誤冇改到任何嘢。",
+  "notFoundTitle": "搵唔到",
+  "notFoundBody": "嗰頁或者紀錄唔存在。",
+  "goToDashboard": "去主控台",
+  "sameOrigin": "請求一定要由 Tutor Compass 應用程式發出。",
+  "badJson": "請求內容一定要係有效嘅 JSON。",
+  "notConfigured": "伺服器仲未設定好。睇 README.md。",
+  "server": "伺服器出咗問題。再試之前檢查吓請求紀錄。",
+  "signIn": "請登入。",
+  "ownerOnly": "只有老闆先可以做呢樣嘢。",
+  "adminOnly": "只有管理團隊先可以做呢樣嘢。",
+  "unknownLanguage": "請喺列出嘅語言度揀一個。"
+}

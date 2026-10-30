@@ -1,0 +1,134 @@
+{
+  "role": {
+    "owner": "मालिक",
+    "admin": "एडमिनिस्ट्रेटर"
+  },
+  "requestType": {
+    "refund": "रिफ़ंड",
+    "lesson_change": "क्लास बदलाव",
+    "payment_extension": "भुगतान की मोहलत",
+    "other": "कुछ और"
+  },
+  "triState": {
+    "yes": "हाँ",
+    "no": "नहीं",
+    "unsure": "पक्का नहीं"
+  },
+  "colour": {
+    "green": "हरा: आप मंज़ूर कदमों का पालन कर सकते हैं",
+    "amber": "पीला: स्पष्टीकरण या मालिक की मंज़ूरी चाहिए",
+    "red": "लाल: रुकें और मालिक को भेजें"
+  },
+  "colourShort": {
+    "green": "हरा",
+    "amber": "पीला",
+    "red": "लाल"
+  },
+  "decisionLabel": "फ़ैसला: {{colour}}",
+  "status": {
+    "ready": "एडमिन के लिए तैयार",
+    "needs_clarification": "स्पष्टीकरण चाहिए",
+    "review_required": "मालिक की समीक्षा ज़रूरी",
+    "awaiting_owner": "मालिक का इंतज़ार",
+    "more_info_requested": "मालिक ने जानकारी माँगी",
+    "approved": "मालिक ने मंज़ूर किया",
+    "declined": "मालिक ने मना किया",
+    "closed": "बंद"
+  },
+  "action": {
+    "prepare_parent_response": "अभिभावक के लिए जवाब तैयार करें",
+    "prepare_tutor_message": "ट्यूटर के लिए संदेश तैयार करें",
+    "prepare_escalation_summary": "मालिक के लिए एस्केलेशन सारांश तैयार करें",
+    "prepare_reschedule_proposal": "नए समय का प्रस्ताव तैयार करें",
+    "prepare_admin_checklist": "एडमिन चेकलिस्ट तैयार करें",
+    "send_to_owner": "मालिक को समीक्षा के लिए भेजें"
+  },
+  "draft": {
+    "parent_response": "अभिभावक के लिए जवाब",
+    "tutor_message": "ट्यूटर के लिए संदेश",
+    "escalation_summary": "मालिक के लिए एस्केलेशन सारांश",
+    "reschedule_proposal": "नए समय का प्रस्ताव",
+    "admin_checklist": "एडमिन चेकलिस्ट"
+  },
+  "dataLabel": {
+    "live_connected": "लाइव जुड़ा हुआ",
+    "imported": "आयात किया गया",
+    "fictional_demo": "काल्पनिक डेमो डेटा"
+  },
+  "group": {
+    "owner": "मालिक की समीक्षा ज़रूरी",
+    "info": "और जानकारी चाहिए",
+    "ready": "एडमिन के लिए तैयार"
+  },
+  "groupText": {
+    "ownerForOwner": "आपके फ़ैसले की ज़रूरत है",
+    "ownerForAdmin": "मालिक के फ़ैसले का इंतज़ार",
+    "info": "कुछ बातें साफ़ करनी हैं",
+    "readyForOwner": "एडमिन टीम की पुष्टि के लिए",
+    "readyForAdmin": "देखने और पुष्टि के लिए तैयार"
+  },
+  "groupEmpty": {
+    "owner": "किसी अनुरोध को मालिक की समीक्षा नहीं चाहिए।",
+    "info": "कोई अनुरोध और जानकारी का इंतज़ार नहीं कर रहा।",
+    "ready": "अभी कोई अनुरोध एडमिन के लिए तैयार नहीं है।"
+  },
+  "card": {
+    "refundAmount": "{{amount}} का रिफ़ंड",
+    "refund": "रिफ़ंड का अनुरोध",
+    "extension": "भुगतान के लिए और समय",
+    "lessonChange": "क्लास का समय बदलें",
+    "request": "एक अनुरोध",
+    "welfareLine": "कल्याण से जुड़ी चिंता दर्ज की गई है। मालिक इसे खुद संभालते हैं।",
+    "typeFor": "{{reference}} के लिए {{type}}।",
+    "typeOnly": "{{type}}।",
+    "extensionDays_one": "भुगतान के लिए {{count}} दिन और",
+    "extensionDays_other": "भुगतान के लिए {{count}} दिन और"
+  },
+  "step": {
+    "submitted": "जमा किया गया",
+    "ruleCheck": "नियम जाँच",
+    "ownerReview": "मालिक समीक्षा",
+    "recorded": "दर्ज",
+    "reviewStarted": "समीक्षा शुरू",
+    "notNeeded": "ज़रूरत नहीं",
+    "needsMoreFacts": "और तथ्य चाहिए",
+    "allDone": "सभी कदम पूरे",
+    "nothingLeft": "कुछ बाकी नहीं",
+    "lastStep": "यह आखिरी कदम है",
+    "heading": "कदम {{n}} / {{total}}: {{label}}",
+    "stepsAfter_one": "इसके बाद एक कदम",
+    "stepsAfter_other": "इसके बाद {{count}} कदम"
+  },
+  "stepInSentence": {
+    "submitted": "जमा",
+    "ruleCheck": "नियम जाँच",
+    "ownerReview": "मालिक समीक्षा",
+    "recorded": "दर्ज"
+  },
+  "ruleHeading": {
+    "missing": "कुछ तथ्य छूटे हैं",
+    "ownerWelfare": "कल्याण चिंता। इसे आप खुद संभालें",
+    "ownerRed": "कुछ भी होने से पहले इसे आपकी समीक्षा चाहिए",
+    "adminWelfare": "रुकें। इसे मालिक को खुद संभालना होगा",
+    "adminRed": "कुछ भी होने से पहले मालिक को इसकी समीक्षा करनी होगी",
+    "ownerAmber": "आगे बढ़ने से पहले इसे आपकी मंज़ूरी चाहिए",
+    "adminAmber": "आगे बढ़ने से पहले मालिक से पूछें",
+    "green": "आप आगे बढ़ सकते हैं"
+  },
+  "ruleName": {
+    "safety_complaint": "सुरक्षा शिकायत",
+    "safety_welfare": "कल्याण चिंता",
+    "default_unsupported": "इसके लिए कोई नीति नहीं",
+    "default_missing_policy": "कोई सक्रिय नीति नहीं",
+    "default_missing_information": "जानकारी छूटी है",
+    "default_no_matching_rule": "कोई मेल खाता नियम नहीं",
+    "refund_under_50": "$50 से कम रिफ़ंड",
+    "refund_50_to_200": "$50 से $200 तक रिफ़ंड",
+    "refund_over_200": "$200 से ज़्यादा रिफ़ंड",
+    "lesson_change_no_fee": "फ़ीस में बदलाव नहीं",
+    "lesson_change_fee_impact": "फ़ीस पर असर",
+    "payment_extension_up_to_7": "7 दिन तक की मोहलत",
+    "payment_extension_8_to_30": "8 से 30 दिन की मोहलत",
+    "payment_extension_over_30": "30 दिन से ज़्यादा की मोहलत"
+  }
+}

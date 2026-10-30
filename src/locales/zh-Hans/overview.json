@@ -1,0 +1,130 @@
+{
+  "eyebrow": "聚焦你的一天",
+  "greeting": {
+    "morning": "早上好，{{name}}",
+    "afternoon": "下午好，{{name}}",
+    "evening": "晚上好，{{name}}"
+  },
+  "subheading": "更从容地看你的补习生意。我们一次处理一个决定。",
+  "removed": "请求已从列表中移除。你可以在这里重新找到：",
+  "removedLink": "已移除的请求",
+  "filterLabel": "按状态筛选概览中的请求",
+  "showing": "显示",
+  "viewRequests": "查看请求",
+  "overToYou": "轮到你了",
+  "humanTouch": "需要人来处理的几件事",
+  "showAllRequests": "显示全部请求",
+  "student": "学生：{{name}}",
+  "studentLabel": "学生 {{name}}",
+  "allCaughtUp": "都处理完了。",
+  "chooseAnother": "选择其他状态，或显示全部请求。",
+  "everyDealtWith": "所有请求都已处理。好好放松一下。",
+  "viewAll": "查看全部请求",
+  "capacity": {
+    "heading": "还有一些增长空间",
+    "caption": "已预约课程与导师可用时数对比",
+    "periodLabel": "容量图表时段",
+    "booked": "已预约",
+    "available": "可用",
+    "thisWeek": "本周",
+    "nextWeek": "下周",
+    "thisMonth": "本月",
+    "thisWeekLower": "本周",
+    "nextWeekLower": "下周",
+    "thisMonthLower": "本月",
+    "nothingToCompare": {
+      "lastWeek": "上周没有开放时间可供比较",
+      "thisWeek": "本周没有开放时间可供比较"
+    },
+    "same": {
+      "lastWeek": "与上周相同",
+      "thisWeek": "与本周相同"
+    },
+    "percentBooked": "已预约 {{percent}}%",
+    "noHoursOffered": "没有开放时间",
+    "noTutorHours": "导师没有开放时间",
+    "ofCapacity": "导师容量已预约",
+    "tipLine": "{{label}} · {{booked}}/{{offered}} 小时",
+    "chartLabel": "导师容量，{{period}}。{{summary}} 将鼠标悬停或聚焦在各点上可查看时数。",
+    "chartNone": "没有开放时间。",
+    "chartPercent": "可用时数已预约 {{percent}}%。",
+    "pointLabel": "{{label}}：{{offered}} 小时中已预约 {{booked}} 小时",
+    "pointTitle": "{{label}}：{{booked}} / {{offered}} 小时",
+    "hours": "{{n}} 小时",
+    "weekShort": "第 {{n}} 周",
+    "note": "来自导师日历 · 将鼠标悬停在图表上查看",
+    "acrossWeeks_other": "本月共 {{count}} 周",
+    "more": {
+      "lastWeek_other": "比上周高 {{count}} 个百分点",
+      "thisWeek_other": "比本周高 {{count}} 个百分点"
+    },
+    "fewer": {
+      "lastWeek_other": "比上周低 {{count}} 个百分点",
+      "thisWeek_other": "比本周低 {{count}} 个百分点"
+    }
+  },
+  "today": {
+    "headingToday": "今天即将上课",
+    "headingNext": "接下来的课程",
+    "snapshot": {
+      "morning": "你上午的概况",
+      "afternoon": "你下午的概况",
+      "evening": "你晚上的概况"
+    },
+    "nothingToday": "今天课程表上没有课。以下是接下来的课程。",
+    "openSchedule": "打开完整课程表",
+    "notSetUp": "此数据库尚未设置课程表。",
+    "noLessons": "课程表上没有课程。",
+    "coverNeeded": "需要代课",
+    "confirmed": "已确认"
+  },
+  "rules": {
+    "heading": "你的生意，你的规则",
+    "caption": "Compass 遵守你设定的界限",
+    "open": "打开业务规则",
+    "exceptions": "例外需负责人批准",
+    "none": "尚无生效的规则",
+    "bottom": "每个重要决定都由你掌控。",
+    "refunds": "低于 {{amount}} 的退款由团队处理",
+    "lessonChanges": "课程变更按你的规则检查",
+    "extensions_other": "付款延期最多 {{count}} 天"
+  },
+  "activity": {
+    "heading": "默默把事情办好",
+    "none": "请求上还没有任何动态。",
+    "updated": "已更新",
+    "event": {
+      "sent_to_owner": {
+        "lead": "已发送给负责人",
+        "rest": "等待决定"
+      },
+      "owner_approved": {
+        "lead": "负责人已批准",
+        "rest": "已交回团队"
+      },
+      "owner_declined": {
+        "lead": "负责人已拒绝",
+        "rest": "并记录了理由"
+      },
+      "owner_requested_info": {
+        "lead": "负责人询问了",
+        "rest": "更多细节"
+      },
+      "admin_replied": {
+        "lead": "细节已回复",
+        "rest": "给负责人"
+      },
+      "closed": {
+        "lead": "结果已记录",
+        "rest": "请求已关闭"
+      },
+      "reevaluated": {
+        "lead": "规则已重新检查",
+        "rest": "使用了新事实"
+      }
+    }
+  },
+  "cardLabel_other": "{{group}}：{{count}} 个请求。筛选概览",
+  "groupCount_other": "{{group}} · {{count}} 个请求",
+  "viewAllCount_other": "查看全部 {{count}} 个请求"
+}

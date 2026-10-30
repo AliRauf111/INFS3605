@@ -1,0 +1,32 @@
+{
+  "heading": "集成",
+  "intro": "此部署实际连接了哪些服务。页面加载时检查。",
+  "service": "服务",
+  "state": "状态",
+  "meaning": "含义",
+  "states": {
+    "live": "运行中",
+    "keySet": "已设置密钥，尚未使用",
+    "simulated": "模拟",
+    "notConnected": "未连接",
+    "error": "错误"
+  },
+  "claude": "Claude（Anthropic API）",
+  "aiSimulated": "未设置 ANTHROPIC_API_KEY。信息录入和规则提案改用标注清楚的关键词规则，草稿使用模板。",
+  "aiLive": "最近一次 AI 调用成功（{{when}}）。模型：{{model}}。用于消息提取、拟稿和规则提案。它从不决定颜色。",
+  "aiFailed": "最近一次 AI 调用失败（{{when}}）：{{summary}} 已改用模拟模式。",
+  "aiKeySet": "服务器已设置密钥（模型 {{model}}），但尚未进行任何 AI 调用。请试用 AI 录入以确认可用。",
+  "database": "Supabase 数据库",
+  "databaseError": "服务器无法读取数据库：{{message}}",
+  "databaseLive": "所有记录都由 Next.js 服务器使用密钥读写。浏览器从不直接连接 Supabase。",
+  "auth": "Supabase Auth（登录）",
+  "authLive": "密码由服务器通过 Supabase Auth 验证。角色来自 app_users 表。",
+  "booking": "预约系统",
+  "bookingDetail": "预约来自 Supabase 中的虚构演示数据，显示在 Knowledge Hub 中。不会更改任何真实的预约系统。",
+  "payment": "支付系统",
+  "paymentDetail": "付款记录是虚构的演示数据。Tutor Compass 从不处理付款或退款。",
+  "calendar": "导师日历",
+  "calendarDetail": "空闲时段是虚构的演示数据。",
+  "email": "电子邮件和短信",
+  "emailDetail": "草稿供人复制后发送。应用不会发送任何内容。"
+}

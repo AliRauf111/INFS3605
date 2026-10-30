@@ -1,0 +1,37 @@
+{
+  "intro": "负责人的规则、预约、付款、导师空闲时间和流程集中在一处。记录按存储原样显示。",
+  "stale": "! 可能已过时",
+  "synced": "{{system}}，同步于 {{when}}",
+  "col": {
+    "id": "编号",
+    "student": "学生",
+    "family": "家庭",
+    "subject": "科目",
+    "lessons": "课时",
+    "price": "价格",
+    "invoice": "发票",
+    "paidDue": "已付 / 应付",
+    "slot": "时段",
+    "starts": "开始时间"
+  },
+  "lessonsUsed": "已用 {{used}}/{{purchased}}",
+  "payments": "付款",
+  "paymentStatus": {
+    "paid": "已付款",
+    "pending": "待付款",
+    "overdue": "已逾期",
+    "refunded": "已退款",
+    "disputed": "有争议"
+  },
+  "slotStatus": {
+    "free": "空闲",
+    "booked": "已预约",
+    "held": "已保留"
+  },
+  "due": "到期日 {{date}}",
+  "conflictHint": "PAY-2002 和 PAY-2003 故意互相矛盾（同一发票，金额不同），PAY-2005 故意设为过时，用来展示缺失或矛盾的证据如何阻止绿色结果。",
+  "availability": "导师空闲时间",
+  "procedures": "流程",
+  "proceduresHint": "流程完全按照负责人撰写的原文显示。",
+  "ownerApproved": "负责人已批准"
+}

@@ -1,0 +1,11 @@
+{
+  "saveFailed": "Không lưu được lớp. Hãy thử lại.",
+  "fromBooking": "từ lịch đặt {{id}}",
+  "none": "Chưa gắn lớp nào",
+  "notSetUp": "Muốn chọn lớp, cần cập nhật nhanh cơ sở dữ liệu trước.",
+  "legend": "Lớp mà yêu cầu này liên quan",
+  "save": "Lưu lớp",
+  "change": "Đổi lớp",
+  "choose": "Chọn lớp",
+  "remove": "Bỏ lớp"
+}

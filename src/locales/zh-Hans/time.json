@@ -1,0 +1,12 @@
+{
+  "todayAt": "今天 {{time}}",
+  "yesterdayAt": "昨天 {{time}}",
+  "todayAtInSentence": "今天 {{time}}",
+  "yesterdayAtInSentence": "昨天 {{time}}",
+  "dateAt": "{{date}} {{time}}",
+  "partOfDay": {
+    "morning": "上午",
+    "afternoon": "下午",
+    "evening": "晚上"
+  }
+}

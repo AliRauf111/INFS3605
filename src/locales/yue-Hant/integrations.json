@@ -1,0 +1,32 @@
+{
+  "heading": "整合",
+  "intro": "呢個部署實際上連接咗啲乜。頁面載入嗰陣檢查。",
+  "service": "服務",
+  "state": "狀態",
+  "meaning": "意思",
+  "states": {
+    "live": "運作緊",
+    "keySet": "設定咗金鑰，未用過",
+    "simulated": "模擬",
+    "notConnected": "未連接",
+    "error": "錯誤"
+  },
+  "claude": "Claude（Anthropic API）",
+  "aiSimulated": "未設定 ANTHROPIC_API_KEY。收件同規則提案改用清楚標示嘅關鍵字規則，草稿用範本。",
+  "aiLive": "上一次 AI 呼叫成功（{{when}}）。模型：{{model}}。用嚟抽取訊息、擬稿同規則提案。佢永遠唔會決定顏色。",
+  "aiFailed": "上一次 AI 呼叫失敗（{{when}}）：{{summary}} 已經改用模擬模式。",
+  "aiKeySet": "伺服器設定咗金鑰（模型 {{model}}），但係仲未有 AI 呼叫。試吓 AI 收件確認用唔用得。",
+  "database": "Supabase 資料庫",
+  "databaseError": "伺服器讀唔到資料庫：{{message}}",
+  "databaseLive": "所有紀錄都由 Next.js 伺服器用秘密金鑰讀寫。瀏覽器永遠唔會直接連 Supabase。",
+  "auth": "Supabase Auth（登入）",
+  "authLive": "密碼由伺服器經 Supabase Auth 檢查。角色嚟自 app_users 表。",
+  "booking": "預約系統",
+  "bookingDetail": "預約嚟自 Supabase 入面嘅虛構示範資料，喺 Knowledge Hub 顯示。唔會改到任何真嘅預約系統。",
+  "payment": "付款系統",
+  "paymentDetail": "付款係虛構示範資料。Tutor Compass 永遠唔會處理付款或者退款。",
+  "calendar": "導師日曆",
+  "calendarDetail": "得閒時段係虛構示範資料。",
+  "email": "電郵同短訊",
+  "emailDetail": "草稿係準備畀人複製再發送。應用程式乜都唔會發。"
+}

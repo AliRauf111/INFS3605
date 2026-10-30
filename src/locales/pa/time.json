@@ -1,0 +1,12 @@
+{
+  "todayAt": "ਅੱਜ, {{time}}",
+  "yesterdayAt": "ਕੱਲ੍ਹ, {{time}}",
+  "todayAtInSentence": "ਅੱਜ, {{time}}",
+  "yesterdayAtInSentence": "ਕੱਲ੍ਹ, {{time}}",
+  "dateAt": "{{date}}, {{time}}",
+  "partOfDay": {
+    "morning": "ਸਵੇਰ",
+    "afternoon": "ਦੁਪਹਿਰ",
+    "evening": "ਸ਼ਾਮ"
+  }
+}

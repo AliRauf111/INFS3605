@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "英文",
+    "mathematics": "數學",
+    "science": "科學",
+    "business_humanities": "商科同人文",
+    "history": "歷史",
+    "technology_design": "科技同設計",
+    "creative_arts": "創意藝術",
+    "health_community": "健康同社區",
+    "languages": "語言",
+    "vocational": "職業教育"
+  }
+}

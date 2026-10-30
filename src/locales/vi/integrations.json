@@ -1,0 +1,32 @@
+{
+  "heading": "Tích hợp",
+  "intro": "Những gì bản triển khai này thực sự kết nối. Được kiểm tra khi trang tải.",
+  "service": "Dịch vụ",
+  "state": "Trạng thái",
+  "meaning": "Ý nghĩa",
+  "states": {
+    "live": "Đang hoạt động",
+    "keySet": "Đã đặt khóa, chưa dùng",
+    "simulated": "Mô phỏng",
+    "notConnected": "Chưa kết nối",
+    "error": "Lỗi"
+  },
+  "claude": "Claude (Anthropic API)",
+  "aiSimulated": "Chưa đặt ANTHROPIC_API_KEY. Phần tiếp nhận và đề xuất quy tắc dùng quy tắc từ khóa có ghi nhãn rõ ràng, còn bản nháp dùng mẫu.",
+  "aiLive": "Lần gọi AI gần nhất đã thành công ({{when}}). Mô hình: {{model}}. Dùng để trích xuất tin nhắn, soạn nháp và đề xuất quy tắc. AI không bao giờ quyết định màu.",
+  "aiFailed": "Lần gọi AI gần nhất thất bại ({{when}}): {{summary}} Chế độ mô phỏng đã được dùng thay thế.",
+  "aiKeySet": "Máy chủ đã có khóa (mô hình {{model}}), nhưng chưa có lần gọi AI nào. Hãy thử phần tiếp nhận bằng AI để xác nhận.",
+  "database": "Cơ sở dữ liệu Supabase",
+  "databaseError": "Máy chủ không đọc được cơ sở dữ liệu: {{message}}",
+  "databaseLive": "Mọi hồ sơ được máy chủ Next.js đọc và ghi bằng khóa bí mật. Trình duyệt không bao giờ kết nối trực tiếp với Supabase.",
+  "auth": "Supabase Auth (đăng nhập)",
+  "authLive": "Mật khẩu được Supabase Auth kiểm tra từ máy chủ. Vai trò lấy từ bảng app_users.",
+  "booking": "Hệ thống đặt lịch",
+  "bookingDetail": "Lịch đặt lấy từ các dòng minh họa hư cấu trong Supabase, hiển thị trong Knowledge Hub. Không hệ thống đặt lịch thật nào bị thay đổi.",
+  "payment": "Hệ thống thanh toán",
+  "paymentDetail": "Các khoản thanh toán là dòng minh họa hư cấu. Tutor Compass không bao giờ xử lý hay hoàn tiền.",
+  "calendar": "Lịch gia sư",
+  "calendarDetail": "Các khung giờ rảnh là dòng minh họa hư cấu.",
+  "email": "Email và SMS",
+  "emailDetail": "Bản nháp được chuẩn bị để một người sao chép và gửi. Ứng dụng không gửi gì."
+}

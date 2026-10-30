@@ -1,0 +1,10 @@
+{
+  "didntWork": "Không thực hiện được. Hãy thử lại.",
+  "puttingBack": "Đang đưa trở lại…",
+  "putBack": "Đưa trở lại danh sách",
+  "ownerOnly": "Chỉ chủ mới có thể gỡ một yêu cầu đang chờ họ hoặc có mối lo về phúc lợi.",
+  "confirmLabel": "Xác nhận gỡ yêu cầu này",
+  "confirmText": "Gỡ yêu cầu này khỏi danh sách? Hồ sơ đầy đủ vẫn được giữ, và bạn có thể đưa nó trở lại từ trang này.",
+  "removing": "Đang gỡ…",
+  "yes": "Có, gỡ đi"
+}

@@ -1,0 +1,134 @@
+{
+  "role": {
+    "owner": "ਮਾਲਕ",
+    "admin": "ਐਡਮਿਨਿਸਟ੍ਰੇਟਰ"
+  },
+  "requestType": {
+    "refund": "ਰਿਫੰਡ",
+    "lesson_change": "ਕਲਾਸ ਬਦਲਾਅ",
+    "payment_extension": "ਭੁਗਤਾਨ ਦੀ ਮੋਹਲਤ",
+    "other": "ਕੁਝ ਹੋਰ"
+  },
+  "triState": {
+    "yes": "ਹਾਂ",
+    "no": "ਨਹੀਂ",
+    "unsure": "ਪੱਕਾ ਨਹੀਂ"
+  },
+  "colour": {
+    "green": "ਹਰਾ: ਤੁਸੀਂ ਮਨਜ਼ੂਰ ਕਦਮਾਂ ਦੀ ਪਾਲਣਾ ਕਰ ਸਕਦੇ ਹੋ",
+    "amber": "ਪੀਲਾ: ਸਪਸ਼ਟੀਕਰਨ ਜਾਂ ਮਾਲਕ ਦੀ ਮਨਜ਼ੂਰੀ ਚਾਹੀਦੀ ਹੈ",
+    "red": "ਲਾਲ: ਰੁਕੋ ਅਤੇ ਮਾਲਕ ਨੂੰ ਭੇਜੋ"
+  },
+  "colourShort": {
+    "green": "ਹਰਾ",
+    "amber": "ਪੀਲਾ",
+    "red": "ਲਾਲ"
+  },
+  "decisionLabel": "ਫ਼ੈਸਲਾ: {{colour}}",
+  "status": {
+    "ready": "ਐਡਮਿਨ ਲਈ ਤਿਆਰ",
+    "needs_clarification": "ਸਪਸ਼ਟੀਕਰਨ ਚਾਹੀਦਾ ਹੈ",
+    "review_required": "ਮਾਲਕ ਦੀ ਸਮੀਖਿਆ ਲਾਜ਼ਮੀ",
+    "awaiting_owner": "ਮਾਲਕ ਦੀ ਉਡੀਕ",
+    "more_info_requested": "ਮਾਲਕ ਨੇ ਜਾਣਕਾਰੀ ਮੰਗੀ",
+    "approved": "ਮਾਲਕ ਨੇ ਮਨਜ਼ੂਰ ਕੀਤਾ",
+    "declined": "ਮਾਲਕ ਨੇ ਨਾਂਹ ਕੀਤੀ",
+    "closed": "ਬੰਦ"
+  },
+  "action": {
+    "prepare_parent_response": "ਮਾਪਿਆਂ ਲਈ ਜਵਾਬ ਤਿਆਰ ਕਰੋ",
+    "prepare_tutor_message": "ਟਿਊਟਰ ਲਈ ਸੁਨੇਹਾ ਤਿਆਰ ਕਰੋ",
+    "prepare_escalation_summary": "ਮਾਲਕ ਲਈ ਐਸਕਲੇਸ਼ਨ ਸਾਰ ਤਿਆਰ ਕਰੋ",
+    "prepare_reschedule_proposal": "ਨਵੇਂ ਸਮੇਂ ਦਾ ਪ੍ਰਸਤਾਵ ਤਿਆਰ ਕਰੋ",
+    "prepare_admin_checklist": "ਐਡਮਿਨ ਚੈੱਕਲਿਸਟ ਤਿਆਰ ਕਰੋ",
+    "send_to_owner": "ਸਮੀਖਿਆ ਲਈ ਮਾਲਕ ਨੂੰ ਭੇਜੋ"
+  },
+  "draft": {
+    "parent_response": "ਮਾਪਿਆਂ ਲਈ ਜਵਾਬ",
+    "tutor_message": "ਟਿਊਟਰ ਲਈ ਸੁਨੇਹਾ",
+    "escalation_summary": "ਮਾਲਕ ਲਈ ਐਸਕਲੇਸ਼ਨ ਸਾਰ",
+    "reschedule_proposal": "ਨਵੇਂ ਸਮੇਂ ਦਾ ਪ੍ਰਸਤਾਵ",
+    "admin_checklist": "ਐਡਮਿਨ ਚੈੱਕਲਿਸਟ"
+  },
+  "dataLabel": {
+    "live_connected": "ਲਾਈਵ ਜੁੜਿਆ",
+    "imported": "ਦਰਾਮਦ ਕੀਤਾ",
+    "fictional_demo": "ਕਾਲਪਨਿਕ ਡੈਮੋ ਡਾਟਾ"
+  },
+  "group": {
+    "owner": "ਮਾਲਕ ਦੀ ਸਮੀਖਿਆ ਲਾਜ਼ਮੀ",
+    "info": "ਹੋਰ ਜਾਣਕਾਰੀ ਚਾਹੀਦੀ ਹੈ",
+    "ready": "ਐਡਮਿਨ ਲਈ ਤਿਆਰ"
+  },
+  "groupText": {
+    "ownerForOwner": "ਤੁਹਾਡੇ ਫ਼ੈਸਲੇ ਦੀ ਲੋੜ ਹੈ",
+    "ownerForAdmin": "ਮਾਲਕ ਦੇ ਫ਼ੈਸਲੇ ਦੀ ਉਡੀਕ",
+    "info": "ਕੁਝ ਗੱਲਾਂ ਸਾਫ਼ ਕਰਨੀਆਂ ਹਨ",
+    "readyForOwner": "ਐਡਮਿਨ ਟੀਮ ਦੀ ਪੁਸ਼ਟੀ ਲਈ",
+    "readyForAdmin": "ਦੇਖਣ ਅਤੇ ਪੁਸ਼ਟੀ ਲਈ ਤਿਆਰ"
+  },
+  "groupEmpty": {
+    "owner": "ਕਿਸੇ ਬੇਨਤੀ ਨੂੰ ਮਾਲਕ ਦੀ ਸਮੀਖਿਆ ਦੀ ਲੋੜ ਨਹੀਂ।",
+    "info": "ਕੋਈ ਬੇਨਤੀ ਹੋਰ ਜਾਣਕਾਰੀ ਦੀ ਉਡੀਕ ਨਹੀਂ ਕਰ ਰਹੀ।",
+    "ready": "ਹੁਣੇ ਕੋਈ ਬੇਨਤੀ ਐਡਮਿਨ ਲਈ ਤਿਆਰ ਨਹੀਂ।"
+  },
+  "card": {
+    "refundAmount": "{{amount}} ਦਾ ਰਿਫੰਡ",
+    "refund": "ਰਿਫੰਡ ਦੀ ਬੇਨਤੀ",
+    "extension": "ਭੁਗਤਾਨ ਲਈ ਹੋਰ ਸਮਾਂ",
+    "lessonChange": "ਕਲਾਸ ਦਾ ਸਮਾਂ ਬਦਲੋ",
+    "request": "ਇੱਕ ਬੇਨਤੀ",
+    "welfareLine": "ਭਲਾਈ ਨਾਲ ਜੁੜੀ ਚਿੰਤਾ ਦਰਜ ਕੀਤੀ ਗਈ ਹੈ। ਮਾਲਕ ਇਸ ਨੂੰ ਆਪ ਸੰਭਾਲਦੇ ਹਨ।",
+    "typeFor": "{{reference}} ਲਈ {{type}}।",
+    "typeOnly": "{{type}}।",
+    "extensionDays_one": "ਭੁਗਤਾਨ ਲਈ {{count}} ਦਿਨ ਹੋਰ",
+    "extensionDays_other": "ਭੁਗਤਾਨ ਲਈ {{count}} ਦਿਨ ਹੋਰ"
+  },
+  "step": {
+    "submitted": "ਜਮ੍ਹਾਂ ਕੀਤਾ",
+    "ruleCheck": "ਨਿਯਮ ਜਾਂਚ",
+    "ownerReview": "ਮਾਲਕ ਸਮੀਖਿਆ",
+    "recorded": "ਦਰਜ",
+    "reviewStarted": "ਸਮੀਖਿਆ ਸ਼ੁਰੂ",
+    "notNeeded": "ਲੋੜ ਨਹੀਂ",
+    "needsMoreFacts": "ਹੋਰ ਤੱਥ ਚਾਹੀਦੇ ਹਨ",
+    "allDone": "ਸਾਰੇ ਕਦਮ ਪੂਰੇ",
+    "nothingLeft": "ਕੁਝ ਬਾਕੀ ਨਹੀਂ",
+    "lastStep": "ਇਹ ਆਖ਼ਰੀ ਕਦਮ ਹੈ",
+    "heading": "ਕਦਮ {{n}} / {{total}}: {{label}}",
+    "stepsAfter_one": "ਇਸ ਤੋਂ ਬਾਅਦ ਇੱਕ ਕਦਮ",
+    "stepsAfter_other": "ਇਸ ਤੋਂ ਬਾਅਦ {{count}} ਕਦਮ"
+  },
+  "stepInSentence": {
+    "submitted": "ਜਮ੍ਹਾਂ",
+    "ruleCheck": "ਨਿਯਮ ਜਾਂਚ",
+    "ownerReview": "ਮਾਲਕ ਸਮੀਖਿਆ",
+    "recorded": "ਦਰਜ"
+  },
+  "ruleHeading": {
+    "missing": "ਕੁਝ ਤੱਥ ਰਹਿੰਦੇ ਹਨ",
+    "ownerWelfare": "ਭਲਾਈ ਚਿੰਤਾ। ਇਸ ਨੂੰ ਤੁਸੀਂ ਆਪ ਸੰਭਾਲੋ",
+    "ownerRed": "ਕੁਝ ਵੀ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਇਸ ਨੂੰ ਤੁਹਾਡੀ ਸਮੀਖਿਆ ਚਾਹੀਦੀ ਹੈ",
+    "adminWelfare": "ਰੁਕੋ। ਇਸ ਨੂੰ ਮਾਲਕ ਨੂੰ ਆਪ ਸੰਭਾਲਣਾ ਪਵੇਗਾ",
+    "adminRed": "ਕੁਝ ਵੀ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਮਾਲਕ ਨੂੰ ਇਸ ਦੀ ਸਮੀਖਿਆ ਕਰਨੀ ਪਵੇਗੀ",
+    "ownerAmber": "ਅੱਗੇ ਵਧਣ ਤੋਂ ਪਹਿਲਾਂ ਇਸ ਨੂੰ ਤੁਹਾਡੀ ਮਨਜ਼ੂਰੀ ਚਾਹੀਦੀ ਹੈ",
+    "adminAmber": "ਅੱਗੇ ਵਧਣ ਤੋਂ ਪਹਿਲਾਂ ਮਾਲਕ ਤੋਂ ਪੁੱਛੋ",
+    "green": "ਤੁਸੀਂ ਅੱਗੇ ਵਧ ਸਕਦੇ ਹੋ"
+  },
+  "ruleName": {
+    "safety_complaint": "ਸੁਰੱਖਿਆ ਸ਼ਿਕਾਇਤ",
+    "safety_welfare": "ਭਲਾਈ ਚਿੰਤਾ",
+    "default_unsupported": "ਇਸ ਲਈ ਕੋਈ ਨੀਤੀ ਨਹੀਂ",
+    "default_missing_policy": "ਕੋਈ ਸਰਗਰਮ ਨੀਤੀ ਨਹੀਂ",
+    "default_missing_information": "ਜਾਣਕਾਰੀ ਰਹਿੰਦੀ ਹੈ",
+    "default_no_matching_rule": "ਕੋਈ ਮੇਲ ਖਾਂਦਾ ਨਿਯਮ ਨਹੀਂ",
+    "refund_under_50": "$50 ਤੋਂ ਘੱਟ ਰਿਫੰਡ",
+    "refund_50_to_200": "$50 ਤੋਂ $200 ਤੱਕ ਰਿਫੰਡ",
+    "refund_over_200": "$200 ਤੋਂ ਵੱਧ ਰਿਫੰਡ",
+    "lesson_change_no_fee": "ਫ਼ੀਸ ਵਿੱਚ ਬਦਲਾਅ ਨਹੀਂ",
+    "lesson_change_fee_impact": "ਫ਼ੀਸ 'ਤੇ ਅਸਰ",
+    "payment_extension_up_to_7": "7 ਦਿਨਾਂ ਤੱਕ ਮੋਹਲਤ",
+    "payment_extension_8_to_30": "8 ਤੋਂ 30 ਦਿਨਾਂ ਦੀ ਮੋਹਲਤ",
+    "payment_extension_over_30": "30 ਦਿਨਾਂ ਤੋਂ ਵੱਧ ਮੋਹਲਤ"
+  }
+}
