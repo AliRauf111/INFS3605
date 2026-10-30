@@ -733,3 +733,7 @@ html[data-controls="large"] .studio .month-day { min-height:108px; padding:12px 
 :root[data-theme="contrast"] .studio .month-day.outside .month-date { color:#bdb3c9; }
 :root[data-theme="contrast"] .studio .lesson-chip.warn { border-style:dashed; }
 :root[data-theme="contrast"] .studio .studio-notice { background:#08080c; border:1px solid #c3b7d2; color:#eee; }
+
+/* Requests: the status filter and its Filter button sit side by side. */
+.workspace > main .filter-form { flex-wrap:nowrap; align-items:center; gap:10px; }
+.workspace > main .filter-form select { width:auto; min-width:11rem; }

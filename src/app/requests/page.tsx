@@ -59,12 +59,12 @@ export default async function Requests({ searchParams }: { searchParams: Promise
       <section className="stack" aria-labelledby="saved-heading">
         <div className="page-head" style={{ marginBottom: 0 }}>
           <h2 id="saved-heading" style={{ margin: 0 }}>{view === "removed" ? "Removed Requests" : view === "archived" ? "Archived Requests" : "Saved Requests"}</h2>
-          <form className="row" method="get">
+          <form className="row filter-form" method="get">
             {view === "removed" && <input type="hidden" name="removed" value="1" />}
             {view === "archived" && <input type="hidden" name="archived" value="1" />}
             <label htmlFor="status" className="sr-only">Filter by status</label>
             <select id="status" name="status" defaultValue={filter ?? ""} style={{ maxWidth: 280 }}>
-              <option value="">All statuses</option>
+              <option value="">All</option>
               {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
             </select>
             <button className="btn secondary small" type="submit">Filter</button>
