@@ -100,7 +100,7 @@ export function OverviewBoard({ tiles, counts, texts, initial, children }: {
               <Link key={tile.id} href={`/requests/${tile.id}`} className={`request-tile ${tile.colour}`}>
                 <div className="tile-top"><span>{tile.type}</span><Icon name="external" /></div>
                 <h3>{tile.title}</h3>
-                <p>{tile.line}</p>
+                <p dir="auto">{tile.line}</p>
                 <span className={`request-signal signal-${GROUP_SIGNAL[tile.group]}`}><i aria-hidden="true" />{label(tile.group)}</span>
                 <div className="tile-footer">
                   <span className="tile-meta"><Icon name="clock" />{tile.reference ? <><bdi>{tile.reference}</bdi> · </> : null}{tile.when}</span>
