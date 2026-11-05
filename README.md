@@ -158,6 +158,29 @@ How changes are kept safe:
 - To turn on live AI, add `ANTHROPIC_API_KEY` (and optionally `ANTHROPIC_MODEL`) in Vercel under Settings > Environment Variables and redeploy.
 - Database checks for the approval process are in `supabase/tests/agent-proposals.sql`, and for the workflows in `supabase/tests/compass-workflows.sql`.
 
+## Payments and the recovery agent
+
+`/payments` (wallet icon in the rail, between Subjects and Insights) has four tabs: Overview,
+Invoices, Autonomous Recovery and Agent Activity. The recovery agent runs a five-step scan from
+one click (Xero records, enrolment, family billing contacts, Gmail arrangements and disputes,
+the owner's rules), groups overdue invoices by the person who pays, drafts personalised email
+and SMS reminders, waits for one owner approval for the whole batch, then tracks delivery,
+replies and payments. Payments Recovered only counts payments confirmed against a reminded
+invoice, once each.
+
+- Code: `src/lib/payments/` (logic, scan, providers, server), `src/components/payments/`,
+  `src/app/payments/`, `src/app/api/payments/`.
+- Database: `supabase/migrations/20261105000001_payments_recovery.sql`. The database checks the
+  owner role, balances, permissions, extensions, disputes and duplicates again at approval,
+  and refuses double-counted or simulated payments on real invoices
+  (`supabase/tests/payments-recovery.sql`).
+- Demo mode is the default: fictional families, nothing sent, Xero never changed, reset with
+  the rest of the demo on refresh. Live mode needs `PAYMENTS_MODE=live` plus Xero and Gmail
+  credentials (see `.env.example`). The live clients follow the providers' APIs but haven't
+  been tested against real accounts.
+- Interface text is English in every language for now (`ENGLISH_ONLY_AREAS` in
+  `tests/i18n.test.ts`); the sidebar label is translated.
+
 ## Demo mode: a fresh start on every refresh
 
 In demo mode (the default, turn it off with `DEMO_MODE=off`) every full page load puts the fictional demo data back to its original state before the page is drawn. That covers a browser refresh, typing the address and signing in. Moving between pages inside the app, opening or closing Compass and re-rendering never reset anything, so a change stays visible until the next refresh.

@@ -8,6 +8,7 @@ nav.approvalAlley=Coda approvazioni
 nav.schedule=Calendario
 nav.knowledgeHub=Centro conoscenze
 nav.subjects=Materie
+nav.payments=Pagamenti
 nav.insights=Analisi
 nav.rulesCoverage=Regole e copertura
 nav.viewOnly={{page}} (sola lettura)

@@ -8,6 +8,7 @@ nav.approvalAlley=Approval Alley
 nav.schedule=الجدول
 nav.knowledgeHub=Knowledge Hub
 nav.subjects=المواد
+nav.payments=المدفوعات
 nav.insights=الإحصاءات
 nav.rulesCoverage=القواعد والتغطية
 nav.viewOnly={{page}} (للعرض فقط)

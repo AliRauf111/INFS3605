@@ -8,6 +8,7 @@ nav.approvalAlley=Approval Alley
 nav.schedule=ਸਮਾਂ-ਸਾਰਣੀ
 nav.knowledgeHub=Knowledge Hub
 nav.subjects=ਵਿਸ਼ੇ
+nav.payments=ਭੁਗਤਾਨ
 nav.insights=ਜਾਣਕਾਰੀ
 nav.rulesCoverage=ਨਿਯਮ ਅਤੇ ਦਾਇਰਾ
 nav.viewOnly={{page}} (ਸਿਰਫ਼ ਦੇਖਣ ਲਈ)

@@ -8,6 +8,7 @@ nav.approvalAlley=Approval Alley
 nav.schedule=Lịch học
 nav.knowledgeHub=Knowledge Hub
 nav.subjects=Môn học
+nav.payments=Thanh toán
 nav.insights=Thống kê
 nav.rulesCoverage=Quy tắc và bao phủ
 nav.viewOnly={{page}} (chỉ xem)

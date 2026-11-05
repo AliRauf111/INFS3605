@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/schedule", label: "nav.schedule", icon: "calendar" },
   { href: "/knowledge", label: "nav.knowledgeHub", icon: "knowledge" },
   { href: "/subjects", label: "nav.subjects", icon: "subjects" },
+  { href: "/payments", label: "nav.payments", icon: "wallet" },
   { href: "/insights", label: "nav.insights", icon: "insights" },
   { href: "/coverage", label: "nav.rulesCoverage", icon: "sliders" },
 ] as const satisfies ReadonlyArray<{ href: string; label: string; icon: IconName }>;

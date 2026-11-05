@@ -8,6 +8,7 @@ nav.approvalAlley=Approval Alley
 nav.schedule=शेड्यूल
 nav.knowledgeHub=Knowledge Hub
 nav.subjects=विषय
+nav.payments=भुगतान
 nav.insights=इनसाइट्स
 nav.rulesCoverage=नियम और दायरा
 nav.viewOnly={{page}} (सिर्फ़ देखने के लिए)

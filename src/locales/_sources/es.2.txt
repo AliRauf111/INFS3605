@@ -8,6 +8,7 @@ nav.approvalAlley=Bandeja de aprobaciones
 nav.schedule=Horario
 nav.knowledgeHub=Centro de conocimiento
 nav.subjects=Asignaturas
+nav.payments=Pagos
 nav.insights=Análisis
 nav.rulesCoverage=Reglas y cobertura
 nav.viewOnly={{page}} (solo lectura)
