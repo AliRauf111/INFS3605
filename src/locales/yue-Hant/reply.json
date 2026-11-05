@@ -866,6 +866,7 @@
     "label": {
       "failed_other": "做唔到嘅動作",
       "approval_other": "等緊批准嘅決定",
+      "retention_other": "學生留存提示",
       "workflows_other": "等緊或者受阻嘅流程",
       "clarification_other": "要澄清嘅請求",
       "outcomes_other": "要記錄嘅結果"

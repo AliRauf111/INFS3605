@@ -9,6 +9,9 @@ import { readAttention } from "@/lib/workflows/attention";
 import { LIGHT_ORDER } from "@/lib/overview/lights";
 import type { AttentionBlock } from "@/lib/assistant/logic";
 import { getI18n } from "@/lib/i18n/server";
+import { isMissingRetention, readRetentionData, type RetentionData } from "@/lib/retention/server";
+import { RetentionSection } from "@/components/retention/RetentionSection";
+import "./retention.css";
 
 export const dynamic = "force-dynamic";
 export async function generateMetadata() {
@@ -38,7 +41,7 @@ function Stat({ icon, tint, label, value, unit, note, unavailable, children }: {
   );
 }
 
-export default async function Insights() {
+export default async function Insights({ searchParams }: { searchParams: Promise<{ retention?: string; tab?: string; student?: string; prepare?: string }> }) {
   const user = await requirePageUser();
   const { t, fmt } = await getI18n();
   // Calendar days (YYYY-MM-DD) shown in the reader's language; midday UTC keeps the Sydney date.
@@ -59,6 +62,18 @@ export default async function Insights() {
     attention = await readAttention(user, now);
   } catch (e) {
     console.error("[insights] attention unavailable:", e instanceof Error ? e.message : e);
+  }
+
+  // Student Retention sits below the existing cards. If its tables aren't set up yet, or the
+  // read fails, the rest of the page still shows.
+  const sp = await searchParams;
+  let retention: RetentionData | null = null;
+  let retentionMissing = false;
+  try {
+    retention = await readRetentionData(user, now);
+  } catch (e) {
+    retentionMissing = isMissingRetention(e);
+    if (!retentionMissing) console.error("[insights] retention unavailable:", e instanceof Error ? e.message : e);
   }
 
   const lessons = data.lessons ? lessonsToday(data.lessons, p, now) : null;
@@ -243,6 +258,16 @@ export default async function Insights() {
           <Link className="btn secondary" href="/coverage">{t("insights.openCoverage")} <Icon name="arrow" size={16} /></Link>
         </section>
       </div>
+      {retention ? (
+        <RetentionSection data={retention} initial={{ open: sp.retention === "open" || Boolean(sp.prepare), tab: sp.tab, student: sp.student, prepare: sp.prepare }} />
+      ) : (
+        <section id="retention" className="retention" aria-labelledby="ret-heading">
+          <div className="card ret-overview">
+            <h2 id="ret-heading">{t("retention.title")}</h2>
+            <p className="muted">{retentionMissing ? t("retention.notSetUp") : t("retention.loadFailed")}</p>
+          </div>
+        </section>
+      )}
       <p className="hint insights-foot">{t("insights.foot")}</p>
     </div>
   );

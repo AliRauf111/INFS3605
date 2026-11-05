@@ -65,6 +65,7 @@ insights.couldntRead=आत्ता हे वाचता आले नाह�
 insights.attentionDef=तुमच्या भूमिकेनुसार, मालकाचे निर्णय, स्पष्टीकरणे, तुमच्या थांबलेल्या कार्यप्रक्रिया, तुमची पूर्वावलोकने, अयशस्वी कृती आणि नोंदवायचे निकाल.
 insights.attentionKey.failed=अयशस्वी कृती
 insights.attentionKey.approval=मंजुरीची वाट पाहणारे निर्णय
+insights.attentionKey.retention=विद्यार्थी टिकवून ठेवण्याच्या सूचना
 insights.attentionKey.workflows=थांबलेल्या किंवा अडकलेल्या कार्यप्रक्रिया
 insights.attentionKey.clarification=स्पष्टीकरण हवे असलेल्या विनंत्या
 insights.attentionKey.outcomes=नोंदवायचे निकाल

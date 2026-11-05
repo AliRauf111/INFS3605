@@ -12,6 +12,7 @@
   "attentionKey": {
     "failed": "Failed Actions",
     "approval": "Decisions Awaiting Approval",
+    "retention": "Student Retention Alerts",
     "workflows": "Workflows Waiting or Blocked",
     "clarification": "Requests Needing Clarification",
     "outcomes": "Outcomes to Record"

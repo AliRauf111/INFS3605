@@ -17,8 +17,10 @@ const flatten = (obj, prefix = "", out = {}) => {
   }
   return out;
 };
+// Areas still in English only (the app falls back to English). Keep in step with tests/i18n.test.ts.
+const ENGLISH_ONLY_AREAS = ["payments", "retention"];
 const english = {};
-for (const f of readdirSync("src/locales/en").filter((f) => f.endsWith(".json")).sort()) {
+for (const f of readdirSync("src/locales/en").filter((f) => f.endsWith(".json") && !ENGLISH_ONLY_AREAS.includes(f.slice(0, -5))).sort()) {
   Object.assign(english, flatten(JSON.parse(readFileSync(`src/locales/en/${f}`, "utf8")), f.slice(0, -5)));
 }
 const placeholders = (s) => [...String(s).matchAll(/\{\{\s*(\w+)\s*\}\}/g)].map((m) => m[1]).sort().join(",");

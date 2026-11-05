@@ -26,6 +26,7 @@ import reply from "./reply.json";
 import request from "./request.json";
 import requestClass from "./requestClass.json";
 import requests from "./requests.json";
+import retention from "./retention.json";
 import rules from "./rules.json";
 import schedule from "./schedule.json";
 import settings from "./settings.json";
@@ -35,5 +36,5 @@ import time from "./time.json";
 import wizard from "./wizard.json";
 import workflow from "./workflow.json";
 
-const en = { a11y, actions, activity, auth, catalogue, common, compass, coverage, domain, drafts, errors, info, insights, intake, integrations, knowledge, language, nav, overview, owner, payments, picker, remove, reply, request, requestClass, requests, rules, schedule, settings, shell, subjects, time, wizard, workflow };
+const en = { a11y, actions, activity, auth, catalogue, common, compass, coverage, domain, drafts, errors, info, insights, intake, integrations, knowledge, language, nav, overview, owner, payments, picker, remove, reply, request, requestClass, requests, retention, rules, schedule, settings, shell, subjects, time, wizard, workflow };
 export default en;

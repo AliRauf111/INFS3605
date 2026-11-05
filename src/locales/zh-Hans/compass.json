@@ -232,6 +232,7 @@
   "attentionKey": {
     "failed_other": "失败的操作",
     "approval_other": "等待批准的决定",
+    "retention_other": "学生留存提醒",
     "workflows_other": "等待中或受阻的流程",
     "clarification_other": "需要澄清的请求",
     "outcomes_other": "待记录的结果"

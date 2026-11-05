@@ -840,6 +840,8 @@
       "failed_other": "Failed Actions",
       "approval_one": "Decision Awaiting Approval",
       "approval_other": "Decisions Awaiting Approval",
+      "retention_one": "Student Retention Alert",
+      "retention_other": "Student Retention Alerts",
       "workflows_one": "Workflow Waiting or Blocked",
       "workflows_other": "Workflows Waiting or Blocked",
       "clarification_one": "Request Needing Clarification",

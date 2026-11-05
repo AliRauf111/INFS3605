@@ -65,6 +65,7 @@ insights.couldntRead=இப்போது இதைப் படிக்க �
 insights.attentionDef=உங்கள் பங்குக்கு ஏற்ப, உரிமையாளர் முடிவுகள், விளக்கங்கள், காத்திருக்கும் உங்கள் பணிப்பாய்வுகள், உங்கள் முன்னோட்டங்கள், தோல்வியடைந்த செயல்கள், பதிவு செய்ய வேண்டிய முடிவுகள்.
 insights.attentionKey.failed=தோல்வியடைந்த செயல்கள்
 insights.attentionKey.approval=அனுமதிக்காகக் காத்திருக்கும் முடிவுகள்
+insights.attentionKey.retention=மாணவர் தக்கவைப்பு எச்சரிக்கைகள்
 insights.attentionKey.workflows=காத்திருக்கும் அல்லது தடைபட்ட பணிப்பாய்வுகள்
 insights.attentionKey.clarification=விளக்கம் தேவைப்படும் கோரிக்கைகள்
 insights.attentionKey.outcomes=பதிவு செய்ய வேண்டிய முடிவுகள்

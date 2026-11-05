@@ -12,6 +12,7 @@
   "attentionKey": {
     "failed": "失败的操作",
     "approval": "等待批准的决定",
+    "retention": "学生留存提醒",
     "workflows": "等待中或受阻的流程",
     "clarification": "需要澄清的请求",
     "outcomes": "待记录的结果"

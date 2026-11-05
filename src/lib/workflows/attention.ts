@@ -12,6 +12,7 @@ import { tr } from "@/lib/i18n/reply";
 import { buildAttention, attentionHeadline, type AttentionFailure, type AttentionProposal, type AttentionRun } from "./attention-logic";
 import { RunStateSchema, type WorkflowData } from "./logic";
 import { openRuns } from "./records";
+import { retentionAlert } from "@/lib/retention/server";
 
 // "What Needs My Attention?": one prioritised list from current records. Each source is
 // read with the signed-in person's permissions in mind: their own previews and workflows,
@@ -94,7 +95,11 @@ export async function readAttention(user: TurnCtx["user"], now: Date): Promise<A
       runId: f.created_by === user.id ? runIds.get(f.id) ?? runForFailure(f, runs) : null,
     }));
 
+  // The Student Retention alert is optional: a database without its tables just skips it.
+  const retention = await retentionAlert(user, now).catch(() => null);
+
   return buildAttention({
+    retention,
     role: user.role,
     now,
     requests: requests.map((r) => ({ ...r, missing: r.current_decision_id ? missing.get(r.current_decision_id) ?? 0 : 0 })),

@@ -65,6 +65,7 @@ insights.couldntRead=ఇప్పుడు దీన్ని చదవలేక
 insights.attentionDef=మీ పాత్రకు తగినట్లు, యజమాని నిర్ణయాలు, స్పష్టతలు, వేచి ఉన్న మీ వర్క్‌ఫ్లోలు, మీ ప్రివ్యూలు, విఫలమైన చర్యలు, నమోదు చేయాల్సిన ఫలితాలు.
 insights.attentionKey.failed=విఫలమైన చర్యలు
 insights.attentionKey.approval=ఆమోదం కోసం వేచి ఉన్న నిర్ణయాలు
+insights.attentionKey.retention=విద్యార్థుల నిలుపుదల హెచ్చరికలు
 insights.attentionKey.workflows=వేచి ఉన్న లేదా ఆగిపోయిన వర్క్‌ఫ్లోలు
 insights.attentionKey.clarification=స్పష్టత అవసరమైన అభ్యర్థనలు
 insights.attentionKey.outcomes=నమోదు చేయాల్సిన ఫలితాలు
