@@ -361,6 +361,19 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     window.addEventListener("compass:open", onOpen);
     return () => window.removeEventListener("compass:open", onOpen);
   }, []);
+  // A link can open Compass on one of the shortcuts, e.g. /?compass=lesson_change from the
+  // landing page's example requests. The parameter is removed so a reload doesn't repeat it.
+  useEffect(() => {
+    const id = new URL(window.location.href).searchParams.get("compass");
+    if (!id) return;
+    const timer = window.setTimeout(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("compass");
+      window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+      if (SHORTCUTS.some((s) => s.id === id)) window.dispatchEvent(new CustomEvent("compass:open", { detail: { shortcut: id } }));
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, []);
   // Closing keeps the conversation, any workflow in progress and the draft. It only stops
   // the microphone and anything being read aloud. Words heard in voice mode go into the
   // message box so they aren't lost. Only New conversation clears anything.
