@@ -208,7 +208,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
         </PageActions>
       </div>
 
-      <OverviewBoard tiles={tiles} counts={counts} texts={texts} initial={groupFromParam(status)} below={briefing.ok ? <BriefingCard initial={briefing.view} /> : null}>
+      <OverviewBoard tiles={tiles} counts={counts} texts={texts} initial={groupFromParam(status)}>
         <div className="centre-column">
           <CapacityCard periods={periods} initial={initialPeriod} />
           <section className="card schedule-card" aria-labelledby="today-heading">
@@ -282,6 +282,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
               })
             )}
           </section>
+          {briefing.ok ? <BriefingCard initial={briefing.view} /> : null}
         </div>
       </OverviewBoard>
     </div>
