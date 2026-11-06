@@ -44,13 +44,6 @@ export function PaymentsModule({ data, role, initialTab }: { data: PaymentsData;
 
   return (
     <div className="pay-module" data-compass-avoid="">
-      {data.mode === "demo" && (
-        <div className="notice studio-notice pay-demo-note" role="note">
-          <Icon name="info" />
-          <span>{t("payments.demoNote")}</span>
-        </div>
-      )}
-
       <section className="pay-kpis" aria-label={t("payments.kpi.label")}>
         <div className="card pay-kpi">
           <p className="pay-kpi-label"><Icon name="people" size={16} />{t("payments.kpi.students")}</p>
