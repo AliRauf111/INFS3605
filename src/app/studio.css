@@ -46,12 +46,12 @@ body.app-shell { font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .rail .brand { width:44px; height:44px; border-radius:15px; background:#2c2c40; color:white; box-shadow:0 5px 12px #25253a13; }
 .rail .brand svg { width:28px; height:28px; }
 .rail-line { width:23px; height:1px; background:#d8d4e5; margin:29px 0; }
-.rail-links { display:flex; flex-direction:column; gap:14px; background:#ffffff65; padding:8px; border-radius:28px; }
+.rail-links { display:flex; flex-direction:column; gap:14px; background:#ffffff65; padding:8px; border-radius:28px; margin-block:auto; } /* centred in the space between the divider and the buttons at the bottom */
 .rail-btn { position:relative; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:transparent; color:#777589; }
 .rail-btn.active { background:#2d2d42; color:white; box-shadow:0 4px 7px #30304b20; }
 .rail-btn span { position:absolute; inset-inline-start:54px; white-space:nowrap; background:var(--ink); color:white; padding:7px 12px; border-radius:9px; opacity:0; pointer-events:none; transition:opacity .15s; font-size:var(--fs-meta); z-index:70; }
 .rail-btn:hover span, .rail-btn:focus-visible span { opacity:1; }
-.rail-bottom { margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:16px; }
+.rail-bottom { display:flex; flex-direction:column; align-items:center; gap:16px; }
 .ai-rail { background:#e0d5f9; color:#66529e; }
 .avatar { display:inline-flex; align-items:center; justify-content:center; border:2px solid white; font-size:0.6875rem; font-weight:650; letter-spacing:.1px; border-radius:50%; width:36px; height:36px; }
 .avatar.owner { background:linear-gradient(140deg,#ddc8a8,#b79774); color:#4b3d31; }
