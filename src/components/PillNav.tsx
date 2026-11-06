@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
 // The workspace tabs in the middle of the top bar: Overview, Requests, Schedule and
-// Insights. The full list of pages, Knowledge Hub included, stays in the rail on the left.
+// Insights. The rail on the left lists the other pages, so each page has one link.
 const ITEMS = [
   { href: "/", label: "nav.overview", match: (p: string) => p === "/" },
   { href: "/requests", label: "nav.requests", match: (p: string) => p.startsWith("/requests") },

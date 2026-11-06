@@ -5,18 +5,15 @@ import type { Role } from "@/lib/domain/types";
 import { Icon, type IconName } from "@/components/Icons";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
-// The main navigation: the round icon buttons down the rail. Each name shows in a tooltip
-// on hover and focus, and is the link's text for screen readers.
+// The rail's icon buttons. Overview, Requests, Schedule and Insights live in the top bar
+// tabs (PillNav), so the rail lists the other pages only. Each name shows in a tooltip on
+// hover and focus, and is the link's text for screen readers.
 const LINKS = [
-  { href: "/", label: "nav.overview", icon: "overview" },
   { href: "/briefing", label: "nav.weeklyBriefing", icon: "briefing" },
-  { href: "/requests", label: "nav.requests", icon: "requests" },
   { href: "/owner", label: "nav.approvalAlley", icon: "approval" },
-  { href: "/schedule", label: "nav.schedule", icon: "calendar" },
   { href: "/knowledge", label: "nav.knowledgeHub", icon: "knowledge" },
   { href: "/subjects", label: "nav.subjects", icon: "subjects" },
   { href: "/payments", label: "nav.payments", icon: "wallet" },
-  { href: "/insights", label: "nav.insights", icon: "insights" },
   { href: "/coverage", label: "nav.rulesCoverage", icon: "sliders" },
 ] as const satisfies ReadonlyArray<{ href: string; label: string; icon: IconName }>;
 
