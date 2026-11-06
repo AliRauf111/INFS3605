@@ -110,7 +110,6 @@ export function BriefingPage({ data, role }: { data: BriefingPageData; role: "ow
             ))}
           </ul>
         </div>
-        {view.mode === "demo" && <p className="bf-demo-note"><Icon name="info" /> {t("briefing.demoNote")}</p>}
         {view.warnings.filter((w) => w.kind !== "demo").map((w, i) => (
           <p key={i} className="bf-warning" role="note"><Icon name="alert" /> {warningLine(w, t, fmt)}</p>
         ))}

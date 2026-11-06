@@ -28,7 +28,7 @@ export default async function WeeklyBriefingPage({ searchParams }: { searchParam
         <p className="subheading">{t("briefing.subheading")}</p>
       </div>
       <PageActions className="head-actions">
-        {mode && <span className={`bf-env ${mode}`}><i aria-hidden="true" />{t(`briefing.mode.${mode}`)}</span>}
+        {mode === "live" && <span className="bf-env live"><i aria-hidden="true" />{t("briefing.mode.live")}</span>}
       </PageActions>
     </div>
   );
