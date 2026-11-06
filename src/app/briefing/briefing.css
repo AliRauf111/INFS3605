@@ -22,6 +22,7 @@
 .briefing .bf-page { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .briefing .card { border-color: var(--bf-edge); box-shadow: 0 6px 24px #6a42c20d; }
 .briefing .bf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.briefing .bf-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .briefing .bf-caption { font-size: var(--fs-meta); color: var(--bf-grey); line-height: 1.5; margin: 0; }
 .briefing .bf-overline { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-label); font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--bf-purple); margin: 0 0 6px; }
 .briefing .bf-overline svg { width: 14px; height: 14px; }

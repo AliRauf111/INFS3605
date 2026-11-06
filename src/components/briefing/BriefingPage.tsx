@@ -153,36 +153,40 @@ export function BriefingPage({ data, role }: { data: BriefingPageData; role: "ow
         <p className="bf-caption">{t("briefing.aiNote")}</p>
       </section>
 
-      <div className="bf-grid">
-        {/* Section 2: Financial Overview */}
-        <section className="card bf-section" aria-labelledby="bf-fin-h">
-          <SectionHead id="bf-fin-h" icon="wallet" title={t("briefing.finance.heading")} caption={t("briefing.finance.caption")} />
-          {view.financeHidden ? (
-            <p className="bf-empty"><Icon name="info" /> {t("briefing.ownerOnlyFinance")}</p>
-          ) : !d?.finance ? (
-            <p className="bf-empty"><Icon name="info" /> {t("briefing.finance.notConnected")}</p>
-          ) : (
-            <FinanceBody view={view} days={days} onReview={() => review("overdue")} />
-          )}
-        </section>
+      {/* Financial Overview with Lessons and Completed under it on the left; Parent Communications on the right. */}
+      <div className="bf-grid bf-split">
+        <div className="bf-col">
+          {/* Section 2: Financial Overview */}
+          <section className="card bf-section" aria-labelledby="bf-fin-h">
+            <SectionHead id="bf-fin-h" icon="wallet" title={t("briefing.finance.heading")} caption={t("briefing.finance.caption")} />
+            {view.financeHidden ? (
+              <p className="bf-empty"><Icon name="info" /> {t("briefing.ownerOnlyFinance")}</p>
+            ) : !d?.finance ? (
+              <p className="bf-empty"><Icon name="info" /> {t("briefing.finance.notConnected")}</p>
+            ) : (
+              <FinanceBody view={view} days={days} onReview={() => review("overdue")} />
+            )}
+          </section>
 
-        {/* Section 3: Parent Communications */}
-        <section className="card bf-section" aria-labelledby="bf-comms-h">
-          <SectionHead id="bf-comms-h" icon="requests" title={t("briefing.comms.heading")} caption={t("briefing.comms.caption")} />
-          {!d?.comms ? <p className="bf-empty"><Icon name="info" /> {t("briefing.comms.notConnected")}</p> : <CommsBody view={view} />}
-        </section>
+          {/* Section 4: Lessons and Tutor Operations */}
+          <section className="card bf-section" aria-labelledby="bf-les-h">
+            <SectionHead id="bf-les-h" icon="calendar" title={t("briefing.lessons.heading")} caption={t("briefing.lessons.caption")} />
+            {d && <LessonsBody view={view} />}
+          </section>
 
-        {/* Section 4: Lessons and Tutor Operations */}
-        <section className="card bf-section" aria-labelledby="bf-les-h">
-          <SectionHead id="bf-les-h" icon="calendar" title={t("briefing.lessons.heading")} caption={t("briefing.lessons.caption")} />
-          {d && <LessonsBody view={view} />}
-        </section>
-
-        {/* Section 5: What Compass Completed This Week */}
-        <section className="card bf-section" aria-labelledby="bf-done-h">
-          <SectionHead id="bf-done-h" icon="check" title={t("briefing.completed.heading")} caption={t("briefing.completed.caption")} />
-          {d && <CompletedBody view={view} />}
-        </section>
+          {/* Section 5: What Compass Completed This Week */}
+          <section className="card bf-section" aria-labelledby="bf-done-h">
+            <SectionHead id="bf-done-h" icon="check" title={t("briefing.completed.heading")} caption={t("briefing.completed.caption")} />
+            {d && <CompletedBody view={view} />}
+          </section>
+        </div>
+        <div className="bf-col">
+          {/* Section 3: Parent Communications */}
+          <section className="card bf-section" aria-labelledby="bf-comms-h">
+            <SectionHead id="bf-comms-h" icon="requests" title={t("briefing.comms.heading")} caption={t("briefing.comms.caption")} />
+            {!d?.comms ? <p className="bf-empty"><Icon name="info" /> {t("briefing.comms.notConnected")}</p> : <CommsBody view={view} />}
+          </section>
+        </div>
       </div>
 
       {/* Week on week */}
