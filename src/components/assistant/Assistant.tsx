@@ -304,8 +304,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     flash("wave", 1000);
   };
   // Pages mark busy areas, like the Saved requests table, with data-compass-avoid. While
-  // the launcher would sit on top of one, it hides its label and greeting, and if the
-  // robot itself would still cover a control it tucks in at the edge of the screen.
+  // the launcher would sit on top of one, it hides its label and greeting. The robot stays put.
   const launcherBoxRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let frame = 0;
@@ -322,8 +321,8 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       // The greeting bubble sits above the launcher, so count that space too.
       const reach = new DOMRect(whole.x, whole.y - 90, whole.width, whole.height + 90);
       const robot = home(avatar.getBoundingClientRect());
-      if (zones.some((z) => overlaps(robot, z))) setDodge("tucked");
-      else if (zones.some((z) => overlaps(reach, z))) setDodge("compact");
+      // The robot always stays in view, on every page. Only the label steps aside.
+      if (zones.some((z) => overlaps(robot, z) || overlaps(reach, z))) setDodge("compact");
       else setDodge("");
     };
     const schedule = () => {
