@@ -180,6 +180,29 @@ export async function gmailSend(to: string, subject: string, body: string): Prom
   return ((await res.json()) as { id: string }).id;
 }
 
+/**
+ * An HTML email with a plain-text alternative, used by the Weekly Owner Briefing. Gmail
+ * answering with a message id means it accepted the email, not that it reached the inbox.
+ */
+export async function gmailSendHtml(to: string, subject: string, html: string, text: string): Promise<string> {
+  const token = await googleToken();
+  const from = process.env.GMAIL_SENDER!;
+  const boundary = `tc-${Date.now().toString(36)}`;
+  const mime = [
+    `From: ${from}`, `To: ${to.replace(/[\r\n,;]/g, "")}`, `Subject: =?UTF-8?B?${Buffer.from(subject.replace(/[\r\n]/g, " "), "utf8").toString("base64")}?=`, "MIME-Version: 1.0",
+    `Content-Type: multipart/alternative; boundary="${boundary}"`, "",
+    `--${boundary}`, "Content-Type: text/plain; charset=UTF-8", "", text, "",
+    `--${boundary}`, "Content-Type: text/html; charset=UTF-8", "", html, "",
+    `--${boundary}--`,
+  ].join("\r\n");
+  const res = await call("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ raw: base64url(mime) }),
+  }, "Gmail send");
+  return ((await res.json()) as { id: string }).id;
+}
+
 /** Replies received from these addresses since a date: subject and snippet only. */
 export async function gmailReplies(addresses: string[], sinceIso: string): Promise<{ from: string; text: string; id: string }[]> {
   if (!addresses.length) return [];

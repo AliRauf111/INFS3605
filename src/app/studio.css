@@ -809,3 +809,45 @@ html[data-motion="reduce"] .compass-root :is(.cl-pill, .cl-avatar-btn, .cl-avata
 :root[data-theme="contrast"] .compass-root .cl-pill { background: #fff; color: #000; }
 :root[data-theme="contrast"] .compass-root .cl-avatar-btn { background: #08080c; border: 1px solid #c3b7d2; }
 :root:has(.overview-dashboard) .site-footer { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+
+/* Your Weekly Briefing: a compact card under Over to You, in the same column. */
+.studio .left-column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+html[data-focus="on"] .studio .overview-dashboard .left-column { grid-row: 1 / 3; }
+@media (max-width: 680px) { .studio .left-column { order: 1; } }
+.studio .weekly-card { display: flex; flex-direction: column; gap: 12px; padding: 21px 17px; background: linear-gradient(155deg, #f3edfe 0%, #fbf9ff 70%); border-color: #e7ddfa; }
+.studio .weekly-card .card-head { margin-bottom: 0; padding: 0 5px; }
+.studio .weekly-card .caption { font-size: var(--fs-meta); }
+.studio .wb-status { display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; margin: 0 5px; padding: 5px 11px; border-radius: 20px; font-size: var(--fs-meta); font-weight: 650; color: #6a42c2; background: #ece4fc; }
+.studio .wb-status i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.studio .wb-status.action_required { color: #b3263e; background: #fcebee; }
+.studio .wb-status.ready { color: #8a5a00; background: #fdf3dc; }
+.studio .wb-status.up_to_date { color: #15803d; background: #e8f6ec; }
+.studio .wb-status.generating i { animation: wb-pulse 1.2s ease-in-out infinite; }
+@keyframes wb-pulse { 50% { opacity: .3; } }
+html[data-motion="reduce"] .studio .wb-status.generating i { animation: none; }
+@media (prefers-reduced-motion: reduce) { .studio .wb-status.generating i { animation: none; } }
+.studio .wb-generated { margin: 0 5px; font-size: var(--fs-label); color: #7a6b83; }
+.studio .wb-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.studio .wb-tile { display: flex; flex-direction: column; gap: 3px; padding: 10px 11px; border-radius: 15px; background: #fff; border: 1px solid #eee8f8; min-height: 64px; min-width: 0; }
+.studio .wb-tile strong { font-size: 1.375rem; font-weight: 650; letter-spacing: -.6px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.studio .wb-tile span { font-size: var(--fs-label); color: #6b6478; line-height: 1.3; }
+.studio .wb-tile.red strong { color: #b3263e; }
+.studio .wb-tile.amber strong { color: #8a5a00; }
+.studio .wb-tile.green strong { color: #15803d; }
+.studio .wb-tile .wb-hidden { font-size: var(--fs-label); font-weight: 600; letter-spacing: 0; color: #6b6478; }
+.studio .wb-sk { background: linear-gradient(90deg, #f1ecfa 0%, #faf8fe 50%, #f1ecfa 100%); background-size: 200% 100%; animation: wb-shimmer 1.4s ease-in-out infinite; border: 0; }
+@keyframes wb-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+html[data-motion="reduce"] .studio .wb-sk { animation: none; }
+@media (prefers-reduced-motion: reduce) { .studio .wb-sk { animation: none; } }
+.studio .weekly-card .wb-view { justify-content: center; width: 100%; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .weekly-card { background: linear-gradient(155deg, #3a2f52, #2b2540); border-color: #4d4260; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-tile { background: #262334; border-color: #443a55; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio :is(.wb-tile span, .wb-tile .wb-hidden, .wb-generated) { color: #bdb4cc; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-tile.red strong { color: #ff9aab; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-tile.amber strong { color: #f2c86b; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-tile.green strong { color: #6fd796; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status { background: #3a2f52; color: #c9b3f5; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.action_required { background: #46242c; color: #ff9aab; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.ready { background: #3d3220; color: #f2c86b; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.up_to_date { background: #1d3a29; color: #6fd796; }
+:root[data-theme="contrast"] .studio .wb-tile { background: #08080c; border-color: #c3b7d2; }

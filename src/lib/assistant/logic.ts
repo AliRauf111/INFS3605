@@ -67,11 +67,13 @@ export const AssistantStateSchema = z
     focus: FocusSchema.nullable().default(null),
     /** The Lesson Change, Payment Extension or Tutor Absence workflow this chat is running. */
     run: ActiveRunSchema.nullable().default(null),
+    /** Set after a Weekly Briefing answer, so short follow-up questions stay on it. */
+    topic: z.enum(["weekly_briefing"]).nullable().default(null),
   })
   .strict();
 export type AssistantState = z.infer<typeof AssistantStateSchema>;
 
-export const EMPTY_STATE: AssistantState = { task: null, awaiting: null, focus: null, run: null };
+export const EMPTY_STATE: AssistantState = { task: null, awaiting: null, focus: null, run: null, topic: null };
 
 /** Card buttons that read or prepare, sent back to the server as a structured command. */
 export const CommandSchema = z.discriminatedUnion("type", [

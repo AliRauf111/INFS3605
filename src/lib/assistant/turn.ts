@@ -9,6 +9,8 @@ import { logActivity } from "@/lib/agent/activity";
 import { detectIntent, numberWordsToDigits, refersToFocus, type DetectedIntent } from "@/lib/agent/intents";
 import { detectRetention } from "@/lib/retention/intents";
 import { retentionTurn } from "@/lib/retention/compass";
+import { briefingFollowUp, detectBriefing, type BriefingIntent as WeeklyIntent } from "@/lib/briefing/intents";
+import { briefingTurn as weeklyBriefingTurn } from "@/lib/briefing/compass";
 import type { ProposalAction } from "@/lib/agent/permissions";
 import { approvedProcedures } from "@/lib/agent/reads";
 import { factSources, procedureChecks } from "@/lib/agent/review-logic";
@@ -116,6 +118,8 @@ type Ctx = TurnCtx & {
   run: AssistantState["run"];
   /** True when this reply used no AI at all, so the mode label must not say it did. */
   noAi: boolean;
+  /** The topic short follow-ups belong to. */
+  topic: AssistantState["topic"];
 };
 
 const typeLabel = (t: RequestType) => tr(`domain.requestType.${t}`);
@@ -155,7 +159,7 @@ export async function assistantTurn(user: SessionUser, body: unknown): Promise<T
 
   const live = aiConfigured();
   const ctx: Ctx = {
-    user, sessionKey, live, steps: [], blocks: [], mood: "neutral", focus: stored.state.focus, sensitive: false, run: stored.state.run, noAi: false,
+    user, sessionKey, live, steps: [], blocks: [], mood: "neutral", focus: stored.state.focus, sensitive: false, run: stored.state.run, noAi: false, topic: null,
     modeNote: live ? tr("reply.mode.live") : tr("reply.mode.demo"),
   };
   const response = await route(ctx, stored.state, { message, answer, start, command });
@@ -187,6 +191,8 @@ async function route(
   // Inside a workflow, a typed message answers its question. Asking what needs attention
   // still works, and the workflow stays where it was.
   if (ctx.run && !state.task) {
+    const weekly = detectBriefing(text);
+    if (weekly) return weeklyBriefing(ctx, keep, weekly);
     const i = detectIntent(text);
     if (i && (i.intent === "briefing" || i.intent === "owner_queue" || i.intent === "pending_outcomes")) {
       recordsMode(ctx);
@@ -207,6 +213,14 @@ async function route(
   if (state.task && state.awaiting) {
     const direct = directAnswer(state.awaiting, text);
     if (direct !== null) return advance(ctx, applyAnswer(state.task, state.awaiting as Exclude<typeof state.awaiting, "policy_query">, direct));
+  }
+
+  // Weekly Owner Briefing questions answer from the saved briefing, with no AI.
+  const weekly = !state.task ? detectBriefing(text) : null;
+  if (weekly) return weeklyBriefing(ctx, keep, weekly);
+  if (!state.task && state.topic === "weekly_briefing" && !detectIntent(text) && !detectWorkflow(text) && !isCourseQuestion(text)) {
+    const follow = briefingFollowUp(text);
+    if (follow) return weeklyBriefing(ctx, keep, follow);
   }
 
   // Student Retention questions use the same records and rules as the agent on Insights.
@@ -258,6 +272,13 @@ async function route(
     return finish(ctx, { task: null, awaiting: null }, "clarify");
   }
   return advance(ctx, mergeTask(state.task ?? emptyTask(), x));
+}
+
+async function weeklyBriefing(ctx: Ctx, next: Next, intent: WeeklyIntent): Promise<TurnResponse> {
+  ctx.noAi = true;
+  const mood = await weeklyBriefingTurn(ctx, intent);
+  if (mood !== "error") ctx.topic = "weekly_briefing";
+  return finish(ctx, next, mood);
 }
 
 /** Reviews and briefings come from the records. Any AI wording inside them is labelled where it appears. */
@@ -667,5 +688,5 @@ function noPolicy(ctx: Ctx, articles: Article[]): TurnResponse {
 
 function finish(ctx: Ctx, next: Next, mood: Mood): TurnResponse {
   const usedAi = ctx.live && !ctx.sensitive && !ctx.noAi && !ctx.aiDown;
-  return { lang: languageInfo(replyLanguage()).htmlLang, mode: usedAi ? "live_ai" : "demo", modeNote: ctx.modeNote, steps: ctx.steps, blocks: ctx.blocks, state: { ...next, focus: ctx.focus, run: ctx.run }, mood };
+  return { lang: languageInfo(replyLanguage()).htmlLang, mode: usedAi ? "live_ai" : "demo", modeNote: ctx.modeNote, steps: ctx.steps, blocks: ctx.blocks, state: { ...next, focus: ctx.focus, run: ctx.run, topic: ctx.topic }, mood };
 }

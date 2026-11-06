@@ -28,6 +28,9 @@ import {
 import { addDays, sydneyDate, sydneyToday } from "@/lib/workflows/dates";
 import { subjectIcon, timeParts } from "@/lib/schedule/calendar";
 import { getI18n } from "@/lib/i18n/server";
+import { BriefingCard } from "@/components/briefing/BriefingCard";
+import { latestBriefing, viewForUser } from "@/lib/briefing/server";
+import type { BriefingView } from "@/lib/briefing/types";
 import type { Translate } from "@/lib/i18n/core";
 
 export const dynamic = "force-dynamic";
@@ -178,6 +181,14 @@ export default async function Overview({ searchParams }: { searchParams: Promise
   const firstName = user.displayName.split(" ")[0];
   const rules = ruleLines(policies, t, fmt).slice(0, 2);
   const part = partOfDay(now);
+  // The Weekly Briefing card. A database without the briefing tables simply doesn't show it.
+  let briefing: { ok: boolean; view: BriefingView | null } = { ok: true, view: null };
+  try {
+    const saved = await latestBriefing();
+    briefing.view = saved ? await viewForUser(user, saved) : null;
+  } catch {
+    briefing = { ok: false, view: null };
+  }
 
   return (
     <div className="studio">
@@ -197,7 +208,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
         </PageActions>
       </div>
 
-      <OverviewBoard tiles={tiles} counts={counts} texts={texts} initial={groupFromParam(status)}>
+      <OverviewBoard tiles={tiles} counts={counts} texts={texts} initial={groupFromParam(status)} below={briefing.ok ? <BriefingCard initial={briefing.view} /> : null}>
         <div className="centre-column">
           <CapacityCard periods={periods} initial={initialPeriod} />
           <section className="card schedule-card" aria-labelledby="today-heading">

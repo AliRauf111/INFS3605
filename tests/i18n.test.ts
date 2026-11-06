@@ -25,7 +25,7 @@ const baseKeys = (flat: Record<string, string>) => new Set(Object.keys(flat).map
 const enFlat = flatten(en as unknown as Tree);
 // Areas that are still English only. The app falls back to English for them, so nobody
 // sees a raw key. Remove an area from this list once its translations are added.
-const ENGLISH_ONLY_AREAS = ["payments.", "retention."];
+const ENGLISH_ONLY_AREAS = ["payments.", "retention.", "briefing."];
 const pending = (k: string) => ENGLISH_ONLY_AREAS.some((a) => k.startsWith(a));
 const others = LANGUAGE_CODES.filter((c) => c !== "en") as Exclude<Language, "en">[];
 

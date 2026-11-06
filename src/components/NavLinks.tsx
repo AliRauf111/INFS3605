@@ -9,6 +9,7 @@ import { useI18n } from "@/components/i18n/I18nProvider";
 // on hover and focus, and is the link's text for screen readers.
 const LINKS = [
   { href: "/", label: "nav.overview", icon: "overview" },
+  { href: "/briefing", label: "nav.weeklyBriefing", icon: "briefing" },
   { href: "/requests", label: "nav.requests", icon: "requests" },
   { href: "/owner", label: "nav.approvalAlley", icon: "approval" },
   { href: "/schedule", label: "nav.schedule", icon: "calendar" },

@@ -35,6 +35,11 @@ export async function resetDemoData(): Promise<DemoReset> {
     if (ret.error && ret.error.code !== "PGRST202" && ret.error.code !== "42883") {
       console.warn(`Retention demo reset skipped: ${ret.error.code ?? ""} ${ret.error.message ?? ""}`.trim());
     }
+    // Then the Weekly Owner Briefing, which reads all of the above.
+    const brief = await client.rpc("reset_briefing_demo").abortSignal(AbortSignal.timeout(TIMEOUT_MS));
+    if (brief.error && brief.error.code !== "PGRST202" && brief.error.code !== "42883") {
+      console.warn(`Briefing demo reset skipped: ${brief.error.code ?? ""} ${brief.error.message ?? ""}`.trim());
+    }
     const epoch = (data as { resetAt?: string } | null)?.resetAt;
     return { ok: true, epoch: epoch ?? new Date().toISOString() };
   } catch (e) {
