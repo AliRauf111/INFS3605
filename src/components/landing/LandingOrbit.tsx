@@ -29,18 +29,18 @@ const GREETING = { title: "Hi! I'm Compass AI", text: "I check requests against 
 // Card centres, in the stage's 1000 x 720 drawing space.
 const STAGE = { w: 1000, h: 800 };
 const CARD_AT: Record<OrbitRequest["id"], { x: number; y: number; tilt: number }> = {
-  lesson_change: { x: 165, y: 285, tilt: 5 },
-  payment_extension: { x: 832, y: 218, tilt: 6 },
-  tutor_absence: { x: 158, y: 560, tilt: 5 },
-  owner_approval: { x: 836, y: 538, tilt: -7 },
+  lesson_change: { x: 182, y: 285, tilt: 5 },
+  payment_extension: { x: 818, y: 218, tilt: 6 },
+  tutor_absence: { x: 178, y: 560, tilt: 5 },
+  owner_approval: { x: 822, y: 538, tilt: -7 },
 };
 
 /** Curved links from the inner edge of each card to the rim of Compass's head. */
 const LINKS: Record<OrbitRequest["id"], string> = {
-  lesson_change: "M205 330 Q240 452 352 446",
-  tutor_absence: "M262 520 Q318 500 380 484",
-  payment_extension: "M790 258 Q752 338 666 352",
-  owner_approval: "M742 500 Q690 470 624 462",
+  lesson_change: "M222 330 Q254 452 362 446",
+  tutor_absence: "M282 520 Q334 500 390 484",
+  payment_extension: "M776 258 Q750 338 676 352",
+  owner_approval: "M728 500 Q690 470 634 462",
 };
 
 function scrollToAuth(focus?: string) {
@@ -180,18 +180,18 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
                 </filter>
               </defs>
               {/* Large orbital paths that tie the four requests together */}
-              <ellipse className="lp-orbit-line" cx="496" cy="384" rx="392" ry="160" transform="rotate(-9 496 384)" />
-              <ellipse className="lp-orbit-line lp-orbit-line-2" cx="490" cy="372" rx="350" ry="232" transform="rotate(14 490 372)" />
-              <circle className="lp-orbit-bead" cx="122" cy="436" r="7" />
-              <circle className="lp-orbit-bead" cx="760" cy="300" r="5" />
-              <circle className="lp-orbit-bead" cx="820" cy="452" r="8" />
+              <ellipse className="lp-orbit-line" cx="500" cy="384" rx="392" ry="160" transform="rotate(-9 500 384)" />
+              <ellipse className="lp-orbit-line lp-orbit-line-2" cx="500" cy="372" rx="350" ry="232" transform="rotate(14 500 372)" />
+              <circle className="lp-orbit-bead" cx="128" cy="436" r="7" />
+              <circle className="lp-orbit-bead" cx="770" cy="300" r="5" />
+              <circle className="lp-orbit-bead" cx="830" cy="452" r="8" />
 
               {/* Platform under Compass */}
               <g className="lp-platform">
-                <ellipse cx="490" cy="700" rx="260" ry="46" />
-                <ellipse cx="490" cy="700" rx="196" ry="33" />
-                <ellipse cx="490" cy="700" rx="130" ry="22" />
-                <path d="M440 600 L540 600 L590 700 L390 700Z" className="lp-beam" />
+                <ellipse cx="500" cy="700" rx="260" ry="46" />
+                <ellipse cx="500" cy="700" rx="196" ry="33" />
+                <ellipse cx="500" cy="700" rx="130" ry="22" />
+                <path d="M450 600 L550 600 L600 700 L400 700Z" className="lp-beam" />
               </g>
 
             </svg>

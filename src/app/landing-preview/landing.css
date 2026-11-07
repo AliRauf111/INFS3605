@@ -67,7 +67,7 @@
 .lp-grid {
   max-width: 1600px; margin: 0 auto; padding: 14px 32px 28px;
   display: grid;
-  grid-template-columns: minmax(400px, 1fr) minmax(0, 1.62fr) minmax(360px, 0.92fr);
+  grid-template-columns: minmax(396px, 0.95fr) minmax(0, 1.62fr) minmax(396px, 0.95fr);
   grid-template-areas:
     "hero orbit auth"
     "benefits benefits auth";
@@ -128,7 +128,7 @@
 .lp-orbit-bead:nth-of-type(3) { animation-delay: -3.1s; }
 .lp-platform ellipse { fill: none; stroke: rgba(255, 255, 255, 0.95); stroke-width: 1.6; filter: drop-shadow(0 0 6px rgba(176, 145, 255, 0.8)); }
 .lp-platform ellipse:first-child { fill: rgba(222, 208, 255, 0.35); }
-.lp-platform ellipse:nth-child(2) { animation: lp-ripple 4.5s ease-in-out infinite; transform-origin: 490px 700px; }
+.lp-platform ellipse:nth-child(2) { animation: lp-ripple 4.5s ease-in-out infinite; transform-origin: 500px 700px; }
 .lp-beam { fill: rgba(255, 255, 255, 0.38); filter: blur(10px); }
 
 .lp-link path { fill: none; stroke-linecap: round; }
@@ -139,7 +139,7 @@
 .lp-link.on .lp-link-line { stroke-dashoffset: 0; }
 .lp-link.on .lp-link-pulse { opacity: 1; animation: lp-pulse 1.6s 0.6s linear infinite; }
 
-.lp-orb-wrap { position: absolute; left: 20%; top: 7.5%; width: 58%; aspect-ratio: 1; z-index: 1; }
+.lp-orb-wrap { position: absolute; left: 21%; top: 7.5%; width: 58%; aspect-ratio: 1; z-index: 1; }
 
 .lp-bubble {
   position: absolute; left: 15%; top: -4%; z-index: 3; width: min(340px, 41%);
@@ -161,7 +161,7 @@
 .lp-bubble-text > span { display: block; margin-top: 4px; }
 
 .lp-engine {
-  position: absolute; left: 49%; top: 88.5%; transform: translate(-50%, -50%); z-index: 2;
+  position: absolute; left: 50%; top: 88.5%; transform: translate(-50%, -50%); z-index: 2;
   display: grid; justify-items: center; gap: 4px; padding: 12px 30px; border-radius: 20px;
   background: rgba(255, 255, 255, 0.82); border: 1px solid #ede6fb; box-shadow: var(--lp-shadow);
   white-space: nowrap;
@@ -315,9 +315,9 @@
 /* ---------- Small laptops ---------- */
 @media (max-width: 1439px) {
   .lp-nav { display: none; }
-  .lp-grid { grid-template-columns: minmax(350px, 0.95fr) minmax(0, 1.6fr) minmax(340px, 0.9fr); padding-inline: 24px; column-gap: 16px; }
+  .lp-grid { grid-template-columns: minmax(350px, 0.92fr) minmax(0, 1.6fr) minmax(350px, 0.92fr); padding-inline: 24px; column-gap: 16px; }
   .lp-head { padding-inline: 24px; }
-  .lp-req { width: clamp(206px, 36%, 250px); }
+  .lp-req { width: clamp(196px, 34%, 250px); }
   .lp-req-text strong { font-size: 0.88rem; }
   .lp-req-text span { font-size: 0.76rem; }
   .lp-req-icon { width: 34px; height: 34px; }
