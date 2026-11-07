@@ -110,7 +110,7 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
     <div className="lp" ref={page}>
       <div className="lp-bg" aria-hidden="true" />
       <header className="lp-head">
-        <Link href="/landing-preview" className="lp-brand" aria-label="Tutor Compass home">
+        <Link href="/login" className="lp-brand" aria-label="Tutor Compass home">
           <LogoMark className="lp-logo-mark" />
           <span className="lp-wordmark" aria-hidden="true">
             <span><b>tutor</b>compass</span>

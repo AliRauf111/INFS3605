@@ -17,7 +17,7 @@ import { resetDemoData } from "@/lib/demo/reset";
 const PUBLIC_PATHS = ["/login", "/landing-preview", "/reset-password", "/support", "/privacy", "/terms", "/api/auth/login", "/api/auth/logout", "/api/health"];
 
 // Pages that use their own full-screen layout whether or not someone is signed in.
-const BARE_PATHS = ["/landing-preview"];
+const BARE_PATHS = ["/login", "/landing-preview"];
 const BARE_HEADER = "x-tc-bare-layout";
 
 async function refresh(refreshToken: string) {
