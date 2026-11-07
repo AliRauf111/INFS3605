@@ -65,10 +65,10 @@ body.app-shell { font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .wordmark { text-decoration:none; font-weight:760; font-size:1.25rem; letter-spacing:-.9px; white-space:nowrap; }
 .wordmark>span:not(.edition) { font-weight:420; }
 .edition { display:block; font-size:0.5rem; letter-spacing:3.5px; font-weight:500; margin-block:4px 0; margin-inline:2px 0; color:#9290a5; }
-.topbar .tabs { display:flex; gap:3px; padding:6px; background:#ffffffa1; border:1px solid #ffffffce; border-radius:40px; }
-.topbar .tabs :is(button, a) { background:transparent; color:#898798; font-size:var(--fs-meta); padding:12px 20px; border-radius:28px; white-space:nowrap; }
+.topbar .tabs { display:flex; gap:3.3px; padding:6.6px; background:#ffffffa1; border:1px solid #ffffffce; border-radius:44px; } /* tab bar sizes are 10% up on the original design (Ali, 2026-11-07) */
+.topbar .tabs :is(button, a) { background:transparent; color:#898798; font-size:calc(var(--fs-meta) * 1.1); padding:13.2px 22px; border-radius:31px; white-space:nowrap; }
 .topbar .tabs :is(button, a).active { background:#2b2c40; color:white; box-shadow:0 3px 8px #24243814; }
-.topbar .tabs :is(button, a)>span { font-size:var(--fs-label); margin-inline-start:5px; background:#ded8ef; color:#6d5a93; border-radius:6px; padding:2px 5px; }
+.topbar .tabs :is(button, a)>span { font-size:calc(var(--fs-label) * 1.1); margin-inline-start:5.5px; background:#ded8ef; color:#6d5a93; border-radius:6.6px; padding:2.2px 5.5px; }
 .topbar .tabs :is(button, a).active>span { background:#ffffff2b; color:white; }
 .top-actions { display:flex; align-items:center; gap:17px; }
 .demo-pill { background:none; font-size:var(--fs-meta); color:#777383; white-space:nowrap; display:flex; align-items:center; gap:7px; }
@@ -242,7 +242,7 @@ html[data-motion="reduce"] :is(.studio, .compass-root) .bot, html[data-motion="r
 }
 @media (max-width:1250px) {
   .topbar { padding:24px; }
-  .topbar .tabs :is(button, a) { padding:11px 15px; }
+  .topbar .tabs :is(button, a) { padding:12.1px 16.5px; }
   .demo-pill { display:none; }
   .workspace > main { padding:15px 24px; }
   .studio .dashboard-grid { grid-template-columns:240px 1fr; }
@@ -260,7 +260,7 @@ html[data-motion="reduce"] :is(.studio, .compass-root) .bot, html[data-motion="r
 @media (max-width:900px) {
   .wordmark { font-size:1rem; }
   .edition { font-size:0.4375rem; }
-  .topbar .tabs :is(button, a) { padding:10px 12px; font-size:var(--fs-label); }
+  .topbar .tabs :is(button, a) { padding:11px 13.2px; font-size:calc(var(--fs-label) * 1.1); }
   .topbar .tabs :is(button, a)>span { display:none; }
   .notification { display:none; }
   .topbar { gap:12px; }
@@ -291,7 +291,7 @@ html[data-motion="reduce"] :is(.studio, .compass-root) .bot, html[data-motion="r
   .top-actions { order:1; margin-inline-start:auto; }
   .profile .avatar { width:31px; height:31px; }
   .topbar .tabs { order:2; width:100%; min-width:0; justify-content:space-around; padding:4px; flex-wrap:wrap; row-gap:2px; border-radius:24px; } /* longer names (Tamil, for example) wrap to a second row rather than shrinking */
-  .topbar .tabs :is(button, a) { padding:10px; font-size:var(--fs-label); }
+  .topbar .tabs :is(button, a) { padding:11px; font-size:calc(var(--fs-label) * 1.1); }
   .edition { display:none; }
   .workspace > main { padding:14px 17px; }
   .studio .page-head { align-items:start; flex-direction:column; gap:15px; margin-bottom:20px; }
@@ -471,7 +471,7 @@ html[data-focus="on"] .studio .overview-dashboard .ai-card h2 br { display:none;
 html[data-controls="large"] button:not(.display-switch):not(.rail-btn):not(.brand):not(.profile) { min-height:44px; }
 html[data-controls="large"] .icon-btn, html[data-controls="large"] .studio .round-btn, html[data-controls="large"] .rail-btn { min-width:44px; min-height:44px; }
 html[data-controls="large"] .studio .btn, html[data-controls="large"] .compass-root .text-btn { font-size:max(13px,1em); padding:13px 17px; }
-html[data-controls="large"] .topbar .tabs :is(button, a) { padding:12px 19px; font-size:0.75rem; }
+html[data-controls="large"] .topbar .tabs :is(button, a) { padding:13.2px 20.9px; font-size:0.825rem; }
 html[data-controls="large"] .rail-links { gap:17px; }
 html[data-controls="large"] .studio .schedule-row { padding:20px 0; }
 html[data-controls="large"] .display-switch { width:56px; height:34px; flex-basis:56px; }
@@ -554,7 +554,7 @@ html[data-motion="reduce"] :where(.rail, .topbar, .studio-foot, .studio, .access
   html[data-focus="on"] .studio .overview-dashboard .ai-card { display:block; }
   html[data-controls="large"] .rail-btn { min-width:36px; min-height:44px; }
   html[data-controls="large"] .rail-links { gap:8px; }
-  html[data-controls="large"] .topbar .tabs :is(button, a) { padding:10px 8px; font-size:0.625rem; }
+  html[data-controls="large"] .topbar .tabs :is(button, a) { padding:11px 8.8px; font-size:0.6875rem; }
 }
 .studio .head-actions { max-width:100%; }
 .studio .head-actions .btn { white-space:normal; line-height:1.5; }
