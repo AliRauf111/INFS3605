@@ -115,6 +115,9 @@
 /* ---------- Orbit stage ---------- */
 .lp-orbit { grid-area: orbit; position: relative; min-width: 0; }
 .lp-stage { position: relative; aspect-ratio: 1000 / 800; }
+/* The speech bubble pokes 4% above the stage; push the stage down by that much (4% of the
+   height = 3.2% of the width) so the bubble lines up with the top of the sign-in panel. */
+.lp-orbit { padding-top: 3.2%; }
 .lp-paths { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .lp-links { z-index: 2; pointer-events: none; }
 .lp-orb-wrap .co-head { transition: filter 0.4s; }
@@ -361,7 +364,7 @@
       "benefits benefits";
   }
   .lp-hero { padding-top: 10px; }
-  .lp-orbit { display: flex; flex-direction: column; gap: 14px; }
+  .lp-orbit { display: flex; flex-direction: column; gap: 14px; padding-top: 0; }
   /* Compass on its own, with the example requests as a grid underneath */
   .lp-stage { aspect-ratio: 1 / 0.82; }
   .lp-paths { display: none; }
