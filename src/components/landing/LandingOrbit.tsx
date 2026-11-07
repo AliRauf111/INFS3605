@@ -6,6 +6,7 @@ import { LanguageMenu } from "@/components/i18n/LanguageMenu";
 import { LogoMark } from "@/components/Logo";
 import { CompassOrb, type CompassOrbHandle } from "./CompassOrb";
 import { ORBIT_REQUESTS, OUTCOME_LABELS, type OrbitRequest } from "./orbit-requests";
+import { useFitToScreen } from "./use-fit-to-screen";
 
 // The landing and sign-in page in the "Compass Decision Orbit" design. Left: the headline
 // and the two main actions. Centre: Compass AI with four example requests around it; picking
@@ -53,6 +54,8 @@ function scrollToAuth(focus?: string) {
 
 export function LandingOrbit({ initialMode, message, next: initialNext, configured, signedIn, year }: Props) {
   const orb = useRef<CompassOrbHandle>(null);
+  const page = useRef<HTMLDivElement>(null);
+  useFitToScreen(page);
   const [selected, setSelected] = useState<OrbitRequest | null>(null);
   const [bubble, setBubble] = useState(GREETING);
   const [bubbleKey, setBubbleKey] = useState(0);
@@ -104,7 +107,7 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
   };
 
   return (
-    <div className="lp">
+    <div className="lp" ref={page}>
       <div className="lp-bg" aria-hidden="true" />
       <header className="lp-head">
         <Link href="/landing-preview" className="lp-brand" aria-label="Tutor Compass home">
