@@ -71,12 +71,15 @@
   grid-template-areas:
     "hero orbit auth"
     "benefits benefits auth";
-  column-gap: 20px; row-gap: 24px;
+  column-gap: 20px; row-gap: 0;
   align-items: start;
+  /* The top row takes whatever height the sign-in panel leaves above the tiles, and the
+     story and orbit sit in the middle of it, so the space above and below them is equal. */
+  grid-template-rows: 1fr auto;
 }
 
 /* ---------- Hero ---------- */
-.lp-hero { grid-area: hero; padding-top: 22px; display: flex; flex-direction: column; gap: 28px; position: relative; z-index: 2; }
+.lp-hero { grid-area: hero; align-self: center; margin-block: 24px; display: flex; flex-direction: column; gap: 28px; position: relative; z-index: 2; }
 .lp-eyebrow {
   display: inline-block; margin: 0 0 26px; padding: 8px 18px; border-radius: 999px;
   background: rgba(225, 212, 252, 0.85); color: var(--lp-ink);
@@ -112,7 +115,7 @@
 .lp-checks .lp-i { color: #8467d6; stroke-width: 2.2; }
 
 /* ---------- Orbit stage ---------- */
-.lp-orbit { grid-area: orbit; position: relative; min-width: 0; }
+.lp-orbit { grid-area: orbit; align-self: center; margin-block: 24px; position: relative; min-width: 0; }
 .lp-stage { position: relative; aspect-ratio: 1000 / 800; }
 /* The speech bubble pokes 4% above the stage; push the stage down by that much (4% of the
    height = 3.2% of the width) so the bubble lines up with the top of the sign-in panel. */
@@ -333,7 +336,9 @@
       "orbit auth"
       "benefits benefits";
   }
-  .lp-hero { padding-top: 10px; }
+  .lp-grid { grid-template-rows: none; row-gap: 24px; }
+  .lp-hero { padding-top: 10px; align-self: start; margin-block: 0; }
+  .lp-orbit { align-self: start; margin-block: 0; }
   .lp-orbit { display: flex; flex-direction: column; gap: 14px; padding-top: 0; }
   /* Compass on its own, with the example requests as a grid underneath */
   .lp-stage { aspect-ratio: 1 / 0.82; }
