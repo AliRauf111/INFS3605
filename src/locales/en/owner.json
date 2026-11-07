@@ -29,7 +29,7 @@
   "continueReview": "Continue Review",
   "reviewAndHandle": "Review and Handle",
   "viewRequest": "View Request",
-  "accountsHeading": "New accounts waiting for access ({{count}})",
+  "accountsHeading": "New Accounts Waiting for Access ({{count}})",
   "accountsHint": "These people created an account on the sign-in page. Give access to let them sign in as an admin.",
   "waitingDetails": "Waiting for Missing Details ({{count}})",
   "preparedNotSent": "Prepared but Not Yet Sent ({{count}})",

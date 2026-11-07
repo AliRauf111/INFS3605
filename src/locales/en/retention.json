@@ -203,7 +203,7 @@
     "failedN_one": "{{count}} couldn't be sent. See the message for the reason.",
     "failedN_other": "{{count}} couldn't be sent. See the messages for the reasons.",
     "viewHistory": "View Communication History",
-    "checkInFor": "Check-in for {{name}}'s family",
+    "checkInFor": "Check-in for {{name}}'s Family",
     "seeFindings": "See the findings",
     "sourceAi": "Written by Compass AI with names and the subject only",
     "sourceOwner": "Edited by you",
@@ -269,7 +269,7 @@
     "liveNote": "This sends a real message to the family. It can't be undone."
   },
   "track": {
-    "outcomes": "Retention outcomes",
+    "outcomes": "Retention Outcomes",
     "outcomesHint": "What happened in the {{days}} days before and after each check-in.",
     "viewLabel": "Follow-up view",
     "dayView": "{{days}}-day view",
@@ -298,7 +298,7 @@
     "stillEnrolled": "Continuing",
     "left": "Discontinued",
     "caveat": "These figures show what happened after each check-in. They don't prove the check-in caused the change, because lessons, exams and family plans also play a part.",
-    "history": "Communication history",
+    "history": "Communication History",
     "noHistory": "No check-ins yet.",
     "parent": "Parent or guardian",
     "type": "Type",

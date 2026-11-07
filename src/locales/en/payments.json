@@ -37,7 +37,7 @@
     "protected": "Protected balances",
     "protectedNote_one": "{{count}} family with an extension or dispute",
     "protectedNote_other": "{{count}} families with an extension or dispute",
-    "recent": "Recent invoices",
+    "recent": "Recent Invoices",
     "viewAll": "View all invoices"
   },
   "agent": {
@@ -220,7 +220,7 @@
     "save": "Save Changes",
     "cancel": "Cancel",
     "preview": "Preview message",
-    "skipped": "Not prepared",
+    "skipped": "Not Prepared",
     "back": "Back to Families",
     "next": "Continue to Approval"
   },
@@ -234,10 +234,10 @@
     "sms": "SMS messages",
     "students_one": "Includes {{count}} student note",
     "students_other": "Includes {{count}} student notes",
-    "excluded": "Left out and why",
+    "excluded": "Left Out and Why",
     "noneExcluded": "Every eligible family is included.",
     "leftOutMsg": "{{channel}} left out by you",
-    "checks": "Permissions and warnings",
+    "checks": "Permissions and Warnings",
     "check": {
       "permissions": "Only channels each family has agreed to",
       "duplicates": "One message per email address or phone number",
@@ -269,7 +269,7 @@
     "channel": "Channel",
     "invoices": "Invoices",
     "result": "Result",
-    "tasks": "Follow-up tasks",
+    "tasks": "Follow-up Tasks",
     "noTasks": "No follow-ups yet. Check for replies to look for new ones.",
     "done": "Mark Done",
     "simTitle": "Simulate a Payment (Demo Only)",
@@ -307,18 +307,18 @@
     "valueSaved": "Estimated value of time saved",
     "hours": "{{n}} hours",
     "formula": "Estimate: {{invoice}} minutes per invoice reviewed plus {{family}} minutes per family contacted, at {{rate}} an hour.",
-    "timeline": "Activity timeline",
+    "timeline": "Activity Timeline",
     "noEvents": "Nothing yet. Start a scan on the Autonomous Recovery tab.",
     "modeDemo": "Demo",
     "modeLive": "Live",
     "modeSystem": "System",
-    "payments": "Verified payments",
+    "payments": "Verified Payments",
     "noPayments": "No payments verified yet.",
     "attributed": "Counted as recovered",
     "notAttributed": "Not counted: no reminder came first",
     "sourceDemo": "simulated in demo",
     "sourceXero": "verified in Xero",
-    "messages": "Message history",
+    "messages": "Message History",
     "noMessages": "No messages have gone out yet."
   }
 }
