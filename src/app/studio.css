@@ -850,3 +850,22 @@ html[data-motion="reduce"] .studio .wb-sk { animation: none; }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.ready { background: #3d3220; color: #f2c86b; }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.up_to_date { background: #1d3a29; color: #6fd796; }
 :root[data-theme="contrast"] .studio .wb-tile { background: #08080c; border-color: #c3b7d2; }
+
+/* Requests page: all text 10% larger than the other workspace pages (Ali asked,
+   2026-11-07). Same selectors as the shared rules above, so these win by coming later. */
+.workspace > main > .requests-page { font-size: 1.1rem; }
+.workspace > main > .requests-page h1 { font-size: 2.3375rem; }
+.workspace > main > .requests-page h2 { font-size: 1.169rem; }
+.workspace > main > .requests-page h3 { font-size: 0.9625rem; }
+.workspace > main > .requests-page .page-title > p, .workspace > main > .requests-page .page-title .muted { font-size: 0.825rem; }
+.workspace > main > .requests-page .btn:not(.accessibility-trigger) { font-size: 0.825rem; }
+.workspace > main > .requests-page .btn.small { font-size: 0.756rem; }
+.workspace > main > .requests-page th { font-size: 0.619rem; }
+.workspace > main > .requests-page td { font-size: 0.825rem; }
+.workspace > main > .requests-page .badge { font-size: 0.756rem; }
+.workspace > main > .requests-page :is(input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="search"], select, textarea) { font-size: 0.894rem; }
+.workspace > main > .requests-page label { font-size: 0.894rem; }
+.workspace > main > .requests-page .hint { font-size: 0.968rem; }
+.workspace > main > .requests-page .filter-note { font-size: 1.012rem; }
+.workspace > main > .requests-page .menu-note { font-size: 0.825rem; }
+.workspace > main > .requests-page .link-btn { font-size: 0.968rem; }

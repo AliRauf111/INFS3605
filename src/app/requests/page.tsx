@@ -43,7 +43,7 @@ export default async function Requests({ searchParams }: { searchParams: Promise
     return <LoadError error={e} />;
   }
   return (
-    <div className="stack">
+    <div className="stack requests-page">
       <PageHeader>
         <h1>{t("nav.requests")}</h1>
         <p className="muted">{t("requests.intro")}</p>
