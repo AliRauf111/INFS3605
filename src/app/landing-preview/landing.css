@@ -70,8 +70,7 @@
   grid-template-columns: minmax(400px, 1fr) minmax(0, 1.62fr) minmax(360px, 0.92fr);
   grid-template-areas:
     "hero orbit auth"
-    "benefits benefits auth"
-    "how how how";
+    "benefits benefits auth";
   column-gap: 20px; row-gap: 24px;
   align-items: start;
 }
@@ -286,23 +285,6 @@
 .lp-benefit.mint { background: linear-gradient(140deg, rgba(249, 255, 251, 0.95), rgba(227, 246, 234, 0.9)); border-color: #d5eedd; }
 .lp-benefit.mint .lp-benefit-icon { color: #2b8a51; }
 
-/* ---------- How it works ---------- */
-.lp-how {
-  grid-area: how; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 30px;
-  padding: 28px 40px; border-radius: 28px; background: rgba(255, 255, 255, 0.72); border: 1px solid #ece5fa;
-  box-shadow: 0 14px 40px rgba(110, 82, 180, 0.08);
-}
-.lp-how-title { padding-inline-end: 30px; border-inline-end: 1px solid #e6def6; }
-.lp-how-title h2 { margin: 0 0 6px; color: var(--lp-ink); font-size: 1.6rem; letter-spacing: -0.03em; }
-.lp-how-title p { margin: 0; color: var(--lp-muted); font-size: 1rem; }
-.lp-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 16px; }
-.lp-steps > li:not(.lp-step-arrow) { display: flex; gap: 14px; align-items: flex-start; }
-.lp-step-n { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none; background: #ece3ff; color: var(--lp-plum); font-weight: 760; font-size: 1.05rem; box-shadow: inset 0 0 0 1px #ddd0fb; }
-.lp-steps h3 { margin: 2px 0 4px; color: var(--lp-ink); font-size: 1.02rem; }
-.lp-steps p { margin: 0; font-size: 0.88rem; line-height: 1.45; color: var(--lp-body); }
-.lp-step-arrow { color: #a690e6; padding-top: 12px; }
-.lp-step-arrow .lp-i { width: 22px; height: 22px; }
-
 .lp-foot { max-width: 1560px; margin: 0 auto; padding: 4px 40px 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; font-size: 0.86rem; color: var(--lp-muted); }
 .lp-foot a { color: var(--lp-body); }
 
@@ -376,8 +358,7 @@
     grid-template-areas:
       "hero auth"
       "orbit auth"
-      "benefits benefits"
-      "how how";
+      "benefits benefits";
   }
   .lp-hero { padding-top: 10px; }
   .lp-orbit { display: flex; flex-direction: column; gap: 14px; }
@@ -397,13 +378,9 @@
   .lp-dec-hint { display: none; }
   .lp-dec-body { grid-template-columns: 1fr; }
   .lp-benefits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .lp-how { grid-template-columns: 1fr; padding: 24px 26px; gap: 18px; }
-  .lp-how-title { border: 0; padding: 0; }
 }
 @media (max-width: 900px) {
   .lp-support { display: none; }
-  .lp-steps { grid-template-columns: 1fr; }
-  .lp-step-arrow { display: none; }
 }
 
 /* ---------- Phone: one column in a purpose-built order ---------- */
@@ -428,7 +405,6 @@
   .lp-requests { order: 5; }
   .lp-decision { order: 6; }
   .lp-benefits { order: 7; }
-  .lp-how { order: 8; }
   .lp-eyebrow { margin-bottom: 16px; font-size: 0.68rem; padding: 7px 14px; }
   .lp h1 { font-size: clamp(2.1rem, 9.4vw, 2.7rem); }
   .lp-lead { margin-top: 18px; font-size: 1.04rem; }
@@ -450,8 +426,6 @@
   .lp-dec-foot { flex-direction: column; align-items: stretch; }
   .lp-dec-foot .lp-btn { white-space: normal; text-align: center; }
   .lp-benefits { grid-template-columns: 1fr; gap: 12px; }
-  .lp-how { padding: 22px 18px; }
-  .lp-how-title h2 { font-size: 1.4rem; }
 }
 @media (max-width: 440px) {
   .lp-head-demo svg, .lp .lang-chevron { display: none; }

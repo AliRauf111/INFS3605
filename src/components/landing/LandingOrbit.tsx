@@ -10,7 +10,7 @@ import { ORBIT_REQUESTS, OUTCOME_LABELS, type OrbitRequest } from "./orbit-reque
 // The landing and sign-in page in the "Compass Decision Orbit" design. Left: the headline
 // and the two main actions. Centre: Compass AI with four example requests around it; picking
 // one shows how Compass would handle it under the owner's rules. Right: the real sign-in
-// panel (the same AuthPanel and Supabase routes as /login). Below: benefits and how it works.
+// panel (the same AuthPanel and Supabase routes as /login). Below: the benefit cards.
 //
 // Nothing here is live data. The four requests are fictional examples that follow the
 // demo rule set, so the outcome shown is the outcome the app would reach.
@@ -137,7 +137,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
         <nav className="lp-nav" aria-label="Page sections">
           <a href="#orbit">Compass AI</a>
           <a href="#benefits">Why Tutor Compass</a>
-          <a href="#how">How it works</a>
         </nav>
         <div className="lp-head-actions">
           <LanguageMenu className="lp-lang" />
@@ -351,28 +350,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
           <Benefit tone="mint" title="More Control" text="Review exceptions and approve important decisions." icon={<ShieldIcon />} />
         </section>
 
-        <section className="lp-how" id="how" aria-labelledby="lp-how-heading">
-          <div className="lp-how-title">
-            <h2 id="lp-how-heading">How Compass AI works</h2>
-            <p>From request to the right next step, with you in charge.</p>
-          </div>
-          <ol className="lp-steps">
-            <li>
-              <span className="lp-step-n">1</span>
-              <div><h3>Request Comes In</h3><p>A parent, tutor or administrator submits a request.</p></div>
-            </li>
-            <li aria-hidden="true" className="lp-step-arrow"><ArrowIcon /></li>
-            <li>
-              <span className="lp-step-n">2</span>
-              <div><h3>Compass AI Reviews</h3><p>Compass AI checks available information against the business&apos;s rules and identifies the appropriate next step.</p></div>
-            </li>
-            <li aria-hidden="true" className="lp-step-arrow"><ArrowIcon /></li>
-            <li>
-              <span className="lp-step-n">3</span>
-              <div><h3>Action or Owner Review</h3><p>Routine requests proceed within authorised boundaries. Exceptions are escalated to the owner for a decision.</p></div>
-            </li>
-          </ol>
-        </section>
       </main>
 
       <footer className="lp-foot">
