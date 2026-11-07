@@ -870,3 +870,12 @@ html[data-motion="reduce"] .studio .wb-sk { animation: none; }
 .workspace > main > .requests-page .filter-note { font-size: 1.012rem; }
 .workspace > main > .requests-page .menu-note { font-size: 0.825rem; }
 .workspace > main > .requests-page .link-btn { font-size: 0.968rem; }
+/* Saved Requests table: a further 10% on top of the page-wide bump (Ali, 2026-11-07). */
+.workspace > main > .requests-page #saved-heading { font-size: 1.286rem; }
+.workspace > main > .requests-page .filter-form select { font-size: 0.983rem; }
+.workspace > main > .requests-page .filter-form .btn.small { font-size: 0.832rem; }
+.workspace > main > .requests-page .request-table th { font-size: 0.681rem; padding: 14.3px 16.5px; }
+.workspace > main > .requests-page .request-table td { font-size: 0.908rem; padding: 18.7px 16.5px; }
+.workspace > main > .requests-page .request-table .badge { font-size: 0.832rem; padding: 4.4px 9.9px; }
+.workspace > main > .requests-page .request-table .sel-cell { width: 48px; padding: 0; }
+.workspace > main > .requests-page .sel-box { width: 19.8px; height: 19.8px; }
