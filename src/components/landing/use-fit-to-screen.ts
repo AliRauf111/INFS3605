@@ -2,12 +2,13 @@
 
 import { useLayoutEffect, type RefObject } from "react";
 
-// Zooms the landing page out on desktop so the whole page fits in the window without
-// scrolling. CSS zoom re-lays the page out at the smaller size, so text stays sharp (a
+// Zooms the landing page on desktop so the whole page fits the window height exactly:
+// out on short windows so nothing needs scrolling, and slightly in on tall ones. CSS zoom re-lays the page out at the smaller size, so text stays sharp (a
 // transform would blur it). Tablet and phone layouts are left alone and scroll as normal.
 
 const DESKTOP_MIN_WIDTH = 1280;
 const MIN_ZOOM = 0.55;
+const MAX_ZOOM = 1.2;
 
 export function useFitToScreen(ref: RefObject<HTMLElement | null>) {
   useLayoutEffect(() => {
@@ -28,21 +29,20 @@ export function useFitToScreen(ref: RefObject<HTMLElement | null>) {
         el.style.setProperty("zoom", String(z));
         return el.getBoundingClientRect().height;
       };
-      let zoom = 1;
-      if (heightAt(1) > target + 0.5) {
-        // Zoom changes the layout width, and the height doesn't shrink in a straight
-        // line with it, so search for the largest zoom that still fits.
-        let fits = MIN_ZOOM;
-        let tooTall = 1;
-        for (let i = 0; i < 9; i++) {
-          const mid = (fits + tooTall) / 2;
-          if (heightAt(mid) <= target) fits = mid;
-          else tooTall = mid;
-        }
-        zoom = fits;
+      // Zoom changes the layout width, and the height doesn't change in a straight line
+      // with it, so search for the largest zoom that still fits. On a tall window the
+      // page zooms in a little so there's no empty band at the bottom.
+      let fits = heightAt(1) <= target ? 1 : MIN_ZOOM;
+      let tooTall = fits === 1 ? MAX_ZOOM : 1;
+      if (fits === 1 && heightAt(MAX_ZOOM) <= target) fits = tooTall = MAX_ZOOM;
+      for (let i = 0; i < 9 && tooTall - fits > 0.002; i++) {
+        const mid = (fits + tooTall) / 2;
+        if (heightAt(mid) <= target) fits = mid;
+        else tooTall = mid;
       }
+      let zoom = fits;
       zoom = Math.floor(zoom * 1000) / 1000;
-      if (zoom >= 1) return reset();
+      if (Math.abs(zoom - 1) < 0.002) return reset();
       el.style.setProperty("zoom", String(zoom));
       // Fill the window exactly so the background reaches the bottom edge.
       el.style.minHeight = `${target / zoom}px`;

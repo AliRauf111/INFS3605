@@ -327,6 +327,22 @@
   .lp-btn { padding: 0 16px; font-size: 0.92rem; min-height: 50px; }
 }
 
+/* ---------- Desktop: use the full width of the window ----------
+   The page is zoomed out to fit the window height (use-fit-to-screen.ts), so a fixed
+   max-width would leave empty bands down both sides. The page spreads across the whole
+   window instead, with a wider sign-in panel and the story spaced out evenly. */
+@media (min-width: 1280px) {
+  .lp-head, .lp-grid, .lp-foot { max-width: none; padding-inline: clamp(24px, 2.4vw, 56px); }
+  .lp-grid {
+    grid-template-columns: minmax(380px, 1fr) minmax(0, 1.5fr) minmax(440px, 1.1fr);
+    column-gap: clamp(18px, 2vw, 40px);
+  }
+  .lp-hero { align-self: stretch; margin-block: 0; padding-block: 12px; justify-content: space-evenly; gap: 20px; container-type: inline-size; }
+  /* Sized to the column so the headline always sits on three lines. */
+  .lp h1 { font-size: clamp(2.2rem, 10.8cqi, 4rem); }
+  .lp-auth { padding-inline: clamp(30px, 2.4vw, 44px); }
+}
+
 /* ---------- Tablet: story and orbit on the left, sign-in on the right ---------- */
 @media (max-width: 1279px) {
   .lp-grid {
