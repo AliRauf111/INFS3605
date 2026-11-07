@@ -247,18 +247,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
         </div>
 
         <div className="right-column">
-          <section className="card rules-card" aria-labelledby="rules-heading">
-            <div className="card-head">
-              <div>
-                <h2 id="rules-heading">{t("overview.rules.heading")}</h2>
-                <p className="caption">{t("overview.rules.caption")}</p>
-              </div>
-              <Link className="round-btn" href="/knowledge#rules" aria-label={t("overview.rules.open")}><Icon name="external" /></Link>
-            </div>
-            <div className="rule-status"><i aria-hidden="true" />{t("overview.rules.exceptions")}</div>
-            {rules.length ? rules.map((r) => <div key={r} className="rule-status"><i aria-hidden="true" />{r}</div>) : <div className="rule-status"><i aria-hidden="true" />{t("overview.rules.none")}</div>}
-            <p className="rule-bottom">{t("overview.rules.bottom")}</p>
-          </section>
+          {briefing.ok ? <BriefingCard initial={briefing.view} /> : null}
 
           <section className="card activity-card" aria-labelledby="activity-heading">
             <h2 id="activity-heading">{t("overview.activity.heading")}</h2>
@@ -282,7 +271,19 @@ export default async function Overview({ searchParams }: { searchParams: Promise
               })
             )}
           </section>
-          {briefing.ok ? <BriefingCard initial={briefing.view} /> : null}
+
+          <section className="card rules-card" aria-labelledby="rules-heading">
+            <div className="card-head">
+              <div>
+                <h2 id="rules-heading">{t("overview.rules.heading")}</h2>
+                <p className="caption">{t("overview.rules.caption")}</p>
+              </div>
+              <Link className="round-btn" href="/knowledge#rules" aria-label={t("overview.rules.open")}><Icon name="external" /></Link>
+            </div>
+            <div className="rule-status"><i aria-hidden="true" />{t("overview.rules.exceptions")}</div>
+            {rules.length ? rules.map((r) => <div key={r} className="rule-status"><i aria-hidden="true" />{r}</div>) : <div className="rule-status"><i aria-hidden="true" />{t("overview.rules.none")}</div>}
+            <p className="rule-bottom">{t("overview.rules.bottom")}</p>
+          </section>
         </div>
       </OverviewBoard>
     </div>
