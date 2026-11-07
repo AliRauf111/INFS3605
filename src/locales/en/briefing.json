@@ -169,7 +169,7 @@
     "adminTasks": "Administrative tasks completed",
     "ownerApprovals": "Owner approvals processed",
     "who": {
-      "heading": "Who completed the work",
+      "heading": "Who Completed the Work",
       "rules": "Automatically under your rules",
       "admin": "By administrators",
       "owner": "Approved by you",
@@ -254,7 +254,7 @@
       "explain": "The SMS provider reported that this text failed."
     },
     "all_clear": {
-      "title": "Nothing urgent this week",
+      "title": "Nothing Urgent This Week",
       "why": "Everything Compass checked is on track.",
       "next": "Have a quick look at What Needs My Attention? for anything new.",
       "explain": "No overdue invoices, waiting enquiries, cover gaps or owner decisions passed your thresholds."

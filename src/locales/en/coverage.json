@@ -1,5 +1,5 @@
 {
-  "title": "Rule coverage",
+  "title": "Rule Coverage",
   "intro_one": "Calculated from the {{count}} saved request when this page loads. These figures count records; they do not estimate time saved.",
   "intro_other": "Calculated from the {{count}} saved requests when this page loads. These figures count records; they do not estimate time saved.",
   "metricsAppear": "Metrics appear once requests are saved.",

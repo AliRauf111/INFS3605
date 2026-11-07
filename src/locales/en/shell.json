@@ -49,9 +49,9 @@
     "motto": "A clearer direction. Every day."
   },
   "loader": {
-    "title": "Getting things ready for you",
+    "title": "Getting Things Ready for You",
     "subtitle": "A little dance while you wait.",
-    "failedTitle": "Tutor Compass didn’t finish loading",
+    "failedTitle": "Tutor Compass Didn’t Finish Loading",
     "failedSub": "Check your internet connection, then try again. Nothing you saved has been changed.",
     "retry": "Try again"
   }
