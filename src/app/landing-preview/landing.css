@@ -265,7 +265,7 @@
 .lp-auth .notice a { font-weight: 600; }
 
 /* ---------- Benefit cards ---------- */
-.lp-benefits { grid-area: benefits; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.lp-benefits { grid-area: benefits; align-self: end; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .lp-benefit {
   display: flex; gap: 12px; align-items: flex-start; padding: 20px 16px; border-radius: 22px; border: 1px solid;
   box-shadow: 0 10px 30px rgba(110, 82, 180, 0.08); transition: transform 0.22s, box-shadow 0.22s;
