@@ -56,8 +56,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
   const [selected, setSelected] = useState<OrbitRequest | null>(null);
   const [bubble, setBubble] = useState(GREETING);
   const [bubbleKey, setBubbleKey] = useState(0);
-  const [next, setNext] = useState(initialNext);
-  const [demoNote, setDemoNote] = useState<string | null>(null);
   const [greeted, setGreeted] = useState(false);
 
   // The greeting appears a moment after the page loads, like Compass saying hello.
@@ -74,7 +72,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
   const pick = (r: OrbitRequest, el: HTMLElement) => {
     if (selected?.id === r.id) return clear();
     setSelected(r);
-    setDemoNote(null);
     say(r.title, r.bubble);
     const box = el.getBoundingClientRect();
     orb.current?.lookAt(box.left + box.width / 2, box.top + box.height / 2);
@@ -83,7 +80,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
 
   const clear = () => {
     setSelected(null);
-    setDemoNote(null);
     say(GREETING.title, GREETING.text);
   };
 
@@ -105,22 +101,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
   const createAccount = () => {
     window.dispatchEvent(new CustomEvent<Mode>(AUTH_MODE_EVENT, { detail: "signup" }));
     window.setTimeout(() => scrollToAuth("su-name"), 60);
-  };
-
-  const exploreWorkflow = (r: OrbitRequest) => {
-    const target = `/?compass=${r.workflow}`;
-    if (signedIn) {
-      window.location.assign(target);
-      return;
-    }
-    setNext(target);
-    setDemoNote(`Sign in with a demo account and Compass will open straight into this.`);
-    orb.current?.react("cheer");
-    window.dispatchEvent(new CustomEvent<Mode>(AUTH_MODE_EVENT, { detail: "signin" }));
-    window.setTimeout(() => {
-      openDemo();
-      scrollToAuth("email");
-    }, 60);
   };
 
   return (
@@ -257,7 +237,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
                     type="button"
                     className={`lp-req-btn${selected?.id === r.id ? " on" : ""}`}
                     aria-pressed={selected?.id === r.id}
-                    aria-controls="lp-decision"
                     onClick={(e) => pick(r, e.currentTarget)}
                   >
                     <span className={`lp-req-icon lp-ic-${r.id}`}><RequestIcon id={r.id} /></span>
@@ -273,45 +252,8 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
             })}
           </ul>
 
-          <div id="lp-decision" className={`lp-decision${selected ? " open" : ""}`} aria-live="polite">
-            {selected ? (
-              <article className="lp-dec-card" key={selected.id}>
-                <header className="lp-dec-head">
-                  <span className={`lp-req-icon lp-ic-${selected.id}`}><RequestIcon id={selected.id} /></span>
-                  <div>
-                    <p className="lp-dec-kicker">Example request</p>
-                    <h3>{selected.title}</h3>
-                  </div>
-                  <span className={`lp-outcome ${selected.outcome}`}>{OUTCOME_LABELS[selected.outcome]}</span>
-                  <button type="button" className="lp-dec-close" onClick={clear} aria-label="Close this example">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
-                  </button>
-                </header>
-                <p className="lp-dec-message">{selected.message}</p>
-                <div className="lp-dec-body">
-                  <div>
-                    <h4>How Compass AI handles it</h4>
-                    <ol>
-                      {selected.steps.map((s) => <li key={s}>{s}</li>)}
-                    </ol>
-                  </div>
-                  <div className={`lp-rule ${selected.signal}`}>
-                    <h4>Your rule</h4>
-                    <code dir="ltr">{selected.rule.id}</code>
-                    <p>{selected.rule.text}</p>
-                  </div>
-                </div>
-                <footer className="lp-dec-foot">
-                  <p>{selected.outcome === "owner" ? "Compass prepares everything, but only you can approve this." : selected.outcome === "info" ? "Compass asks for what's missing before anything moves." : "Inside your rules, so your admin team can go ahead."}</p>
-                  <button type="button" className="lp-btn lp-btn-dark lp-btn-small" onClick={() => exploreWorkflow(selected)}>
-                    {selected.workflowLabel} <ArrowIcon />
-                  </button>
-                </footer>
-                {demoNote && <p className="lp-dec-note" role="status">{demoNote}</p>}
-              </article>
-            ) : (
-              <p className="lp-dec-hint"><SparkIcon />Pick a request to see how Compass AI would handle it.</p>
-            )}
+          <div className="lp-decision">
+            <p className="lp-dec-hint"><SparkIcon />Pick a request to see how Compass AI would handle it.</p>
           </div>
         </section>
 
@@ -327,7 +269,7 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
             </div>
           )}
           <AuthPanel
-            next={next}
+            next={initialNext}
             initialMode={initialMode}
             message={message}
             intro={{ title: "Welcome to TutorCompass", sub: "Sign in to your account or create a new one." }}

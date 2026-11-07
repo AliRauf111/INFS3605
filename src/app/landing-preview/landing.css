@@ -107,7 +107,6 @@
 .lp-btn-dark:hover .lp-i { transform: translateX(3px); }
 .lp-btn-light { background: rgba(255, 255, 255, 0.82); color: var(--lp-ink); border: 1px solid #e3dbf4; }
 .lp-btn-light:hover { background: #fff; box-shadow: 0 8px 22px rgba(110, 82, 180, 0.14); transform: translateY(-1px); }
-.lp-btn-small { min-height: 44px; padding: 0 18px; font-size: 0.92rem; border-radius: 12px; }
 .lp-checks { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; }
 .lp-checks li { display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; color: var(--lp-body); }
 .lp-checks .lp-i { color: #8467d6; stroke-width: 2.2; }
@@ -206,34 +205,6 @@
 .lp-decision { position: relative; z-index: 2; margin-top: 4px; }
 .lp-dec-hint { margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--lp-muted); font-size: 0.92rem; }
 .lp-dec-hint .lp-spark { color: #9b80ee; fill: currentColor; stroke: none; }
-.lp-dec-card {
-  padding: 18px 20px; border-radius: 22px; background: rgba(255, 255, 255, 0.88); border: 1px solid #e9e1f8;
-  box-shadow: var(--lp-shadow); backdrop-filter: blur(12px); animation: lp-rise 0.4s cubic-bezier(.2, .8, .2, 1);
-}
-.lp-dec-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 12px; }
-.lp-dec-kicker { margin: 0; font-size: 0.7rem; font-weight: 650; letter-spacing: 0.18em; text-transform: uppercase; color: var(--lp-muted); }
-.lp-dec-head h3 { margin: 2px 0 0; color: var(--lp-ink); font-size: 1.15rem; letter-spacing: -0.01em; }
-.lp-outcome { padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
-.lp-outcome.ready { background: #e0f5e8; color: #1c6a3a; }
-.lp-outcome.info { background: #fff1cf; color: #7c5806; }
-.lp-outcome.owner { background: #efe6ff; color: #563b98; }
-.lp-dec-close { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e6def6; background: #fff; display: grid; place-items: center; cursor: pointer; color: var(--lp-ink); }
-.lp-dec-close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
-.lp-dec-close:hover { background: #f5f0ff; }
-.lp-dec-message { margin: 12px 0 0; color: var(--lp-body); font-size: 0.95rem; line-height: 1.5; }
-.lp-dec-body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; margin-top: 14px; }
-.lp-dec-body h4 { margin: 0 0 6px; font-size: 0.78rem; color: var(--lp-ink); letter-spacing: 0.06em; text-transform: uppercase; }
-.lp-dec-body ol { margin: 0; padding-inline-start: 1.2em; display: grid; gap: 5px; font-size: 0.9rem; line-height: 1.45; color: var(--lp-body); }
-.lp-dec-body ol li::marker { color: #8a6fe0; font-weight: 700; }
-.lp-rule { padding: 12px 14px; border-radius: 14px; border: 1px solid; }
-.lp-rule.green { background: #f0faf3; border-color: #cdebd8; }
-.lp-rule.amber { background: #fff9eb; border-color: #f3e0ad; }
-.lp-rule.red { background: #fdf1f3; border-color: #f2cdd4; }
-.lp-rule code { display: inline-block; font-size: 0.78rem; padding: 2px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.85); color: var(--lp-ink); border: 1px solid rgba(0, 0, 0, 0.06); }
-.lp-rule p { margin: 8px 0 0; font-size: 0.88rem; line-height: 1.45; color: var(--lp-body); }
-.lp-dec-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #efe9fa; }
-.lp-dec-foot p { margin: 0; font-size: 0.9rem; color: var(--lp-ink); font-weight: 550; }
-.lp-dec-note { margin: 10px 0 0; font-size: 0.86rem; color: #563b98; }
 
 /* ---------- Sign-in panel (reuses AuthPanel, restyled) ---------- */
 .lp-auth {
@@ -340,7 +311,6 @@
 @keyframes lp-pulse { from { stroke-dashoffset: 0.06; } to { stroke-dashoffset: -1.1; } }
 @keyframes lp-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
 @keyframes lp-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-@keyframes lp-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* ---------- Small laptops ---------- */
 @media (max-width: 1439px) {
@@ -379,7 +349,6 @@
   .lp-req-btn { animation: none; height: 100%; padding-inline-end: 30px; }
   .lp-req-text strong { white-space: normal; }
   .lp-dec-hint { display: none; }
-  .lp-dec-body { grid-template-columns: 1fr; }
   .lp-benefits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
@@ -424,10 +393,6 @@
   .lp-auth h2 { font-size: 1.55rem; }
   .lp-req-btn { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; padding: 12px; gap: 8px 10px; animation: none; height: 100%; }
   .lp-req-text { grid-column: 1 / -1; }
-  .lp-dec-head { grid-template-columns: auto minmax(0, 1fr) auto; }
-  .lp-dec-head .lp-outcome { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
-  .lp-dec-foot { flex-direction: column; align-items: stretch; }
-  .lp-dec-foot .lp-btn { white-space: normal; text-align: center; }
   .lp-benefits { grid-template-columns: 1fr; gap: 12px; }
 }
 @media (max-width: 440px) {
