@@ -239,6 +239,8 @@
 .lp-auth .landing-demo { margin-top: 18px; border-color: #e6def6; border-radius: 14px; background: rgba(250, 247, 255, 0.8); }
 .lp-auth .landing-demo summary { color: var(--lp-ink); }
 .lp-auth .landing-demo p { color: var(--lp-body); }
+.lp-auth .lp-auth-support { display: block; margin-top: 18px; padding: 14px 16px; border: 1px solid #e6def6; border-radius: 14px; background: rgba(250, 247, 255, 0.8); color: var(--lp-ink); font-weight: 600; text-align: center; text-decoration: none; }
+.lp-auth .lp-auth-support:hover { background: #fff; box-shadow: 0 6px 18px rgba(110, 82, 180, 0.12); }
 .lp-auth .notice a { font-weight: 600; }
 
 /* ---------- Benefit cards ---------- */

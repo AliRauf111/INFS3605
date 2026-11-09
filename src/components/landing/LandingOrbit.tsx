@@ -86,19 +86,11 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
     say(GREETING.title, GREETING.text);
   };
 
-  const openDemo = () => {
-    const details = document.getElementById("lp-demo-access") as HTMLDetailsElement | null;
-    if (details) details.open = true;
-  };
-
   const tryDemo = () => {
     orb.current?.react("cheer");
     say("Let's go!", "Sign in with one of the demo accounts and I'll show you around.");
     window.dispatchEvent(new CustomEvent<Mode>(AUTH_MODE_EVENT, { detail: "signin" }));
-    window.setTimeout(() => {
-      openDemo();
-      scrollToAuth("email");
-    }, 60);
+    window.setTimeout(() => scrollToAuth("email"), 60);
   };
 
   return (
@@ -118,7 +110,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
         </nav>
         <div className="lp-head-actions">
           <LanguageMenu className="lp-lang" />
-          <Link href="/support" className="lp-pill lp-pill-light lp-head-demo">Contact Support</Link>
           {signedIn && <Link href="/" className="lp-pill lp-pill-dark">Go to your dashboard</Link>}
         </div>
       </header>
@@ -262,13 +253,7 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
             message={message}
             intro={{ title: "Welcome to TutorCompass", sub: "Sign in to your account or create a new one." }}
             demo={
-              <details className="landing-demo lp-demo" id="lp-demo-access">
-                <summary>Trying The Demo?</summary>
-                <p>
-                  Two fictional demo accounts exist: an administrator (Sarah) and the owner (Alex). Whoever set up this copy of
-                  the app chose their passwords, so ask them for the details. Passwords are not stored in the code.
-                </p>
-              </details>
+              <Link href="/support" className="lp-auth-support">Contact Support</Link>
             }
           />
         </aside>
