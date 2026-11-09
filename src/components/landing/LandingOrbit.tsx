@@ -101,11 +101,6 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
     }, 60);
   };
 
-  const createAccount = () => {
-    window.dispatchEvent(new CustomEvent<Mode>(AUTH_MODE_EVENT, { detail: "signup" }));
-    window.setTimeout(() => scrollToAuth("su-name"), 60);
-  };
-
   return (
     <div className="lp" ref={page}>
       <div className="lp-bg" aria-hidden="true" />
@@ -124,11 +119,7 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
         <div className="lp-head-actions">
           <LanguageMenu className="lp-lang" />
           <Link href="/support" className="lp-pill lp-pill-light lp-head-demo">Contact Support</Link>
-          {signedIn ? (
-            <Link href="/" className="lp-pill lp-pill-dark">Go to your dashboard</Link>
-          ) : (
-            <button type="button" className="lp-pill lp-pill-dark lp-head-create" onClick={createAccount}>Create Account</button>
-          )}
+          {signedIn && <Link href="/" className="lp-pill lp-pill-dark">Go to your dashboard</Link>}
         </div>
       </header>
 
