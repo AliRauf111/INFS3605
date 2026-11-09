@@ -123,16 +123,11 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
         </nav>
         <div className="lp-head-actions">
           <LanguageMenu className="lp-lang" />
-          <Link href="/support" className="lp-support">Contact support</Link>
+          <Link href="/support" className="lp-pill lp-pill-light lp-head-demo">Contact Support</Link>
           {signedIn ? (
             <Link href="/" className="lp-pill lp-pill-dark">Go to your dashboard</Link>
           ) : (
-            <>
-              <button type="button" className="lp-pill lp-pill-light lp-head-demo" onClick={tryDemo}>
-                <PlayIcon />Try the demo
-              </button>
-              <button type="button" className="lp-pill lp-pill-dark lp-head-create" onClick={createAccount}>Create account</button>
-            </>
+            <button type="button" className="lp-pill lp-pill-dark lp-head-create" onClick={createAccount}>Create Account</button>
           )}
         </div>
       </header>
@@ -278,7 +273,7 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
             intro={{ title: "Welcome to TutorCompass", sub: "Sign in to your account or create a new one." }}
             demo={
               <details className="landing-demo lp-demo" id="lp-demo-access">
-                <summary>Trying the demo?</summary>
+                <summary>Trying The Demo?</summary>
                 <p>
                   Two fictional demo accounts exist: an administrator (Sarah) and the owner (Alex). Whoever set up this copy of
                   the app chose their passwords, so ask them for the details. Passwords are not stored in the code.
