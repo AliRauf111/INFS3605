@@ -150,8 +150,7 @@ export function LandingOrbit({ initialMode, message, next: initialNext, configur
                 <Link href="/" className="lp-btn lp-btn-dark">Go to your dashboard <ArrowIcon /></Link>
               ) : (
                 <>
-                  <button type="button" className="lp-btn lp-btn-dark" onClick={createAccount}>Create Your Account <ArrowIcon /></button>
-                  <button type="button" className="lp-btn lp-btn-light" onClick={tryDemo}><PlayIcon />Try The Demo</button>
+                  <button type="button" className="lp-btn lp-btn-dark" onClick={tryDemo}><PlayIcon />Try The Demo</button>
                 </>
               )}
             </div>
