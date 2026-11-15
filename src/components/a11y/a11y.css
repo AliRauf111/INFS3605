@@ -17,12 +17,12 @@
 /* The Accessibility button: the Studio design's dark pill, on every page. */
 .btn.accessibility-trigger {
   display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 0; padding: 13px 18px; border: 0; border-radius: 30px;
-  background: #2e2d43; color: #ffffff; font-size: 0.6875rem; font-weight: 500; line-height: 1.5; white-space: normal; letter-spacing: -0.2px;
+  background: #2e2d43; color: #ffffff; font-size: var(--fs-meta, 0.8125rem); font-weight: 500; line-height: 1.5; white-space: normal; letter-spacing: -0.2px;
   box-shadow: 0 4px 10px #38324c0b; text-align: start;
 }
 .btn.accessibility-trigger:hover { background: #2e2d43; color: #ffffff; filter: brightness(0.98); }
 .btn.accessibility-trigger svg { width: 19px; height: 19px; color: #d4c7f6; }
-@media (max-width: 900px) { .btn.accessibility-trigger { font-size: 0.625rem !important; } }
+@media (max-width: 900px) { .btn.accessibility-trigger { font-size: var(--fs-label, 0.75rem) !important; } }
 @media (max-width: 680px) { .btn.accessibility-trigger { padding: 11px 15px; } }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .btn.accessibility-trigger { background: #d5c1f3; color: #292035; }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .btn.accessibility-trigger svg { color: inherit; }
@@ -57,7 +57,7 @@ html[data-focus="on"] .focus-bar .btn { width: auto; }
   box-shadow: 0 10px 40px #4d3c6020; opacity: 0; pointer-events: none; transition: 0.25s;
 }
 .studio-toast.show { opacity: 1; transform: translate(-50%, 0); }
-@media (max-width: 680px) { .studio-toast { left: 50%; font-size: 0.6875rem; width: max-content; max-width: 87%; } }
+@media (max-width: 680px) { .studio-toast { left: 50%; font-size: 0.75rem; width: max-content; max-width: 87%; } }
 html[data-motion="reduce"] .studio-toast { transition: none; }
 
 .info-top { margin-bottom: 2rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }

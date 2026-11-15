@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icons";
 import type { CapacitySeries } from "@/lib/overview/capacity";
 import { useI18n } from "@/components/i18n/I18nProvider";
@@ -15,6 +15,8 @@ const X0 = 15;
 const X1 = 505;
 const BASE = 160;
 const SPAN = 135;
+const VIEW_W = 560;
+const VIEW_H = 190;
 
 function path(pts: Array<[number, number]>): string {
   return pts.map(([x, y], i) => (i ? `C${(pts[i - 1][0] + x) / 2} ${pts[i - 1][1]} ${(pts[i - 1][0] + x) / 2} ${y} ${x} ${y}` : `M${x} ${y}`)).join(" ");
@@ -28,6 +30,20 @@ export function CapacityCard({ periods, initial }: { periods: CapacityPeriod[]; 
   const p = periods.find((x) => x.key === key) ?? periods[0];
   const { labels, booked, offered, percent } = p.series;
   const [tip, setTip] = useState<number | null>(null);
+  // The chart scales with its card, so its labels are sized against the drawn width:
+  // --chart-k undoes the scaling and keeps them at the type scale's size on every screen.
+  const svg = useRef<SVGSVGElement>(null);
+  useEffect(() => {
+    const el = svg.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => {
+      const { width, height } = e.contentRect;
+      const scale = Math.min(width / VIEW_W, height / VIEW_H);
+      if (scale > 0) el.style.setProperty("--chart-k", String(1 / scale));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const at = tip ?? p.tip;
   const n = labels.length;
   const pts = (v: number[]) => v.map((h, i): [number, number] => [X0 + (n > 1 ? (i * (X1 - X0)) / (n - 1) : 0), BASE - (h / p.max) * SPAN]);
@@ -58,7 +74,7 @@ export function CapacityCard({ periods, initial }: { periods: CapacityPeriod[]; 
         <span>{percent === null ? <>{t("overview.capacity.noTutorHours")}<br />{p.long}</> : <>{t("overview.capacity.ofCapacity")}<br />{p.change}</>}</span>
       </div>
       <div className="chart-wrap" onMouseLeave={() => setTip(null)}>
-        <svg className="capacity-chart" viewBox="0 0 560 190" role="img" aria-label={t("overview.capacity.chartLabel", { period: p.long, summary: percent === null ? t("overview.capacity.chartNone") : t("overview.capacity.chartPercent", { percent }) })}>
+        <svg ref={svg} className="capacity-chart" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} role="img" aria-label={t("overview.capacity.chartLabel", { period: p.long, summary: percent === null ? t("overview.capacity.chartNone") : t("overview.capacity.chartPercent", { percent }) })}>
           <defs>
             <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c6b1e7" stopOpacity=".25" /><stop offset="1" stopColor="#c6b1e7" stopOpacity="0" /></linearGradient>
             <pattern id="chartLines" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M2 0v6" stroke="#d6c6ea" strokeWidth="1" opacity=".6" /></pattern>
