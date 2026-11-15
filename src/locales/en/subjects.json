@@ -45,7 +45,7 @@
   "notYearCourse": "Not a Year {{year}} course",
   "offered": "Offered",
   "notOffered": "Not Offered",
-  "notConfirmed": "Not yet confirmed",
+  "notConfirmed": "Not Yet Confirmed",
   "notConfirmedHint": "Details that weren't checked course by course. They are noted here rather than guessed.",
   "checkedAgainst": "Checked against:",
   "askCompass": "Ask Compass AI things like “who teaches Maths Advanced Year 12?” or see the Knowledge Hub for owner rules:",

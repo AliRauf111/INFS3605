@@ -92,7 +92,7 @@
     "fromMessage": "From the message: complaint {{complaint}}, welfare concern {{welfare}}.",
     "viewPolicy": "View Policy",
     "demoData": "Fictional demonstration data.",
-    "checkedTitle": "Checked after the change",
+    "checkedTitle": "Checked After the Change",
     "readBackNote": "Read back from Tutor Compass's records for {{id}}. The request is closed with a note of what changed."
   },
   "workflow": {
@@ -208,7 +208,7 @@
     "rowReminders": "Reminders",
     "earlier": "Earlier schedule",
     "nothingSent": "No reminder or message was sent, and no invoicing system was changed.",
-    "msgConfirmTitle": "Message confirming the new due date",
+    "msgConfirmTitle": "Message Confirming the New Due Date",
     "status": {
       "pending": "pending",
       "overdue": "overdue",
@@ -235,7 +235,7 @@
     "notScheduled": "That lesson is no longer scheduled, so there's nothing to move. Which lesson do you mean?",
     "checkingTimes": "Checking {{tutor}}'s free times",
     "noTimes": "{{tutor}} has no free times at least {{hours}} hours away that fit. Ask the tutor for more times, then start a new Lesson Change. Nothing was changed.",
-    "msgOfferTitle": "Message offering new times",
+    "msgOfferTitle": "Message Offering New Times",
     "msgOfferSay": "Here's a message offering these times. It hasn't been sent. When the family replies, come back and choose their time. This stays under What Needs My Attention? until then.",
     "familyChoice": "The family's choice",
     "nearestFirst": "The ones nearest to what the family asked for come first.",
@@ -256,7 +256,7 @@
     "rowTutor": "Tutor",
     "rowSlot": "Time slot",
     "nothingSent": "Nothing was sent to the family or the tutor.",
-    "msgConfirmTitle": "Message confirming the new time"
+    "msgConfirmTitle": "Message Confirming the New Time"
   },
   "abs": {
     "noChoice": "No choice yet",
@@ -287,8 +287,8 @@
     "coverOption": "Cover: {{tutor}}, Same Time",
     "moveOption": "Move: {{time}}",
     "leaveOption": "Leave This Lesson for Now",
-    "msgFamilyTitle": "Message asking the family to agree",
-    "msgTutorTitle": "Message asking the tutor to cover",
+    "msgFamilyTitle": "Message Asking the Family to Agree",
+    "msgTutorTitle": "Message Asking the Tutor to Cover",
     "theTutor": "The tutor",
     "comeBack": "When they agree, come back and press Continue. This stays under What Needs My Attention? until then.",
     "agreement": "Agreement",
@@ -416,7 +416,7 @@
     "extraDays_other": ", {{count}} extra days",
     "ruleResult": "Rule result",
     "status": "Status",
-    "saveTitle": "Save this request",
+    "saveTitle": "Save This Request",
     "stillToConfirm": "Still to confirm: {{gap}}",
     "noPolicy": "No active policy for this type",
     "recordsRead": "Records read {{time}}",
@@ -800,7 +800,7 @@
     "draftNoteAi": "Worded by live AI from the request's missing facts. Not saved and not sent.",
     "aiDownDraft": "Live AI was unavailable ({{reason}}). The draft uses the template.",
     "draftIntro": "Here's a reply asking only for what's missing on {{reference}}. Edit it as you like. Saving it needs your confirmation, and nothing is sent.",
-    "draftTitle": "Reply asking for the missing details",
+    "draftTitle": "Reply Asking for the Missing Details",
     "handoverRestricted": "This handover is restricted to the owner. Send the request to the owner and phone them, as KB-01 says.",
     "whichKind": "Which kind of request is it?",
     "requestType": "Request type",

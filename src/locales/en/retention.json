@@ -24,7 +24,7 @@
   },
   "distribution": "Retention risk distribution",
   "distributionAria": "High risk {{high}}, medium risk {{medium}}, no current flags {{low}}.",
-  "summaryTitle": "Compass summary",
+  "summaryTitle": "Compass Summary",
   "summaryNote": "Written by Compass from the lesson records and parent concerns. It supports your judgement and doesn't predict who will leave.",
   "alert": {
     "label": "Retention alert",
@@ -191,7 +191,7 @@
     "summaryApproved_other": "{{count}} approved ({{email}} by email, {{sms}} by SMS).",
     "sendApproved_one": "Send Approved Message ({{count}})",
     "sendApproved_other": "Send Approved Messages ({{count}})",
-    "emptyTitle": "No check-ins in progress",
+    "emptyTitle": "No Check-ins in Progress",
     "emptyText": "Choose a flagged student in Students at Risk and select Prepare Personalised Check-in.",
     "sendingN": "Sending {{n}} of {{total}}…",
     "simulatedTitle_one": "{{count}} simulated send complete.",
@@ -203,7 +203,7 @@
     "failedN_one": "{{count}} couldn't be sent. See the message for the reason.",
     "failedN_other": "{{count}} couldn't be sent. See the messages for the reasons.",
     "viewHistory": "View Communication History",
-    "checkInFor": "Check-in for {{name}}'s family",
+    "checkInFor": "Check-in for {{name}}'s Family",
     "seeFindings": "See the findings",
     "sourceAi": "Written by Compass AI with names and the subject only",
     "sourceOwner": "Edited by you",
@@ -251,7 +251,7 @@
     "switchTitle": "Switch to {{channel}}?",
     "switchConfirm": "Switch and Clear Approval",
     "switchText": "Compass will rewrite the message for the new channel and send it to the matching contact detail. The current approval will be cleared, so you'll review and approve it again.",
-    "removeTitle": "Remove this draft?",
+    "removeTitle": "Remove This Draft?",
     "removeConfirm": "Remove Draft",
     "removeText": "The unsent check-in to {{name}} will be removed. Nothing has been sent, and the student's flag stays as it is."
   },
@@ -269,7 +269,7 @@
     "liveNote": "This sends a real message to the family. It can't be undone."
   },
   "track": {
-    "outcomes": "Retention outcomes",
+    "outcomes": "Retention Outcomes",
     "outcomesHint": "What happened in the {{days}} days before and after each check-in.",
     "viewLabel": "Follow-up view",
     "dayView": "{{days}}-day view",
@@ -298,7 +298,7 @@
     "stillEnrolled": "Continuing",
     "left": "Discontinued",
     "caveat": "These figures show what happened after each check-in. They don't prove the check-in caused the change, because lessons, exams and family plans also play a part.",
-    "history": "Communication history",
+    "history": "Communication History",
     "noHistory": "No check-ins yet.",
     "parent": "Parent or guardian",
     "type": "Type",
@@ -331,11 +331,11 @@
     "log_other": "Activity log ({{count}} entries)"
   },
   "reset": {
-    "title": "Reset the demo",
+    "title": "Reset the Demo",
     "text": "Puts the fictional students, lessons, concerns and check-ins back as they started. Real records are never touched.",
     "done": "The demo has been reset. Only fictional records were restored.",
     "button": "Reset Demo",
-    "confirmTitle": "Reset the Student Retention demo?",
+    "confirmTitle": "Reset the Student Retention Demo?",
     "confirmText": "Drafts, approvals, simulated sends, dismissed flags and replies in the demo will be cleared and the fictional records restored. Records that aren't demo data stay as they are.",
     "confirm": "Reset Demo"
   },

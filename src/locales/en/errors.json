@@ -1,7 +1,7 @@
 {
-  "pageTitle": "Something went wrong",
+  "pageTitle": "Something Went Wrong",
   "pageBody": "The page could not be shown. Nothing has been changed by this error.",
-  "notFoundTitle": "Not found",
+  "notFoundTitle": "Not Found",
   "notFoundBody": "That page or record does not exist.",
   "goToDashboard": "Go to the dashboard",
   "sameOrigin": "Requests must come from the Tutor Compass app.",

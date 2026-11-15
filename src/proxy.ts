@@ -14,7 +14,11 @@ import { resetDemoData } from "@/lib/demo/reset";
 // inside the app doesn't reset anything.
 
 // Pages anyone can open. API routes are never redirected here; each one checks access itself.
-const PUBLIC_PATHS = ["/login", "/reset-password", "/support", "/privacy", "/terms", "/api/auth/login", "/api/auth/logout", "/api/health"];
+const PUBLIC_PATHS = ["/login", "/landing-preview", "/reset-password", "/support", "/privacy", "/terms", "/api/auth/login", "/api/auth/logout", "/api/health"];
+
+// Pages that use their own full-screen layout whether or not someone is signed in.
+const BARE_PATHS = ["/login", "/landing-preview"];
+const BARE_HEADER = "x-tc-bare-layout";
 
 async function refresh(refreshToken: string) {
   const url = process.env.SUPABASE_URL;
@@ -68,6 +72,10 @@ export async function proxy(req: NextRequest) {
         console.warn(`Demo reset skipped: ${reset.reason}`);
       }
     }
+    // Full-screen pages draw their own layout, even for someone signed in, so the app's
+    // rail and header are left off. The layout reads this header.
+    if (BARE_PATHS.includes(pathname)) req.headers.set(BARE_HEADER, "1");
+    else req.headers.delete(BARE_HEADER);
     res = NextResponse.next({ request: { headers: req.headers } });
   }
   if (demoEpoch) {

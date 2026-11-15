@@ -37,7 +37,7 @@
     "protected": "Protected balances",
     "protectedNote_one": "{{count}} family with an extension or dispute",
     "protectedNote_other": "{{count}} families with an extension or dispute",
-    "recent": "Recent invoices",
+    "recent": "Recent Invoices",
     "viewAll": "View all invoices"
   },
   "agent": {
@@ -63,7 +63,7 @@
     "demoData": "demo data, not connected"
   },
   "attention": {
-    "title": "What needs attention?",
+    "title": "What Needs Attention?",
     "pending_one": "{{count}} pending",
     "pending_other": "{{count}} pending",
     "none": "Nothing needs attention right now.",
@@ -134,7 +134,7 @@
     }
   },
   "scan": {
-    "title": "One-click accounting scan",
+    "title": "One-Click Accounting Scan",
     "text": "Compass runs all five checks in order. Nothing is sent and no record changes during the scan.",
     "button": "Complete Entire Scan",
     "running": "Scanning…",
@@ -177,7 +177,7 @@
     "log_other": "Activity log ({{count}} entries)"
   },
   "families": {
-    "title": "Overdue invoices by family",
+    "title": "Overdue Invoices by Family",
     "text": "Invoices are grouped by the person who pays, so a parent with two children gets one reminder. Protected accounts can't be selected.",
     "rescan": "Scan Again",
     "selectAll": "Select all eligible families",
@@ -205,7 +205,7 @@
     "student": "Student"
   },
   "messages": {
-    "title": "Personalised drafts",
+    "title": "Personalised Drafts",
     "text": "Compass wrote one message per person and channel, with the right names, invoices and amounts. Preview, edit or leave out any of them.",
     "count_one": "message for {{families}} families",
     "count_other": "messages for {{families}} families",
@@ -220,12 +220,12 @@
     "save": "Save Changes",
     "cancel": "Cancel",
     "preview": "Preview message",
-    "skipped": "Not prepared",
+    "skipped": "Not Prepared",
     "back": "Back to Families",
     "next": "Continue to Approval"
   },
   "approval": {
-    "title": "Owner approval",
+    "title": "Owner Approval",
     "text": "One approval covers the whole batch. Compass checks balances, permissions and arrangements again just before anything goes.",
     "families": "Families selected",
     "invoices": "Outstanding invoices",
@@ -234,10 +234,10 @@
     "sms": "SMS messages",
     "students_one": "Includes {{count}} student note",
     "students_other": "Includes {{count}} student notes",
-    "excluded": "Left out and why",
+    "excluded": "Left Out and Why",
     "noneExcluded": "Every eligible family is included.",
     "leftOutMsg": "{{channel}} left out by you",
-    "checks": "Permissions and warnings",
+    "checks": "Permissions and Warnings",
     "check": {
       "permissions": "Only channels each family has agreed to",
       "duplicates": "One message per email address or phone number",
@@ -254,7 +254,7 @@
     "back": "Back to Messages"
   },
   "monitor": {
-    "title": "Delivery and monitoring",
+    "title": "Delivery and Monitoring",
     "text": "Compass checks Gmail and SMS for replies and Xero for payments, stops reminders once an invoice is paid and escalates families your rules say need a decision.",
     "textDemo": "In demo mode, Compass checks a fictional inbox and you can simulate a payment. Nothing reaches Xero, Gmail or a phone.",
     "check": "Check for Replies and Payments",
@@ -269,10 +269,10 @@
     "channel": "Channel",
     "invoices": "Invoices",
     "result": "Result",
-    "tasks": "Follow-up tasks",
+    "tasks": "Follow-up Tasks",
     "noTasks": "No follow-ups yet. Check for replies to look for new ones.",
     "done": "Mark Done",
-    "simTitle": "Simulate a payment (demo only)",
+    "simTitle": "Simulate a Payment (Demo Only)",
     "simText": "Records a payment as if Xero had confirmed it. Only invoices that had a reminder count towards Payments Recovered.",
     "allPaid": "Every reminded invoice has been paid.",
     "amount": "Amount (AUD)",
@@ -285,7 +285,7 @@
   },
   "activity": {
     "eyebrow": "Business impact",
-    "title": "What Compass has done",
+    "title": "What Compass Has Done",
     "text": "Measured results come straight from your records. Time and money saved are estimates.",
     "measured": "Measured",
     "measuredNote": "Counted from the records",
@@ -307,18 +307,18 @@
     "valueSaved": "Estimated value of time saved",
     "hours": "{{n}} hours",
     "formula": "Estimate: {{invoice}} minutes per invoice reviewed plus {{family}} minutes per family contacted, at {{rate}} an hour.",
-    "timeline": "Activity timeline",
+    "timeline": "Activity Timeline",
     "noEvents": "Nothing yet. Start a scan on the Autonomous Recovery tab.",
     "modeDemo": "Demo",
     "modeLive": "Live",
     "modeSystem": "System",
-    "payments": "Verified payments",
+    "payments": "Verified Payments",
     "noPayments": "No payments verified yet.",
     "attributed": "Counted as recovered",
     "notAttributed": "Not counted: no reminder came first",
     "sourceDemo": "simulated in demo",
     "sourceXero": "verified in Xero",
-    "messages": "Message history",
+    "messages": "Message History",
     "noMessages": "No messages have gone out yet."
   }
 }

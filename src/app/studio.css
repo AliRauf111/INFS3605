@@ -48,6 +48,7 @@ body.app-shell { font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .rail-line { width:23px; height:1px; background:#d8d4e5; margin:29px 0; }
 .rail-links { display:flex; flex-direction:column; gap:14px; background:#ffffff65; padding:8px; border-radius:28px; margin-block:auto; } /* centred in the space between the divider and the buttons at the bottom */
 .rail-btn { position:relative; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:transparent; color:#777589; }
+.rail-btn svg { width:23px; height:23px; } /* 15% bigger than the shared 20px (Ali, 2026-11-07) */
 .rail-btn.active { background:#2d2d42; color:white; box-shadow:0 4px 7px #30304b20; }
 .rail-btn span { position:absolute; inset-inline-start:54px; white-space:nowrap; background:var(--ink); color:white; padding:7px 12px; border-radius:9px; opacity:0; pointer-events:none; transition:opacity .15s; font-size:var(--fs-meta); z-index:70; }
 .rail-btn:hover span, .rail-btn:focus-visible span { opacity:1; }
@@ -64,10 +65,10 @@ body.app-shell { font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .wordmark { text-decoration:none; font-weight:760; font-size:1.25rem; letter-spacing:-.9px; white-space:nowrap; }
 .wordmark>span:not(.edition) { font-weight:420; }
 .edition { display:block; font-size:0.5rem; letter-spacing:3.5px; font-weight:500; margin-block:4px 0; margin-inline:2px 0; color:#9290a5; }
-.topbar .tabs { display:flex; gap:3px; padding:6px; background:#ffffffa1; border:1px solid #ffffffce; border-radius:40px; }
-.topbar .tabs :is(button, a) { background:transparent; color:#898798; font-size:var(--fs-meta); padding:12px 20px; border-radius:28px; white-space:nowrap; }
+.topbar .tabs { display:flex; gap:3.3px; padding:6.6px; background:#ffffffa1; border:1px solid #ffffffce; border-radius:44px; } /* tab bar sizes are 10% up on the original design (Ali, 2026-11-07) */
+.topbar .tabs :is(button, a) { background:transparent; color:#898798; font-size:calc(var(--fs-meta) * 1.1); padding:13.2px 22px; border-radius:31px; white-space:nowrap; }
 .topbar .tabs :is(button, a).active { background:#2b2c40; color:white; box-shadow:0 3px 8px #24243814; }
-.topbar .tabs :is(button, a)>span { font-size:var(--fs-label); margin-inline-start:5px; background:#ded8ef; color:#6d5a93; border-radius:6px; padding:2px 5px; }
+.topbar .tabs :is(button, a)>span { font-size:calc(var(--fs-label) * 1.1); margin-inline-start:5.5px; background:#ded8ef; color:#6d5a93; border-radius:6.6px; padding:2.2px 5.5px; }
 .topbar .tabs :is(button, a).active>span { background:#ffffff2b; color:white; }
 .top-actions { display:flex; align-items:center; gap:17px; }
 .demo-pill { background:none; font-size:var(--fs-meta); color:#777383; white-space:nowrap; display:flex; align-items:center; gap:7px; }
@@ -241,7 +242,7 @@ html[data-motion="reduce"] :is(.studio, .compass-root) .bot, html[data-motion="r
 }
 @media (max-width:1250px) {
   .topbar { padding:24px; }
-  .topbar .tabs :is(button, a) { padding:11px 15px; }
+  .topbar .tabs :is(button, a) { padding:12.1px 16.5px; }
   .demo-pill { display:none; }
   .workspace > main { padding:15px 24px; }
   .studio .dashboard-grid { grid-template-columns:240px 1fr; }
@@ -259,7 +260,7 @@ html[data-motion="reduce"] :is(.studio, .compass-root) .bot, html[data-motion="r
 @media (max-width:900px) {
   .wordmark { font-size:1rem; }
   .edition { font-size:0.4375rem; }
-  .topbar .tabs :is(button, a) { padding:10px 12px; font-size:var(--fs-label); }
+  .topbar .tabs :is(button, a) { padding:11px 13.2px; font-size:calc(var(--fs-label) * 1.1); }
   .topbar .tabs :is(button, a)>span { display:none; }
   .notification { display:none; }
   .topbar { gap:12px; }
@@ -281,7 +282,7 @@ html[data-motion="reduce"] :is(.studio, .compass-root) .bot, html[data-motion="r
   .rail-line { margin:24px 0; }
   .rail-links { padding:4px; gap:10px; }
   .rail-btn { height:36px; width:36px; }
-  .rail-btn svg { height:18px; width:18px; }
+  .rail-btn svg { height:20.7px; width:20.7px; }
   .rail-btn span { inset-inline-start:43px; }
   .rail-bottom .avatar { width:28px; height:28px; font-size:0.5625rem; }
   .workspace { margin-inline-start:60px; }
@@ -290,7 +291,7 @@ html[data-motion="reduce"] :is(.studio, .compass-root) .bot, html[data-motion="r
   .top-actions { order:1; margin-inline-start:auto; }
   .profile .avatar { width:31px; height:31px; }
   .topbar .tabs { order:2; width:100%; min-width:0; justify-content:space-around; padding:4px; flex-wrap:wrap; row-gap:2px; border-radius:24px; } /* longer names (Tamil, for example) wrap to a second row rather than shrinking */
-  .topbar .tabs :is(button, a) { padding:10px; font-size:var(--fs-label); }
+  .topbar .tabs :is(button, a) { padding:11px; font-size:calc(var(--fs-label) * 1.1); }
   .edition { display:none; }
   .workspace > main { padding:14px 17px; }
   .studio .page-head { align-items:start; flex-direction:column; gap:15px; margin-bottom:20px; }
@@ -470,7 +471,7 @@ html[data-focus="on"] .studio .overview-dashboard .ai-card h2 br { display:none;
 html[data-controls="large"] button:not(.display-switch):not(.rail-btn):not(.brand):not(.profile) { min-height:44px; }
 html[data-controls="large"] .icon-btn, html[data-controls="large"] .studio .round-btn, html[data-controls="large"] .rail-btn { min-width:44px; min-height:44px; }
 html[data-controls="large"] .studio .btn, html[data-controls="large"] .compass-root .text-btn { font-size:max(13px,1em); padding:13px 17px; }
-html[data-controls="large"] .topbar .tabs :is(button, a) { padding:12px 19px; font-size:0.75rem; }
+html[data-controls="large"] .topbar .tabs :is(button, a) { padding:13.2px 20.9px; font-size:0.825rem; }
 html[data-controls="large"] .rail-links { gap:17px; }
 html[data-controls="large"] .studio .schedule-row { padding:20px 0; }
 html[data-controls="large"] .display-switch { width:56px; height:34px; flex-basis:56px; }
@@ -553,7 +554,7 @@ html[data-motion="reduce"] :where(.rail, .topbar, .studio-foot, .studio, .access
   html[data-focus="on"] .studio .overview-dashboard .ai-card { display:block; }
   html[data-controls="large"] .rail-btn { min-width:36px; min-height:44px; }
   html[data-controls="large"] .rail-links { gap:8px; }
-  html[data-controls="large"] .topbar .tabs :is(button, a) { padding:10px 8px; font-size:0.625rem; }
+  html[data-controls="large"] .topbar .tabs :is(button, a) { padding:11px 8.8px; font-size:0.6875rem; }
 }
 .studio .head-actions { max-width:100%; }
 .studio .head-actions .btn { white-space:normal; line-height:1.5; }
@@ -850,3 +851,31 @@ html[data-motion="reduce"] .studio .wb-sk { animation: none; }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.ready { background: #3d3220; color: #f2c86b; }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.up_to_date { background: #1d3a29; color: #6fd796; }
 :root[data-theme="contrast"] .studio .wb-tile { background: #08080c; border-color: #c3b7d2; }
+
+/* Requests page: all text 10% larger than the other workspace pages (Ali asked,
+   2026-11-07). Same selectors as the shared rules above, so these win by coming later. */
+.workspace > main > .requests-page { font-size: 1.1rem; }
+.workspace > main > .requests-page h1 { font-size: 2.3375rem; }
+.workspace > main > .requests-page h2 { font-size: 1.169rem; }
+.workspace > main > .requests-page h3 { font-size: 0.9625rem; }
+.workspace > main > .requests-page .page-title > p, .workspace > main > .requests-page .page-title .muted { font-size: 0.825rem; }
+.workspace > main > .requests-page .btn:not(.accessibility-trigger) { font-size: 0.825rem; }
+.workspace > main > .requests-page .btn.small { font-size: 0.756rem; }
+.workspace > main > .requests-page th { font-size: 0.619rem; }
+.workspace > main > .requests-page td { font-size: 0.825rem; }
+.workspace > main > .requests-page .badge { font-size: 0.756rem; }
+.workspace > main > .requests-page :is(input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="search"], select, textarea) { font-size: 0.894rem; }
+.workspace > main > .requests-page label { font-size: 0.894rem; }
+.workspace > main > .requests-page .hint { font-size: 0.968rem; }
+.workspace > main > .requests-page .filter-note { font-size: 1.012rem; }
+.workspace > main > .requests-page .menu-note { font-size: 0.825rem; }
+.workspace > main > .requests-page .link-btn { font-size: 0.968rem; }
+/* Saved Requests table: a further 10% on top of the page-wide bump (Ali, 2026-11-07). */
+.workspace > main > .requests-page #saved-heading { font-size: 1.286rem; }
+.workspace > main > .requests-page .filter-form select { font-size: 0.983rem; }
+.workspace > main > .requests-page .filter-form .btn.small { font-size: 0.832rem; }
+.workspace > main > .requests-page .request-table th { font-size: 0.681rem; padding: 14.3px 16.5px; }
+.workspace > main > .requests-page .request-table td { font-size: 0.908rem; padding: 18.7px 16.5px; }
+.workspace > main > .requests-page .request-table .badge { font-size: 0.832rem; padding: 4.4px 9.9px; }
+.workspace > main > .requests-page .request-table .sel-cell { width: 48px; padding: 0; }
+.workspace > main > .requests-page .sel-box { width: 19.8px; height: 19.8px; }

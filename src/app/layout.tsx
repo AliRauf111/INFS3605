@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import "./globals.css";
 import "./studio.css";
 import "./i18n.css";
@@ -39,7 +40,9 @@ function initials(name: string): string {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const user = supabaseConfigured() ? await getSessionUser().catch(() => null) : null;
+  // A full-screen page (the landing preview) is drawn without the signed-in shell.
+  const bare = (await headers()).get("x-tc-bare-layout") === "1";
+  const user = !bare && supabaseConfigured() ? await getSessionUser().catch(() => null) : null;
   // Requests still in one of the three status groups, for the count beside Requests and the bell's dot.
   const waiting = user
     ? await listRequests({ limit: 200 })

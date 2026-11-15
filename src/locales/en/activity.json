@@ -1,5 +1,5 @@
 {
-  "title": "Agent activity",
+  "title": "Agent Activity",
   "hint": "Real steps recorded by the server, in order. Model reasoning is not shown.",
   "none": "No activity recorded yet.",
   "state": {

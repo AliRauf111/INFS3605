@@ -14,7 +14,17 @@ const HEADINGS: Record<Mode, { title: TKey; sub?: TKey }> = {
   forgot: { title: "auth.heading.forgot", sub: "auth.heading.forgotSub" },
 };
 
-export function AuthPanel({ next, initialMode, message, demo }: { next: string; initialMode: Mode; message: Message; demo?: React.ReactNode }) {
+/** Asks the sign-in panel on this page to show a tab, for buttons outside it ("Create account"). */
+export const AUTH_MODE_EVENT = "auth:mode";
+
+export function AuthPanel({ next, initialMode, message, demo, intro }: {
+  next: string;
+  initialMode: Mode;
+  message: Message;
+  demo?: React.ReactNode;
+  /** A heading and line shown above the tabs instead of the usual heading (not on Forgot password). */
+  intro?: { title: string; sub: string };
+}) {
   const [mode, setMode] = useState<Mode>(initialMode);
   const [note, setNote] = useState<Message>(message);
   const { t } = useI18n();
@@ -23,6 +33,19 @@ export function AuthPanel({ next, initialMode, message, demo }: { next: string; 
     setNote(null);
   };
   const h = HEADINGS[mode];
+
+  // Buttons elsewhere on the page can switch the tab without reloading.
+  useEffect(() => {
+    const onMode = (e: Event) => {
+      const m = (e as CustomEvent<Mode>).detail;
+      if (m === "signin" || m === "signup" || m === "forgot") {
+        setMode(m);
+        setNote(null);
+      }
+    };
+    window.addEventListener(AUTH_MODE_EVENT, onMode);
+    return () => window.removeEventListener(AUTH_MODE_EVENT, onMode);
+  }, []);
 
   // A message from a link or a sign-in attempt shows once. Take it out of the address so a
   // reload (or a bookmark) doesn't bring it back.
@@ -36,8 +59,17 @@ export function AuthPanel({ next, initialMode, message, demo }: { next: string; 
 
   return (
     <>
-      <h2 id="signin-heading">{t(h.title)}</h2>
-      {h.sub ? <p className="landing-sub">{t(h.sub)}</p> : <div className="landing-sub-gap" />}
+      {intro && mode !== "forgot" ? (
+        <>
+          <h2 id="signin-heading">{intro.title}</h2>
+          <p className="landing-sub">{intro.sub}</p>
+        </>
+      ) : (
+        <>
+          <h2 id="signin-heading">{t(h.title)}</h2>
+          {h.sub ? <p className="landing-sub">{t(h.sub)}</p> : <div className="landing-sub-gap" />}
+        </>
+      )}
 
       {mode !== "forgot" && (
         <div className="auth-tabs" role="tablist" aria-label={t("auth.tabsLabel")}>

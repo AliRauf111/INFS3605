@@ -27,7 +27,7 @@
   "viewAllCount_other": "View all {{count}} requests",
   "viewAll": "View all requests",
   "capacity": {
-    "heading": "A little room to grow",
+    "heading": "A Little Room to Grow",
     "caption": "Booked lessons against your available tutor hours",
     "periodLabel": "Capacity chart period",
     "booked": "Booked",
@@ -75,8 +75,8 @@
     "note": "From the tutor calendar · hover the chart to explore"
   },
   "today": {
-    "headingToday": "Coming up today",
-    "headingNext": "Coming up next",
+    "headingToday": "Coming Up Today",
+    "headingNext": "Coming Up Next",
     "snapshot": {
       "morning": "A snapshot of your morning",
       "afternoon": "A snapshot of your afternoon",
