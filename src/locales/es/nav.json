@@ -5,6 +5,7 @@
   "schedule": "Horario",
   "knowledgeHub": "Centro de conocimiento",
   "subjects": "Asignaturas",
+  "payments": "Pagos",
   "insights": "Análisis",
   "rulesCoverage": "Reglas y cobertura",
   "viewOnly": "{{page}} (solo lectura)",

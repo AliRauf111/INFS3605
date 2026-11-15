@@ -8,6 +8,7 @@ nav.approvalAlley=Approval Alley
 nav.schedule=షెడ్యూల్
 nav.knowledgeHub=Knowledge Hub
 nav.subjects=సబ్జెక్టులు
+nav.payments=చెల్లింపులు
 nav.insights=విశ్లేషణలు
 nav.rulesCoverage=నియమాలు మరియు పరిధి
 nav.viewOnly={{page}} (చూడటానికి మాత్రమే)

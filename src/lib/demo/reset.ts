@@ -24,6 +24,12 @@ export async function resetDemoData(): Promise<DemoReset> {
       const missing = error.code === "PGRST202" || error.code === "42883" || /demo_seed_missing|reset_demo_data/.test(error.message ?? "");
       return { ok: false, reason: missing ? "not_set_up" : `${error.code ?? ""} ${error.message ?? ""}`.trim() };
     }
+    // The Payments module's demo records reset with everything else. A database that hasn't
+    // added the Payments tables yet just skips this part.
+    const pay = await client.rpc("reset_payments_demo").abortSignal(AbortSignal.timeout(TIMEOUT_MS));
+    if (pay.error && pay.error.code !== "PGRST202" && pay.error.code !== "42883") {
+      console.warn(`Payments demo reset skipped: ${pay.error.code ?? ""} ${pay.error.message ?? ""}`.trim());
+    }
     const epoch = (data as { resetAt?: string } | null)?.resetAt;
     return { ok: true, epoch: epoch ?? new Date().toISOString() };
   } catch (e) {

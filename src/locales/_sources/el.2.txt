@@ -8,6 +8,7 @@ nav.approvalAlley=Εγκρίσεις
 nav.schedule=Πρόγραμμα
 nav.knowledgeHub=Κέντρο γνώσης
 nav.subjects=Μαθήματα
+nav.payments=Πληρωμές
 nav.insights=Αναλύσεις
 nav.rulesCoverage=Κανόνες και κάλυψη
 nav.viewOnly={{page}} (μόνο προβολή)

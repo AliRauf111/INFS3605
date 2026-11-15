@@ -8,6 +8,7 @@ nav.approvalAlley=Approval Alley
 nav.schedule=课程表
 nav.knowledgeHub=Knowledge Hub
 nav.subjects=科目
+nav.payments=付款
 nav.insights=数据洞察
 nav.rulesCoverage=规则与覆盖
 nav.viewOnly={{page}}（仅查看）

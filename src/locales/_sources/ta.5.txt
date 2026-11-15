@@ -8,6 +8,7 @@ nav.approvalAlley=Approval Alley
 nav.schedule=அட்டவணை
 nav.knowledgeHub=Knowledge Hub
 nav.subjects=பாடங்கள்
+nav.payments=கட்டணங்கள்
 nav.insights=நுண்ணறிவுகள்
 nav.rulesCoverage=விதிகளும் பரப்பும்
 nav.viewOnly={{page}} (பார்வைக்கு மட்டும்)
