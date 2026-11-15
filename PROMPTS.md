@@ -7,11 +7,11 @@ All prompts were written by Ali (group H18A-5) unless an entry says otherwise. T
 ## Contents
 
 1. Tools
-2. How we worked
-3. Prompts used to build the app (sections 3.1 to 3.16)
-4. Prompts inside the app
-5. Human oversight and limits
-6. What we learned about prompting
+2. How We Worked
+3. Prompts Used To Build The App (sections 3.1 to 3.16)
+4. Prompts Inside The App
+5. Human Oversight And Limits
+6. What We Learned About Prompting
 
 ## 1. Tools
 
@@ -20,7 +20,7 @@ All prompts were written by Ali (group H18A-5) unless an entry says otherwise. T
 - **ChatGPT, outside this project.** The Studio visual reference used in the 29 October prompts was a ChatGPT-hosted demo site. The 19 October audit document was written so it could be uploaded to ChatGPT for design advice.
 - **Anthropic API inside the app.** Compass AI calls Claude from the server only, and only when `ANTHROPIC_API_KEY` is set. Without a key, every AI feature falls back to a clearly labelled demo or template mode. Section 4 lists these prompts.
 
-## 2. How we worked
+## 2. How We Worked
 
 Most features followed the same loop:
 
@@ -31,9 +31,9 @@ Most features followed the same loop:
 
 Ali is new to Supabase and Vercel, so many follow-up prompts asked for setup steps in very plain words, for example *"tell me how to do it step by step like a kid"*. Those setup conversations are not listed below because they did not change the app.
 
-## 3. Prompts used to build the app
+## 3. Prompts Used To Build The App
 
-### 3.1 Research and first idea: Traffic Lights (15 October)
+### 3.1 Research And First Idea: Traffic Lights (15 October)
 
 - **Prompt (summary):** Ali pasted the team's Week 2 research on small tutoring businesses. It covered how many tutoring businesses operate in Australia, a day in the life of an owner (tutor management, parent communication, scheduling, escalations), current AI adoption among small businesses and the main barriers (trust, relevance, skills, time, data and privacy, cost), with sources. Ali asked for app ideas based on it.
 - **Produced:** Four app ideas in `app-ideas.md`: a rulebook and approvals app, a guided decision wizard, an owner's inbox board and an "Ask the Rulebook" chat. Claude recommended the first with the wizard from the second, and explained how each idea handled the peer question about unclear rules.
@@ -41,7 +41,7 @@ Ali is new to Supabase and Vercel, so many follow-up prompts asked for setup ste
 - **Produced next:** A Flask and SQLite prototype. Staff type a request, the AI reads it and fills in the wizard, fixed rules give green, amber or red, and the AI writes a short brief for the owner on red cases. The sample rules came from the team's owner interview (refunds, tutor swaps, exam booklets, payments). It now lives in `prototypes/flask-traffic-lights`.
 - **Checked or changed:** 25 rule tests passed. Claude said plainly that the AI step had only been tested against a fake response, because there was no API key yet. The prototype was replaced by Tutor Compass the same day.
 
-### 3.2 Build Tutor Compass (15 October, PRs #1 and #2)
+### 3.2 Build Tutor Compass (15 October, PRs #1 And #2)
 
 - **Prompt (trimmed):** *"Build a working web app called Tutor Compass, an AI-assisted administrative decision platform for small tutoring businesses. Act as a product designer, full-stack developer and business analyst. Implement the app, rather than stopping at a plan or static mock-up. Keep the scope manageable for a university alpha by building the core workflow first, then adding the remaining features in stages."*
 - **Key requirements in the same prompt:**
@@ -55,7 +55,7 @@ Ali is new to Supabase and Vercel, so many follow-up prompts asked for setup ste
 - **Produced:** The full first version: database migrations and fictional seed data, the rule engine, the five-step wizard, AI intake, request log, owner approval queue, rule editor with versions, knowledge hub, drafts, activity panel and coverage dashboard. Claude also wrote README.md, SPEC.md and the first version of this file.
 - **Checked or changed:** 72 unit tests and a 47-step end-to-end test, run against a local stand-in for Supabase. The tests covered every threshold, the complaint and welfare rules, duplicate submissions, admins being blocked from owner actions and pasted messages saying "ignore the rules". Claude listed what was not yet tested: hosted Supabase, Vercel, live AI and real phones. Ali then set up Supabase and Vercel with step-by-step help and sent screenshots at each step. When sign-in failed on the hosted site, Claude found the Supabase address had extra text in it and fixed this in PR #2.
 
-### 3.3 Making it easier to use (18 to 19 October, PR #4)
+### 3.3 Making It Easier To Use (18 To 19 October, PR #4)
 
 This was the longest run of follow-up prompts. Ali tested the preview screen by screen and asked for changes as they came up.
 
@@ -85,14 +85,14 @@ This was the longest run of follow-up prompts. Ali tested the preview screen by 
 - **A question, not a change:** *"why did we change the colour ways of the website... just tell me the reason don't make any changes yet"*. Claude explained that the original colours were unchanged and that the panel's "Follow Device" setting had switched on dark mode. No code was changed.
 - **Checked:** The build and all 72 tests passed after each change. Claude was open that it could not open the preview from its own network, so Ali checked most changes visually and reported back.
 
-### 3.4 Read-only system audit (19 October)
+### 3.4 Read-Only System Audit (19 October)
 
 - **Prompt (trimmed):** *"Perform a thorough, read-only audit of the entire TutorCompass project. Create a technical handover document that I can give to another AI assistant so it can understand the application and help design an AI agent that operates across the website, with approval before changes are committed... Do not implement changes yet... Never include API keys, passwords, tokens, connection strings or private user data... Do not invent functionality. Mark anything you cannot verify as Unknown, Not Implemented or Not Inspected, and explain why."*
 - **The prompt asked for eight parts:** architecture, a page and feature inventory, the data model, business rules, the existing chatbot, a full action inventory, a proposed approval design and a list of gaps in priority order.
 - **Produced:** `TutorCompass_Full_System_Handover.md` (about 94 KB). It also found inconsistencies, for example in how welfare cases were handled.
 - **Checked or changed:** No code was changed. The document became the input for the Compass AI prompt in 3.5. That prompt told Claude to check the document against the current code first, because the code may have changed since.
 
-### 3.5 Compass AI owner assistant (20 October, PR #5)
+### 3.5 Compass AI Owner Assistant (20 October, PR #5)
 
 - **Prompt (trimmed):** *"Extend the existing TutorCompass project with three connected Compass AI capabilities: 1. Decision-ready owner reviews. 2. Routine enquiry and request assistance. 3. An owner briefing and follow-up assistant. The goal is to reduce the owner's investigation work, repeated interruptions and time spent checking queues, while keeping people in control of saved changes."*
 - **Key requirements in the same prompt:**
@@ -113,19 +113,19 @@ This was the longest run of follow-up prompts. Ali tested the preview screen by 
   - The glass workspace prompt: *"Expand the chatbot into a workspace covering almost the entire browser viewport... Blur and gently dim the underlying website... Provide a sufficiently opaque fallback where backdrop-filter is unsupported."* This was checked with the keyboard, at phone size, with 150% text, reduced motion and the dark and high contrast themes. 244 tests passed.
 - **For the class demo:** *"for all 3 simulations can you tell me here step by step what to select so I can do the same in front of the class"*. Claude wrote `class-demo-script.md`.
 
-### 3.6 Reset demo mode on refresh (27 October, PR #6)
+### 3.6 Reset Demo Mode On Refresh (27 October, PR #6)
 
 - **Prompt (trimmed):** *"Make TutorCompass demo mode reset to its original starting state whenever the browser page is refreshed. CURRENT ISSUE: The Lesson Change workflow finds booking BK-1042 for Leo Nguyen with Priya Shah, but reports 'no upcoming lessons'... 1. FIND AND FIX THE CAUSE... Generate demo dates relative to the current week so the demonstration continues working on future presentation dates... Prefer an in-memory demo store... Prevent demo actions from changing live Supabase records or sending real messages... Do not clear authentication, unrelated storage or accessibility preferences."*
 - **Produced:** Claude found the cause. Lesson LSN-4001 took its date from a slot set once, around 21 October, and that date had passed. Re-running the SQL never overwrote existing rows. Demo data is now rebuilt with dates worked out in Sydney time on every full page load. Only rows labelled as fictional demo data are reset.
 - **Where Claude did not follow the prompt:** Ali suggested an in-memory store. Claude explained why it used Supabase instead: Vercel does not share memory between requests, so changes would have vanished at random. It pointed out the trade-off, which is that refreshing one window resets the other too, and added a note to the class demo script.
 - **Checked:** All three workflows were run on a local copy, refreshed and run again, three times in a row. 33 browser checks, database checks and 249 unit tests passed. Records not labelled as demo data were never touched. Claude noted it had not yet checked tutorcompass.app itself.
 
-### 3.7 Project handover (29 October)
+### 3.7 Project Handover (29 October)
 
 - **Prompt (trimmed):** *"Create a professional handover document for Tutor Compass that allows a new developer, project team or assessor to understand the project and continue working on it without relying on our previous conversations... Use the codebase as the main source of truth. Use our conversation history to explain design decisions, but clearly distinguish between requested features and what has actually been implemented. Do not modify the application."*
 - **Produced:** `Tutor_Compass_Handover.md`, which covers features, architecture, data and access controls, key user journeys, setup, known issues and next steps. No code was changed. It was used as the input for the next prompt.
 
-### 3.8 Studio design, Insights and Schedule (29 to 30 October, PR #7)
+### 3.8 Studio Design, Insights And Schedule (29 To 30 October, PR #7)
 
 - **First prompt (trimmed):** *"Implement the Tutor Compass demo's design and user experience in my existing Tutor Compass website... This is an upgrade to the existing application, not a replacement website or standalone mock-up... Do not copy the demo's fictional names, booking references, Years 9–10 examples, fixed dates or sample figures into the application... Reserve green for traffic-light status indicators... The demo simplified some classifications. Do not copy those simplifications into the existing application... Green means the rules permit an action. It must not trigger automatic changes or bypass confirmation... Preserve the existing 100%–200% text-size range. Do not reduce it to the demo's 150% maximum."*
 - **Produced:** Red, Yellow and Green cards on the Overview that filter requests, a new Insights page using real records in Sydney time, the Compass button moved into its own card and a restyled accessibility panel. 270 tests passed. Claude said it could not open the reference site from its network and had worked from Ali's screenshots.
@@ -143,19 +143,19 @@ This was the longest run of follow-up prompts. Ali tested the preview screen by 
 - **Checked:** 200 page checks in all ten languages on desktop, tablet and phone found four problems, which were fixed. Tests check that IDs, numbers and permissions are unchanged in every language. 392 tests passed after the four new languages were added.
 - **Limits stated:** Every language other than English is a first draft and needs checking by a native speaker. Payments, Retention and the Weekly Briefing were added later and their text is English only.
 
-### 3.10 Font sizes and greeting (30 October to 5 November, PRs #9 and #10)
+### 3.10 Font Sizes And Greeting (30 October To 5 November, PRs #9 And #10)
 
 - **Font prompt (trimmed):** *"Increase the font size across the Tutor Compass dashboard so everything is comfortable to read, but keep the current layout intact. Goal: a modest, consistent bump, not a redesign... Scale up the smallest text the most... Use the existing type scale or CSS variables if there are any... If a size increase causes layout problems in a particular component, pull that component back to the largest size that still fits cleanly rather than forcing it. Keep colour contrast at WCAG AA or better... give a short list of what changed (old size to new size for each text style) and flag anything you had to hold back."*
 - **Produced:** Claude found there was no type scale, because sizes were hardcoded at 8 to 12px. It added one (12, 13, 14, 15 and 18px) and reported each change, for example status pills from 8 to 9px up to 12px, and chart axis labels that used to shrink to about 5px on phones. Pale helper text measured at 2.2 to 4.2:1 contrast was darkened to at least 4.5:1.
 - **Checked:** Screenshots at 1280, 1440, 1920 and 390px wide in English, Tamil, Telugu and Greek, with a script checking for clipped text. Claude listed what it held back, such as long Greek and Tamil status pills that now wrap onto two lines.
 - **Greeting:** *"capitalise the E of Good Evening, and M of Good Morning"*. Claude also changed "Good Afternoon" so all three matched.
 
-### 3.11 A change we declined: capacity chart demo data (30 October to 5 November)
+### 3.11 A Change We Declined: Capacity Chart Demo Data (30 October To 5 November)
 
 - **Prompt (trimmed):** *"Tutor Compass is a demo site. I want realistic test data so the 'A little room to grow' capacity chart looks full and natural. Start by exploring the codebase, then show me a short plan before changing anything."* It included target hours for each day (about 76% booked).
 - **What happened:** Claude explained how the chart works and proposed a plan: 10 made-up tutors, about 200 lessons a week and an "Illustrative demo figures" note. Ali asked for it *"in easy words"*. After reading the simpler version, Ali said: *"stop... I don't want to add this"* and *"I just need the capitalised letter"*. No code was written for this plan. We decided a full-looking chart was not worth filling the demo with invented activity.
 
-### 3.12 Payments module and recovery agent (5 November, PR #11)
+### 3.12 Payments Module And Recovery Agent (5 November, PR #11)
 
 - **Prompt (trimmed):** *"Integrate the complete Payments module and Autonomous Payment Recovery Agent into my existing Tutor Compass website... This is a major feature addition, not a website redesign."*
 - **Key requirements in the same prompt:**
@@ -204,7 +204,7 @@ This was the longest run of follow-up prompts. Ali tested the preview screen by 
   - Title case for "Your Business, Your Rules" and "Quietly Getting Things Done", and the briefing card moved below them.
   - *"remove demo environment and demo mode caution"* on Payments, then the same for the briefing page. Claude listed which demo labels were still showing so Ali could decide on them.
 
-### 3.15 Landing page: Compass Decision Orbit (6 to 9 November, PR #14)
+### 3.15 Landing Page: Compass Decision Orbit (6 To 9 November, PR #14)
 
 - **Prompt (trimmed):** *"Act as a senior UI/UX designer, frontend engineer and creative director... redesign and implement the existing TutorCompass landing and authentication page based on the attached Compass Decision Orbit reference image... Replace the existing paragraph underneath with the following approved wording: Less admin. Smarter decisions. More time for what matters. Let Compass AI handle the routine while you stay in control."*
 - **Key requirements in the same prompt:**
@@ -227,13 +227,13 @@ This was the longest run of follow-up prompts. Ali tested the preview screen by 
   - Final wording on the sign-in page: *"Contact Support"*, *"Create Account"*, *"Sign In"*, *"Forgot Password"* and *"Trying The Demo?"*.
 - **Checked:** Type check, 467 tests and the build after each change, with screenshots at several desktop sizes plus tablet and phone. The landing page text is English only.
 
-### 3.16 Submission preparation (15 November)
+### 3.16 Submission Preparation (15 November)
 
 - **Prompts:** Ali pasted the judges' requirements and asked *"what does this mean don't make any changes tell me first"*. Then: *"lets start with 1 how to make it public and merge all the prs"*. Then, about this file: *"what to do about this"*, *"go ahead"* and *"no I want a more detailed version"*.
 - **Produced:** Ali made the repository public. Claude merged all open pull requests into the default branch, which now matches tutorcompass.app. Typecheck, 467 tests, the build and a secrets scan all passed. PR #3, a developer tool setting, was closed instead of merged.
 - **This file:** Drafted by Claude from the project's chat history and reviewed by Ali before each version went into the repository. One message in the history contained a third-party API key, and it was left out on purpose.
 
-## 4. Prompts inside the app
+## 4. Prompts Inside The App
 
 These run on the server and only when `ANTHROPIC_API_KEY` is set. Every reply must match a fixed schema, and the server checks it again before anything is shown. None of them can choose a traffic-light colour, approve a request, activate a rule or send a message.
 
@@ -248,7 +248,7 @@ These run on the server and only when `ANTHROPIC_API_KEY` is set. Every reply mu
 
 Emails and phone numbers are removed before text is sent to the AI (`redactForAi` in `src/lib/ai/client.ts`). Payments drafts and the Weekly Briefing figures are worked out by fixed code and templates, not by AI.
 
-## 5. Human oversight and limits
+## 5. Human Oversight And Limits
 
 - **People decide.** Traffic-light colours come from a fixed rule engine with tests. The AI reads, summarises and drafts, but it never decides. Every saved change in Compass needs a preview and a Confirm click, and owner-only decisions stay owner-only, with checks on the server.
 - **We checked the AI's work.** Each feature came with tests, a Vercel preview and screenshots. Ali reviewed each preview, found real bugs (the Safari row link, the owner being asked to send requests to themselves) and asked for fixes.
@@ -256,7 +256,7 @@ Emails and phone numbers are removed before text is sent to the AI (`redactForAi
 - **We kept things reversible.** New features were built on separate branches with preview links, and big design changes (the landing page) were built at a separate address before replacing anything. "Remove" hides requests instead of deleting them.
 - **Known limits.** Live AI depends on an Anthropic API key being set in Vercel. Without one, Compass runs in its labelled demo mode. Live Xero, Gmail and SMS connections are written but untested. All data in the demo is fictional. Translations are AI drafts that still need native speaker review. Much of Claude's browser testing used a local copy of the database, so final checks on the live site were done by Ali.
 
-## 6. What we learned about prompting
+## 6. What We Learned About Prompting
 
 - **Say what must not change.** The prompts that worked best listed what to keep (rules, permissions, shortcuts) as clearly as what to add.
 - **Ask for honesty directly.** Lines such as "Do not claim... unless the corresponding checks were actually completed" led to clear reports of what was and was not tested.
