@@ -30,6 +30,11 @@ export async function resetDemoData(): Promise<DemoReset> {
     if (pay.error && pay.error.code !== "PGRST202" && pay.error.code !== "42883") {
       console.warn(`Payments demo reset skipped: ${pay.error.code ?? ""} ${pay.error.message ?? ""}`.trim());
     }
+    // Then the Student Retention demo, which uses the Payments demo's students and parents.
+    const ret = await client.rpc("reset_retention_demo").abortSignal(AbortSignal.timeout(TIMEOUT_MS));
+    if (ret.error && ret.error.code !== "PGRST202" && ret.error.code !== "42883") {
+      console.warn(`Retention demo reset skipped: ${ret.error.code ?? ""} ${ret.error.message ?? ""}`.trim());
+    }
     const epoch = (data as { resetAt?: string } | null)?.resetAt;
     return { ok: true, epoch: epoch ?? new Date().toISOString() };
   } catch (e) {

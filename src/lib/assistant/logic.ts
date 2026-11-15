@@ -233,7 +233,7 @@ export type DraftBlock = {
   restricted: boolean;
 };
 
-export type AttentionKey = "failed" | "approval" | "workflows" | "clarification" | "outcomes";
+export type AttentionKey = "failed" | "approval" | "retention" | "workflows" | "clarification" | "outcomes";
 
 export type AttentionItem = {
   key: string;

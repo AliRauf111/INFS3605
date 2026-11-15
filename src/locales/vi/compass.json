@@ -232,6 +232,7 @@
   "attentionKey": {
     "failed_other": "Thao tác thất bại",
     "approval_other": "Quyết định đang chờ duyệt",
+    "retention_other": "Cảnh báo giữ chân học sinh",
     "workflows_other": "Quy trình đang chờ hoặc bị chặn",
     "clarification_other": "Yêu cầu cần làm rõ",
     "outcomes_other": "Kết quả cần ghi nhận"

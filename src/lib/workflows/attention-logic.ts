@@ -11,11 +11,12 @@ import { workflowFor } from "@/lib/workflow/next-step";
 // tested without a database. Counts are exact: every row the server read is counted, and
 // only the list is shortened.
 
-export const ATTENTION_ORDER: AttentionKey[] = ["failed", "approval", "workflows", "clarification", "outcomes"];
+export const ATTENTION_ORDER: AttentionKey[] = ["failed", "approval", "retention", "workflows", "clarification", "outcomes"];
 
 export const ATTENTION_LABELS: Record<AttentionKey, string> = {
   failed: "Failed Actions",
   approval: "Decisions Awaiting Approval",
+  retention: "Student Retention Alerts",
   workflows: "Workflows Waiting or Blocked",
   clarification: "Requests Needing Clarification",
   outcomes: "Outcomes to Record",
@@ -62,7 +63,11 @@ export type AttentionInput = {
   runs: AttentionRun[];
   pending: AttentionProposal[];
   failed: AttentionFailure[];
+  /** The one Student Retention alert, for the owner, or null. */
+  retention?: AttentionRetention | null;
 };
+
+export type AttentionRetention = { key: string; students: Array<{ id: string; name: string; reason: string }> };
 
 const COLOUR_RANK: Record<Colour, number> = { red: 0, amber: 1, green: 2 };
 
@@ -181,6 +186,8 @@ export function buildAttention(input: AttentionInput): AttentionBlock {
     });
   }
 
+  if (input.retention && input.retention.students.length) items.push(retentionItem(input.retention));
+
   for (const run of input.runs) items.push(runItem(run, role, now));
 
   let waitingOnOwner = 0;
@@ -213,6 +220,23 @@ export function buildAttention(input: AttentionInput): AttentionBlock {
     counts,
     items: ordered.slice(0, ATTENTION_LIMIT).map(({ rank: _rank, ...i }) => i),
     notes,
+  };
+}
+
+/** One alert for all high-risk students, so the list isn't flooded. It opens the Student Retention Agent. */
+function retentionItem(r: AttentionRetention): Ranked {
+  const n = r.students.length;
+  const href = "/insights?retention=open&tab=students#retention";
+  return {
+    key: `retention:${r.key}`,
+    category: "retention",
+    title: tr("retention.att.title"),
+    reason: `${tr("retention.att.reason", { count: n })} ${r.students.slice(0, 3).map((s) => `${s.name}: ${s.reason}.`).join(" ")}`,
+    colour: "red",
+    meta: tr("retention.att.meta"),
+    action: { label: tr("retention.att.action"), href },
+    href,
+    rank: [0],
   };
 }
 

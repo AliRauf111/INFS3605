@@ -7,6 +7,8 @@ import { aiConfigured, callStructured, redactForAi } from "@/lib/ai/client";
 import { ExtractionSchema, groundExtraction, looksLikeInjection, simulatedExtraction } from "@/lib/ai/intake-logic";
 import { logActivity } from "@/lib/agent/activity";
 import { detectIntent, numberWordsToDigits, refersToFocus, type DetectedIntent } from "@/lib/agent/intents";
+import { detectRetention } from "@/lib/retention/intents";
+import { retentionTurn } from "@/lib/retention/compass";
 import type { ProposalAction } from "@/lib/agent/permissions";
 import { approvedProcedures } from "@/lib/agent/reads";
 import { factSources, procedureChecks } from "@/lib/agent/review-logic";
@@ -205,6 +207,13 @@ async function route(
   if (state.task && state.awaiting) {
     const direct = directAnswer(state.awaiting, text);
     if (direct !== null) return advance(ctx, applyAnswer(state.task, state.awaiting as Exclude<typeof state.awaiting, "policy_query">, direct));
+  }
+
+  // Student Retention questions use the same records and rules as the agent on Insights.
+  const retention = !state.task ? detectRetention(text) : null;
+  if (retention) {
+    ctx.noAi = true;
+    return finish(ctx, keep, await retentionTurn(ctx, retention, text));
   }
 
   // Owner and enquiry tools: the briefing, reviews, decisions, follow-ups and policy checks.

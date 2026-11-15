@@ -19,7 +19,8 @@
     "demo:generate": "node scripts/build-demo-dataset.mjs",
     "i18n:index": "node scripts/locale-index.mjs",
     "i18n:check": "vitest run tests/i18n.test.ts",
-    "i18n:build": "node scripts/locale-build.mjs"
+    "i18n:build": "node scripts/locale-build.mjs",
+    "retention:generate": "tsx scripts/build-retention-demo.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.134.0",

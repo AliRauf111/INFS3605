@@ -232,6 +232,7 @@
   "attentionKey": {
     "failed_other": "失敗咗嘅操作",
     "approval_other": "等緊批准嘅決定",
+    "retention_other": "學生留存提示",
     "workflows_other": "等緊或者卡住咗嘅流程",
     "clarification_other": "要澄清嘅請求",
     "outcomes_other": "要記錄嘅結果"

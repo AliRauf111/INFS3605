@@ -12,6 +12,7 @@
   "attentionKey": {
     "failed": "Azioni non riuscite",
     "approval": "Decisioni in attesa di approvazione",
+    "retention": "Avvisi sulla permanenza degli studenti",
     "workflows": "Flussi in attesa o bloccati",
     "clarification": "Richieste da chiarire",
     "outcomes": "Esiti da registrare"
