@@ -61,7 +61,7 @@ type ConfirmOutcome =
 
 const time = (iso: string) => new Date(iso).toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" });
 
-const COLOUR_TEXT: Record<string, string> = { green: "Green", amber: "Amber", red: "Red" };
+const COLOUR_TEXT: Record<string, string> = { green: "Green", amber: "Yellow", red: "Red" };
 
 // ---------------------------------------------------------------------------
 // Confirmation card: Confirm, Edit or Cancel. Used by every saved change.

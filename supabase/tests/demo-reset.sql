@@ -87,7 +87,13 @@ do $$
 declare v jsonb; d date := public.demo_today();
 begin
   v := public.reset_demo_data();
-  if (v->>'lessons')::int <> 6 or (v->>'requests')::int < 7 then raise exception 'FAIL 2: unexpected counts %', v; end if;
+  -- The six walkthrough lessons, plus regular weekly lessons from the start of this month to
+  -- the end of next month for the Schedule calendar (completed before today).
+  if (select count(*) from public.lessons where id ~ '^LSN-400[1-6]$') <> 6 or (v->>'lessons')::int < 40 or (v->>'requests')::int < 7 then raise exception 'FAIL 2: unexpected counts %', v; end if;
+  if exists (select 1 from public.lessons where data_label = 'fictional_demo' and status = 'completed' and (starts_at at time zone 'Australia/Sydney')::date >= d)
+     or exists (select 1 from public.lessons where data_label = 'fictional_demo' and status = 'scheduled' and (starts_at at time zone 'Australia/Sydney')::date < d) then
+    raise exception 'FAIL 2: demo lessons before today should be completed and the rest scheduled';
+  end if;
   -- Lesson Change: BK-1042 has exactly one upcoming lesson, LSN-4001, next week's Thursday, holding its slot.
   if (select count(*) from public.lessons where booking_id = 'BK-1042' and status = 'scheduled' and starts_at > now()) <> 1
      or not exists (select 1 from public.lessons l join public.tutor_availability s on s.id = l.slot_id

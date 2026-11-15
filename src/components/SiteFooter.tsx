@@ -17,6 +17,7 @@ const GROUPS: { title: string; links: FooterLink[] }[] = [
       { label: "Guided Wizard", href: "/requests/new/wizard" },
       { label: "Quick Capture", href: "/requests/new/intake" },
       { label: "Compass AI", assistant: true },
+      { label: "Schedule", href: "/schedule" },
       { label: "Knowledge Hub", href: "/knowledge" },
       { label: "Approval Alley", href: "/owner" },
     ],
@@ -94,7 +95,7 @@ export function SiteFooter() {
         <div className="footer-grid">
           <div className="footer-brand" data-compass-avoid>
             <Link href="/" className="footer-logo">
-              <Logo variant="light" />
+              <Logo />
             </Link>
             <p className="footer-tagline">A clearer direction for your tutoring business.</p>
             <p className="footer-about">Bring your business knowledge together, support your team and keep everyday decisions moving, with you in control.</p>

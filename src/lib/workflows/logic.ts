@@ -4,6 +4,7 @@ import { PROPOSAL_ACTIONS, type ProposalAction } from "@/lib/agent/permissions";
 import { allowedTransitions, OWNER_REVIEW_STATUSES } from "@/lib/workflow/next-step";
 import { WORKFLOW_IDS, type WorkflowId } from "@/lib/assistant/shortcuts";
 import { addDays, hoursUntil, parseDates, parseExtension, parseRange, sydneyDate } from "./dates";
+import type { Command } from "@/lib/assistant/logic";
 
 // The three Compass workflows as pure state machines: Lesson Change, Payment Extension
 // and Tutor Absence. Each turn, the server reads the records, then asks these functions
@@ -496,4 +497,28 @@ export function detectWorkflow(text: string): "lesson_change" | "payment_extensi
   if (/\b(extension|more time to pay|pay later|extra time to pay|days to pay|time to pay|extend (the )?(invoice|due date|payment))\b|\bpayment extension\b/.test(t)) return "payment_extension";
   if (/\b(reschedul\w*|lesson change)\b|\b(move|change|swap|shift)\b.{0,30}\blesson\b|\blesson\b.{0,30}\b(moved|changed|another time|different time|new time)\b|\b(change the time|different time)\b/.test(t)) return "lesson_change";
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// Choices at guided questions
+
+export type OptionList = Array<{ label: string; command: Command }>;
+
+/** The minimum number of choices offered at a guided question. */
+export const MIN_CHOICES = 3;
+
+/**
+ * Every guided question offers a way out and, when the question itself has fewer than three
+ * answers, a way to check the rules first. Nothing is invented to fill the list: the extras
+ * only stop the workflow or show the owner's rules, and typing an answer always works too.
+ */
+export function withChoices(runId: string, list: OptionList, workflow?: WorkflowId): OptionList {
+  const out = [...list];
+  const stop = (c: Command) => c.type === "workflow" && c.op === "cancel";
+  if (out.length + (out.some((o) => stop(o.command)) ? 0 : 1) < MIN_CHOICES) {
+    const requestType = workflow === "lesson_change" || workflow === "payment_extension" ? workflow : undefined;
+    out.push({ label: "Show the Rules", command: { type: "policy_overview", ...(requestType ? { requestType } : {}) } });
+  }
+  if (!out.some((o) => stop(o.command))) out.push({ label: "Stop Workflow", command: { type: "workflow", runId, op: "cancel" } });
+  return out;
 }

@@ -211,7 +211,7 @@ export function buildAttention(input: AttentionInput): AttentionBlock {
   const notes: string[] = [];
   if (waitingOnOwner) notes.push(`${waitingOnOwner} request${waitingOnOwner === 1 ? " is" : "s are"} with the owner. There's nothing for you to do on ${waitingOnOwner === 1 ? "it" : "them"} until the owner decides.`);
   if (ordered.length > ATTENTION_LIMIT) notes.push(`Showing the first ${ATTENTION_LIMIT} of ${ordered.length}. Open the Dashboard to see everything.`);
-  notes.push("Order: failed actions, then decisions awaiting approval, then workflows, then clarifications, then outcomes to record. Red before amber before green within each.");
+  notes.push("Order: failed actions, then decisions awaiting approval, then workflows, then clarifications, then outcomes to record. Red before yellow before green within each.");
 
   return {
     kind: "attention",

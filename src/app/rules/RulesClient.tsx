@@ -295,7 +295,7 @@ export function RuleEditor({ versionId, initial, version }: { versionId: string;
             )}
             <div className="field"><label htmlFor={`colour-${i}`}>Decision colour</label>
               <select id={`colour-${i}`} value={r.colour} onChange={(e) => update(i, { colour: e.target.value as Colour })}>
-                {COLOURS.map((c) => <option key={c} value={c}>{c === "green" ? "Green: admin may proceed" : c === "amber" ? "Amber: clarify or owner approves" : "Red: owner only"}</option>)}
+                {COLOURS.map((c) => <option key={c} value={c}>{c === "green" ? "Green: admin may proceed" : c === "amber" ? "Yellow: clarify or owner approves" : "Red: owner only"}</option>)}
               </select></div>
           </div>
           <fieldset>

@@ -1,5 +1,6 @@
 import {
   COLOUR_LABELS,
+  COLOUR_SHORT,
   DATA_LABEL_TEXT,
   STATUS_LABELS,
   type Colour,
@@ -14,7 +15,7 @@ const ICONS: Record<Colour, string> = { green: "✓", amber: "!", red: "■" };
 
 export function DecisionBanner({ colour, title, explanation }: { colour: Colour; title?: string; explanation?: string }) {
   return (
-    <section className={`banner ${colour}`} aria-label={`Decision: ${colour}`}>
+    <section className={`banner ${colour}`} aria-label={`Decision: ${COLOUR_SHORT[colour]}`}>
       <span className="icon" aria-hidden="true">{ICONS[colour]}</span>
       <div>
         <h2>{COLOUR_LABELS[colour]}</h2>
@@ -28,7 +29,7 @@ export function DecisionBanner({ colour, title, explanation }: { colour: Colour;
 export function ColourBadge({ colour }: { colour: Colour }) {
   return (
     <span className={`badge ${colour}`}>
-      <span aria-hidden="true">{ICONS[colour]}</span> {colour[0].toUpperCase() + colour.slice(1)}
+      <span aria-hidden="true">{ICONS[colour]}</span> {COLOUR_SHORT[colour]}
     </span>
   );
 }

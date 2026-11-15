@@ -28,7 +28,7 @@ import { removalNeedsOwner } from "@/lib/domain/progress";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Request" };
 
-const COLOUR_WORD = { green: "Green", amber: "Amber", red: "Red" } as const;
+const COLOUR_WORD = { green: "Green", amber: "Yellow", red: "Red" } as const;
 const tri = (v: TriState | null) => (v ? TRI_STATE_LABELS[v] : "Not answered");
 const EVENT_TEXT: Record<string, string> = {
   created: "Created",
@@ -125,7 +125,7 @@ export default async function RequestPage({ params, searchParams }: { params: Pr
       key: `e-${e.id}`,
       at: e.created_at,
       order: e.event_type === "created" ? 0 : 2,
-      dot: e.event_type === "owner_declined" ? "red" : e.event_type === "owner_approved" || e.event_type === "closed" ? "green" : "navy",
+      dot: e.event_type === "owner_declined" ? "red" : e.event_type === "owner_approved" || e.event_type === "closed" ? "lilac" : "navy",
       title: e.event_type === "created" ? `Request created by ${e.actor_id ? names.get(e.actor_id) ?? "unknown" : "seed data"}` : EVENT_TEXT[e.event_type] ?? e.event_type,
       detail: `${friendlyTime(e.created_at)}${e.event_type !== "created" && e.actor_id ? ` · ${names.get(e.actor_id) ?? e.actor_role}` : ""}`,
       note: e.event_type === "created" ? null : e.note,

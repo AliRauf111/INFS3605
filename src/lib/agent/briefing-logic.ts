@@ -30,12 +30,12 @@ export const UNFINISHED: RequestStatus[] = BUCKETS.flatMap((b) => b.statuses);
 
 export const COLOUR_TITLES: Record<Colour, string> = {
   red: "Red: Owner Decides",
-  amber: "Amber: Owner Approves or Details Needed",
+  amber: "Yellow: Owner Approves or Details Needed",
   green: "Green: Within the Rules",
 };
 
 export const ORDERING_NOTE =
-  "Red first, then amber, then green. Within each colour, welfare concerns come first, then complaints, then unconfirmed welfare or complaint answers, then the longest wait.";
+  "Red first, then yellow, then green. Within each colour, welfare concerns come first, then complaints, then unconfirmed welfare or complaint answers, then the longest wait.";
 
 export type BriefingRow = {
   id: string;

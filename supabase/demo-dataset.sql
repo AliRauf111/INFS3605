@@ -161,6 +161,9 @@ update public.requests set course_id = 'modern_history', year_level = 11 where i
 update public.requests set course_id = 'software_engineering', year_level = 12 where id = '00000000-0000-4000-8000-000000000302' and data_label = 'fictional_demo'; -- BK-1047, $60 refund
 update public.requests set course_id = 'visual_arts', year_level = 11 where id = '00000000-0000-4000-8000-000000000301' and data_label = 'fictional_demo'; -- BK-1042, $55 refund
 
+-- Kept off the Overview cards at the owner's request (still on the Requests page).
+update public.requests set overview_hidden = true where id = '00000000-0000-4000-8000-000000000202' and data_label = 'fictional_demo'; -- FAM-07, $75 refund
+
 -- ===== supabase/demo-workflows.sql =====
 -- Fictional demo data for the Compass workflows (Lesson Change, Payment Extension and
 -- Tutor Absence). All people, lessons, slots and invoices here are fictional. Run after
@@ -246,6 +249,33 @@ from (values
 ) as v (payment_id, remind_on, kind)
 where exists (select 1 from public.payments p where p.id = v.payment_id and p.status in ('pending', 'overdue'))
   and not exists (select 1 from public.payment_reminders r where r.payment_id = v.payment_id);
+
+-- A realistic month of regular weekly lessons for the Schedule calendar, from the start of
+-- this month (Sydney) to the end of next month. Lessons before today are marked completed.
+-- They are kept clear of the walkthroughs above: no upcoming extra lessons for BK-1042, so
+-- Lesson Change still finds exactly one; none for T-02 on Thursdays, so Tutor Absence still
+-- finds one lesson; and evening or Saturday times that never overlap the free slots above.
+insert into public.lessons (id, booking_id, tutor_id, slot_id, starts_at, ends_at, status)
+select 'LSN-' || to_char(d.day, 'YYMMDD') || p.n,
+       p.booking_id, b.tutor_id, null,
+       (d.day + p.at) at time zone 'Australia/Sydney',
+       (d.day + p.at) at time zone 'Australia/Sydney' + interval '1 hour',
+       case when d.day < public.demo_today() then 'completed' else 'scheduled' end
+from generate_series(date_trunc('month', public.demo_today()::timestamp)::date,
+                     (date_trunc('month', public.demo_today()::timestamp) + interval '2 months - 1 day')::date,
+                     interval '1 day') as g(ts)
+cross join lateral (select g.ts::date as day) as d
+join (values
+  (1, 1, 'BK-1045', time '18:15'), (1, 2, 'BK-1043', time '19:15'),
+  (2, 1, 'BK-1044', time '18:15'), (2, 2, 'BK-1047', time '19:15'),
+  (3, 1, 'BK-1046', time '18:15'), (3, 2, 'BK-1042', time '19:15'), (3, 3, 'BK-1047', time '20:15'),
+  (4, 1, 'BK-1045', time '18:15'), (4, 2, 'BK-1044', time '19:15'),
+  (5, 1, 'BK-1043', time '18:15'), (5, 2, 'BK-1046', time '19:15'),
+  (6, 1, 'BK-1047', time '09:30'), (6, 2, 'BK-1042', time '10:45'), (6, 3, 'BK-1044', time '12:00')
+) as p (dow, n, booking_id, at) on p.dow = extract(isodow from d.day)
+join public.bookings b on b.id = p.booking_id
+where not (p.booking_id = 'BK-1042' and d.day >= public.demo_today())
+on conflict (id) do nothing;
 
 end
 $demo$;

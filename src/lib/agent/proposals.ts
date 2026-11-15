@@ -148,7 +148,7 @@ function targetOf(r: RequestRow) {
   };
 }
 
-const COLOUR_WORD = { green: "Green", amber: "Amber", red: "Red" } as const;
+const COLOUR_WORD = { green: "Green", amber: "Yellow", red: "Red" } as const;
 
 const ROLE_TEXT = { staff: "You (an admin or the owner) can confirm this.", owner: "Only the owner can confirm this." } as const;
 

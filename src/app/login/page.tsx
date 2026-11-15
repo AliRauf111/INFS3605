@@ -47,7 +47,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <div className="landing-cards" aria-hidden="true">
           <div className="lc lc-back">
             <div className="lc-row"><span className="lc-ref">FAM-07</span><span>Refund · $75.00</span></div>
-            <div className="lc-tag amber"><span className="lc-icon" />Amber · owner approves first</div>
+            <div className="lc-tag amber"><span className="lc-icon" />Yellow · owner approves first</div>
           </div>
           <div className="lc lc-mid">
             <div className="lc-row"><span className="lc-ref">BK-1043</span><span>Lesson Change</span></div>

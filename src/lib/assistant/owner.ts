@@ -106,7 +106,7 @@ export async function briefingTurn(ctx: TurnCtx, opts: { bucket?: BriefingKey; p
   const role = ctx.user.role;
   const total = sections.reduce((t, s) => t + s.count, 0);
   ctx.steps.push({ label: "Counting unfinished requests across every active record", state: "done" });
-  ctx.steps.push({ label: "Ordering red, then amber, then green", state: "done" });
+  ctx.steps.push({ label: "Ordering red, then yellow, then green", state: "done" });
   const titleOf = (k: BriefingKey) => ((COLOURS as readonly string[]).includes(k) ? COLOUR_TITLES[k as Colour] : BUCKETS.find((b) => b.key === k)!.title[role]);
 
   const block: BriefingBlock = {
@@ -634,7 +634,7 @@ export async function policyOverviewTurn(ctx: TurnCtx, requestType?: RequestType
   const who = (c: string) => (c === "green" ? (ctx.user.role === "owner" ? "Admin team can act" : "You can act") : c === "amber" ? "Owner approves" : "Owner decides");
   say(ctx, ctx.user.role === "owner"
     ? "These are the active rules. Green is what the admin team may handle without you."
-    : "Under the current rules you can handle the green bands yourself. Amber and red go to the owner.");
+    : "Under the current rules you can handle the green bands yourself. Yellow and red go to the owner.");
   ctx.blocks.push({
     kind: "rules",
     sections: chosen.map((p) => ({

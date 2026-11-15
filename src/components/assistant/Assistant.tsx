@@ -2,10 +2,12 @@
 import "./assistant.css";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { EMPTY_STATE, type AssistantState, type Block, type Choice, type Command, type TaskField, type TurnResponse } from "@/lib/assistant/logic";
 import { SHORTCUTS, type ShortcutId } from "@/lib/assistant/shortcuts";
 import { CompassAvatar, type AvatarState } from "./CompassAvatar";
+import { Icon as StudioIcon, type IconName } from "@/components/Icons";
+import { BotScene } from "@/components/BotScene";
 import { AssistantMessage, type ActionState, type ChatItem } from "./Messages";
 import { useSpeech, useVoice } from "./useVoice";
 import { motionReduced } from "@/lib/a11y/motion";
@@ -37,6 +39,8 @@ const GREETED = "compass.greeted";
 const uid = () => crypto.randomUUID();
 
 /** What the welcome screen says about AI. It only changes with the server's AI setting. */
+const SHORTCUT_ICON: Record<ShortcutId, IconName> = { attention: "requests", lesson_change: "calendar", payment_extension: "wallet", tutor_absence: "people" };
+
 function welcomeMode(aiLive: boolean): string {
   return aiLive
     ? "Live AI is on. It only reads your messages and words summaries. Records, permissions and the owner's rules decide everything. The four shortcuts use no AI."
@@ -125,6 +129,11 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const rootRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
+  // The button that opened Compass (a page button or the launcher), so focus goes back to it.
+  const openerRef = useRef<HTMLElement | null>(null);
+  // Set when a confirmed change was saved, so the page underneath refreshes its counts on close.
+  const changedRef = useRef(false);
 
   const voice = useVoice();
   const speech = useSpeech();
@@ -192,12 +201,14 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   // keyboard and follows rotation, zoom and resizing. One set of listeners per mount.
   const measure = useCallback(() => {
     const vv = window.visualViewport;
+    const rail = document.querySelector<HTMLElement>(".rail");
     const next = workspaceGeometry({
       width: document.documentElement.clientWidth || window.innerWidth,
       height: vv?.height ?? window.innerHeight,
       offsetTop: vv?.offsetTop ?? 0,
+      rail: rail && getComputedStyle(rail).position === "fixed" ? rail.getBoundingClientRect().right : 0,
     });
-    setGeom((g) => (g && g.mode === next.mode && g.top === next.top && g.left === next.left && g.width === next.width && g.height === next.height ? g : next));
+    setGeom((g) => (g && g.mode === next.mode && g.top === next.top && g.left === next.left && g.width === next.width && g.height === next.height && g.rail === next.rail ? g : next));
   }, []);
   useLayoutEffect(() => {
     if (!hydrated) return;
@@ -309,11 +320,21 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     };
   }, []);
 
-  // Other parts of the page (the footer link, for example) open the panel with this event.
+  // Other parts of the page (the Compass AI card, the rail, the footer link) open the panel
+  // with this event. Focus goes back to whatever opened it.
   const openRef = useRef(openPanel);
   openRef.current = openPanel;
+  // A button can also start one of the shortcuts straight away, such as "Change a lesson"
+  // on the Schedule page.
+  const startRef = useRef<((input: SendInput, label: string) => unknown) | null>(null);
   useEffect(() => {
-    const onOpen = () => openRef.current();
+    const onOpen = (e: Event) => {
+      const detail = (e as CustomEvent<{ opener?: HTMLElement; shortcut?: string }>).detail;
+      openerRef.current = detail?.opener instanceof HTMLElement ? detail.opener : null;
+      openRef.current();
+      const shortcut = SHORTCUTS.find((s) => s.id === detail?.shortcut);
+      if (shortcut) void startRef.current?.({ start: shortcut.id }, shortcut.label);
+    };
     window.addEventListener("compass:open", onOpen);
     return () => window.removeEventListener("compass:open", onOpen);
   }, []);
@@ -330,7 +351,15 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     setOpen(false);
     setMenuOpen(false);
     setMode("chat");
-    requestAnimationFrame(() => launcherRef.current?.focus({ preventScroll: true }));
+    const back = openerRef.current?.isConnected && openerRef.current.getClientRects().length ? openerRef.current : launcherRef.current;
+    openerRef.current = null;
+    requestAnimationFrame(() => back?.focus({ preventScroll: true }));
+    // A change was confirmed while Compass was open: refresh the page's counts and lists.
+    // This re-reads the page's data only. It is not a full page load, so it never resets demo data.
+    if (changedRef.current) {
+      changedRef.current = false;
+      router.refresh();
+    }
   };
   const closeRef = useRef(closePanel);
   closeRef.current = closePanel;
@@ -470,6 +499,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       abortRef.current = null;
     }
   }, [busy, sessionKey, conv, flash, readAloud, speech]);
+  startRef.current = send;
 
   const submitDraft = () => {
     const text = draft.trim();
@@ -490,7 +520,10 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
   const onAction = (itemId: string, index: number, next: ActionState) => {
     setItems((xs) => xs.map((x) => (x.id === itemId ? { ...x, actions: { ...x.actions, [index]: next } } : x)));
-    if (next.card?.p?.stage === "done") flash("success");
+    if (next.card?.p?.stage === "done") {
+      changedRef.current = true;
+      flash("success");
+    }
   };
 
   const newConversation = () => {
@@ -594,6 +627,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       className={`compass-root${open ? " is-open" : ""}`}
       data-paused={paused ? "true" : undefined}
       data-layout={geom?.mode ?? "column"}
+      style={{ "--cp-rail": `${geom?.rail ?? 0}px` } as CSSProperties}
       role={open ? "dialog" : undefined}
       aria-modal={open ? true : undefined}
       aria-labelledby={open ? "compass-title" : undefined}
@@ -601,7 +635,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announce}</div>
 
       {/* Blurs and dims the page while Compass is open, and takes any click meant for it. */}
-      <div className="cp-backdrop" aria-hidden="true" />
+      <div className="cp-backdrop ai-layer" aria-hidden="true" />
 
       {greeting && !open && !dodge && (
         <div className="cl-greeting" role="status">
@@ -612,40 +646,40 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
       <div
         id="compass-panel"
-        className={`cp-panel${open ? " open" : ""} mode-${mode}`}
+        className={`cp-panel ai-shell${open ? " open" : ""} mode-${mode}`}
         style={panelStyle}
         aria-hidden={!open}
         inert={!open}
       >
-        <header className="cp-header">
-          <CompassAvatar state={avatarState} size={40} />
-          <div className="cp-title">
-            <h2 id="compass-title" ref={titleRef} tabIndex={-1}>Compass AI</h2>
-            <p>
-              <span className={`cp-indicator ${aiLive ? "live" : "demo"}`} title={modeNote}>
-                <span className="cp-indicator-dot" aria-hidden="true" />{indicator}
-              </span>
-              {mode === "voice" && <span className="cp-subtitle">Voice mode</span>}
-            </p>
+        <header className="cp-header ai-header">
+          <div className="ai-brand">
+            <span className="small-orb" aria-hidden="true">✦</span>
+            <div>
+              <h2 id="compass-title" ref={titleRef} tabIndex={-1}>Compass AI</h2>
+              <span>{mode === "voice" ? "Voice mode" : "Your business. Your call."}</span>
+            </div>
+            <span className="badge lilac" title={modeNote}>{indicator}</span>
           </div>
-          {speech.speaking && (
-            <button type="button" className="cp-icon-btn" onClick={speech.cancel} aria-label="Stop reading aloud" title="Stop reading aloud"><Svg name="stop" /></button>
-          )}
-          <button type="button" className="cp-icon-btn cp-new-chat" onClick={newConversation} aria-label="New conversation" title="New conversation">
-            <Svg name="plus" /><span className="cp-btn-text" aria-hidden="true">New conversation</span>
-          </button>
-          <div className="cp-menu-wrap">
-            <button type="button" className="cp-icon-btn" aria-label="Compass settings" title="Compass settings" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><Svg name="more" /></button>
-            {menuOpen && (
-              <div className="cp-menu" role="menu">
-                <button type="button" role="menuitemcheckbox" aria-checked={readAloud} disabled={!speech.available} onClick={() => { setReadAloud((v) => !v); speech.cancel(); }}>
-                  <span className={`cp-check${readAloud ? " on" : ""}`} aria-hidden="true">{readAloud ? "✓" : ""}</span> Read replies aloud
-                </button>
-                <p className="cp-menu-note">{modeNote}</p>
-              </div>
+          <div className="ai-actions">
+            {speech.speaking && (
+              <button type="button" className="cp-icon-btn" onClick={speech.cancel} aria-label="Stop reading aloud" title="Stop reading aloud"><Svg name="stop" /></button>
             )}
+            <button type="button" className="text-btn" onClick={newConversation}>
+              <StudioIcon name="refresh" /> Start over
+            </button>
+            <div className="cp-menu-wrap">
+              <button type="button" className="cp-icon-btn" aria-label="Compass settings" title="Compass settings" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><Svg name="more" /></button>
+              {menuOpen && (
+                <div className="cp-menu" role="menu">
+                  <button type="button" role="menuitemcheckbox" aria-checked={readAloud} disabled={!speech.available} onClick={() => { setReadAloud((v) => !v); speech.cancel(); }}>
+                    <span className={`cp-check${readAloud ? " on" : ""}`} aria-hidden="true">{readAloud ? "✓" : ""}</span> Read replies aloud
+                  </button>
+                  <p className="cp-menu-note">{modeNote}</p>
+                </div>
+              )}
+            </div>
+            <button type="button" className="icon-btn" onClick={closePanel} aria-label="Close Compass AI" title="Close Compass AI"><StudioIcon name="close" /></button>
           </div>
-          <button type="button" className="cp-icon-btn" onClick={closePanel} aria-label="Close Compass AI" title="Close Compass AI"><Svg name="close" /></button>
         </header>
 
         {mode === "chat" ? (
@@ -661,38 +695,22 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
               >
                 <div className="cp-col">
                   {showWelcome && (
-                    <div className="cp-welcome">
-                      <div className="cp-hero">
-                        <h3 className="cp-hero-title">Let us take something off your plate.</h3>
-                        <p className="cp-hero-greeting">Hi {firstName}. What would you like to sort out?</p>
-                      </div>
-                      <nav className="cp-shortcuts" aria-label="Shortcuts">
-                        {SHORTCUTS.filter((x) => x.layout === "wide").map((x) => (
-                          <button key={x.id} type="button" className="cp-shortcut wide" data-shortcut={x.id} aria-describedby={`cp-hint-${x.id}`} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
-                            <span className="cp-shortcut-label">{x.label}</span>
-                            <span className="cp-shortcut-hint" id={`cp-hint-${x.id}`} aria-hidden="true">{x.hint}</span>
+                    <section className="cp-welcome ai-welcome">
+                      <BotScene />
+                      <p className="eyebrow">A clearer next step</p>
+                      <h3>Let us take something<br />off your plate.</h3>
+                      <p>Hi {firstName}. Your bookings, policies and business context, brought together.<br />Choose a starting point. We will work through it together.</p>
+                      <nav className="shortcuts" aria-label="Shortcuts">
+                        {SHORTCUTS.map((x) => (
+                          <button key={x.id} type="button" className="shortcut" data-shortcut={x.id} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
+                            <span className="sc-icon" aria-hidden="true"><StudioIcon name={SHORTCUT_ICON[x.id]} /></span>
+                            <div><strong>{x.label}</strong><p>{x.hint}</p></div>
+                            {x.layout === "wide" && <StudioIcon name="arrow" />}
                           </button>
                         ))}
-                        <div className="cp-shortcut-row" role="group" aria-label="Workflows">
-                          {SHORTCUTS.filter((x) => x.layout === "workflow").map((x) => (
-                            <button key={x.id} type="button" className="cp-shortcut" data-shortcut={x.id} aria-describedby={`cp-hint-${x.id}`} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
-                              <span className="cp-shortcut-label">{x.label}</span>
-                              <span className="cp-shortcut-hint" id={`cp-hint-${x.id}`} aria-hidden="true">{x.hint}</span>
-                            </button>
-                          ))}
-                        </div>
                       </nav>
-                      <div className="cp-trust">
-                        <span className="cp-shield" aria-hidden="true">
-                          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" /><path d="M9 12l2 2 4-4" /></svg>
-                        </span>
-                        <div>
-                          <strong>Uses owner-approved rules</strong>
-                          <p>I check requests against your organisation&apos;s policies before suggesting anything.</p>
-                        </div>
-                      </div>
-                      <p className={`cp-mode ${aiLive ? "live" : "demo"}`}>{welcomeMode(aiLive)}</p>
-                    </div>
+                      <div className="welcome-foot"><StudioIcon name="info" />{aiLive ? "Live AI on" : "Demo mode, no AI service connected"} · plans need your confirmation · nothing is sent without you</div>
+                    </section>
                   )}
                   {items.map((item, i) =>
                     item.role === "user" ? (
@@ -807,19 +825,21 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
 
       {/* After the workspace in the DOM, so Tab goes from the composer to the launcher and back round. */}
       <div ref={launcherBoxRef} className={`cl-launcher${open ? " is-open" : ""}${dodge && !open ? ` is-${dodge}` : ""}`}>
-        <button type="button" className="cl-pill" onClick={open ? closePanel : openPanel} tabIndex={-1} aria-hidden="true">
+        <button type="button" className="cl-pill" onClick={open ? closePanel : () => { openerRef.current = null; openPanel(); }} tabIndex={-1} aria-hidden="true">
+          <StudioIcon name="sparkle" />
           Ask Compass
         </button>
         <button
           ref={launcherRef}
           type="button"
           className="cl-avatar-btn"
-          onClick={open ? closePanel : openPanel}
+          onClick={open ? closePanel : () => { openerRef.current = null; openPanel(); }}
           aria-expanded={open}
           aria-controls="compass-panel"
-          aria-label={open ? "Close Compass AI" : `Ask Compass, the AI assistant${available ? "" : ". Having trouble connecting"}`}
+          aria-label={open ? "Close Compass AI" : `Open Compass AI assistant${available ? "" : ". Having trouble connecting"}`}
         >
-          <CompassAvatar state={open ? (busy ? "thinking" : "idle") : avatarState} size={72} />
+          {/* The Studio robot, as on the welcome screen. */}
+          <span className="bot launcher-bot" aria-hidden="true"><span className="antenna" /><span className="bot-face"><i className="bot-eye" /><i className="bot-eye" /></span></span>
           <span className={`cl-dot ${available ? "on" : "off"}`} aria-hidden="true" />
         </button>
       </div>

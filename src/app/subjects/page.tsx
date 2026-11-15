@@ -134,7 +134,7 @@ export default async function SubjectsPage() {
                     <td>{b.subject}</td>
                     <td>{tutorNames[b.tutor_id] ?? b.tutor_id}</td>
                     <td>{linked ? label(linked) : <span className="muted">Not linked</span>}</td>
-                    <td>{linked ? (ok ? <span className="badge green">Teaches it</span> : <span className="badge amber">Not recorded</span>) : <span className="muted">Not checked</span>}</td>
+                    <td>{linked ? (ok ? <span className="badge lilac">Teaches it</span> : <span className="badge">Not recorded</span>) : <span className="muted">Not checked</span>}</td>
                   </tr>
                 );
               })}
@@ -179,7 +179,7 @@ export default async function SubjectsPage() {
                             ) : owner && data.ready ? (
                               <OfferToggle courseId={c.id} year={y} offered={on} />
                             ) : (
-                              <span className={`badge ${on ? "green" : ""}`}>{on ? "Offered" : "Not Offered"}</span>
+                              <span className={`badge ${on ? "lilac" : ""}`}>{on ? "Offered" : "Not Offered"}</span>
                             )}
                           </td>
                         );
