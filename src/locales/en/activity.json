@@ -1,0 +1,17 @@
+{
+  "title": "Agent activity",
+  "hint": "Real steps recorded by the server, in order. Model reasoning is not shown.",
+  "none": "No activity recorded yet.",
+  "state": {
+    "completed": "Completed",
+    "pending": "Pending",
+    "blocked": "Blocked",
+    "failed": "Failed"
+  },
+  "mode": {
+    "live_ai": "Live AI",
+    "simulated": "Simulated (no AI)",
+    "system": "Server step"
+  },
+  "source": "source: {{source}}"
+}

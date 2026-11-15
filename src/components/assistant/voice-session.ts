@@ -86,7 +86,7 @@ export class VoiceSession {
    * already running, so repeated clicks can't open a second one. `base` is text already in
    * the box; new words are added after it.
    */
-  start(base: string): boolean {
+  start(base: string, lang = "en-AU"): boolean {
     if (this.disposed || this.rec) return false;
     if (!this.create) {
       this.set({ phase: "error", hearing: false, error: VOICE_MESSAGES.unsupported });
@@ -99,7 +99,7 @@ export class VoiceSession {
       this.set({ phase: "error", hearing: false, error: VOICE_MESSAGES.failed });
       return false;
     }
-    rec.lang = "en-AU";
+    rec.lang = lang;
     rec.continuous = true;
     rec.interimResults = true;
     this.rec = rec;

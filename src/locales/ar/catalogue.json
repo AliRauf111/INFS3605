@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "اللغة الإنجليزية",
+    "mathematics": "الرياضيات",
+    "science": "العلوم",
+    "business_humanities": "الأعمال والعلوم الإنسانية",
+    "history": "التاريخ",
+    "technology_design": "التكنولوجيا والتصميم",
+    "creative_arts": "الفنون الإبداعية",
+    "health_community": "الصحة والمجتمع",
+    "languages": "اللغات",
+    "vocational": "التعليم المهني"
+  }
+}

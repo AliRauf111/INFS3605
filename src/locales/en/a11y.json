@@ -1,0 +1,35 @@
+{
+  "title": "Display and Accessibility",
+  "intro": "Make Tutor Compass work for you.",
+  "closeLabel": "Close display and accessibility",
+  "focusView": "Focus View",
+  "focusBar": "Focus View is on. Some extra detail is hidden.",
+  "showFullView": "Show Full View",
+  "comfort": "Focus and comfort",
+  "focusViewHelp": "Hide extra details so the main tasks stand out. Warnings and actions stay.",
+  "reduceMotion": "Reduce Motion",
+  "reduceMotionHelp": "Turn off animation and moving layout changes across the site.",
+  "largerControls": "Larger Controls",
+  "largerControlsHelp": "Use bigger buttons and form controls with more space around them.",
+  "reading": "Reading",
+  "textSize": "Text Size",
+  "decrease": "Decrease text size",
+  "increase": "Increase text size",
+  "percent": "{{n}}%",
+  "theme": "Colour Theme",
+  "themes": {
+    "device": "Follow Device",
+    "light": "Light",
+    "dark": "Dark",
+    "contrast": "High Contrast"
+  },
+  "previewNote": "Changes preview immediately. Save to keep your preferences.",
+  "save": "Save Preferences",
+  "reset": "Reset",
+  "msg": {
+    "saveFailed": "Preferences could not be saved in this browser. You can keep previewing them while this panel is open.",
+    "saved": "Your display preferences have been saved.",
+    "defaultsRestored": "Default display preferences restored.",
+    "defaultsThisVisit": "Defaults restored for this visit."
+  }
+}

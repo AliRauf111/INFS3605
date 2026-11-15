@@ -1,0 +1,12 @@
+{
+  "todayAt": "Σήμερα, {{time}}",
+  "yesterdayAt": "Χθες, {{time}}",
+  "todayAtInSentence": "σήμερα, {{time}}",
+  "yesterdayAtInSentence": "χθες, {{time}}",
+  "dateAt": "{{date}}, {{time}}",
+  "partOfDay": {
+    "morning": "πρωί",
+    "afternoon": "απόγευμα",
+    "evening": "βράδυ"
+  }
+}

@@ -1,6 +1,8 @@
+import { enT, type Translate } from "@/lib/i18n/core";
+import { makeFormat, type Format } from "@/lib/i18n/format";
 import { z } from "zod";
 import { ACTIONS, COLOURS } from "@/lib/domain/types";
-import { MAX_AMOUNT_CENTS, formatAud } from "@/lib/domain/money";
+import { MAX_AMOUNT_CENTS } from "@/lib/domain/money";
 
 // The owner's rules are stored as data in this shape, not as code. The rule builder
 // only offers these supported conditions, so an owner cannot write arbitrary logic.
@@ -66,10 +68,10 @@ export const CATEGORY_CONFIG: Record<PolicyCategory, CategoryConfig> = {
   },
 };
 
-export function formatNumeric(category: PolicyCategory, value: number): string {
+export function formatNumeric(category: PolicyCategory, value: number, t: Translate = enT, f: Format = makeFormat()): string {
   const n = CATEGORY_CONFIG[category].numeric;
   if (!n) return String(value);
-  return n.unit === "cents" ? formatAud(value) : `${value} day${value === 1 ? "" : "s"}`;
+  return n.unit === "cents" ? f.money(value) : t("rules.range.days", { count: value });
 }
 
 export const RangeSchema = z
@@ -130,13 +132,22 @@ export function toInterval(range: Range | null): [number, number] {
   return [lo, hi];
 }
 
-export function describeRange(category: PolicyCategory, range: Range | null): string {
-  if (!range || (range.min === null && range.max === null)) return "Any value";
-  const fmt = (v: number) => formatNumeric(category, v);
-  const lowText = range.min !== null && range.min > 0 ? `from ${fmt(range.min)}` : "";
-  const highText =
-    range.max === null ? "" : range.maxInclusive ? `up to and including ${fmt(range.max)}` : `below ${fmt(range.max)}`;
-  if (lowText && highText) return `${lowText} ${highText}`.replace(/^f/, "F");
-  if (lowText) return `${fmt(range.min!)} or more`;
-  return highText.charAt(0).toUpperCase() + highText.slice(1);
+export function describeRange(category: PolicyCategory, range: Range | null, t: Translate = enT, f: Format = makeFormat()): string {
+  if (!range || (range.min === null && range.max === null)) return t("rules.range.any");
+  const fmt = (v: number) => formatNumeric(category, v, t, f);
+  const low = range.min !== null && range.min > 0 ? fmt(range.min) : null;
+  if (range.max === null) return low ? t("rules.range.orMore", { low }) : t("rules.range.any");
+  const high = fmt(range.max);
+  if (low) return range.maxInclusive ? t("rules.range.fromUpTo", { low, high }) : t("rules.range.fromBelow", { low, high });
+  return range.maxInclusive ? t("rules.range.upTo", { high }) : t("rules.range.below", { high });
+}
+
+/** The label for a request category, in the reader's language. CATEGORY_CONFIG keeps the English. */
+export function categoryLabel(category: PolicyCategory, t: Translate = enT): string {
+  return t(`rules.category.${category}`);
+}
+
+/** The words for a fact a green rule needs. FACT_LABELS keeps the English. */
+export function factLabel(fact: FactKey, t: Translate = enT): string {
+  return t(`rules.fact.${fact}`);
 }

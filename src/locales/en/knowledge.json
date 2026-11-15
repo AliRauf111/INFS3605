@@ -1,0 +1,37 @@
+{
+  "intro": "The owner's rules, bookings, payments, tutor availability and procedures in one place. Records are shown as they are stored.",
+  "stale": "! May be out of date",
+  "synced": "{{system}}, synced {{when}}",
+  "col": {
+    "id": "ID",
+    "student": "Student",
+    "family": "Family",
+    "subject": "Subject",
+    "lessons": "Lessons",
+    "price": "Price",
+    "invoice": "Invoice",
+    "paidDue": "Paid / due",
+    "slot": "Slot",
+    "starts": "Starts"
+  },
+  "lessonsUsed": "{{used}} of {{purchased}} used",
+  "payments": "Payments",
+  "paymentStatus": {
+    "paid": "Paid",
+    "pending": "Pending",
+    "overdue": "Overdue",
+    "refunded": "Refunded",
+    "disputed": "Disputed"
+  },
+  "slotStatus": {
+    "free": "Free",
+    "booked": "Booked",
+    "held": "Held"
+  },
+  "due": "Due {{date}}",
+  "conflictHint": "PAY-2002 and PAY-2003 deliberately conflict (same invoice, different amounts), and PAY-2005 is deliberately stale, to show how missing or conflicting evidence blocks green.",
+  "availability": "Tutor Availability",
+  "procedures": "Procedures",
+  "proceduresHint": "Procedures are shown exactly as the owner wrote them.",
+  "ownerApproved": "Owner Approved"
+}

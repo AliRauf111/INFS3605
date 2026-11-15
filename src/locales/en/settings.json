@@ -1,0 +1,9 @@
+{
+  "title": "Settings",
+  "intro": "Your language and display preferences.",
+  "savedToAccount": "Your language is saved to your account, so it follows you when you sign in on another device.",
+  "savedToDevice": "Your language is remembered on this device. Choose one here to save it to your account as well.",
+  "displayText": "Text size, colour theme, Focus View, reduced motion and larger controls are in the Display and Accessibility panel. Use its button at the top of this page. These settings are saved in this browser.",
+  "integrationsText": "What this deployment is connected to is listed on the Rules and Coverage page.",
+  "integrationsLink": "See integrations"
+}

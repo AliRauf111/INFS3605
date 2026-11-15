@@ -1,0 +1,15 @@
+{
+  "pageTitle": "Algo ha fallado",
+  "pageBody": "No se pudo mostrar la página. Este error no ha cambiado nada.",
+  "notFoundTitle": "No encontrado",
+  "notFoundBody": "Esa página o ese registro no existe.",
+  "goToDashboard": "Ir al panel",
+  "sameOrigin": "Las solicitudes deben venir de la aplicación Tutor Compass.",
+  "badJson": "El cuerpo de la solicitud debe ser JSON válido.",
+  "notConfigured": "El servidor todavía no está configurado. Consulta README.md.",
+  "server": "Algo ha fallado en el servidor. Revisa el registro de solicitudes antes de volver a intentarlo.",
+  "signIn": "Inicia sesión.",
+  "ownerOnly": "Solo el propietario puede hacer esto.",
+  "adminOnly": "Solo el equipo administrativo puede hacer esto.",
+  "unknownLanguage": "Elige uno de los idiomas de la lista."
+}

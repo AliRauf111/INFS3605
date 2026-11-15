@@ -15,7 +15,8 @@ function recognitionFactory(): (() => RecognitionLike) | null {
   return Ctor ? () => new Ctor() : null;
 }
 
-export function useVoice() {
+/** Voice typing in the given language (a BCP 47 tag such as "ta-IN"). */
+export function useVoice(lang = "en-AU") {
   const [view, setView] = useState<VoiceView>(IDLE_VIEW);
   const [transcript, setTranscriptState] = useState("");
   const [supported, setSupported] = useState(true);
@@ -62,8 +63,8 @@ export function useVoice() {
 
   const start = useCallback(() => {
     window.speechSynthesis?.cancel();
-    sessionRef.current?.start(transcriptRef.current);
-  }, []);
+    sessionRef.current?.start(transcriptRef.current, lang);
+  }, [lang]);
   const stop = useCallback(() => sessionRef.current?.stop(), []);
   const release = useCallback(() => sessionRef.current?.release(), []);
   const clearError = useCallback(() => {
@@ -75,20 +76,20 @@ export function useVoice() {
 }
 
 /** Spoken replies with the browser's speech synthesis. Off unless the person turns it on. */
-export function useSpeech() {
+export function useSpeech(lang = "en-GB") {
   const [speaking, setSpeaking] = useState(false);
   const available = typeof window !== "undefined" && "speechSynthesis" in window;
   const speak = useCallback((text: string) => {
     if (!available || !text.trim()) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-GB";
+    u.lang = lang;
     u.rate = 1.02;
     u.onstart = () => setSpeaking(true);
     u.onend = () => setSpeaking(false);
     u.onerror = () => setSpeaking(false);
     window.speechSynthesis.speak(u);
-  }, [available]);
+  }, [available, lang]);
   const cancel = useCallback(() => {
     if (available) window.speechSynthesis.cancel();
     setSpeaking(false);

@@ -24,7 +24,7 @@ describe("request progress", () => {
     expect(steps.map((s) => s.state)).toEqual(["done", "current", "upcoming", "upcoming"]);
   });
   it("notes when the owner has started the review", () => {
-    expect(requestProgress("review_required", false, { reviewStarted: true })[2]).toEqual({ label: "Owner review", state: "current", note: "Review started" });
+    expect(requestProgress("review_required", false, { reviewStarted: true })[2]).toEqual({ key: "ownerReview", label: "Owner review", state: "current", note: "Review started" });
   });
 });
 

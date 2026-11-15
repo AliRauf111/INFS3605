@@ -1,0 +1,37 @@
+{
+  "intro": "Las reglas del propietario, las reservas, los pagos, la disponibilidad de tutores y los procedimientos en un solo lugar. Los registros se muestran tal como están guardados.",
+  "stale": "! Puede estar desactualizado",
+  "synced": "{{system}}, sincronizado {{when}}",
+  "col": {
+    "id": "ID",
+    "student": "Alumno",
+    "family": "Familia",
+    "subject": "Asignatura",
+    "lessons": "Clases",
+    "price": "Precio",
+    "invoice": "Factura",
+    "paidDue": "Pagado / vence",
+    "slot": "Hueco",
+    "starts": "Empieza"
+  },
+  "lessonsUsed": "{{used}} de {{purchased}} usadas",
+  "payments": "Pagos",
+  "paymentStatus": {
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "overdue": "Vencido",
+    "refunded": "Reembolsado",
+    "disputed": "En disputa"
+  },
+  "slotStatus": {
+    "free": "Libre",
+    "booked": "Reservado",
+    "held": "Retenido"
+  },
+  "due": "Vence el {{date}}",
+  "conflictHint": "PAY-2002 y PAY-2003 entran en conflicto a propósito (misma factura, importes distintos), y PAY-2005 está desactualizado a propósito, para mostrar cómo la información que falta o es contradictoria impide el verde.",
+  "availability": "Disponibilidad de tutores",
+  "procedures": "Procedimientos",
+  "proceduresHint": "Los procedimientos se muestran exactamente como los escribió el propietario.",
+  "ownerApproved": "Aprobado por el propietario"
+}

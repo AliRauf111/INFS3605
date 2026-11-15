@@ -1,0 +1,175 @@
+{
+  "eyebrow": "يومك، بوضوح",
+  "greeting": {
+    "morning": "صباح الخير، {{name}}",
+    "afternoon": "مساء الخير، {{name}}",
+    "evening": "مساء الخير، {{name}}"
+  },
+  "subheading": "نظرة أهدأ على مركز التدريس الخاص بك. لنأخذ القرارات واحدًا تلو الآخر.",
+  "removed": "أُزيل الطلب من القائمة. يمكنك العثور عليه مجددًا في",
+  "removedLink": "الطلبات المُزالة",
+  "filterLabel": "تصفية طلبات النظرة العامة حسب الحالة",
+  "showing": "المعروض",
+  "viewRequests": "عرض الطلبات",
+  "overToYou": "دورك الآن",
+  "humanTouch": "بعض الأمور تحتاج إلى لمسة إنسانية",
+  "showAllRequests": "عرض كل الطلبات",
+  "student": "الطالب: {{name}}",
+  "studentLabel": "الطالب {{name}}",
+  "allCaughtUp": "أنجزت كل شيء.",
+  "chooseAnother": "اختر حالة أخرى أو اعرض كل الطلبات.",
+  "everyDealtWith": "عولج كل طلب. استمتع ببعض الراحة.",
+  "viewAll": "عرض كل الطلبات",
+  "capacity": {
+    "heading": "مساحة صغيرة للنمو",
+    "caption": "الدروس المحجوزة مقارنة بساعات المدرّسين المتاحة",
+    "periodLabel": "فترة مخطط السعة",
+    "booked": "محجوز",
+    "available": "متاح",
+    "thisWeek": "هذا الأسبوع",
+    "nextWeek": "الأسبوع القادم",
+    "thisMonth": "هذا الشهر",
+    "thisWeekLower": "هذا الأسبوع",
+    "nextWeekLower": "الأسبوع القادم",
+    "thisMonthLower": "هذا الشهر",
+    "nothingToCompare": {
+      "lastWeek": "لم يُعرض شيء الأسبوع الماضي للمقارنة",
+      "thisWeek": "لم يُعرض شيء هذا الأسبوع للمقارنة"
+    },
+    "same": {
+      "lastWeek": "مثل الأسبوع الماضي",
+      "thisWeek": "مثل هذا الأسبوع"
+    },
+    "percentBooked": "{{percent}}% محجوز",
+    "noHoursOffered": "لا ساعات معروضة",
+    "noTutorHours": "لا ساعات معروضة من المدرّسين",
+    "ofCapacity": "من سعة المدرّسين محجوز",
+    "tipLine": "{{label}} · {{booked}} من {{offered}} س",
+    "chartLabel": "سعة المدرّسين، {{period}}. {{summary}} مرّر المؤشر أو ركّز على كل نقطة لمعرفة ساعاتها.",
+    "chartNone": "لا ساعات معروضة.",
+    "chartPercent": "{{percent}}% من الساعات المتاحة محجوزة.",
+    "pointLabel": "{{label}}: {{booked}} من {{offered}} ساعات محجوزة",
+    "pointTitle": "{{label}}: {{booked}} / {{offered}} س",
+    "hours": "{{n}} س",
+    "weekShort": "أسبوع {{n}}",
+    "note": "من تقويم المدرّسين · مرّر المؤشر على المخطط للاستكشاف",
+    "acrossWeeks_few": "خلال {{count}} أسابيع هذا الشهر",
+    "acrossWeeks_many": "خلال {{count}} أسبوعًا هذا الشهر",
+    "acrossWeeks_one": "خلال أسبوع واحد هذا الشهر",
+    "acrossWeeks_two": "خلال أسبوعين هذا الشهر",
+    "acrossWeeks_zero": "خلال {{count}} أسبوعًا هذا الشهر",
+    "acrossWeeks_other": "خلال {{count}} أسبوعًا هذا الشهر",
+    "more": {
+      "lastWeek_few": "أعلى بـ {{count}} نقاط من الأسبوع الماضي",
+      "lastWeek_many": "أعلى بـ {{count}} نقطة من الأسبوع الماضي",
+      "lastWeek_one": "أعلى بنقطة واحدة من الأسبوع الماضي",
+      "lastWeek_two": "أعلى بنقطتين من الأسبوع الماضي",
+      "lastWeek_zero": "أعلى بـ {{count}} نقطة من الأسبوع الماضي",
+      "lastWeek_other": "أعلى بـ {{count}} نقطة من الأسبوع الماضي",
+      "thisWeek_few": "أعلى بـ {{count}} نقاط من هذا الأسبوع",
+      "thisWeek_many": "أعلى بـ {{count}} نقطة من هذا الأسبوع",
+      "thisWeek_one": "أعلى بنقطة واحدة من هذا الأسبوع",
+      "thisWeek_two": "أعلى بنقطتين من هذا الأسبوع",
+      "thisWeek_zero": "أعلى بـ {{count}} نقطة من هذا الأسبوع",
+      "thisWeek_other": "أعلى بـ {{count}} نقطة من هذا الأسبوع"
+    },
+    "fewer": {
+      "lastWeek_few": "أقل بـ {{count}} نقاط من الأسبوع الماضي",
+      "lastWeek_many": "أقل بـ {{count}} نقطة من الأسبوع الماضي",
+      "lastWeek_one": "أقل بنقطة واحدة من الأسبوع الماضي",
+      "lastWeek_two": "أقل بنقطتين من الأسبوع الماضي",
+      "lastWeek_zero": "أقل بـ {{count}} نقطة من الأسبوع الماضي",
+      "lastWeek_other": "أقل بـ {{count}} نقطة من الأسبوع الماضي",
+      "thisWeek_few": "أقل بـ {{count}} نقاط من هذا الأسبوع",
+      "thisWeek_many": "أقل بـ {{count}} نقطة من هذا الأسبوع",
+      "thisWeek_one": "أقل بنقطة واحدة من هذا الأسبوع",
+      "thisWeek_two": "أقل بنقطتين من هذا الأسبوع",
+      "thisWeek_zero": "أقل بـ {{count}} نقطة من هذا الأسبوع",
+      "thisWeek_other": "أقل بـ {{count}} نقطة من هذا الأسبوع"
+    }
+  },
+  "today": {
+    "headingToday": "القادم اليوم",
+    "headingNext": "القادم",
+    "snapshot": {
+      "morning": "لمحة عن صباحك",
+      "afternoon": "لمحة عن فترة ما بعد الظهر",
+      "evening": "لمحة عن مسائك"
+    },
+    "nothingToday": "لا شيء في الجدول اليوم. هذه هي الدروس التالية.",
+    "openSchedule": "فتح الجدول الكامل",
+    "notSetUp": "جدول الدروس غير مُعدّ في قاعدة البيانات هذه بعد.",
+    "noLessons": "لا توجد دروس في الجدول.",
+    "coverNeeded": "يلزم بديل",
+    "confirmed": "مؤكد"
+  },
+  "rules": {
+    "heading": "عملك، وقواعدك",
+    "caption": "يتبع Compass الحدود التي تضعها",
+    "open": "فتح قواعد العمل",
+    "exceptions": "موافقة المالك على الاستثناءات",
+    "none": "لا توجد قواعد نشطة بعد",
+    "bottom": "تبقى المتحكم في كل قرار مهم.",
+    "refunds": "يتولى الفريق الاسترداد الأقل من {{amount}}",
+    "lessonChanges": "تُفحص تغييرات الدروس وفق قواعدك",
+    "extensions_few": "تمديد الدفع حتى {{count}} أيام",
+    "extensions_many": "تمديد الدفع حتى {{count}} يومًا",
+    "extensions_one": "تمديد الدفع حتى يوم واحد",
+    "extensions_two": "تمديد الدفع حتى يومين",
+    "extensions_zero": "تمديد الدفع حتى {{count}} يوم",
+    "extensions_other": "تمديد الدفع حتى {{count}} يوم"
+  },
+  "activity": {
+    "heading": "إنجاز الأمور بهدوء",
+    "none": "لم يحدث شيء على أي طلب بعد.",
+    "updated": "حُدّث",
+    "event": {
+      "sent_to_owner": {
+        "lead": "أُرسل إلى المالك",
+        "rest": "لاتخاذ قرار"
+      },
+      "owner_approved": {
+        "lead": "وافق عليه المالك",
+        "rest": "وعاد إلى الفريق"
+      },
+      "owner_declined": {
+        "lead": "رفضه المالك",
+        "rest": "مع تسجيل السبب"
+      },
+      "owner_requested_info": {
+        "lead": "طلب المالك",
+        "rest": "بعض التفاصيل الإضافية"
+      },
+      "admin_replied": {
+        "lead": "أُعيدت التفاصيل",
+        "rest": "إلى المالك"
+      },
+      "closed": {
+        "lead": "سُجّلت النتيجة",
+        "rest": "وأُغلق الطلب"
+      },
+      "reevaluated": {
+        "lead": "أُعيد فحص القواعد",
+        "rest": "بالوقائع الجديدة"
+      }
+    }
+  },
+  "cardLabel_few": "{{group}}: {{count}} طلبات. تصفية النظرة العامة",
+  "cardLabel_many": "{{group}}: {{count}} طلبًا. تصفية النظرة العامة",
+  "cardLabel_one": "{{group}}: طلب واحد. تصفية النظرة العامة",
+  "cardLabel_two": "{{group}}: طلبان. تصفية النظرة العامة",
+  "cardLabel_zero": "{{group}}: لا طلبات. تصفية النظرة العامة",
+  "cardLabel_other": "{{group}}: {{count}} طلب. تصفية النظرة العامة",
+  "groupCount_few": "{{group}} · {{count}} طلبات",
+  "groupCount_many": "{{group}} · {{count}} طلبًا",
+  "groupCount_one": "{{group}} · طلب واحد",
+  "groupCount_two": "{{group}} · طلبان",
+  "groupCount_zero": "{{group}} · لا طلبات",
+  "groupCount_other": "{{group}} · {{count}} طلب",
+  "viewAllCount_few": "عرض كل الطلبات الـ {{count}}",
+  "viewAllCount_many": "عرض كل الطلبات ({{count}})",
+  "viewAllCount_one": "عرض الطلب الوحيد",
+  "viewAllCount_two": "عرض الطلبين",
+  "viewAllCount_zero": "عرض كل الطلبات ({{count}})",
+  "viewAllCount_other": "عرض كل الطلبات ({{count}})"
+}

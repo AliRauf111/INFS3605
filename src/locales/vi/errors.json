@@ -1,0 +1,15 @@
+{
+  "pageTitle": "Đã xảy ra lỗi",
+  "pageBody": "Không thể hiển thị trang. Lỗi này không làm thay đổi gì.",
+  "notFoundTitle": "Không tìm thấy",
+  "notFoundBody": "Trang hoặc hồ sơ đó không tồn tại.",
+  "goToDashboard": "Đến trang tổng quan",
+  "sameOrigin": "Yêu cầu phải đến từ ứng dụng Tutor Compass.",
+  "badJson": "Nội dung yêu cầu phải là JSON hợp lệ.",
+  "notConfigured": "Máy chủ chưa được cấu hình. Xem README.md.",
+  "server": "Đã xảy ra lỗi trên máy chủ. Hãy kiểm tra nhật ký yêu cầu trước khi thử lại.",
+  "signIn": "Vui lòng đăng nhập.",
+  "ownerOnly": "Chỉ chủ doanh nghiệp mới làm được việc này.",
+  "adminOnly": "Chỉ nhóm quản trị mới làm được việc này.",
+  "unknownLanguage": "Hãy chọn một trong các ngôn ngữ có trong danh sách."
+}

@@ -1,0 +1,50 @@
+{
+  "primary": {
+    "complete_details": "补全缺少的信息",
+    "send_to_owner": "发送给负责人",
+    "awaiting_owner": "等待负责人决定",
+    "start_review": "开始审核",
+    "continue_review": "继续审核",
+    "record_outcome": "记录结果"
+  },
+  "approveBlocked": "补全缺少的信息之前不能批准。",
+  "done": "完成",
+  "recordedClosed": "已记录并关闭",
+  "nothingMore": "没有其他要做的了。完整记录保留在此页面。",
+  "insideRules": "在规则范围内",
+  "reviewAndHandle": "审核并处理",
+  "detail": {
+    "sentByAdmin": "由管理团队发送",
+    "youAsked": "你要求补充信息",
+    "detailsComplete": "信息已齐全",
+    "notSentYet": "管理团队尚未发送",
+    "ownerAskedMore": "负责人要求更多信息",
+    "recordsNeedChecking": "记录需要核对",
+    "ownerDecidesFirst": "先由负责人决定"
+  },
+  "pending": {
+    "notRecorded": "尚未记录。请使用上方的“记录结果”。",
+    "waitingDetails": "正在等待缺少的信息。{{details}}。请使用上方的“补全缺少的信息”。",
+    "reviewStarted": "审核已开始。请使用上方的“继续审核”来批准、拒绝或要求补充信息。",
+    "waitingReview": "正在等待你的审核。请使用上方的“开始审核”。打开此页面不会开始审核。",
+    "ownerNeedsMore": "负责人需要更多信息。如有需要请更新事实，然后使用上方的“发送给负责人”。",
+    "notSent": "尚未发送。请使用上方的“发送给负责人”。",
+    "sent": "已发送。正在等待负责人决定。",
+    "detailsOnly": "{{details}}。"
+  },
+  "whatNext": {
+    "ready": "这在规则范围内。请在你自己的系统中处理，然后在这里记录你做了什么。Tutor Compass 不转账，也不更改预约。",
+    "approved": "负责人已批准此请求。请在你自己的系统中处理，然后在这里记录你做了什么。",
+    "declined": "负责人已拒绝此请求。请告知家庭，然后在这里记录你做了什么。",
+    "details": "作出决定前需要：{{details}}。请通过“补全缺少的信息”添加，规则会再次检查此请求。",
+    "detailsOwner": "作出决定前需要：{{details}}。请通过“补全缺少的信息”添加，规则会再次检查此请求。你仍可开始审核，但暂时不能批准。",
+    "continue": "继续审核并记录你的决定。之后由管理团队记录处理情况。",
+    "continueSensitive": "继续审核并记录你的决定。你也可以随时添加处理备注和后续步骤。之后由管理团队记录处理情况。",
+    "start": "准备好后开始审核。开始审核只会记录你正在处理此事，不会批准、关闭或更改其他任何内容。",
+    "ownerNeedsMore": "负责人需要更多信息。如有需要请更新事实，然后再发送给负责人。",
+    "send": "把此请求发送给负责人。负责人决定后，你在这里记录结果。这是最后一步。",
+    "ownerLooking": "负责人正在查看。你会在这里看到决定，然后记录结果。",
+    "detailsBefore": "{{details}}。请在作出决定前补充。"
+  },
+  "detailsMissing_other": "缺少 {{count}} 项必填信息"
+}

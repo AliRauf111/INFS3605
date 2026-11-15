@@ -27,7 +27,8 @@ import {
 } from "@/lib/overview/status-cards";
 import { addDays, sydneyDate, sydneyToday } from "@/lib/workflows/dates";
 import { subjectIcon, timeParts } from "@/lib/schedule/calendar";
-import { REQUEST_TYPE_LABELS } from "@/lib/domain/types";
+import { getI18n } from "@/lib/i18n/server";
+import type { Translate } from "@/lib/i18n/core";
 
 export const dynamic = "force-dynamic";
 
@@ -36,15 +37,13 @@ export const dynamic = "force-dynamic";
 // and recent activity on the right. Every figure comes from the records; nothing here is
 // sample data.
 
-const EVENT_TEXT: Record<string, [string, string]> = {
-  sent_to_owner: ["Sent to the owner", "for a decision"],
-  owner_approved: ["Approved by the owner", "and back with the team"],
-  owner_declined: ["Declined by the owner", "with a reason recorded"],
-  owner_requested_info: ["The owner asked", "for a few more details"],
-  admin_replied: ["Details sent back", "to the owner"],
-  closed: ["Outcome recorded", "and the request closed"],
-  reevaluated: ["Rules re-checked", "with the new facts"],
-};
+const EVENTS = ["sent_to_owner", "owner_approved", "owner_declined", "owner_requested_info", "admin_replied", "closed", "reevaluated"] as const;
+type EventKey = (typeof EVENTS)[number];
+
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t("nav.overview") };
+}
 
 function partOfDay(now: Date): "morning" | "afternoon" | "evening" {
   const hour = Number(new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", hour: "numeric", hourCycle: "h23" }).format(now));
@@ -54,8 +53,6 @@ function partOfDay(now: Date): "morning" | "afternoon" | "evening" {
 function initials(name: string | undefined | null): string {
   return (name ?? "").split(/[\s-]+/).filter((w) => /^[A-Za-z]/.test(w)).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
 }
-
-const shortDay = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", weekday: "short" });
 
 function asCard(r: RequestRow): CardRow {
   return {
@@ -76,10 +73,11 @@ function asCard(r: RequestRow): CardRow {
   };
 }
 
-function changeText(change: number | null, against: string): string {
-  if (change === null) return `Nothing offered ${against} to compare`;
-  if (change === 0) return `The same as ${against}`;
-  return `${Math.abs(change)} ${Math.abs(change) === 1 ? "point" : "points"} ${change > 0 ? "more" : "fewer"} than ${against}`;
+type Against = "lastWeek" | "thisWeek";
+function changeText(change: number | null, against: Against, t: Translate): string {
+  if (change === null) return t(`overview.capacity.nothingToCompare.${against}`);
+  if (change === 0) return t(`overview.capacity.same.${against}`);
+  return change > 0 ? t(`overview.capacity.more.${against}`, { count: Math.abs(change) }) : t(`overview.capacity.fewer.${against}`, { count: Math.abs(change) });
 }
 
 /** The tip starts on today, or on the busiest day when today isn't in the period. */
@@ -92,6 +90,7 @@ function tipIndex(s: CapacitySeries, todayIndex: number): number {
 
 export default async function Overview({ searchParams }: { searchParams: Promise<{ status?: string; removed?: string }> }) {
   const user = await requirePageUser();
+  const { t, fmt } = await getI18n();
   const { status, removed } = await searchParams;
   const now = new Date();
   const p = sydneyPeriod(now);
@@ -134,16 +133,17 @@ export default async function Overview({ searchParams }: { searchParams: Promise
     return {
       id: r.id,
       group: groupOf(r.status)!,
-      type: REQUEST_TYPE_LABELS[r.request_type],
+      type: t(`domain.requestType.${r.request_type}`),
       colour: TILE_COLOUR[r.request_type],
-      title: cardTitle(r),
-      line: cardLine(r),
-      when: `${r.reference_id ? `${r.reference_id} · ` : ""}${friendlyTime(r.created_at, now)}`,
+      title: cardTitle(r, t, fmt),
+      line: cardLine(r, 96, t),
+      reference: r.reference_id,
+      when: friendlyTime(r.created_at, now, fmt),
       initials: initials(who ?? r.reference_id),
       who,
     };
   });
-  const texts = Object.fromEntries(STATUS_GROUPS.map((g) => [g, groupText(g, user.role)])) as Record<StatusGroup, string>;
+  const texts = Object.fromEntries(STATUS_GROUPS.map((g) => [g, groupText(g, user.role, t)])) as Record<StatusGroup, string>;
 
   // Capacity: this week, next week and this month from the tutor calendar.
   const thisWeek = weekSeries(calendar.slots, calendar.absences, p.weekStart);
@@ -152,13 +152,20 @@ export default async function Overview({ searchParams }: { searchParams: Promise
   const month = monthSeries(calendar.slots, calendar.absences, todayIso);
   const todayIndex = (new Date(`${todayIso}T00:00:00Z`).getUTCDay() + 6) % 7;
   const monthIndex = monthStarts.findIndex((s) => s === p.weekStart);
-  const period = (key: PeriodKey, label: string, series: CapacitySeries, change: string, long: string, tip: number): CapacityPeriod => ({
-    key, label, series, change, long, tip: tipIndex(series, tip), max: niceMax(Math.max(0, ...series.offered)),
+  // Day and week names on the chart, in the reader's language (2 November 2026 was a Monday).
+  const dayNames = Array.from({ length: 7 }, (_, i) => fmt.date(new Date(Date.UTC(2026, 10, 2 + i, 2)), { weekday: "short" }));
+  const named = (series: CapacitySeries, weeks: boolean): CapacitySeries => ({
+    ...series,
+    labels: series.labels.map((l, i) => (weeks ? t("overview.capacity.weekShort", { n: i + 1 }) : dayNames[i] ?? l)),
   });
+  const period = (key: PeriodKey, label: string, raw: CapacitySeries, change: string, long: string, tip: number): CapacityPeriod => {
+    const series = named(raw, key === "month");
+    return { key, label, series, change, long, tip: tipIndex(series, tip), max: niceMax(Math.max(0, ...series.offered)) };
+  };
   const periods: CapacityPeriod[] = [
-    period("week", "This week", thisWeek, changeText(pointsChange(thisWeek.percent, last.percent), "last week"), "this week", todayIndex),
-    period("next", "Next week", next, changeText(pointsChange(next.percent, thisWeek.percent), "this week"), "next week", -1),
-    period("month", "This month", month, `Across ${monthStarts.length} weeks this month`, "this month", monthIndex),
+    period("week", t("overview.capacity.thisWeek"), thisWeek, changeText(pointsChange(thisWeek.percent, last.percent), "lastWeek", t), t("overview.capacity.thisWeekLower"), todayIndex),
+    period("next", t("overview.capacity.nextWeek"), next, changeText(pointsChange(next.percent, thisWeek.percent), "thisWeek", t), t("overview.capacity.nextWeekLower"), -1),
+    period("month", t("overview.capacity.thisMonth"), month, t("overview.capacity.acrossWeeks", { count: monthStarts.length }), t("overview.capacity.thisMonthLower"), monthIndex),
   ];
   // Open on this week, or next week while nothing is offered this week yet.
   const initialPeriod: PeriodKey = thisWeek.percent === null && next.percent !== null ? "next" : "week";
@@ -167,22 +174,23 @@ export default async function Overview({ searchParams }: { searchParams: Promise
   const todays = lessons?.lessons.filter((l) => sydneyDate(l.starts_at) === todayIso) ?? [];
   const lessonList = (todays.length ? todays : lessons?.lessons ?? []).slice(0, 3);
 
-  const today = now.toLocaleDateString("en-AU", { timeZone: "Australia/Sydney", weekday: "long", day: "numeric", month: "long" });
+  const today = fmt.date(now, { weekday: "long", day: "numeric", month: "long" });
   const firstName = user.displayName.split(" ")[0];
-  const rules = ruleLines(policies).slice(0, 2);
+  const rules = ruleLines(policies, t, fmt).slice(0, 2);
+  const part = partOfDay(now);
 
   return (
     <div className="studio">
       {removed && (
         <div className="notice success" role="status">
-          Request removed from the list. You can find it again under <Link href="/requests?removed=1">Removed Requests</Link>.
+          {t("overview.removed")} <Link href="/requests?removed=1">{t("overview.removedLink")}</Link>
         </div>
       )}
       <div className="page-head">
         <div>
-          <p className="eyebrow">Your day, in focus</p>
-          <h1>Good {partOfDay(now)}, {firstName} <span aria-hidden="true">✧</span></h1>
-          <p className="subheading">A calmer view of your tutoring business. Let us take it one decision at a time.</p>
+          <p className="eyebrow">{t("overview.eyebrow")}</p>
+          <h1>{t(`overview.greeting.${part}`, { name: firstName })} <span aria-hidden="true">✧</span></h1>
+          <p className="subheading">{t("overview.subheading")}</p>
         </div>
         <PageActions className="head-actions">
           <span className="date-label">{today}</span>
@@ -195,31 +203,31 @@ export default async function Overview({ searchParams }: { searchParams: Promise
           <section className="card schedule-card" aria-labelledby="today-heading">
             <div className="card-head">
               <div>
-                <h2 id="today-heading">Coming up {todays.length ? "today" : "next"}</h2>
-                <p className="caption">{todays.length ? `A snapshot of your ${partOfDay(now)}` : "Nothing on the timetable today. These are the next lessons."}</p>
+                <h2 id="today-heading">{todays.length ? t("overview.today.headingToday") : t("overview.today.headingNext")}</h2>
+                <p className="caption">{todays.length ? t(`overview.today.snapshot.${part}`) : t("overview.today.nothingToday")}</p>
               </div>
-              <Link className="round-btn" href="/schedule" aria-label="Open full schedule"><Icon name="external" /></Link>
+              <Link className="round-btn" href="/schedule" aria-label={t("overview.today.openSchedule")}><Icon name="external" /></Link>
             </div>
             {lessons === null ? (
-              <p className="caption">The lesson timetable isn&apos;t set up in this database yet.</p>
+              <p className="caption">{t("overview.today.notSetUp")}</p>
             ) : lessonList.length === 0 ? (
-              <p className="caption">No lessons on the timetable.</p>
+              <p className="caption">{t("overview.today.noLessons")}</p>
             ) : (
               lessonList.map((l) => {
                 const day = sydneyDate(l.starts_at);
                 const away = isAway(lessons.absences, l.tutor_id, day);
-                const subject = l.bookings?.subject ?? "Lesson";
-                const icon = subjectIcon(subject);
-                const t = timeParts(l.starts_at);
+                const subject = l.bookings?.subject ?? t("common.lesson");
+                const icon = subjectIcon(l.bookings?.subject ?? "Lesson");
+                const tp = timeParts(l.starts_at, fmt.locale);
                 return (
                   <div key={l.id} className="schedule-row">
-                    <div className="time-block"><b>{t.time}</b>{day === todayIso ? t.period : `${t.period} ${shortDay.format(new Date(l.starts_at))}`}</div>
+                    <div className="time-block"><b>{tp.time}</b>{day === todayIso ? tp.period : `${tp.period} ${fmt.date(l.starts_at, { weekday: "short" })}`}</div>
                     <span className={`subject-icon ${icon.cls}`} aria-hidden="true">{icon.letter}</span>
                     <div className="lesson-info">
                       <strong>{subject}</strong>
-                      <span>{l.bookings?.families?.student_name ?? "Student"} · {l.tutors?.name ?? l.tutor_id}</span>
+                      <span><bdi>{l.bookings?.families?.student_name ?? t("common.student")}</bdi> · <bdi>{l.tutors?.name ?? l.tutor_id}</bdi></span>
                     </div>
-                    <span className={`status-dot${away ? " warn" : ""}`}>{away ? "Cover needed" : "Confirmed"}</span>
+                    <span className={`status-dot${away ? " warn" : ""}`}>{away ? t("overview.today.coverNeeded") : t("overview.today.confirmed")}</span>
                   </div>
                 );
               })
@@ -231,30 +239,32 @@ export default async function Overview({ searchParams }: { searchParams: Promise
           <section className="card rules-card" aria-labelledby="rules-heading">
             <div className="card-head">
               <div>
-                <h2 id="rules-heading">Your business, your rules</h2>
-                <p className="caption">Compass follows the boundaries you set</p>
+                <h2 id="rules-heading">{t("overview.rules.heading")}</h2>
+                <p className="caption">{t("overview.rules.caption")}</p>
               </div>
-              <Link className="round-btn" href="/knowledge#rules" aria-label="Open business rules"><Icon name="external" /></Link>
+              <Link className="round-btn" href="/knowledge#rules" aria-label={t("overview.rules.open")}><Icon name="external" /></Link>
             </div>
-            <div className="rule-status"><i aria-hidden="true" />Owner approval for exceptions</div>
-            {rules.length ? rules.map((r) => <div key={r} className="rule-status"><i aria-hidden="true" />{r}</div>) : <div className="rule-status"><i aria-hidden="true" />No active rules yet</div>}
-            <p className="rule-bottom">You stay in control of every decision that matters.</p>
+            <div className="rule-status"><i aria-hidden="true" />{t("overview.rules.exceptions")}</div>
+            {rules.length ? rules.map((r) => <div key={r} className="rule-status"><i aria-hidden="true" />{r}</div>) : <div className="rule-status"><i aria-hidden="true" />{t("overview.rules.none")}</div>}
+            <p className="rule-bottom">{t("overview.rules.bottom")}</p>
           </section>
 
           <section className="card activity-card" aria-labelledby="activity-heading">
-            <h2 id="activity-heading">Quietly getting things done</h2>
+            <h2 id="activity-heading">{t("overview.activity.heading")}</h2>
             {events.length === 0 ? (
-              <div className="activity-row"><span className="activity-dot" aria-hidden="true"><Icon name="check" /></span><div>Nothing has happened on a request yet.</div></div>
+              <div className="activity-row"><span className="activity-dot" aria-hidden="true"><Icon name="check" /></span><div>{t("overview.activity.none")}</div></div>
             ) : (
               events.map((e) => {
-                const [lead, rest] = EVENT_TEXT[e.event_type] ?? ["Updated", ""];
+                const known = (EVENTS as readonly string[]).includes(e.event_type) ? (e.event_type as EventKey) : null;
+                const lead = known ? t(`overview.activity.event.${known}.lead`) : t("overview.activity.updated");
+                const rest = known ? t(`overview.activity.event.${known}.rest`) : "";
                 const ref = byId.get(e.request_id)?.reference_id;
                 return (
                   <div key={e.id} className="activity-row">
                     <span className="activity-dot" aria-hidden="true"><Icon name="check" /></span>
                     <div>
-                      <Link href={`/requests/${e.request_id}`}><strong>{lead}</strong></Link> {rest}{ref ? ` · ${ref}` : ""}.
-                      <small>{friendlyTime(e.created_at, now)}</small>
+                      <Link href={`/requests/${e.request_id}`}><strong>{lead}</strong></Link> {rest}{ref ? <> · <bdi>{ref}</bdi></> : null}.
+                      <small>{friendlyTime(e.created_at, now, fmt)}</small>
                     </div>
                   </div>
                 );

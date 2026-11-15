@@ -1,0 +1,35 @@
+{
+  "title": "显示与无障碍",
+  "intro": "让 Tutor Compass 更适合你。",
+  "closeLabel": "关闭显示与无障碍",
+  "focusView": "专注视图",
+  "focusBar": "专注视图已开启。部分额外信息已隐藏。",
+  "showFullView": "显示完整视图",
+  "comfort": "专注与舒适",
+  "focusViewHelp": "隐藏额外信息，让主要任务更突出。警告和操作会保留。",
+  "reduceMotion": "减少动画",
+  "reduceMotionHelp": "关闭整个网站的动画和布局移动效果。",
+  "largerControls": "更大的控件",
+  "largerControlsHelp": "使用更大的按钮和表单控件，周围留出更多空间。",
+  "reading": "阅读",
+  "textSize": "文字大小",
+  "decrease": "缩小文字",
+  "increase": "放大文字",
+  "percent": "{{n}}%",
+  "theme": "颜色主题",
+  "themes": {
+    "device": "跟随设备",
+    "light": "浅色",
+    "dark": "深色",
+    "contrast": "高对比度"
+  },
+  "previewNote": "更改会立即预览。保存后才会保留你的偏好。",
+  "save": "保存偏好",
+  "reset": "重置",
+  "msg": {
+    "saveFailed": "无法在此浏览器中保存偏好。面板打开期间你仍可继续预览。",
+    "saved": "你的显示偏好已保存。",
+    "defaultsRestored": "已恢复默认显示偏好。",
+    "defaultsThisVisit": "已为本次访问恢复默认设置。"
+  }
+}

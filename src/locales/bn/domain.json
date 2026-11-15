@@ -1,0 +1,134 @@
+{
+  "role": {
+    "owner": "মালিক",
+    "admin": "অ্যাডমিন"
+  },
+  "requestType": {
+    "refund": "টাকা ফেরত",
+    "lesson_change": "ক্লাস পরিবর্তন",
+    "payment_extension": "পেমেন্টের সময় বাড়ানো",
+    "other": "অন্য কিছু"
+  },
+  "triState": {
+    "yes": "হ্যাঁ",
+    "no": "না",
+    "unsure": "নিশ্চিত নই"
+  },
+  "colour": {
+    "green": "সবুজ: আপনি অনুমোদিত ধাপ মেনে চলতে পারেন",
+    "amber": "হলুদ: ব্যাখ্যা বা মালিকের অনুমোদন প্রয়োজন",
+    "red": "লাল: থামুন এবং মালিকের কাছে পাঠান"
+  },
+  "colourShort": {
+    "green": "সবুজ",
+    "amber": "হলুদ",
+    "red": "লাল"
+  },
+  "decisionLabel": "সিদ্ধান্ত: {{colour}}",
+  "status": {
+    "ready": "অ্যাডমিনের জন্য প্রস্তুত",
+    "needs_clarification": "ব্যাখ্যা প্রয়োজন",
+    "review_required": "মালিকের পর্যালোচনা প্রয়োজন",
+    "awaiting_owner": "মালিকের অপেক্ষায়",
+    "more_info_requested": "মালিক তথ্য চেয়েছেন",
+    "approved": "মালিক অনুমোদন করেছেন",
+    "declined": "মালিক প্রত্যাখ্যান করেছেন",
+    "closed": "বন্ধ"
+  },
+  "action": {
+    "prepare_parent_response": "অভিভাবকের জন্য উত্তর তৈরি করুন",
+    "prepare_tutor_message": "টিউটরের জন্য বার্তা তৈরি করুন",
+    "prepare_escalation_summary": "মালিকের কাছে পাঠানোর সারাংশ তৈরি করুন",
+    "prepare_reschedule_proposal": "সময় বদলের প্রস্তাব তৈরি করুন",
+    "prepare_admin_checklist": "অ্যাডমিন চেকলিস্ট তৈরি করুন",
+    "send_to_owner": "পর্যালোচনার জন্য মালিকের কাছে পাঠান"
+  },
+  "draft": {
+    "parent_response": "অভিভাবকের জন্য উত্তর",
+    "tutor_message": "টিউটরের জন্য বার্তা",
+    "escalation_summary": "মালিকের কাছে পাঠানোর সারাংশ",
+    "reschedule_proposal": "সময় বদলের প্রস্তাব",
+    "admin_checklist": "অ্যাডমিন চেকলিস্ট"
+  },
+  "dataLabel": {
+    "live_connected": "সরাসরি সংযুক্ত",
+    "imported": "আমদানি করা",
+    "fictional_demo": "কাল্পনিক ডেমো ডেটা"
+  },
+  "group": {
+    "owner": "মালিকের পর্যালোচনা প্রয়োজন",
+    "info": "আরও তথ্য প্রয়োজন",
+    "ready": "অ্যাডমিনের জন্য প্রস্তুত"
+  },
+  "groupText": {
+    "ownerForOwner": "আপনার সিদ্ধান্ত প্রয়োজন",
+    "ownerForAdmin": "মালিকের সিদ্ধান্তের অপেক্ষায়",
+    "info": "কয়েকটি বিষয় স্পষ্ট করতে হবে",
+    "readyForOwner": "নিশ্চিত করার জন্য অ্যাডমিন দলের কাছে আছে",
+    "readyForAdmin": "পর্যালোচনা করে নিশ্চিত করার জন্য প্রস্তুত"
+  },
+  "groupEmpty": {
+    "owner": "কোনো অনুরোধে মালিকের পর্যালোচনা প্রয়োজন নেই।",
+    "info": "কোনো অনুরোধ আরও তথ্যের অপেক্ষায় নেই।",
+    "ready": "এই মুহূর্তে কোনো অনুরোধ অ্যাডমিনের জন্য প্রস্তুত নেই।"
+  },
+  "card": {
+    "refundAmount": "{{amount}} টাকা ফেরত",
+    "refund": "টাকা ফেরতের অনুরোধ",
+    "extension": "পরিশোধের জন্য আরও সময়",
+    "lessonChange": "একটি ক্লাস সরানো",
+    "request": "একটি অনুরোধ",
+    "welfareLine": "একটি কল্যাণ-উদ্বেগ চিহ্নিত হয়েছে। মালিক নিজে এটি দেখবেন।",
+    "typeFor": "{{reference}}-এর জন্য {{type}}।",
+    "typeOnly": "{{type}}।",
+    "extensionDays_one": "পরিশোধের জন্য আরও {{count}} দিন",
+    "extensionDays_other": "পরিশোধের জন্য আরও {{count}} দিন"
+  },
+  "step": {
+    "submitted": "জমা হয়েছে",
+    "ruleCheck": "নিয়ম যাচাই",
+    "ownerReview": "মালিকের পর্যালোচনা",
+    "recorded": "নথিভুক্ত",
+    "reviewStarted": "পর্যালোচনা শুরু হয়েছে",
+    "notNeeded": "প্রয়োজন নেই",
+    "needsMoreFacts": "আরও তথ্য প্রয়োজন",
+    "allDone": "সব ধাপ সম্পন্ন",
+    "nothingLeft": "আর কিছু করার নেই",
+    "lastStep": "এটিই শেষ ধাপ",
+    "heading": "ধাপ {{n}} / {{total}}: {{label}}",
+    "stepsAfter_one": "এর পরে একটি ধাপ",
+    "stepsAfter_other": "এর পরে {{count}}টি ধাপ"
+  },
+  "stepInSentence": {
+    "submitted": "জমা",
+    "ruleCheck": "নিয়ম যাচাই",
+    "ownerReview": "মালিকের পর্যালোচনা",
+    "recorded": "নথিভুক্তি"
+  },
+  "ruleHeading": {
+    "missing": "কিছু তথ্য অনুপস্থিত",
+    "ownerWelfare": "কল্যাণ-উদ্বেগ। এটি আপনি নিজে সামলান",
+    "ownerRed": "অন্য কিছু হওয়ার আগে এতে আপনার পর্যালোচনা প্রয়োজন",
+    "adminWelfare": "থামুন। মালিককে নিজে এটি সামলাতে হবে",
+    "adminRed": "অন্য কিছু হওয়ার আগে মালিককে এটি পর্যালোচনা করতে হবে",
+    "ownerAmber": "এগোনোর আগে এতে আপনার অনুমোদন প্রয়োজন",
+    "adminAmber": "এগোনোর আগে মালিকের সঙ্গে কথা বলুন",
+    "green": "আপনি এগোতে পারেন"
+  },
+  "ruleName": {
+    "safety_complaint": "নিরাপত্তা-সংক্রান্ত অভিযোগ",
+    "safety_welfare": "কল্যাণ-উদ্বেগ",
+    "default_unsupported": "এর জন্য কোনো নীতি নেই",
+    "default_missing_policy": "কোনো সক্রিয় নীতি নেই",
+    "default_missing_information": "অনুপস্থিত তথ্য",
+    "default_no_matching_rule": "মেলে এমন নিয়ম নেই",
+    "refund_under_50": "$50-এর কম টাকা ফেরত",
+    "refund_50_to_200": "$50 থেকে $200 টাকা ফেরত",
+    "refund_over_200": "$200-এর বেশি টাকা ফেরত",
+    "lesson_change_no_fee": "ফি-তে কোনো পরিবর্তন নেই",
+    "lesson_change_fee_impact": "ফি-তে প্রভাব পড়ে",
+    "payment_extension_up_to_7": "7 দিন পর্যন্ত সময় বাড়ানো",
+    "payment_extension_8_to_30": "8 থেকে 30 দিন সময় বাড়ানো",
+    "payment_extension_over_30": "30 দিনের বেশি সময় বাড়ানো"
+  }
+}

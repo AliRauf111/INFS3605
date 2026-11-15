@@ -1,0 +1,130 @@
+{
+  "eyebrow": "你今日嘅重點",
+  "greeting": {
+    "morning": "早晨，{{name}}",
+    "afternoon": "午安，{{name}}",
+    "evening": "晚安，{{name}}"
+  },
+  "subheading": "輕鬆啲睇你盤補習生意。我哋一個決定一個決定咁嚟。",
+  "removed": "請求已經喺清單移走。你可以喺呢度搵返：",
+  "removedLink": "移走咗嘅請求",
+  "filterLabel": "按狀態篩選概覽請求",
+  "showing": "顯示緊",
+  "viewRequests": "睇請求",
+  "overToYou": "輪到你",
+  "humanTouch": "有幾樣嘢要人手處理",
+  "showAllRequests": "顯示全部請求",
+  "student": "學生：{{name}}",
+  "studentLabel": "學生 {{name}}",
+  "allCaughtUp": "全部搞掂晒。",
+  "chooseAnother": "揀第二個狀態或者顯示全部請求。",
+  "everyDealtWith": "所有請求都處理咗。抖吓啦。",
+  "viewAll": "睇全部請求",
+  "capacity": {
+    "heading": "仲有啲空間發展",
+    "caption": "已預約嘅堂對比導師得閒嘅鐘數",
+    "periodLabel": "容量圖表時段",
+    "booked": "已預約",
+    "available": "得閒",
+    "thisWeek": "今個星期",
+    "nextWeek": "下個星期",
+    "thisMonth": "今個月",
+    "thisWeekLower": "今個星期",
+    "nextWeekLower": "下個星期",
+    "thisMonthLower": "今個月",
+    "nothingToCompare": {
+      "lastWeek": "上個星期冇開放時間可以比較",
+      "thisWeek": "今個星期冇開放時間可以比較"
+    },
+    "same": {
+      "lastWeek": "同上個星期一樣",
+      "thisWeek": "同今個星期一樣"
+    },
+    "percentBooked": "已預約 {{percent}}%",
+    "noHoursOffered": "冇開放時間",
+    "noTutorHours": "導師冇開放時間",
+    "ofCapacity": "導師容量已預約",
+    "tipLine": "{{label}} · {{booked}}/{{offered}} 個鐘",
+    "chartLabel": "導師容量，{{period}}。{{summary}} 將滑鼠移到或者聚焦每一點就睇到鐘數。",
+    "chartNone": "冇開放時間。",
+    "chartPercent": "得閒鐘數已預約 {{percent}}%。",
+    "pointLabel": "{{label}}：{{offered}} 個鐘入面預約咗 {{booked}} 個鐘",
+    "pointTitle": "{{label}}：{{booked}} / {{offered}} 個鐘",
+    "hours": "{{n}} 個鐘",
+    "weekShort": "第 {{n}} 週",
+    "note": "嚟自導師日曆 · 將滑鼠移到圖表度睇",
+    "acrossWeeks_other": "今個月一共 {{count}} 個星期",
+    "more": {
+      "lastWeek_other": "比上個星期高 {{count}} 個百分點",
+      "thisWeek_other": "比今個星期高 {{count}} 個百分點"
+    },
+    "fewer": {
+      "lastWeek_other": "比上個星期低 {{count}} 個百分點",
+      "thisWeek_other": "比今個星期低 {{count}} 個百分點"
+    }
+  },
+  "today": {
+    "headingToday": "今日就嚟上嘅堂",
+    "headingNext": "跟住嘅堂",
+    "snapshot": {
+      "morning": "你朝早嘅概況",
+      "afternoon": "你下晝嘅概況",
+      "evening": "你夜晚嘅概況"
+    },
+    "nothingToday": "今日時間表冇嘢。呢啲係跟住嘅堂。",
+    "openSchedule": "打開成個時間表",
+    "notSetUp": "呢個資料庫仲未設定上堂時間表。",
+    "noLessons": "時間表冇堂。",
+    "coverNeeded": "要搵人代堂",
+    "confirmed": "確認咗"
+  },
+  "rules": {
+    "heading": "你盤生意，你定規則",
+    "caption": "Compass 跟你定嘅界線做嘢",
+    "open": "打開業務規則",
+    "exceptions": "例外要老闆批准",
+    "none": "未有生效嘅規則",
+    "bottom": "每個重要決定都由你話事。",
+    "refunds": "少過 {{amount}} 嘅退款由團隊處理",
+    "lessonChanges": "改堂會對住你嘅規則檢查",
+    "extensions_other": "延遲付款最多 {{count}} 日"
+  },
+  "activity": {
+    "heading": "靜靜雞搞掂啲嘢",
+    "none": "請求暫時未有任何動靜。",
+    "updated": "更新咗",
+    "event": {
+      "sent_to_owner": {
+        "lead": "交咗畀老闆",
+        "rest": "等佢決定"
+      },
+      "owner_approved": {
+        "lead": "老闆批准咗",
+        "rest": "交返畀團隊"
+      },
+      "owner_declined": {
+        "lead": "老闆拒絕咗",
+        "rest": "記低咗原因"
+      },
+      "owner_requested_info": {
+        "lead": "老闆問咗",
+        "rest": "多啲細節"
+      },
+      "admin_replied": {
+        "lead": "細節已經覆返",
+        "rest": "畀老闆"
+      },
+      "closed": {
+        "lead": "記錄咗結果",
+        "rest": "請求已關閉"
+      },
+      "reevaluated": {
+        "lead": "規則再檢查咗",
+        "rest": "用咗新嘅事實"
+      }
+    }
+  },
+  "cardLabel_other": "{{group}}：{{count}} 個請求。篩選概覽",
+  "groupCount_other": "{{group}} · {{count}} 個請求",
+  "viewAllCount_other": "睇全部 {{count}} 個請求"
+}

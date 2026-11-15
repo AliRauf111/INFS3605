@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "Αγγλικά",
+    "mathematics": "Μαθηματικά",
+    "science": "Φυσικές επιστήμες",
+    "business_humanities": "Επιχειρήσεις και ανθρωπιστικές σπουδές",
+    "history": "Ιστορία",
+    "technology_design": "Τεχνολογία και σχεδιασμός",
+    "creative_arts": "Δημιουργικές τέχνες",
+    "health_community": "Υγεία και κοινότητα",
+    "languages": "Γλώσσες",
+    "vocational": "Επαγγελματική εκπαίδευση"
+  }
+}

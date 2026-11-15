@@ -1,0 +1,37 @@
+{
+  "intro": "Quy tắc của chủ, lịch đặt, thanh toán, lịch rảnh của gia sư và quy trình ở cùng một nơi. Hồ sơ được hiển thị đúng như khi lưu.",
+  "stale": "! Có thể đã cũ",
+  "synced": "{{system}}, đồng bộ {{when}}",
+  "col": {
+    "id": "Mã",
+    "student": "Học sinh",
+    "family": "Gia đình",
+    "subject": "Môn học",
+    "lessons": "Buổi học",
+    "price": "Giá",
+    "invoice": "Hóa đơn",
+    "paidDue": "Đã trả / phải trả",
+    "slot": "Khung giờ",
+    "starts": "Bắt đầu"
+  },
+  "lessonsUsed": "Đã dùng {{used}} trên {{purchased}}",
+  "payments": "Thanh toán",
+  "paymentStatus": {
+    "paid": "Đã thanh toán",
+    "pending": "Đang chờ",
+    "overdue": "Quá hạn",
+    "refunded": "Đã hoàn tiền",
+    "disputed": "Đang tranh chấp"
+  },
+  "slotStatus": {
+    "free": "Trống",
+    "booked": "Đã đặt",
+    "held": "Đang giữ chỗ"
+  },
+  "due": "Hạn {{date}}",
+  "conflictHint": "PAY-2002 và PAY-2003 được cố ý để mâu thuẫn (cùng hóa đơn, khác số tiền), và PAY-2005 được cố ý để cũ, nhằm cho thấy bằng chứng thiếu hoặc mâu thuẫn sẽ chặn màu xanh lá.",
+  "availability": "Lịch rảnh của gia sư",
+  "procedures": "Quy trình",
+  "proceduresHint": "Quy trình được hiển thị đúng như chủ đã viết.",
+  "ownerApproved": "Chủ đã duyệt"
+}

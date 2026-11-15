@@ -1,0 +1,9 @@
+{
+  "title": "語言",
+  "buttonLabel": "語言：{{language}}（{{english}}）。轉語言",
+  "changed": "語言轉咗做{{language}}。",
+  "loadFailed": "載入唔到{{language}}。頁面會保持而家嘅語言。檢查吓網絡再試。",
+  "loading": "載入緊…",
+  "settingsHint": "即刻轉選單、按鈕、表格同訊息嘅語言。名、預約編號同所有人寫低嘅嘢都會保持輸入時嘅原樣。",
+  "reviewNote": "英文以外嘅翻譯係初稿，仲等緊識講嘅人檢查。如果有啲字眼讀落怪怪哋，呢個清單入面一定搵到英文。"
+}

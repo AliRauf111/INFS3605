@@ -1,0 +1,139 @@
+{
+  "eyebrow": "ਤੁਹਾਡਾ ਦਿਨ, ਇੱਕ ਨਜ਼ਰ ਵਿੱਚ",
+  "greeting": {
+    "morning": "ਸ਼ੁਭ ਸਵੇਰ, {{name}}",
+    "afternoon": "ਸਤ ਸ੍ਰੀ ਅਕਾਲ, {{name}}",
+    "evening": "ਸ਼ੁਭ ਸ਼ਾਮ, {{name}}"
+  },
+  "subheading": "ਤੁਹਾਡੇ ਟਿਊਸ਼ਨ ਕਾਰੋਬਾਰ ਦਾ ਇੱਕ ਸ਼ਾਂਤ ਨਜ਼ਾਰਾ। ਆਓ ਇੱਕ-ਇੱਕ ਫ਼ੈਸਲਾ ਕਰੀਏ।",
+  "removed": "ਬੇਨਤੀ ਸੂਚੀ ਵਿੱਚੋਂ ਹਟਾ ਦਿੱਤੀ। ਤੁਸੀਂ ਇਸ ਨੂੰ ਦੁਬਾਰਾ ਇੱਥੇ ਲੱਭ ਸਕਦੇ ਹੋ:",
+  "removedLink": "ਹਟਾਈਆਂ ਬੇਨਤੀਆਂ",
+  "filterLabel": "ਓਵਰਵਿਊ ਦੀਆਂ ਬੇਨਤੀਆਂ ਨੂੰ ਸਥਿਤੀ ਮੁਤਾਬਕ ਫ਼ਿਲਟਰ ਕਰੋ",
+  "showing": "ਦਿਖਾ ਰਹੇ ਹਾਂ",
+  "viewRequests": "ਬੇਨਤੀਆਂ ਦੇਖੋ",
+  "overToYou": "ਹੁਣ ਤੁਹਾਡੀ ਵਾਰੀ",
+  "humanTouch": "ਕੁਝ ਕੰਮ ਜਿਨ੍ਹਾਂ ਨੂੰ ਇਨਸਾਨੀ ਸਮਝ ਚਾਹੀਦੀ ਹੈ",
+  "showAllRequests": "ਸਾਰੀਆਂ ਬੇਨਤੀਆਂ ਦਿਖਾਓ",
+  "student": "ਵਿਦਿਆਰਥੀ: {{name}}",
+  "studentLabel": "ਵਿਦਿਆਰਥੀ {{name}}",
+  "allCaughtUp": "ਤੁਹਾਡਾ ਸਾਰਾ ਕੰਮ ਪੂਰਾ ਹੈ।",
+  "chooseAnother": "ਹੋਰ ਸਥਿਤੀ ਚੁਣੋ ਜਾਂ ਸਾਰੀਆਂ ਬੇਨਤੀਆਂ ਦਿਖਾਓ।",
+  "everyDealtWith": "ਹਰ ਬੇਨਤੀ ਨਿਪਟ ਗਈ ਹੈ। ਥੋੜ੍ਹਾ ਸੁਖ ਦਾ ਸਾਹ ਲਓ।",
+  "viewAll": "ਸਾਰੀਆਂ ਬੇਨਤੀਆਂ ਦੇਖੋ",
+  "capacity": {
+    "heading": "ਵਧਣ ਦੀ ਥੋੜ੍ਹੀ ਗੁੰਜਾਇਸ਼",
+    "caption": "ਉਪਲਬਧ ਟਿਊਟਰ ਘੰਟਿਆਂ ਦੇ ਮੁਕਾਬਲੇ ਬੁੱਕ ਕਲਾਸਾਂ",
+    "periodLabel": "ਸਮਰੱਥਾ ਚਾਰਟ ਦੀ ਮਿਆਦ",
+    "booked": "ਬੁੱਕ",
+    "available": "ਉਪਲਬਧ",
+    "thisWeek": "ਇਸ ਹਫ਼ਤੇ",
+    "nextWeek": "ਅਗਲੇ ਹਫ਼ਤੇ",
+    "thisMonth": "ਇਸ ਮਹੀਨੇ",
+    "thisWeekLower": "ਇਸ ਹਫ਼ਤੇ",
+    "nextWeekLower": "ਅਗਲੇ ਹਫ਼ਤੇ",
+    "thisMonthLower": "ਇਸ ਮਹੀਨੇ",
+    "nothingToCompare": {
+      "lastWeek": "ਤੁਲਨਾ ਲਈ ਪਿਛਲੇ ਹਫ਼ਤੇ ਕੁਝ ਉਪਲਬਧ ਨਹੀਂ ਸੀ",
+      "thisWeek": "ਤੁਲਨਾ ਲਈ ਇਸ ਹਫ਼ਤੇ ਕੁਝ ਉਪਲਬਧ ਨਹੀਂ"
+    },
+    "same": {
+      "lastWeek": "ਪਿਛਲੇ ਹਫ਼ਤੇ ਜਿੰਨਾ",
+      "thisWeek": "ਇਸ ਹਫ਼ਤੇ ਜਿੰਨਾ"
+    },
+    "percentBooked": "{{percent}}% ਬੁੱਕ",
+    "noHoursOffered": "ਕੋਈ ਘੰਟੇ ਉਪਲਬਧ ਨਹੀਂ",
+    "noTutorHours": "ਟਿਊਟਰਾਂ ਦੇ ਕੋਈ ਘੰਟੇ ਉਪਲਬਧ ਨਹੀਂ",
+    "ofCapacity": "ਟਿਊਟਰ ਸਮਰੱਥਾ ਬੁੱਕ",
+    "tipLine": "{{label}} · {{offered}} ਵਿੱਚੋਂ {{booked}} ਘੰ",
+    "chartLabel": "ਟਿਊਟਰ ਸਮਰੱਥਾ, {{period}}। {{summary}} ਘੰਟੇ ਦੇਖਣ ਲਈ ਹਰ ਬਿੰਦੂ 'ਤੇ ਮਾਊਸ ਲਿਜਾਓ ਜਾਂ ਫੋਕਸ ਕਰੋ।",
+    "chartNone": "ਕੋਈ ਘੰਟੇ ਉਪਲਬਧ ਨਹੀਂ।",
+    "chartPercent": "ਉਪਲਬਧ ਘੰਟਿਆਂ ਦਾ {{percent}}% ਬੁੱਕ।",
+    "pointLabel": "{{label}}: {{offered}} ਵਿੱਚੋਂ {{booked}} ਘੰਟੇ ਬੁੱਕ",
+    "pointTitle": "{{label}}: {{booked}} / {{offered}} ਘੰ",
+    "hours": "{{n}} ਘੰ",
+    "weekShort": "ਹਫ਼ਤਾ {{n}}",
+    "note": "ਟਿਊਟਰ ਕੈਲੰਡਰ ਤੋਂ · ਦੇਖਣ ਲਈ ਚਾਰਟ 'ਤੇ ਮਾਊਸ ਲਿਜਾਓ",
+    "acrossWeeks_one": "ਇਸ ਮਹੀਨੇ ਦੇ {{count}} ਹਫ਼ਤੇ ਵਿੱਚ",
+    "acrossWeeks_other": "ਇਸ ਮਹੀਨੇ ਦੇ {{count}} ਹਫ਼ਤਿਆਂ ਵਿੱਚ",
+    "more": {
+      "lastWeek_one": "ਪਿਛਲੇ ਹਫ਼ਤੇ ਨਾਲੋਂ {{count}} ਅੰਕ ਵੱਧ",
+      "lastWeek_other": "ਪਿਛਲੇ ਹਫ਼ਤੇ ਨਾਲੋਂ {{count}} ਅੰਕ ਵੱਧ",
+      "thisWeek_one": "ਇਸ ਹਫ਼ਤੇ ਨਾਲੋਂ {{count}} ਅੰਕ ਵੱਧ",
+      "thisWeek_other": "ਇਸ ਹਫ਼ਤੇ ਨਾਲੋਂ {{count}} ਅੰਕ ਵੱਧ"
+    },
+    "fewer": {
+      "lastWeek_one": "ਪਿਛਲੇ ਹਫ਼ਤੇ ਨਾਲੋਂ {{count}} ਅੰਕ ਘੱਟ",
+      "lastWeek_other": "ਪਿਛਲੇ ਹਫ਼ਤੇ ਨਾਲੋਂ {{count}} ਅੰਕ ਘੱਟ",
+      "thisWeek_one": "ਇਸ ਹਫ਼ਤੇ ਨਾਲੋਂ {{count}} ਅੰਕ ਘੱਟ",
+      "thisWeek_other": "ਇਸ ਹਫ਼ਤੇ ਨਾਲੋਂ {{count}} ਅੰਕ ਘੱਟ"
+    }
+  },
+  "today": {
+    "headingToday": "ਅੱਜ ਆਉਣ ਵਾਲੀਆਂ ਕਲਾਸਾਂ",
+    "headingNext": "ਅੱਗੇ ਆਉਣ ਵਾਲੀਆਂ ਕਲਾਸਾਂ",
+    "snapshot": {
+      "morning": "ਤੁਹਾਡੀ ਸਵੇਰ ਦੀ ਝਲਕ",
+      "afternoon": "ਤੁਹਾਡੀ ਦੁਪਹਿਰ ਦੀ ਝਲਕ",
+      "evening": "ਤੁਹਾਡੀ ਸ਼ਾਮ ਦੀ ਝਲਕ"
+    },
+    "nothingToday": "ਅੱਜ ਸਮਾਂ-ਸਾਰਣੀ ਵਿੱਚ ਕੁਝ ਨਹੀਂ। ਇਹ ਅਗਲੀਆਂ ਕਲਾਸਾਂ ਹਨ।",
+    "openSchedule": "ਪੂਰੀ ਸਮਾਂ-ਸਾਰਣੀ ਖੋਲ੍ਹੋ",
+    "notSetUp": "ਇਸ ਡਾਟਾਬੇਸ ਵਿੱਚ ਹਾਲੇ ਕਲਾਸਾਂ ਦੀ ਸਮਾਂ-ਸਾਰਣੀ ਸੈੱਟ ਨਹੀਂ।",
+    "noLessons": "ਸਮਾਂ-ਸਾਰਣੀ ਵਿੱਚ ਕੋਈ ਕਲਾਸ ਨਹੀਂ।",
+    "coverNeeded": "ਬਦਲਵਾਂ ਟਿਊਟਰ ਚਾਹੀਦਾ",
+    "confirmed": "ਪੱਕੀ"
+  },
+  "rules": {
+    "heading": "ਤੁਹਾਡਾ ਕਾਰੋਬਾਰ, ਤੁਹਾਡੇ ਨਿਯਮ",
+    "caption": "Compass ਤੁਹਾਡੀਆਂ ਤੈਅ ਹੱਦਾਂ ਦੀ ਪਾਲਣਾ ਕਰਦਾ ਹੈ",
+    "open": "ਕਾਰੋਬਾਰ ਦੇ ਨਿਯਮ ਖੋਲ੍ਹੋ",
+    "exceptions": "ਛੋਟਾਂ ਲਈ ਮਾਲਕ ਦੀ ਮਨਜ਼ੂਰੀ",
+    "none": "ਹਾਲੇ ਕੋਈ ਸਰਗਰਮ ਨਿਯਮ ਨਹੀਂ",
+    "bottom": "ਹਰ ਜ਼ਰੂਰੀ ਫ਼ੈਸਲੇ 'ਤੇ ਕਾਬੂ ਤੁਹਾਡਾ ਰਹਿੰਦਾ ਹੈ।",
+    "refunds": "{{amount}} ਤੋਂ ਘੱਟ ਦੇ ਰਿਫੰਡ ਟੀਮ ਸੰਭਾਲਦੀ ਹੈ",
+    "lessonChanges": "ਕਲਾਸ ਬਦਲਾਅ ਤੁਹਾਡੇ ਨਿਯਮਾਂ ਨਾਲ ਜਾਂਚੇ ਜਾਂਦੇ ਹਨ",
+    "extensions_one": "{{count}} ਦਿਨ ਤੱਕ ਭੁਗਤਾਨ ਦੀ ਮੋਹਲਤ",
+    "extensions_other": "{{count}} ਦਿਨਾਂ ਤੱਕ ਭੁਗਤਾਨ ਦੀ ਮੋਹਲਤ"
+  },
+  "activity": {
+    "heading": "ਚੁੱਪ-ਚਾਪ ਕੰਮ ਹੋ ਰਿਹਾ ਹੈ",
+    "none": "ਹਾਲੇ ਕਿਸੇ ਬੇਨਤੀ 'ਤੇ ਕੁਝ ਨਹੀਂ ਹੋਇਆ।",
+    "updated": "ਅੱਪਡੇਟ ਹੋਇਆ",
+    "event": {
+      "sent_to_owner": {
+        "lead": "ਮਾਲਕ ਨੂੰ ਭੇਜੀ",
+        "rest": "ਫ਼ੈਸਲੇ ਲਈ"
+      },
+      "owner_approved": {
+        "lead": "ਮਾਲਕ ਨੇ ਮਨਜ਼ੂਰ ਕੀਤੀ",
+        "rest": "ਅਤੇ ਟੀਮ ਕੋਲ ਵਾਪਸ"
+      },
+      "owner_declined": {
+        "lead": "ਮਾਲਕ ਨੇ ਨਾਂਹ ਕੀਤੀ",
+        "rest": "ਕਾਰਨ ਦਰਜ ਕਰਕੇ"
+      },
+      "owner_requested_info": {
+        "lead": "ਮਾਲਕ ਨੇ ਪੁੱਛਿਆ",
+        "rest": "ਕੁਝ ਹੋਰ ਜਾਣਕਾਰੀ"
+      },
+      "admin_replied": {
+        "lead": "ਜਾਣਕਾਰੀ ਵਾਪਸ ਭੇਜੀ",
+        "rest": "ਮਾਲਕ ਨੂੰ"
+      },
+      "closed": {
+        "lead": "ਨਤੀਜਾ ਦਰਜ ਹੋਇਆ",
+        "rest": "ਅਤੇ ਬੇਨਤੀ ਬੰਦ ਹੋਈ"
+      },
+      "reevaluated": {
+        "lead": "ਨਿਯਮ ਦੁਬਾਰਾ ਜਾਂਚੇ",
+        "rest": "ਨਵੇਂ ਤੱਥਾਂ ਨਾਲ"
+      }
+    }
+  },
+  "cardLabel_one": "{{group}}: {{count}} ਬੇਨਤੀ। ਓਵਰਵਿਊ ਫ਼ਿਲਟਰ ਕਰੋ",
+  "cardLabel_other": "{{group}}: {{count}} ਬੇਨਤੀਆਂ। ਓਵਰਵਿਊ ਫ਼ਿਲਟਰ ਕਰੋ",
+  "groupCount_one": "{{group}} · {{count}} ਬੇਨਤੀ",
+  "groupCount_other": "{{group}} · {{count}} ਬੇਨਤੀਆਂ",
+  "viewAllCount_one": "ਸਾਰੀਆਂ {{count}} ਬੇਨਤੀ ਦੇਖੋ",
+  "viewAllCount_other": "ਸਾਰੀਆਂ {{count}} ਬੇਨਤੀਆਂ ਦੇਖੋ"
+}

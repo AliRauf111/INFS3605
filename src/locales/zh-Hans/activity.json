@@ -1,0 +1,17 @@
+{
+  "title": "助手活动",
+  "hint": "服务器按顺序记录的实际步骤。不显示模型的推理过程。",
+  "none": "尚未记录任何活动。",
+  "state": {
+    "completed": "已完成",
+    "pending": "待处理",
+    "blocked": "受阻",
+    "failed": "失败"
+  },
+  "mode": {
+    "live_ai": "实时 AI",
+    "simulated": "模拟（不使用 AI）",
+    "system": "服务器步骤"
+  },
+  "source": "来源：{{source}}"
+}

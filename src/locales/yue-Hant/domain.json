@@ -1,0 +1,132 @@
+{
+  "role": {
+    "owner": "老闆",
+    "admin": "管理員"
+  },
+  "requestType": {
+    "refund": "退款",
+    "lesson_change": "改堂",
+    "payment_extension": "延遲付款",
+    "other": "其他"
+  },
+  "triState": {
+    "yes": "係",
+    "no": "唔係",
+    "unsure": "唔肯定"
+  },
+  "colour": {
+    "green": "綠色：你可以跟批准咗嘅步驟做",
+    "amber": "黃色：要澄清或者老闆批准",
+    "red": "紅色：停低，交畀老闆"
+  },
+  "colourShort": {
+    "green": "綠色",
+    "amber": "黃色",
+    "red": "紅色"
+  },
+  "decisionLabel": "決定：{{colour}}",
+  "status": {
+    "ready": "可以交畀管理員",
+    "needs_clarification": "要澄清",
+    "review_required": "要老闆審批",
+    "awaiting_owner": "等緊老闆",
+    "more_info_requested": "老闆要多啲資料",
+    "approved": "老闆批准咗",
+    "declined": "老闆拒絕咗",
+    "closed": "已關閉"
+  },
+  "action": {
+    "prepare_parent_response": "準備覆家長",
+    "prepare_tutor_message": "準備畀導師嘅訊息",
+    "prepare_escalation_summary": "準備畀老闆嘅上報摘要",
+    "prepare_reschedule_proposal": "準備改期建議",
+    "prepare_admin_checklist": "準備管理員清單",
+    "send_to_owner": "交畀老闆審批"
+  },
+  "draft": {
+    "parent_response": "覆家長",
+    "tutor_message": "畀導師嘅訊息",
+    "escalation_summary": "畀老闆嘅上報摘要",
+    "reschedule_proposal": "改期建議",
+    "admin_checklist": "管理員清單"
+  },
+  "dataLabel": {
+    "live_connected": "即時連接",
+    "imported": "匯入咗",
+    "fictional_demo": "虛構示範資料"
+  },
+  "group": {
+    "owner": "要老闆審批",
+    "info": "要多啲資料",
+    "ready": "可以交畀管理員"
+  },
+  "groupText": {
+    "ownerForOwner": "要你判斷",
+    "ownerForAdmin": "等緊老闆決定",
+    "info": "有幾樣嘢要講清楚",
+    "readyForOwner": "喺管理團隊度等確認",
+    "readyForAdmin": "可以睇吓同確認"
+  },
+  "groupEmpty": {
+    "owner": "冇請求要老闆審批。",
+    "info": "冇請求等緊多啲資料。",
+    "ready": "而家冇請求可以交畀管理員。"
+  },
+  "card": {
+    "refundAmount": "{{amount}} 嘅退款",
+    "refund": "一個退款請求",
+    "extension": "遲啲先付款",
+    "lessonChange": "改一堂嘅時間",
+    "request": "一個請求",
+    "welfareLine": "有人標記咗福利問題。老闆會親自處理。",
+    "typeFor": "{{reference}} 嘅{{type}}。",
+    "typeOnly": "{{type}}。",
+    "extensionDays_other": "遲多 {{count}} 日先付款"
+  },
+  "step": {
+    "submitted": "已提交",
+    "ruleCheck": "規則檢查",
+    "ownerReview": "老闆審批",
+    "recorded": "記低咗",
+    "reviewStarted": "開始咗審批",
+    "notNeeded": "唔使",
+    "needsMoreFacts": "要多啲事實",
+    "allDone": "全部步驟做完",
+    "nothingLeft": "冇嘢要做",
+    "lastStep": "呢個係最後一步",
+    "heading": "第 {{n}} 步，共 {{total}} 步：{{label}}",
+    "stepsAfter_other": "之後仲有 {{count}} 步"
+  },
+  "stepInSentence": {
+    "submitted": "提交",
+    "ruleCheck": "規則檢查",
+    "ownerReview": "老闆審批",
+    "recorded": "記錄"
+  },
+  "ruleHeading": {
+    "missing": "欠咗啲事實",
+    "ownerWelfare": "福利問題。由你親自處理",
+    "ownerRed": "做任何嘢之前要你審批",
+    "adminWelfare": "停低。老闆一定要親自處理",
+    "adminRed": "做任何嘢之前老闆一定要審批",
+    "ownerAmber": "繼續之前要你批准",
+    "adminAmber": "繼續之前問咗老闆先",
+    "green": "你可以繼續"
+  },
+  "ruleName": {
+    "safety_complaint": "安全投訴",
+    "safety_welfare": "福利問題",
+    "default_unsupported": "冇相關政策",
+    "default_missing_policy": "冇生效嘅政策",
+    "default_missing_information": "資料欠缺",
+    "default_no_matching_rule": "冇對得上嘅規則",
+    "refund_under_50": "退款少過 $50",
+    "refund_50_to_200": "退款 $50 至 $200",
+    "refund_over_200": "退款多過 $200",
+    "lesson_change_no_fee": "收費唔變",
+    "lesson_change_fee_impact": "影響收費",
+    "payment_extension_up_to_7": "延遲最多 7 日",
+    "payment_extension_8_to_30": "延遲 8 至 30 日",
+    "payment_extension_over_30": "延遲多過 30 日"
+  }
+}

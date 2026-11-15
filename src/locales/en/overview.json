@@ -1,0 +1,118 @@
+{
+  "eyebrow": "Your day, in focus",
+  "greeting": {
+    "morning": "Good morning, {{name}}",
+    "afternoon": "Good afternoon, {{name}}",
+    "evening": "Good evening, {{name}}"
+  },
+  "subheading": "A calmer view of your tutoring business. Let us take it one decision at a time.",
+  "removed": "Request removed from the list. You can find it again under",
+  "removedLink": "Removed Requests",
+  "filterLabel": "Filter overview requests by status",
+  "cardLabel_one": "{{group}}: {{count}} request. Filter overview",
+  "cardLabel_other": "{{group}}: {{count}} requests. Filter overview",
+  "showing": "Showing",
+  "viewRequests": "View requests",
+  "overToYou": "Over to You",
+  "groupCount_one": "{{group}} · {{count}} request",
+  "groupCount_other": "{{group}} · {{count}} requests",
+  "humanTouch": "A few things that need a human touch",
+  "showAllRequests": "Show all requests",
+  "student": "Student: {{name}}",
+  "studentLabel": "Student {{name}}",
+  "allCaughtUp": "You are all caught up.",
+  "chooseAnother": "Choose another status or show all requests.",
+  "everyDealtWith": "Every request has been dealt with. Enjoy a little more headspace.",
+  "viewAllCount_one": "View all {{count}} request",
+  "viewAllCount_other": "View all {{count}} requests",
+  "viewAll": "View all requests",
+  "capacity": {
+    "heading": "A little room to grow",
+    "caption": "Booked lessons against your available tutor hours",
+    "periodLabel": "Capacity chart period",
+    "booked": "Booked",
+    "available": "Available",
+    "thisWeek": "This week",
+    "nextWeek": "Next week",
+    "thisMonth": "This month",
+    "thisWeekLower": "this week",
+    "nextWeekLower": "next week",
+    "thisMonthLower": "this month",
+    "acrossWeeks_one": "Across {{count}} week this month",
+    "acrossWeeks_other": "Across {{count}} weeks this month",
+    "nothingToCompare": {
+      "lastWeek": "Nothing offered last week to compare",
+      "thisWeek": "Nothing offered this week to compare"
+    },
+    "same": {
+      "lastWeek": "The same as last week",
+      "thisWeek": "The same as this week"
+    },
+    "more": {
+      "lastWeek_one": "{{count}} point more than last week",
+      "lastWeek_other": "{{count}} points more than last week",
+      "thisWeek_one": "{{count}} point more than this week",
+      "thisWeek_other": "{{count}} points more than this week"
+    },
+    "fewer": {
+      "lastWeek_one": "{{count}} point fewer than last week",
+      "lastWeek_other": "{{count}} points fewer than last week",
+      "thisWeek_one": "{{count}} point fewer than this week",
+      "thisWeek_other": "{{count}} points fewer than this week"
+    },
+    "percentBooked": "{{percent}}% booked",
+    "noHoursOffered": "No hours offered",
+    "noTutorHours": "No tutor hours offered",
+    "ofCapacity": "of tutor capacity booked",
+    "tipLine": "{{label}} · {{booked}} of {{offered}}h",
+    "chartLabel": "Tutor capacity, {{period}}. {{summary}} Hover or focus each point for its hours.",
+    "chartNone": "No hours offered.",
+    "chartPercent": "{{percent}}% of available hours booked.",
+    "pointLabel": "{{label}}: {{booked}} of {{offered}} hours booked",
+    "pointTitle": "{{label}}: {{booked}} / {{offered}}h",
+    "hours": "{{n}}h",
+    "weekShort": "Wk {{n}}",
+    "note": "From the tutor calendar · hover the chart to explore"
+  },
+  "today": {
+    "headingToday": "Coming up today",
+    "headingNext": "Coming up next",
+    "snapshot": {
+      "morning": "A snapshot of your morning",
+      "afternoon": "A snapshot of your afternoon",
+      "evening": "A snapshot of your evening"
+    },
+    "nothingToday": "Nothing on the timetable today. These are the next lessons.",
+    "openSchedule": "Open full schedule",
+    "notSetUp": "The lesson timetable isn't set up in this database yet.",
+    "noLessons": "No lessons on the timetable.",
+    "coverNeeded": "Cover needed",
+    "confirmed": "Confirmed"
+  },
+  "rules": {
+    "heading": "Your business, your rules",
+    "caption": "Compass follows the boundaries you set",
+    "open": "Open business rules",
+    "exceptions": "Owner approval for exceptions",
+    "none": "No active rules yet",
+    "bottom": "You stay in control of every decision that matters.",
+    "extensions_one": "Payment extensions up to {{count}} day",
+    "extensions_other": "Payment extensions up to {{count}} days",
+    "refunds": "Refunds under {{amount}} handled by the team",
+    "lessonChanges": "Lesson changes checked against your rules"
+  },
+  "activity": {
+    "heading": "Quietly getting things done",
+    "none": "Nothing has happened on a request yet.",
+    "updated": "Updated",
+    "event": {
+      "sent_to_owner": { "lead": "Sent to the owner", "rest": "for a decision" },
+      "owner_approved": { "lead": "Approved by the owner", "rest": "and back with the team" },
+      "owner_declined": { "lead": "Declined by the owner", "rest": "with a reason recorded" },
+      "owner_requested_info": { "lead": "The owner asked", "rest": "for a few more details" },
+      "admin_replied": { "lead": "Details sent back", "rest": "to the owner" },
+      "closed": { "lead": "Outcome recorded", "rest": "and the request closed" },
+      "reevaluated": { "lead": "Rules re-checked", "rest": "with the new facts" }
+    }
+  }
+}

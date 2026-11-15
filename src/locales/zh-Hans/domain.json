@@ -1,0 +1,132 @@
+{
+  "role": {
+    "owner": "负责人",
+    "admin": "管理员"
+  },
+  "requestType": {
+    "refund": "退款",
+    "lesson_change": "课程变更",
+    "payment_extension": "延期付款",
+    "other": "其他"
+  },
+  "triState": {
+    "yes": "是",
+    "no": "否",
+    "unsure": "不确定"
+  },
+  "colour": {
+    "green": "绿色：可以按批准的步骤处理",
+    "amber": "黄色：需要澄清或负责人批准",
+    "red": "红色：停止并上报负责人"
+  },
+  "colourShort": {
+    "green": "绿色",
+    "amber": "黄色",
+    "red": "红色"
+  },
+  "decisionLabel": "决定：{{colour}}",
+  "status": {
+    "ready": "可交由管理员处理",
+    "needs_clarification": "需要澄清",
+    "review_required": "需要负责人审核",
+    "awaiting_owner": "等待负责人",
+    "more_info_requested": "负责人要求补充信息",
+    "approved": "负责人已批准",
+    "declined": "负责人已拒绝",
+    "closed": "已关闭"
+  },
+  "action": {
+    "prepare_parent_response": "准备给家长的回复",
+    "prepare_tutor_message": "准备给导师的消息",
+    "prepare_escalation_summary": "准备给负责人的上报摘要",
+    "prepare_reschedule_proposal": "准备改期方案",
+    "prepare_admin_checklist": "准备管理员清单",
+    "send_to_owner": "发送给负责人审核"
+  },
+  "draft": {
+    "parent_response": "给家长的回复",
+    "tutor_message": "给导师的消息",
+    "escalation_summary": "给负责人的上报摘要",
+    "reschedule_proposal": "改期方案",
+    "admin_checklist": "管理员清单"
+  },
+  "dataLabel": {
+    "live_connected": "实时连接",
+    "imported": "已导入",
+    "fictional_demo": "虚构演示数据"
+  },
+  "group": {
+    "owner": "需要负责人审核",
+    "info": "需要更多信息",
+    "ready": "可交由管理员处理"
+  },
+  "groupText": {
+    "ownerForOwner": "需要你来判断",
+    "ownerForAdmin": "等待负责人决定",
+    "info": "有几处细节需要澄清",
+    "readyForOwner": "由管理团队确认",
+    "readyForAdmin": "可以查看并确认"
+  },
+  "groupEmpty": {
+    "owner": "没有需要负责人审核的请求。",
+    "info": "没有等待补充信息的请求。",
+    "ready": "目前没有可交由管理员处理的请求。"
+  },
+  "card": {
+    "refundAmount": "{{amount}} 的退款",
+    "refund": "一项退款请求",
+    "extension": "延长付款时间",
+    "lessonChange": "调整一节课",
+    "request": "一项请求",
+    "welfareLine": "已标记一项福祉问题。负责人会亲自处理。",
+    "typeFor": "{{reference}} 的{{type}}。",
+    "typeOnly": "{{type}}。",
+    "extensionDays_other": "付款期限延长 {{count}} 天"
+  },
+  "step": {
+    "submitted": "已提交",
+    "ruleCheck": "规则检查",
+    "ownerReview": "负责人审核",
+    "recorded": "已记录",
+    "reviewStarted": "审核已开始",
+    "notNeeded": "不需要",
+    "needsMoreFacts": "需要更多事实",
+    "allDone": "所有步骤已完成",
+    "nothingLeft": "没有剩余事项",
+    "lastStep": "这是最后一步",
+    "heading": "第 {{n}} 步，共 {{total}} 步：{{label}}",
+    "stepsAfter_other": "之后还有 {{count}} 步"
+  },
+  "stepInSentence": {
+    "submitted": "提交",
+    "ruleCheck": "规则检查",
+    "ownerReview": "负责人审核",
+    "recorded": "记录"
+  },
+  "ruleHeading": {
+    "missing": "缺少一些事实",
+    "ownerWelfare": "福祉问题。由你亲自处理",
+    "ownerRed": "在做任何事之前，需要你先审核",
+    "adminWelfare": "请停止。负责人必须亲自处理",
+    "adminRed": "在做任何事之前，负责人必须先审核",
+    "ownerAmber": "继续之前需要你批准",
+    "adminAmber": "继续之前请先问负责人",
+    "green": "可以继续"
+  },
+  "ruleName": {
+    "safety_complaint": "安全投诉",
+    "safety_welfare": "福祉问题",
+    "default_unsupported": "没有相关政策",
+    "default_missing_policy": "没有生效的政策",
+    "default_missing_information": "信息缺失",
+    "default_no_matching_rule": "没有匹配的规则",
+    "refund_under_50": "退款低于 $50",
+    "refund_50_to_200": "退款 $50 至 $200",
+    "refund_over_200": "退款超过 $200",
+    "lesson_change_no_fee": "费用不变",
+    "lesson_change_fee_impact": "影响费用",
+    "payment_extension_up_to_7": "延期不超过 7 天",
+    "payment_extension_8_to_30": "延期 8 至 30 天",
+    "payment_extension_over_30": "延期超过 30 天"
+  }
+}

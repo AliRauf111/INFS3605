@@ -1,5 +1,6 @@
 import { formatAud } from "@/lib/domain/money";
-import { REQUEST_TYPE_LABELS, STATUS_LABELS, type Colour, type RequestStatus, type RequestType, type Role, type TriState } from "@/lib/domain/types";
+import { tr } from "@/lib/i18n/reply";
+import { type Colour, type RequestStatus, type RequestType, type Role, type TriState } from "@/lib/domain/types";
 
 // Pure logic for the owner briefing: which statuses count as unfinished work, how items
 // are ordered and how each one is described. The order comes from the same escalation
@@ -34,8 +35,13 @@ export const COLOUR_TITLES: Record<Colour, string> = {
   green: "Green: Within the Rules",
 };
 
-export const ORDERING_NOTE =
-  "Red first, then yellow, then green. Within each colour, welfare concerns come first, then complaints, then unconfirmed welfare or complaint answers, then the longest wait.";
+/** The colour section's title in the reader's language. COLOUR_TITLES keeps the English. */
+export const colourTitle = (c: Colour): string => tr(`reply.brief.colour.${c}`);
+
+/** A bucket's title for this role, in the reader's language. */
+export const bucketTitle = (key: BucketKey, role: Role): string => tr(`reply.brief.bucket.${key}.${role}`);
+
+export const orderingNote = (): string => tr("reply.brief.ordering");
 
 export type BriefingRow = {
   id: string;
@@ -65,7 +71,8 @@ export function priorityTier(r: Pick<BriefingRow, "welfare_status" | "complaint_
 }
 
 export function tierReason(tier: number): string | null {
-  return ["Welfare concern", "Complaint", "Welfare or complaint not confirmed", null, null, null][tier] ?? null;
+  const key = (["welfare", "complaint", "unconfirmed"] as const)[tier];
+  return key ? tr(`reply.brief.tier.${key}`) : null;
 }
 
 const colourRank = (c: Colour) => COLOURS.indexOf(c);
@@ -85,45 +92,49 @@ export function waitingSince(row: Pick<BriefingRow, "status" | "created_at" | "u
 export function formatWaiting(sinceIso: string, now: Date): string {
   const ms = Math.max(0, now.getTime() - new Date(sinceIso).getTime());
   const mins = Math.floor(ms / 60_000);
-  if (mins < 1) return "under a minute";
-  if (mins < 60) return `${mins} minute${mins === 1 ? "" : "s"}`;
+  if (mins < 1) return tr("reply.brief.wait.underMinute");
+  if (mins < 60) return tr("reply.brief.wait.minutes", { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 48) return `${hours} hour${hours === 1 ? "" : "s"}`;
+  if (hours < 48) return tr("reply.brief.wait.hours", { count: hours });
   const days = Math.floor(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"}`;
+  return tr("reply.brief.wait.days", { count: days });
 }
 
 export function describeRequest(r: Pick<BriefingRow, "request_type" | "amount_cents" | "reference_id" | "booking_id" | "confirmed_facts">): string {
   const days = r.confirmed_facts?.extensionDays;
-  const what = `${REQUEST_TYPE_LABELS[r.request_type]}${r.amount_cents !== null ? ` of ${formatAud(r.amount_cents)}` : ""}${days ? `, ${days} extra days` : ""}`;
-  const ref = r.booking_id && r.reference_id && r.booking_id !== r.reference_id ? `${r.reference_id} (${r.booking_id})` : r.reference_id ?? r.booking_id ?? "no booking reference";
-  return `${what} for ${ref}`;
+  const what = tr("reply.brief.what", {
+    type: tr(`domain.requestType.${r.request_type}`),
+    amount: r.amount_cents !== null ? tr("reply.prop.ofAmount", { amount: formatAud(r.amount_cents) }) : "",
+    days: days ? tr("reply.prop.extraDays", { count: days }) : "",
+  });
+  const ref = r.booking_id && r.reference_id && r.booking_id !== r.reference_id ? `${r.reference_id} (${r.booking_id})` : r.reference_id ?? r.booking_id ?? tr("reply.brief.noBookingRef");
+  return tr("reply.brief.describe", { what, ref });
 }
 
-export type NextStep = { label: "Review Request" | "Prepare Follow-up" | "Record Outcome"; command: "review" | "followup" };
+export type NextStep = { label: string; command: "review" | "followup" };
+
+const REVIEW = () => ({ label: tr("reply.brief.next.review"), command: "review" as const });
+const FOLLOWUP = () => ({ label: tr("reply.brief.next.followup"), command: "followup" as const });
+const OUTCOME = () => ({ label: tr("reply.brief.next.outcome"), command: "review" as const });
 
 /** Why this needs attention now, and the most useful next step for this person. */
 export function attentionFor(status: RequestStatus, role: Role): { why: string; next: NextStep } {
   switch (status) {
     case "awaiting_owner":
-      return role === "owner"
-        ? { why: "Your decision is needed before the admin team can act.", next: { label: "Review Request", command: "review" } }
-        : { why: "Waiting for the owner's decision. There is nothing for the admin team to do yet.", next: { label: "Review Request", command: "review" } };
+      return { why: tr(role === "owner" ? "reply.brief.why.awaitingOwner" : "reply.brief.why.awaitingAdmin"), next: REVIEW() };
     case "review_required":
-      return role === "owner"
-        ? { why: "The rules say you need to review this. The admin team hasn't sent it yet, but you can start the review now.", next: { label: "Review Request", command: "review" } }
-        : { why: "The rules say the owner must review this, but it has not been sent to the owner yet.", next: { label: "Review Request", command: "review" } };
+      return { why: tr(role === "owner" ? "reply.brief.why.reviewOwner" : "reply.brief.why.reviewAdmin"), next: REVIEW() };
     case "needs_clarification":
-      return { why: "Facts are missing or conflicting, so no rule can be applied yet.", next: { label: "Prepare Follow-up", command: "followup" } };
+      return { why: tr("reply.brief.why.clarify"), next: FOLLOWUP() };
     case "more_info_requested":
-      return { why: "The owner asked for more information before deciding.", next: { label: "Prepare Follow-up", command: "followup" } };
+      return { why: tr("reply.brief.why.moreInfo"), next: FOLLOWUP() };
     case "approved":
     case "declined":
-      return { why: `${STATUS_LABELS[status]}. The admin team still needs to act and record the outcome.`, next: { label: "Record Outcome", command: "review" } };
+      return { why: tr("reply.brief.why.decided", { status: tr(`domain.status.${status}`) }), next: OUTCOME() };
     case "ready":
-      return { why: "Within the owner's rules. The admin team can act and then record the outcome.", next: { label: "Record Outcome", command: "review" } };
+      return { why: tr("reply.brief.why.ready"), next: OUTCOME() };
     default:
-      return { why: "Finished.", next: { label: "Review Request", command: "review" } };
+      return { why: tr("reply.brief.why.finished"), next: REVIEW() };
   }
 }
 

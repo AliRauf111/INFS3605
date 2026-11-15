@@ -1,0 +1,134 @@
+{
+  "role": {
+    "owner": "యజమాని",
+    "admin": "అడ్మిన్"
+  },
+  "requestType": {
+    "refund": "రీఫండ్",
+    "lesson_change": "క్లాస్ మార్పు",
+    "payment_extension": "చెల్లింపు పొడిగింపు",
+    "other": "ఇంకేదైనా"
+  },
+  "triState": {
+    "yes": "అవును",
+    "no": "కాదు",
+    "unsure": "ఖచ్చితంగా తెలియదు"
+  },
+  "colour": {
+    "green": "ఆకుపచ్చ: మీరు ఆమోదించిన దశలను పాటించవచ్చు",
+    "amber": "పసుపు: స్పష్టత లేదా యజమాని ఆమోదం అవసరం",
+    "red": "ఎరుపు: ఆపి యజమానికి పంపండి"
+  },
+  "colourShort": {
+    "green": "ఆకుపచ్చ",
+    "amber": "పసుపు",
+    "red": "ఎరుపు"
+  },
+  "decisionLabel": "నిర్ణయం: {{colour}}",
+  "status": {
+    "ready": "అడ్మిన్‌కు సిద్ధం",
+    "needs_clarification": "స్పష్టత అవసరం",
+    "review_required": "యజమాని సమీక్ష అవసరం",
+    "awaiting_owner": "యజమాని కోసం వేచి ఉంది",
+    "more_info_requested": "యజమాని సమాచారం అడిగారు",
+    "approved": "యజమాని ఆమోదించారు",
+    "declined": "యజమాని తిరస్కరించారు",
+    "closed": "మూసివేయబడింది"
+  },
+  "action": {
+    "prepare_parent_response": "తల్లిదండ్రులకు సమాధానం సిద్ధం చేయండి",
+    "prepare_tutor_message": "ట్యూటర్‌కు సందేశం సిద్ధం చేయండి",
+    "prepare_escalation_summary": "యజమానికి పంపే సారాంశం సిద్ధం చేయండి",
+    "prepare_reschedule_proposal": "సమయ మార్పు ప్రతిపాదన సిద్ధం చేయండి",
+    "prepare_admin_checklist": "అడ్మిన్ చెక్‌లిస్ట్ సిద్ధం చేయండి",
+    "send_to_owner": "సమీక్ష కోసం యజమానికి పంపండి"
+  },
+  "draft": {
+    "parent_response": "తల్లిదండ్రులకు సమాధానం",
+    "tutor_message": "ట్యూటర్‌కు సందేశం",
+    "escalation_summary": "యజమానికి పంపే సారాంశం",
+    "reschedule_proposal": "సమయ మార్పు ప్రతిపాదన",
+    "admin_checklist": "అడ్మిన్ చెక్‌లిస్ట్"
+  },
+  "dataLabel": {
+    "live_connected": "ప్రత్యక్షంగా అనుసంధానించబడింది",
+    "imported": "దిగుమతి చేయబడింది",
+    "fictional_demo": "కల్పిత డెమో డేటా"
+  },
+  "group": {
+    "owner": "యజమాని సమీక్ష అవసరం",
+    "info": "మరింత సమాచారం అవసరం",
+    "ready": "అడ్మిన్‌కు సిద్ధం"
+  },
+  "groupText": {
+    "ownerForOwner": "మీ నిర్ణయం అవసరం",
+    "ownerForAdmin": "యజమాని నిర్ణయం కోసం వేచి ఉంది",
+    "info": "స్పష్టం చేయాల్సిన కొన్ని వివరాలు",
+    "readyForOwner": "నిర్ధారించడానికి అడ్మిన్ బృందం వద్ద ఉంది",
+    "readyForAdmin": "సమీక్షించి నిర్ధారించడానికి సిద్ధం"
+  },
+  "groupEmpty": {
+    "owner": "ఏ అభ్యర్థనకూ యజమాని సమీక్ష అవసరం లేదు.",
+    "info": "ఏ అభ్యర్థనా మరింత సమాచారం కోసం వేచి లేదు.",
+    "ready": "ప్రస్తుతం ఏ అభ్యర్థనా అడ్మిన్‌కు సిద్ధంగా లేదు."
+  },
+  "card": {
+    "refundAmount": "{{amount}} రీఫండ్",
+    "refund": "రీఫండ్ అభ్యర్థన",
+    "extension": "చెల్లించడానికి మరింత సమయం",
+    "lessonChange": "ఒక క్లాస్‌ను మార్చడం",
+    "request": "ఒక అభ్యర్థన",
+    "welfareLine": "సంక్షేమ ఆందోళన గుర్తించబడింది. యజమాని దీన్ని స్వయంగా చూసుకుంటారు.",
+    "typeFor": "{{reference}} కోసం {{type}}.",
+    "typeOnly": "{{type}}.",
+    "extensionDays_one": "చెల్లించడానికి మరో {{count}} రోజు",
+    "extensionDays_other": "చెల్లించడానికి మరో {{count}} రోజులు"
+  },
+  "step": {
+    "submitted": "సమర్పించబడింది",
+    "ruleCheck": "నియమ తనిఖీ",
+    "ownerReview": "యజమాని సమీక్ష",
+    "recorded": "నమోదు చేయబడింది",
+    "reviewStarted": "సమీక్ష ప్రారంభమైంది",
+    "notNeeded": "అవసరం లేదు",
+    "needsMoreFacts": "మరిన్ని వివరాలు అవసరం",
+    "allDone": "అన్ని దశలు పూర్తయ్యాయి",
+    "nothingLeft": "చేయాల్సింది ఏమీ మిగల్లేదు",
+    "lastStep": "ఇది చివరి దశ",
+    "heading": "దశ {{n}} / {{total}}: {{label}}",
+    "stepsAfter_one": "దీని తర్వాత ఒక దశ",
+    "stepsAfter_other": "దీని తర్వాత {{count}} దశలు"
+  },
+  "stepInSentence": {
+    "submitted": "సమర్పణ",
+    "ruleCheck": "నియమ తనిఖీ",
+    "ownerReview": "యజమాని సమీక్ష",
+    "recorded": "నమోదు"
+  },
+  "ruleHeading": {
+    "missing": "కొన్ని వివరాలు లేవు",
+    "ownerWelfare": "సంక్షేమ ఆందోళన. దీన్ని మీరే స్వయంగా చూసుకోండి",
+    "ownerRed": "ఇంకేదైనా జరగడానికి ముందు దీనికి మీ సమీక్ష అవసరం",
+    "adminWelfare": "ఆపండి. యజమాని దీన్ని స్వయంగా చూసుకోవాలి",
+    "adminRed": "ఇంకేదైనా జరగడానికి ముందు యజమాని దీన్ని సమీక్షించాలి",
+    "ownerAmber": "కొనసాగడానికి ముందు దీనికి మీ ఆమోదం అవసరం",
+    "adminAmber": "కొనసాగడానికి ముందు యజమానితో నిర్ధారించుకోండి",
+    "green": "మీరు కొనసాగవచ్చు"
+  },
+  "ruleName": {
+    "safety_complaint": "భద్రతా ఫిర్యాదు",
+    "safety_welfare": "సంక్షేమ ఆందోళన",
+    "default_unsupported": "దీనికి విధానం లేదు",
+    "default_missing_policy": "చురుకైన విధానం లేదు",
+    "default_missing_information": "లేని సమాచారం",
+    "default_no_matching_rule": "సరిపోయే నియమం లేదు",
+    "refund_under_50": "$50 కంటే తక్కువ రీఫండ్",
+    "refund_50_to_200": "$50 నుండి $200 వరకు రీఫండ్",
+    "refund_over_200": "$200 కంటే ఎక్కువ రీఫండ్",
+    "lesson_change_no_fee": "ఫీజులో మార్పు లేదు",
+    "lesson_change_fee_impact": "ఫీజుపై ప్రభావం ఉంది",
+    "payment_extension_up_to_7": "7 రోజుల వరకు పొడిగింపు",
+    "payment_extension_8_to_30": "8 నుండి 30 రోజుల పొడిగింపు",
+    "payment_extension_over_30": "30 రోజులకు మించి పొడిగింపు"
+  }
+}

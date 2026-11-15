@@ -1,0 +1,32 @@
+{
+  "heading": "Integraciones",
+  "intro": "Con qué está conectada realmente esta instalación. Se comprueba al cargar la página.",
+  "service": "Servicio",
+  "state": "Estado",
+  "meaning": "Qué significa",
+  "states": {
+    "live": "Activo",
+    "keySet": "Clave configurada, aún sin usar",
+    "simulated": "Simulado",
+    "notConnected": "No conectado",
+    "error": "Error"
+  },
+  "claude": "Claude (API de Anthropic)",
+  "aiSimulated": "No hay ANTHROPIC_API_KEY configurada. La lectura de mensajes y las propuestas de reglas usan reglas de palabras clave bien identificadas, y los borradores usan plantillas.",
+  "aiLive": "La última llamada a la IA funcionó ({{when}}). Modelo: {{model}}. Se usa para extraer mensajes, redactar y proponer reglas. Nunca decide el color.",
+  "aiFailed": "La última llamada a la IA falló ({{when}}): {{summary}} Se usó el modo simulado.",
+  "aiKeySet": "Hay una clave configurada en el servidor (modelo {{model}}), pero todavía no se ha hecho ninguna llamada a la IA. Prueba la lectura de mensajes con IA para confirmar que funciona.",
+  "database": "Base de datos Supabase",
+  "databaseError": "El servidor no pudo leer la base de datos: {{message}}",
+  "databaseLive": "El servidor Next.js lee y escribe todos los registros con la clave secreta. El navegador nunca se conecta a Supabase.",
+  "auth": "Supabase Auth (inicio de sesión)",
+  "authLive": "Supabase Auth comprueba las contraseñas desde el servidor. Los roles salen de la tabla app_users.",
+  "booking": "Sistema de reservas",
+  "bookingDetail": "Las reservas son filas de demostración ficticias en Supabase, visibles en el Centro de conocimiento. No se cambia ningún sistema de reservas real.",
+  "payment": "Sistema de pagos",
+  "paymentDetail": "Los pagos son filas de demostración ficticias. Tutor Compass nunca tramita ni reembolsa pagos.",
+  "calendar": "Calendario de tutores",
+  "calendarDetail": "Los huecos de disponibilidad son filas de demostración ficticias.",
+  "email": "Correo y SMS",
+  "emailDetail": "Los borradores se preparan para que una persona los copie y los envíe. La aplicación no envía nada."
+}

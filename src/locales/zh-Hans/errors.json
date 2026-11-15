@@ -1,0 +1,15 @@
+{
+  "pageTitle": "出了点问题",
+  "pageBody": "无法显示此页面。此错误没有更改任何内容。",
+  "notFoundTitle": "未找到",
+  "notFoundBody": "该页面或记录不存在。",
+  "goToDashboard": "前往控制台",
+  "sameOrigin": "请求必须来自 Tutor Compass 应用。",
+  "badJson": "请求内容必须是有效的 JSON。",
+  "notConfigured": "服务器尚未配置。请参阅 README.md。",
+  "server": "服务器出现问题。重试前请检查请求日志。",
+  "signIn": "请登录。",
+  "ownerOnly": "只有负责人可以执行此操作。",
+  "adminOnly": "只有管理团队可以执行此操作。",
+  "unknownLanguage": "请从列出的语言中选择一种。"
+}

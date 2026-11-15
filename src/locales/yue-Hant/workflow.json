@@ -1,0 +1,50 @@
+{
+  "primary": {
+    "complete_details": "補返欠嘅資料",
+    "send_to_owner": "交畀老闆",
+    "awaiting_owner": "等緊老闆決定",
+    "start_review": "開始審批",
+    "continue_review": "繼續審批",
+    "record_outcome": "記錄結果"
+  },
+  "approveBlocked": "補返欠嘅資料之前唔可以批准。",
+  "done": "搞掂",
+  "recordedClosed": "記錄咗兼閂咗",
+  "nothingMore": "冇其他嘢要做。完整紀錄留喺呢頁。",
+  "insideRules": "喺規則範圍內",
+  "reviewAndHandle": "審批同處理",
+  "detail": {
+    "sentByAdmin": "管理團隊交嚟",
+    "youAsked": "你要求補資料",
+    "detailsComplete": "資料齊晒",
+    "notSentYet": "管理團隊未交",
+    "ownerAskedMore": "老闆要多啲資料",
+    "recordsNeedChecking": "紀錄要核對",
+    "ownerDecidesFirst": "老闆先決定"
+  },
+  "pending": {
+    "notRecorded": "未記錄。用上面嘅「記錄結果」。",
+    "waitingDetails": "等緊欠嘅資料。{{details}}。用上面嘅「補返欠嘅資料」。",
+    "reviewStarted": "開始咗審批。用上面嘅「繼續審批」去批准、拒絕或者要求補資料。",
+    "waitingReview": "等緊你審批。用上面嘅「開始審批」。打開呢頁唔會自動開始審批。",
+    "ownerNeedsMore": "老闆要多啲資料。有需要就更新事實，然後用上面嘅「交畀老闆」。",
+    "notSent": "未交。用上面嘅「交畀老闆」。",
+    "sent": "交咗。等緊老闆決定。",
+    "detailsOnly": "{{details}}。"
+  },
+  "whatNext": {
+    "ready": "呢個喺規則範圍內。喺你自己嘅系統度做，然後喺度記錄你做咗咩。Tutor Compass 唔會過數，亦唔會改預約。",
+    "approved": "老闆批准咗呢個請求。喺你自己嘅系統度做，然後喺度記錄你做咗咩。",
+    "declined": "老闆拒絕咗呢個請求。通知屋企人，然後喺度記錄你做咗咩。",
+    "details": "做決定之前需要：{{details}}。用「補返欠嘅資料」加返，規則會再檢查個請求。",
+    "detailsOwner": "做決定之前需要：{{details}}。用「補返欠嘅資料」加返，規則會再檢查個請求。你都可以開始審批，但暫時未批得。",
+    "continue": "繼續審批，記錄你嘅決定。之後管理團隊會記錄做咗咩。",
+    "continueSensitive": "繼續審批，記錄你嘅決定。你亦可以一路加處理備註同下一步。之後管理團隊會記錄做咗咩。",
+    "start": "準備好就開始審批。開始只係記錄你處理緊呢件事，唔會批准、閂咗或者改其他嘢。",
+    "ownerNeedsMore": "老闆要多啲資料。有需要就更新事實，然後再交返畀老闆。",
+    "send": "將呢個交畀老闆。老闆決定之後，你喺度記錄結果。呢個係最後一步。",
+    "ownerLooking": "老闆睇緊呢個。你會喺度見到佢嘅決定，然後記錄結果。",
+    "detailsBefore": "{{details}}。做決定之前加返。"
+  },
+  "detailsMissing_other": "欠咗 {{count}} 項必填資料"
+}

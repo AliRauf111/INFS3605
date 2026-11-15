@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SubjectPicker } from "@/components/SubjectPicker";
+import { selectionLabel } from "@/lib/catalogue/label";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import {
   EMPTY_SELECTION,
   canTeach,
   course,
-  formatSelection,
   validateSelection,
   type Selection,
   type YearLevel,
@@ -16,10 +17,10 @@ import type { BookingCourse, FreeSlot, TutorCourse } from "@/lib/data/catalogue"
 // The interactive parts of the Subjects page. Every save goes through /api/catalogue,
 // which checks the role and the catalogue again on the server.
 
-async function save(body: unknown) {
+async function save(body: unknown, fallback: string) {
   const res = await fetch("/api/catalogue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error ?? "That change couldn't be saved.");
+  if (!res.ok) throw new Error(json.error ?? fallback);
   return json as { label?: string };
 }
 
@@ -27,18 +28,19 @@ const pickOf = (s: Selection) => ({ year: s.year ?? 0, areaId: s.areaId ?? "", c
 
 function useSaver() {
   const router = useRouter();
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "success" | "error"; text: string } | null>(null);
-  const run = async (body: unknown, done: (label?: string) => string) => {
+  const run = async (body: unknown, done: () => string) => {
     setBusy(true);
     setMsg(null);
     try {
-      const j = await save(body);
-      setMsg({ tone: "success", text: done(j.label) });
+      await save(body, t("subjects.saveFailed"));
+      setMsg({ tone: "success", text: done() });
       router.refresh();
       return true;
     } catch (e) {
-      setMsg({ tone: "error", text: e instanceof Error ? e.message : "That change couldn't be saved." });
+      setMsg({ tone: "error", text: e instanceof Error ? e.message : t("subjects.saveFailed") });
       return false;
     } finally {
       setBusy(false);
@@ -52,8 +54,6 @@ function useSaver() {
   return { busy, run, note };
 }
 
-const slotText = (iso: string) =>
-  new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
 /** Find tutors who teach exactly the chosen course and year. */
 export function FindTutor({
@@ -68,30 +68,32 @@ export function FindTutor({
   freeSlots: FreeSlot[];
 }) {
   const [sel, setSel] = useState<Selection>(EMPTY_SELECTION);
+  const { t, fmt } = useI18n();
+  const slotText = (iso: string) => fmt.date(iso, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
   const v = validateSelection(sel);
-  const teachesOf = (id: string) => tutorCourses.filter((t) => t.tutor_id === id).map((t) => ({ courseId: t.course_id, year: t.year_level, level: t.course_level }));
-  const matches = v.ok ? tutors.filter((t) => canTeach(teachesOf(t.id), { courseId: v.value.courseId, year: v.value.year, level: v.value.level })) : [];
+  const teachesOf = (id: string) => tutorCourses.filter((tc) => tc.tutor_id === id).map((tc) => ({ courseId: tc.course_id, year: tc.year_level, level: tc.course_level }));
+  const matches = v.ok ? tutors.filter((tu) => canTeach(teachesOf(tu.id), { courseId: v.value.courseId, year: v.value.year, level: v.value.level })) : [];
   // Tutors who share the category code but not the course: shown so nobody mistakes them for a match.
   const near = v.ok
-    ? tutors.filter((t) => !matches.includes(t) && tutorCourses.some((c) => c.tutor_id === t.id && c.category_code === v.value.code))
+    ? tutors.filter((tu) => !matches.includes(tu) && tutorCourses.some((c) => c.tutor_id === tu.id && c.category_code === v.value.code))
     : [];
   return (
     <div className="stack">
-      <SubjectPicker value={sel} onChange={setSel} offered={offered} legend="What does the student need?" />
+      <SubjectPicker value={sel} onChange={setSel} offered={offered} legend={t("subjects.whatNeed")} />
       {v.ok && (
         <div role="status" aria-live="polite" className="stack">
-          {!offered[`${v.value.courseId}|${v.value.year}`] && <p className="notice warning">The business doesn&rsquo;t offer this course yet. The owner can switch it on in the catalogue below.</p>}
+          {!offered[`${v.value.courseId}|${v.value.year}`] && <p className="notice warning">{t("subjects.notOfferedYet")}</p>}
           <h3 style={{ margin: 0 }}>
-            {matches.length ? `${matches.length} tutor${matches.length > 1 ? "s" : ""} teach${matches.length > 1 ? "" : "es"} ${formatSelection(v.value)}` : `No tutor is recorded as teaching ${formatSelection(v.value)}`}
+            {matches.length ? t("subjects.tutorsTeach", { count: matches.length, course: selectionLabel(v.value, t) }) : t("subjects.noTutorTeaches", { course: selectionLabel(v.value, t) })}
           </h3>
           {matches.length > 0 && (
             <ul className="match-list">
-              {matches.map((t) => {
-                const slots = freeSlots.filter((s) => s.tutor_id === t.id).slice(0, 3);
+              {matches.map((tu) => {
+                const slots = freeSlots.filter((s) => s.tutor_id === tu.id).slice(0, 3);
                 return (
-                  <li key={t.id}>
-                    <strong>{t.name}</strong> <span className="muted">({t.id})</span>
-                    <div className="sub">{slots.length ? `Next free: ${slots.map((s) => slotText(s.starts_at)).join(", ")}` : "No free slots recorded."}</div>
+                  <li key={tu.id}>
+                    <strong><bdi>{tu.name}</bdi></strong> <span className="muted">(<bdi>{tu.id}</bdi>)</span>
+                    <div className="sub">{slots.length ? t("subjects.nextFree", { list: fmt.list(slots.map((s) => slotText(s.starts_at))) }) : t("subjects.noFreeSlots")}</div>
                   </li>
                 );
               })}
@@ -99,17 +101,18 @@ export function FindTutor({
           )}
           {near.length > 0 && (
             <>
-              <p className="hint">These tutors teach other {v.value.code} courses but not this one, so they are not a match:</p>
+              <p className="hint">{t("subjects.nearHint", { code: v.value.code })}</p>
               <ul className="match-list near">
-                {near.map((t) => (
-                  <li key={t.id}>
-                    <strong>{t.name}</strong>
+                {near.map((tu) => (
+                  <li key={tu.id}>
+                    <strong><bdi>{tu.name}</bdi></strong>
                     <div className="sub">
-                      Teaches{" "}
-                      {tutorCourses
-                        .filter((c) => c.tutor_id === t.id && c.category_code === v.value.code)
-                        .map((c) => course(c.course_id)?.name ?? c.course_id)
-                        .join(", ")}
+                      {t("subjects.teaches", {
+                        list: tutorCourses
+                          .filter((c) => c.tutor_id === tu.id && c.category_code === v.value.code)
+                          .map((c) => course(c.course_id)?.name ?? c.course_id)
+                          .join(", "),
+                      })}
                     </div>
                   </li>
                 ))}
@@ -127,6 +130,7 @@ export function AddTutorCourse({ tutors }: { tutors: Array<{ id: string; name: s
   const [tutorId, setTutorId] = useState(tutors[0]?.id ?? "");
   const [sel, setSel] = useState<Selection>(EMPTY_SELECTION);
   const { busy, run, note } = useSaver();
+  const { t } = useI18n();
   const v = validateSelection(sel);
   return (
     <form
@@ -134,20 +138,21 @@ export function AddTutorCourse({ tutors }: { tutors: Array<{ id: string; name: s
       onSubmit={async (e) => {
         e.preventDefault();
         if (!v.ok) return;
-        const name = tutors.find((t) => t.id === tutorId)?.name ?? tutorId;
-        if (await run({ action: "tutor_add", tutorId, pick: pickOf(sel) }, (label) => `Added ${label} to ${name}.`)) setSel(EMPTY_SELECTION);
+        const name = tutors.find((tu) => tu.id === tutorId)?.name ?? tutorId;
+        const course = selectionLabel(v.value, t);
+        if (await run({ action: "tutor_add", tutorId, pick: pickOf(sel) }, () => t("subjects.added", { course, name }))) setSel(EMPTY_SELECTION);
       }}
     >
       <div className="field" style={{ marginBottom: 0 }}>
-        <label htmlFor="tutor-pick">Tutor</label>
+        <label htmlFor="tutor-pick">{t("subjects.col.tutor")}</label>
         <select id="tutor-pick" value={tutorId} onChange={(e) => setTutorId(e.target.value)}>
-          {tutors.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          {tutors.map((tu) => <option key={tu.id} value={tu.id}>{tu.name}</option>)}
         </select>
       </div>
-      <SubjectPicker value={sel} onChange={setSel} legend="Course they can teach" />
-      {!v.ok && sel.courseId && <p className="error-text">{v.error}</p>}
+      <SubjectPicker value={sel} onChange={setSel} legend={t("subjects.canTeach")} />
+      {!v.ok && sel.courseId && <p className="error-text" lang="en">{v.error}</p>}
       <div className="row">
-        <button className="btn" type="submit" disabled={busy || !v.ok}>Add to tutor</button>
+        <button className="btn" type="submit" disabled={busy || !v.ok}>{t("subjects.addToTutorButton")}</button>
         {note}
       </div>
     </form>
@@ -160,6 +165,7 @@ export function AddStudentCourse({ families }: { families: Array<{ id: string; s
   const [student, setStudent] = useState(families[0]?.student_name ?? "");
   const [sel, setSel] = useState<Selection>(EMPTY_SELECTION);
   const { busy, run, note } = useSaver();
+  const { t } = useI18n();
   const v = validateSelection(sel);
   return (
     <form
@@ -167,12 +173,13 @@ export function AddStudentCourse({ families }: { families: Array<{ id: string; s
       onSubmit={async (e) => {
         e.preventDefault();
         if (!v.ok || !student.trim()) return;
-        if (await run({ action: "student_add", familyId, studentName: student.trim(), pick: pickOf(sel) }, (label) => `Saved ${label} for ${student.trim()}.`)) setSel(EMPTY_SELECTION);
+        const course = selectionLabel(v.value, t);
+        if (await run({ action: "student_add", familyId, studentName: student.trim(), pick: pickOf(sel) }, () => t("subjects.savedFor", { course, name: student.trim() }))) setSel(EMPTY_SELECTION);
       }}
     >
       <div className="picker-grid">
         <div className="field" style={{ marginBottom: 0 }}>
-          <label htmlFor="family-pick">Family</label>
+          <label htmlFor="family-pick">{t("subjects.family")}</label>
           <select
             id="family-pick"
             value={familyId}
@@ -185,13 +192,13 @@ export function AddStudentCourse({ families }: { families: Array<{ id: string; s
           </select>
         </div>
         <div className="field" style={{ marginBottom: 0 }}>
-          <label htmlFor="student-name">Student name</label>
-          <input id="student-name" type="text" maxLength={80} value={student} onChange={(e) => setStudent(e.target.value)} />
+          <label htmlFor="student-name">{t("subjects.studentName")}</label>
+          <input id="student-name" type="text" dir="auto" maxLength={80} value={student} onChange={(e) => setStudent(e.target.value)} />
         </div>
       </div>
-      <SubjectPicker value={sel} onChange={setSel} legend="Course they are studying" />
+      <SubjectPicker value={sel} onChange={setSel} legend={t("subjects.studying")} />
       <div className="row">
-        <button className="btn" type="submit" disabled={busy || !v.ok || !student.trim()}>Save course</button>
+        <button className="btn" type="submit" disabled={busy || !v.ok || !student.trim()}>{t("subjects.saveCourse")}</button>
         {note}
       </div>
     </form>
@@ -204,6 +211,7 @@ export function SetBookingCourse({ bookings, offered, tutorNames }: { bookings: 
   const [bookingId, setBookingId] = useState(active[0]?.id ?? "");
   const [sel, setSel] = useState<Selection>(EMPTY_SELECTION);
   const { busy, run, note } = useSaver();
+  const { t } = useI18n();
   const v = validateSelection(sel);
   const b = active.find((x) => x.id === bookingId);
   return (
@@ -212,22 +220,23 @@ export function SetBookingCourse({ bookings, offered, tutorNames }: { bookings: 
       onSubmit={async (e) => {
         e.preventDefault();
         if (!v.ok) return;
-        if (await run({ action: "booking_set", bookingId, pick: pickOf(sel) }, (label) => `${bookingId} now covers ${label}.`)) setSel(EMPTY_SELECTION);
+        const course = selectionLabel(v.value, t);
+        if (await run({ action: "booking_set", bookingId, pick: pickOf(sel) }, () => t("subjects.nowCovers", { id: bookingId, course }))) setSel(EMPTY_SELECTION);
       }}
     >
       <div className="field" style={{ marginBottom: 0 }}>
-        <label htmlFor="booking-pick">Booking</label>
+        <label htmlFor="booking-pick">{t("subjects.col.booking")}</label>
         <select id="booking-pick" value={bookingId} onChange={(e) => setBookingId(e.target.value)}>
-          {active.map((x) => <option key={x.id} value={x.id}>{x.id}: {x.subject} with {tutorNames[x.tutor_id] ?? x.tutor_id}</option>)}
+          {active.map((x) => <option key={x.id} value={x.id}>{t("subjects.bookingOption", { id: x.id, subject: x.subject, tutor: tutorNames[x.tutor_id] ?? x.tutor_id })}</option>)}
         </select>
-        {b && <p className="hint">The course must be one the business offers and {tutorNames[b.tutor_id] ?? b.tutor_id} teaches, in that exact year.</p>}
+        {b && <p className="hint">{t("subjects.bookingHint", { tutor: tutorNames[b.tutor_id] ?? b.tutor_id })}</p>}
       </div>
-      <SubjectPicker value={sel} onChange={setSel} offered={offered} legend="Course this booking covers" />
+      <SubjectPicker value={sel} onChange={setSel} offered={offered} legend={t("subjects.bookingCovers")} />
       <div className="row">
-        <button className="btn" type="submit" disabled={busy || !v.ok}>Link course</button>
+        <button className="btn" type="submit" disabled={busy || !v.ok}>{t("subjects.linkCourse")}</button>
         {b?.course_id && (
-          <button className="btn secondary" type="button" disabled={busy} onClick={() => run({ action: "booking_set", bookingId, pick: null }, () => `${bookingId} is no longer linked to a course.`)}>
-            Unlink current course
+          <button className="btn secondary" type="button" disabled={busy} onClick={() => run({ action: "booking_set", bookingId, pick: null }, () => t("subjects.unlinked", { id: bookingId }))}>
+            {t("subjects.unlink")}
           </button>
         )}
         {note}
@@ -239,10 +248,11 @@ export function SetBookingCourse({ bookings, offered, tutorNames }: { bookings: 
 /** A small remove button for a tutor's or student's course. */
 export function RemoveLink({ id, kind, label }: { id: string; kind: "tutor" | "student"; label: string }) {
   const { busy, run, note } = useSaver();
+  const { t } = useI18n();
   return (
     <span className="row">
-      <button className="btn secondary small" type="button" disabled={busy} aria-label={`Remove ${label}`} onClick={() => run({ action: `${kind}_remove`, id }, () => "Removed.")}>
-        Remove
+      <button className="btn secondary small" type="button" disabled={busy} aria-label={t("subjects.removeLabel", { label })} onClick={() => run({ action: `${kind}_remove`, id }, () => t("subjects.removed"))}>
+        {t("common.remove")}
       </button>
       {note}
     </span>
@@ -252,18 +262,19 @@ export function RemoveLink({ id, kind, label }: { id: string; kind: "tutor" | "s
 /** The owner switches a course on or off for the business. */
 export function OfferToggle({ courseId, year, offered }: { courseId: string; year: YearLevel; offered: boolean }) {
   const { busy, run, note } = useSaver();
-  const name = `${course(courseId)?.name} Year ${year}`;
+  const { t } = useI18n();
+  const name = `${course(courseId)?.name} · ${t("subjects.year", { year })}`;
   return (
     <span className="row">
       <button
         type="button"
         className={`btn small offer-toggle ${offered ? "" : "secondary"}`}
         aria-pressed={offered}
-        aria-label={`${name}: ${offered ? "offered. Switch off" : "not offered. Switch on"}`}
+        aria-label={offered ? t("subjects.offeredSwitchOff", { name }) : t("subjects.notOfferedSwitchOn", { name })}
         disabled={busy}
-        onClick={() => run({ action: "offer", courseId, year, offered: !offered }, () => (offered ? `${name} switched off.` : `${name} switched on.`))}
+        onClick={() => run({ action: "offer", courseId, year, offered: !offered }, () => (offered ? t("subjects.switchedOff", { name }) : t("subjects.switchedOn", { name })))}
       >
-        {offered ? "Offered" : "Not Offered"}
+        {offered ? t("subjects.offered") : t("subjects.notOffered")}
       </button>
       {note}
     </span>

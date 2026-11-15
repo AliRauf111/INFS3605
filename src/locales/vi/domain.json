@@ -1,0 +1,132 @@
+{
+  "role": {
+    "owner": "Chủ doanh nghiệp",
+    "admin": "Quản trị viên"
+  },
+  "requestType": {
+    "refund": "Hoàn tiền",
+    "lesson_change": "Đổi buổi học",
+    "payment_extension": "Gia hạn thanh toán",
+    "other": "Việc khác"
+  },
+  "triState": {
+    "yes": "Có",
+    "no": "Không",
+    "unsure": "Không chắc"
+  },
+  "colour": {
+    "green": "Xanh lá: bạn có thể làm theo các bước đã duyệt",
+    "amber": "Vàng: cần làm rõ hoặc cần chủ duyệt",
+    "red": "Đỏ: dừng lại và chuyển cho chủ"
+  },
+  "colourShort": {
+    "green": "Xanh lá",
+    "amber": "Vàng",
+    "red": "Đỏ"
+  },
+  "decisionLabel": "Quyết định: {{colour}}",
+  "status": {
+    "ready": "Sẵn sàng cho quản trị viên",
+    "needs_clarification": "Cần làm rõ",
+    "review_required": "Cần chủ xem xét",
+    "awaiting_owner": "Đang chờ chủ",
+    "more_info_requested": "Chủ yêu cầu thêm thông tin",
+    "approved": "Chủ đã duyệt",
+    "declined": "Chủ đã từ chối",
+    "closed": "Đã đóng"
+  },
+  "action": {
+    "prepare_parent_response": "Chuẩn bị phản hồi cho phụ huynh",
+    "prepare_tutor_message": "Chuẩn bị tin nhắn cho gia sư",
+    "prepare_escalation_summary": "Chuẩn bị tóm tắt chuyển cấp cho chủ",
+    "prepare_reschedule_proposal": "Chuẩn bị đề xuất đổi lịch",
+    "prepare_admin_checklist": "Chuẩn bị danh sách kiểm tra cho quản trị viên",
+    "send_to_owner": "Gửi cho chủ xem xét"
+  },
+  "draft": {
+    "parent_response": "Phản hồi cho phụ huynh",
+    "tutor_message": "Tin nhắn cho gia sư",
+    "escalation_summary": "Tóm tắt chuyển cấp cho chủ",
+    "reschedule_proposal": "Đề xuất đổi lịch",
+    "admin_checklist": "Danh sách kiểm tra cho quản trị viên"
+  },
+  "dataLabel": {
+    "live_connected": "Kết nối trực tiếp",
+    "imported": "Đã nhập",
+    "fictional_demo": "Dữ liệu minh họa hư cấu"
+  },
+  "group": {
+    "owner": "Cần chủ xem xét",
+    "info": "Cần thêm thông tin",
+    "ready": "Sẵn sàng cho quản trị viên"
+  },
+  "groupText": {
+    "ownerForOwner": "Cần bạn đánh giá",
+    "ownerForAdmin": "Đang chờ quyết định của chủ",
+    "info": "Một vài chi tiết cần làm rõ",
+    "readyForOwner": "Đang chờ nhóm quản trị xác nhận",
+    "readyForAdmin": "Sẵn sàng để xem và xác nhận"
+  },
+  "groupEmpty": {
+    "owner": "Không có yêu cầu nào cần chủ xem xét.",
+    "info": "Không có yêu cầu nào đang chờ thêm thông tin.",
+    "ready": "Hiện không có yêu cầu nào sẵn sàng cho quản trị viên."
+  },
+  "card": {
+    "refundAmount": "Hoàn tiền {{amount}}",
+    "refund": "Yêu cầu hoàn tiền",
+    "extension": "Thêm thời gian thanh toán",
+    "lessonChange": "Dời một buổi học",
+    "request": "Một yêu cầu",
+    "welfareLine": "Có một mối lo về phúc lợi được đánh dấu. Chủ sẽ trực tiếp xử lý.",
+    "typeFor": "{{type}} cho {{reference}}.",
+    "typeOnly": "{{type}}.",
+    "extensionDays_other": "Thêm {{count}} ngày để thanh toán"
+  },
+  "step": {
+    "submitted": "Đã gửi",
+    "ruleCheck": "Kiểm tra quy tắc",
+    "ownerReview": "Chủ xem xét",
+    "recorded": "Đã ghi nhận",
+    "reviewStarted": "Đã bắt đầu xem xét",
+    "notNeeded": "Không cần",
+    "needsMoreFacts": "Cần thêm thông tin",
+    "allDone": "Đã xong mọi bước",
+    "nothingLeft": "Không còn việc gì",
+    "lastStep": "Đây là bước cuối",
+    "heading": "Bước {{n}}/{{total}}: {{label}}",
+    "stepsAfter_other": "Còn {{count}} bước sau bước này"
+  },
+  "stepInSentence": {
+    "submitted": "đã gửi",
+    "ruleCheck": "kiểm tra quy tắc",
+    "ownerReview": "chủ xem xét",
+    "recorded": "đã ghi nhận"
+  },
+  "ruleHeading": {
+    "missing": "Còn thiếu một số thông tin",
+    "ownerWelfare": "Mối lo về phúc lợi. Bạn trực tiếp xử lý",
+    "ownerRed": "Việc này cần bạn xem xét trước khi làm bất cứ điều gì",
+    "adminWelfare": "Dừng lại. Chủ phải trực tiếp xử lý việc này",
+    "adminRed": "Chủ phải xem xét việc này trước khi làm bất cứ điều gì",
+    "ownerAmber": "Việc này cần bạn duyệt trước khi tiến hành",
+    "adminAmber": "Hỏi ý chủ trước khi tiến hành",
+    "green": "Bạn có thể tiến hành"
+  },
+  "ruleName": {
+    "safety_complaint": "Khiếu nại về an toàn",
+    "safety_welfare": "Mối lo về phúc lợi",
+    "default_unsupported": "Không có chính sách cho việc này",
+    "default_missing_policy": "Không có chính sách đang áp dụng",
+    "default_missing_information": "Thiếu thông tin",
+    "default_no_matching_rule": "Không có quy tắc phù hợp",
+    "refund_under_50": "Hoàn tiền dưới $50",
+    "refund_50_to_200": "Hoàn tiền từ $50 đến $200",
+    "refund_over_200": "Hoàn tiền trên $200",
+    "lesson_change_no_fee": "Không thay đổi học phí",
+    "lesson_change_fee_impact": "Ảnh hưởng học phí",
+    "payment_extension_up_to_7": "Gia hạn tối đa 7 ngày",
+    "payment_extension_8_to_30": "Gia hạn từ 8 đến 30 ngày",
+    "payment_extension_over_30": "Gia hạn trên 30 ngày"
+  }
+}

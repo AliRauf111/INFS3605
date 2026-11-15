@@ -1,13 +1,15 @@
 "use client";
 import { PageHeader } from "@/components/PageHeader";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 export default function ErrorPage({ reset }: { error: Error; reset: () => void }) {
+  const { t } = useI18n();
   return (
     <div className="stack">
-      <PageHeader><h1>Something went wrong</h1></PageHeader>
+      <PageHeader><h1>{t("errors.pageTitle")}</h1></PageHeader>
       <div className="notice error" role="alert">
-        <p>The page could not be shown. Nothing has been changed by this error.</p>
-        <button className="btn" type="button" onClick={reset}>Try again</button>
+        <p>{t("errors.pageBody")}</p>
+        <button className="btn" type="button" onClick={reset}>{t("common.tryAgain")}</button>
       </div>
     </div>
   );

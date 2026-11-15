@@ -1,0 +1,50 @@
+{
+  "primary": {
+    "complete_details": "Bổ sung chi tiết còn thiếu",
+    "send_to_owner": "Gửi cho chủ",
+    "awaiting_owner": "Đang chờ chủ quyết định",
+    "start_review": "Bắt đầu xem xét",
+    "continue_review": "Tiếp tục xem xét",
+    "record_outcome": "Ghi nhận kết quả"
+  },
+  "approveBlocked": "Chưa thể phê duyệt cho đến khi bổ sung đủ chi tiết còn thiếu.",
+  "done": "Xong",
+  "recordedClosed": "Đã ghi nhận và đóng",
+  "nothingMore": "Không còn việc gì. Toàn bộ hồ sơ vẫn ở trang này.",
+  "insideRules": "Trong phạm vi quy tắc",
+  "reviewAndHandle": "Xem xét và xử lý",
+  "detail": {
+    "sentByAdmin": "Do nhóm quản trị gửi",
+    "youAsked": "Bạn đã yêu cầu thêm thông tin",
+    "detailsComplete": "Đã đủ chi tiết",
+    "notSentYet": "Nhóm quản trị chưa gửi",
+    "ownerAskedMore": "Chủ cần thêm thông tin",
+    "recordsNeedChecking": "Cần kiểm tra hồ sơ",
+    "ownerDecidesFirst": "Chủ quyết định trước"
+  },
+  "pending": {
+    "notRecorded": "Chưa ghi nhận. Dùng Ghi nhận kết quả ở trên.",
+    "waitingDetails": "Đang chờ chi tiết còn thiếu. {{details}}. Dùng Bổ sung chi tiết còn thiếu ở trên.",
+    "reviewStarted": "Đã bắt đầu xem xét. Dùng Tiếp tục xem xét ở trên để phê duyệt, từ chối hoặc yêu cầu thêm thông tin.",
+    "waitingReview": "Đang chờ bạn xem xét. Dùng Bắt đầu xem xét ở trên. Mở trang này không tự bắt đầu xem xét.",
+    "ownerNeedsMore": "Chủ cần thêm thông tin. Cập nhật thông tin nếu cần, rồi dùng Gửi cho chủ ở trên.",
+    "notSent": "Chưa gửi. Dùng Gửi cho chủ ở trên.",
+    "sent": "Đã gửi. Đang chờ chủ quyết định.",
+    "detailsOnly": "{{details}}."
+  },
+  "whatNext": {
+    "ready": "Việc này nằm trong phạm vi quy tắc. Hãy thực hiện trong hệ thống của bạn, rồi ghi lại việc đã làm ở đây. Tutor Compass không chuyển tiền và không thay đổi lịch đặt.",
+    "approved": "Chủ đã phê duyệt yêu cầu này. Hãy thực hiện trong hệ thống của bạn, rồi ghi lại việc đã làm ở đây.",
+    "declined": "Chủ đã từ chối yêu cầu này. Hãy báo cho gia đình, rồi ghi lại việc đã làm ở đây.",
+    "details": "{{details}} trước khi có thể ra quyết định. Thêm bằng Bổ sung chi tiết còn thiếu và quy tắc sẽ kiểm tra lại yêu cầu.",
+    "detailsOwner": "{{details}} trước khi có thể ra quyết định. Thêm bằng Bổ sung chi tiết còn thiếu và quy tắc sẽ kiểm tra lại yêu cầu. Bạn vẫn có thể bắt đầu xem xét, nhưng chưa thể phê duyệt.",
+    "continue": "Tiếp tục xem xét và ghi lại quyết định của bạn. Sau đó nhóm quản trị sẽ ghi lại việc đã làm.",
+    "continueSensitive": "Tiếp tục xem xét và ghi lại quyết định của bạn. Bạn cũng có thể thêm ghi chú xử lý và các bước tiếp theo trong lúc làm. Sau đó nhóm quản trị sẽ ghi lại việc đã làm.",
+    "start": "Bắt đầu xem xét khi bạn sẵn sàng. Việc này ghi nhận rằng bạn đang xử lý. Nó không phê duyệt, đóng hay thay đổi gì khác.",
+    "ownerNeedsMore": "Chủ cần thêm thông tin. Cập nhật thông tin nếu cần, rồi gửi lại cho chủ.",
+    "send": "Gửi việc này cho chủ. Khi chủ quyết định, bạn ghi nhận kết quả ở đây. Đó là bước cuối cùng.",
+    "ownerLooking": "Chủ đang xem việc này. Bạn sẽ thấy quyết định của chủ ở đây, rồi ghi nhận kết quả.",
+    "detailsBefore": "{{details}}. Hãy bổ sung trước khi ra quyết định."
+  },
+  "detailsMissing_other": "Thiếu {{count}} chi tiết bắt buộc"
+}

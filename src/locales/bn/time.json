@@ -1,0 +1,12 @@
+{
+  "todayAt": "আজ, {{time}}",
+  "yesterdayAt": "গতকাল, {{time}}",
+  "todayAtInSentence": "আজ, {{time}}",
+  "yesterdayAtInSentence": "গতকাল, {{time}}",
+  "dateAt": "{{date}}, {{time}}",
+  "partOfDay": {
+    "morning": "সকাল",
+    "afternoon": "দুপুর",
+    "evening": "সন্ধ্যা"
+  }
+}

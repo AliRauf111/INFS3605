@@ -1,0 +1,24 @@
+{
+  "didNotWork": "No ha funcionado.",
+  "unreachable": "No se pudo conectar con el servidor.",
+  "checkWording": "Guardado, pero revisa esta redacción: {{words}}. Puede prometer algo que no ha pasado.",
+  "saved": "Borrador guardado.",
+  "source": {
+    "template": "Plantilla",
+    "live_ai": "Escrito por IA en directo",
+    "simulated": "Simulado",
+    "edited": "Editado por una persona"
+  },
+  "textLabel": "Texto de {{kind}}",
+  "noDraft": "Todavía no hay borrador.",
+  "replace": "Sustituir por la plantilla",
+  "prepare": "Preparar borrador",
+  "withAi": "Redactar con IA",
+  "saveEdits": "Guardar cambios",
+  "copied": "Copiado. Pégalo en tu correo o en tu aplicación de mensajes.",
+  "copy": "Copiar",
+  "heading": "Borradores",
+  "hint": "Los borradores son para que tú los revises, edites y envíes. Tutor Compass nunca envía mensajes.",
+  "welfareHint": "En los casos de bienestar solo se ofrece un traspaso de hechos restringido, y nunca se envía a la IA.",
+  "languageHint": "Las plantillas de borrador están en inglés. Cambiar el idioma de la interfaz no cambia el texto de un borrador."
+}

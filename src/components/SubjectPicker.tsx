@@ -7,12 +7,19 @@ import {
   changeSelection,
   course,
   coursesFor,
-  formatSelection,
+  categoryCode,
   levelsFor,
   searchCatalogue,
   type Selection,
   type YearLevel,
 } from "@/lib/catalogue/hsc";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import { selectionLabel } from "@/lib/catalogue/label";
+
+// Course and level names are the official HSC course titles, so they stay in English in
+// every language (marked lang="en"). Subject areas and everything around them translate.
+
+export { selectionLabel };
 
 // Year level, then subject area, then course. The category code follows the year and
 // area on its own, and a course that stops fitting is cleared with a short note. A quick
@@ -23,7 +30,7 @@ export function SubjectPicker({
   value,
   onChange,
   offered,
-  legend = "Course",
+  legend,
 }: {
   value: Selection;
   onChange: (next: Selection) => void;
@@ -32,11 +39,12 @@ export function SubjectPicker({
   legend?: string;
 }) {
   const id = useId();
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [cleared, setCleared] = useState<string | null>(null);
   const update = (patch: Partial<Selection>) => {
     const { selection, cleared } = changeSelection(value, patch);
-    setCleared(cleared);
+    setCleared(cleared && value.courseId ? t("picker.cleared", { course: course(value.courseId)?.name ?? "" }) : null);
     onChange(selection);
   };
   const results = searchCatalogue(query, 8);
@@ -47,23 +55,23 @@ export function SubjectPicker({
 
   return (
     <fieldset className="picker">
-      <legend>{legend}</legend>
+      <legend>{legend ?? t("picker.course")}</legend>
 
       <div className="field">
-        <label htmlFor={`${id}-find`}>Quick find</label>
+        <label htmlFor={`${id}-find`}>{t("picker.quickFind")}</label>
         <input
           id={`${id}-find`}
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="For example: maths advanced 11, or MTH1012"
+          placeholder={t("picker.findPlaceholder")}
           autoComplete="off"
           aria-describedby={`${id}-find-hint`}
         />
-        <p className="hint" id={`${id}-find-hint`}>Type a course name, a nickname such as ext 1, a year or a category code.</p>
+        <p className="hint" id={`${id}-find-hint`}>{t("picker.findHint")}</p>
         {query.trim() && (
-          <ul className="picker-results" aria-label="Matching courses">
-            {results.length === 0 && <li className="muted">No course matches that.</li>}
+          <ul className="picker-results" aria-label={t("picker.matching")}>
+            {results.length === 0 && <li className="muted">{t("picker.noMatch")}</li>}
             {results.map((r) => (
               <li key={`${r.courseId}-${r.year}`}>
                 <button
@@ -76,7 +84,7 @@ export function SubjectPicker({
                     setQuery("");
                   }}
                 >
-                  {r.label}
+                  <span lang="en">{selectionLabel({ year: r.year, courseId: r.courseId }, t)}</span>
                 </button>
               </li>
             ))}
@@ -86,24 +94,24 @@ export function SubjectPicker({
 
       <div className="picker-grid">
         <div className="field">
-          <span className="label" id={`${id}-year`}>Year Level</span>
+          <span className="label" id={`${id}-year`}>{t("picker.yearLevel")}</span>
           <div className="choices" role="radiogroup" aria-labelledby={`${id}-year`}>
             {YEAR_LEVELS.map((y) => (
               <label key={y} className="choice">
                 <input type="radio" name={`${id}-year`} checked={value.year === y} onChange={() => update({ year: y as YearLevel })} />
-                Year {y}
+                {t("subjects.year", { year: y })}
               </label>
             ))}
           </div>
         </div>
 
         <div className="field">
-          <label htmlFor={`${id}-area`}>Subject Area</label>
+          <label htmlFor={`${id}-area`}>{t("picker.subjectArea")}</label>
           <select id={`${id}-area`} value={value.areaId ?? ""} onChange={(e) => update({ areaId: (e.target.value || null) as Selection["areaId"] })}>
-            <option value="">Choose a subject area</option>
+            <option value="">{t("picker.chooseArea")}</option>
             {SUBJECT_AREAS.map((a) => (
               <option key={a.id} value={a.id}>
-                {a.name}
+                {t(`catalogue.area.${a.id}`)}
                 {value.year ? ` · ${a.codes[value.year]}` : ""}
               </option>
             ))}
@@ -111,7 +119,7 @@ export function SubjectPicker({
         </div>
 
         <div className="field">
-          <label htmlFor={`${id}-course`}>Course</label>
+          <label htmlFor={`${id}-course`}>{t("picker.course")}</label>
           <select
             id={`${id}-course`}
             value={value.courseId ?? ""}
@@ -119,34 +127,34 @@ export function SubjectPicker({
             onChange={(e) => update({ courseId: e.target.value || null })}
             aria-describedby={`${id}-course-hint`}
           >
-            <option value="">{options.length ? "Choose a course" : "Choose a year and area first"}</option>
+            <option value="">{options.length ? t("picker.chooseCourse") : t("picker.chooseYearArea")}</option>
             {options.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
-                {notOffered(c.id) ? " (not offered)" : ""}
+                {notOffered(c.id) ? ` ${t("picker.notOffered")}` : ""}
               </option>
             ))}
           </select>
-          <p className="hint" id={`${id}-course-hint`}>{crs?.note ?? "Only courses that run in the chosen year are listed."}</p>
+          <p className="hint" id={`${id}-course-hint`}>{crs?.note ? <span lang="en">{crs.note}</span> : t("picker.courseHint")}</p>
         </div>
 
         {crs?.kind === "language" && value.year && (
           <div className="field">
-            <label htmlFor={`${id}-level`}>Language level</label>
+            <label htmlFor={`${id}-level`}>{t("picker.languageLevel")}</label>
             <select id={`${id}-level`} value={value.level ?? ""} onChange={(e) => update({ level: (e.target.value || null) as Selection["level"] })}>
-              <option value="">Choose a level</option>
+              <option value="">{t("picker.chooseLevel")}</option>
               {levelsFor(value.year).map((l) => (
                 <option key={l.id} value={l.id}>{l.name}</option>
               ))}
             </select>
-            <p className="hint">{value.level ? levelsFor(value.year).find((l) => l.id === value.level)?.note : "Beginners, Continuers or, in Year 12, Extension."}</p>
+            <p className="hint">{value.level ? <span lang="en">{levelsFor(value.year).find((l) => l.id === value.level)?.note}</span> : t("picker.levelHint")}</p>
           </div>
         )}
 
         {crs?.kind === "vet" && (
           <div className="field">
-            <label htmlFor={`${id}-qual`}>Qualification (optional)</label>
-            <input id={`${id}-qual`} type="text" maxLength={120} value={value.qualification} onChange={(e) => update({ qualification: e.target.value })} placeholder="For example: Certificate II in Hospitality" />
+            <label htmlFor={`${id}-qual`}>{t("picker.qualification")}</label>
+            <input id={`${id}-qual`} type="text" maxLength={120} value={value.qualification} onChange={(e) => update({ qualification: e.target.value })} placeholder={t("picker.qualificationPlaceholder")} />
           </div>
         )}
       </div>
@@ -155,11 +163,11 @@ export function SubjectPicker({
         {cleared && <p className="notice warning picker-note">{cleared}</p>}
         <p className="picker-summary">
           {crs && value.year ? (
-            <strong>{formatSelection({ year: value.year, courseId: crs.id, level: value.level, qualification: value.qualification })}</strong>
+            <strong>{selectionLabel({ year: value.year, courseId: crs.id, level: value.level, qualification: value.qualification }, t)}</strong>
           ) : code ? (
-            <>Category code <strong>{code}</strong>. Now choose a course.</>
+            <>{t("picker.categoryCode")} <strong>{code}</strong>. {t("picker.nowChoose")}</>
           ) : (
-            "Nothing chosen yet."
+            t("picker.nothingYet")
           )}
         </p>
       </div>

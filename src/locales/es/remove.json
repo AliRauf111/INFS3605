@@ -1,0 +1,10 @@
+{
+  "didntWork": "No ha funcionado. Vuelve a intentarlo.",
+  "puttingBack": "Devolviéndola…",
+  "putBack": "Devolver a la lista",
+  "ownerOnly": "Solo el propietario puede quitar una solicitud que está pendiente de él o que plantea una preocupación de bienestar.",
+  "confirmLabel": "Confirmar que quieres quitar esta solicitud",
+  "confirmText": "¿Quitar esta solicitud de la lista? Su registro completo se conserva y puedes devolverla desde esta página.",
+  "removing": "Quitando…",
+  "yes": "Sí, quitarla"
+}

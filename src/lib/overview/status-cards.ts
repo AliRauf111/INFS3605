@@ -1,5 +1,7 @@
 import { REQUEST_TYPE_LABELS, STATUS_LABELS, type Colour, type RequestStatus, type RequestType, type Role } from "@/lib/domain/types";
 import { workflowFor } from "@/lib/workflow/next-step";
+import { enT, type Translate } from "@/lib/i18n/core";
+import { makeFormat, type Format } from "@/lib/i18n/format";
 
 // The Overview's three status cards and its "Over to You" list. The cards group requests by
 // where they are in the workflow, coloured like the traffic lights: red for an owner
@@ -31,10 +33,15 @@ export function groupOf(status: RequestStatus): StatusGroup | null {
 }
 
 /** The short line under each count, worded for who is signed in. */
-export function groupText(group: StatusGroup, role: Role): string {
-  if (group === "owner") return role === "owner" ? "Your judgement is needed" : "Waiting on the owner's decision";
-  if (group === "info") return "A few details to clarify";
-  return role === "owner" ? "With the admin team to confirm" : "Ready to review and confirm";
+export function groupText(group: StatusGroup, role: Role, t: Translate = enT): string {
+  if (group === "owner") return role === "owner" ? t("domain.groupText.ownerForOwner") : t("domain.groupText.ownerForAdmin");
+  if (group === "info") return t("domain.groupText.info");
+  return role === "owner" ? t("domain.groupText.readyForOwner") : t("domain.groupText.readyForAdmin");
+}
+
+/** The label for a status group, in the reader's language. GROUP_LABEL keeps the English. */
+export function groupLabel(group: StatusGroup, t: Translate = enT): string {
+  return t(`domain.group.${group}`);
 }
 
 /** Two digits, as on the cards: 2 becomes "02". Larger numbers are shown in full. */
@@ -79,19 +86,17 @@ export function overToYou<T extends CardRow>(rows: T[], role: Role): T[] {
     .sort((a, b) => rank(a) - rank(b) || a.created_at.localeCompare(b.created_at));
 }
 
-const money = (cents: number) => `$${(cents / 100).toFixed(2).replace(/\.00$/, "")}`;
-
 /** A heading for a request card, built from the request's own facts. */
-export function cardTitle(r: CardRow): string {
+export function cardTitle(r: CardRow, t: Translate = enT, fmt: Format = makeFormat()): string {
   switch (r.request_type) {
     case "refund":
-      return r.amount_cents ? `A ${money(r.amount_cents)} refund` : "A refund request";
+      return r.amount_cents ? t("domain.card.refundAmount", { amount: fmt.money(r.amount_cents, { whole: true }) }) : t("domain.card.refund");
     case "payment_extension":
-      return r.extensionDays ? `${r.extensionDays} more days to pay` : "More time to pay";
+      return r.extensionDays ? t("domain.card.extensionDays", { count: r.extensionDays }) : t("domain.card.extension");
     case "lesson_change":
-      return "Move a lesson";
+      return t("domain.card.lessonChange");
     default:
-      return REQUEST_TYPE_LABELS[r.request_type] ?? "A request";
+      return REQUEST_TYPE_LABELS[r.request_type] ? t(`domain.requestType.${r.request_type}`) : t("domain.card.request");
   }
 }
 
@@ -99,15 +104,17 @@ export function cardTitle(r: CardRow): string {
  * One short line under the heading. Welfare wording never appears here: the owner reads it
  * on the request itself, so a flagged request only says that it was flagged.
  */
-export function cardLine(r: CardRow, max = 96): string {
-  if (r.welfare) return "A welfare concern was flagged. The owner handles this personally.";
+export function cardLine(r: CardRow, max = 96, t: Translate = enT): string {
+  if (r.welfare) return t("domain.card.welfareLine");
+  // The request's own words are shown as they were written, in any language.
   const text = (r.context ?? "").replace(/\s+/g, " ").trim();
-  if (!text) return `${REQUEST_TYPE_LABELS[r.request_type]}${r.reference_id ? ` for ${r.reference_id}` : ""}.`;
+  const type = t(`domain.requestType.${r.request_type}`);
+  if (!text) return r.reference_id ? t("domain.card.typeFor", { type, reference: r.reference_id }) : t("domain.card.typeOnly", { type });
   return text.length > max ? `${text.slice(0, max - 1).replace(/[\s,.;:]+\S*$/, "")}…` : text;
 }
 
-export function statusLabel(s: RequestStatus): string {
-  return STATUS_LABELS[s] ?? s;
+export function statusLabel(s: RequestStatus, t: Translate = enT): string {
+  return STATUS_LABELS[s] ? t(`domain.status.${s}`) : s;
 }
 
 /** Pastel tile colour for each request type, as in the Studio design. */

@@ -1,0 +1,35 @@
+{
+  "title": "顯示同無障礙",
+  "intro": "等 Tutor Compass 更加啱你用。",
+  "closeLabel": "閂咗顯示同無障礙",
+  "focusView": "專注模式",
+  "focusBar": "專注模式開咗。有啲額外資料收埋咗。",
+  "showFullView": "顯示全部",
+  "comfort": "專注同舒適",
+  "focusViewHelp": "收埋額外資料，等主要工作更加突出。警告同操作會保留。",
+  "reduceMotion": "減少動畫",
+  "reduceMotionHelp": "閂咗成個網站嘅動畫同版面移動效果。",
+  "largerControls": "大啲嘅控制項",
+  "largerControlsHelp": "用大啲嘅按鈕同表格控制項，周圍留多啲位。",
+  "reading": "閱讀",
+  "textSize": "字體大細",
+  "decrease": "字細啲",
+  "increase": "字大啲",
+  "percent": "{{n}}%",
+  "theme": "顏色主題",
+  "themes": {
+    "device": "跟裝置設定",
+    "light": "淺色",
+    "dark": "深色",
+    "contrast": "高對比"
+  },
+  "previewNote": "改咗即刻睇到效果。要撳儲存先會記住你嘅設定。",
+  "save": "儲存設定",
+  "reset": "重設",
+  "msg": {
+    "saveFailed": "呢個瀏覽器儲存唔到設定。呢個面板開住嘅時候你仍然可以預覽。",
+    "saved": "你嘅顯示設定已經儲存咗。",
+    "defaultsRestored": "已經還原預設顯示設定。",
+    "defaultsThisVisit": "今次瀏覽已經還原預設設定。"
+  }
+}

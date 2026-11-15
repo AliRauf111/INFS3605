@@ -1,0 +1,11 @@
+{
+  "saveFailed": "The class couldn't be saved. Try again.",
+  "fromBooking": "from booking {{id}}",
+  "none": "No class linked",
+  "notSetUp": "Choosing a class needs a quick database update first.",
+  "legend": "Class this request is about",
+  "save": "Save class",
+  "change": "Change class",
+  "choose": "Choose class",
+  "remove": "Remove class"
+}

@@ -1,0 +1,52 @@
+{
+  "primary": {
+    "complete_details": "Completar datos que faltan",
+    "send_to_owner": "Enviar al propietario",
+    "awaiting_owner": "Pendiente de la decisión del propietario",
+    "start_review": "Iniciar revisión",
+    "continue_review": "Continuar la revisión",
+    "record_outcome": "Registrar resultado"
+  },
+  "approveBlocked": "No se puede aprobar hasta que se completen los datos que faltan.",
+  "done": "Hecho",
+  "recordedClosed": "Registrada y cerrada",
+  "nothingMore": "No queda nada por hacer. El registro completo sigue en esta página.",
+  "insideRules": "Dentro de las reglas",
+  "reviewAndHandle": "Revisar y gestionar",
+  "detail": {
+    "sentByAdmin": "Enviada por el equipo administrativo",
+    "youAsked": "Pediste información",
+    "detailsComplete": "Datos completos",
+    "notSentYet": "El equipo administrativo todavía no la ha enviado",
+    "ownerAskedMore": "El propietario pidió más",
+    "recordsNeedChecking": "Hay que comprobar los registros",
+    "ownerDecidesFirst": "Primero decide el propietario"
+  },
+  "pending": {
+    "notRecorded": "Todavía sin registrar. Usa «Registrar resultado» arriba.",
+    "waitingDetails": "Pendiente de los datos que faltan. {{details}}. Usa «Completar datos que faltan» arriba.",
+    "reviewStarted": "Revisión iniciada. Usa «Continuar la revisión» arriba para aprobar, rechazar o pedir información.",
+    "waitingReview": "Pendiente de tu revisión. Usa «Iniciar revisión» arriba. Abrir esta página no la inicia.",
+    "ownerNeedsMore": "El propietario necesita más información. Actualiza los datos si hace falta y usa «Enviar al propietario» arriba.",
+    "notSent": "Todavía sin enviar. Usa «Enviar al propietario» arriba.",
+    "sent": "Enviada. Pendiente de la decisión del propietario.",
+    "detailsOnly": "{{details}}."
+  },
+  "whatNext": {
+    "ready": "Esto está dentro de las reglas. Hazlo en tus propios sistemas y luego registra aquí lo que hiciste. Tutor Compass no mueve dinero ni cambia reservas.",
+    "approved": "El propietario aprobó esta solicitud. Hazlo en tus propios sistemas y luego registra aquí lo que hiciste.",
+    "declined": "El propietario rechazó esta solicitud. Avisa a la familia y luego registra aquí lo que hiciste.",
+    "details": "{{details}} antes de poder tomar una decisión. Añádelos con «Completar datos que faltan» y las reglas volverán a comprobar la solicitud.",
+    "detailsOwner": "{{details}} antes de poder tomar una decisión. Añádelos con «Completar datos que faltan» y las reglas volverán a comprobar la solicitud. Puedes empezar la revisión, pero todavía no puedes aprobarla.",
+    "continue": "Continúa tu revisión y registra tu decisión. Después, el equipo administrativo registra lo que se hizo.",
+    "continueSensitive": "Continúa tu revisión y registra tu decisión. También puedes ir añadiendo notas de gestión y próximos pasos. Después, el equipo administrativo registra lo que se hizo.",
+    "start": "Empieza la revisión cuando quieras. Al empezarla se registra que te estás ocupando. No aprueba, no cierra ni cambia nada más.",
+    "ownerNeedsMore": "El propietario necesita más información. Actualiza los datos si hace falta y vuelve a enviársela.",
+    "send": "Envía esto al propietario. Cuando decida, registras el resultado aquí. Ese es el último paso.",
+    "ownerLooking": "El propietario lo está revisando. Verás su decisión aquí y luego registras el resultado.",
+    "detailsBefore": "{{details}}. Añádelos antes de que se tome una decisión."
+  },
+  "detailsMissing_many": "Faltan {{count}} datos obligatorios",
+  "detailsMissing_one": "Falta {{count}} dato obligatorio",
+  "detailsMissing_other": "Faltan {{count}} datos obligatorios"
+}

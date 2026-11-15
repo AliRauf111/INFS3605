@@ -1,0 +1,24 @@
+{
+  "didNotWork": "操作未成功。",
+  "unreachable": "无法连接服务器。",
+  "checkWording": "已保存，但请检查这段措辞：{{words}}。它可能承诺了尚未发生的事。",
+  "saved": "草稿已保存。",
+  "source": {
+    "template": "模板",
+    "live_ai": "由实时 AI 撰写",
+    "simulated": "模拟",
+    "edited": "经人工编辑"
+  },
+  "textLabel": "{{kind}}内容",
+  "noDraft": "还没有草稿。",
+  "replace": "替换为模板",
+  "prepare": "准备草稿",
+  "withAi": "用 AI 拟稿",
+  "saveEdits": "保存修改",
+  "copied": "已复制。请粘贴到你的邮件或聊天工具中。",
+  "copy": "复制",
+  "heading": "草稿",
+  "hint": "草稿供你自己检查、修改和发送。Tutor Compass 从不发送消息。",
+  "welfareHint": "福祉个案只提供一份受限的事实交接说明，而且从不发送给 AI。",
+  "languageHint": "草稿模板用英文撰写。更改界面语言不会改变草稿内容。"
+}

@@ -1,5 +1,6 @@
 import { canonicalJson, hashDecisionInput } from "@/lib/engine/hash";
 import type { ProposalAction } from "./permissions";
+import { tr } from "@/lib/i18n/reply";
 
 // Pure parts of the approval process: what a proposal records, how two sets of
 // preconditions are compared and how results are worded. The server and the database
@@ -58,23 +59,13 @@ export function inputHash(action: ProposalAction, targetId: string | null, input
   return hashDecisionInput({ action, targetId, inputs });
 }
 
-const LABELS: Record<keyof Preconditions, string> = {
-  status: "The request's status changed.",
-  currentDecisionId: "The rule check was run again.",
-  updatedAt: "The request was updated by someone else.",
-  archivedAt: "The request was archived or restored.",
-  hiddenAt: "The request was removed from the lists or put back.",
-  draftUpdatedAt: "The saved draft was changed by someone else.",
-  activePolicyId: "A different policy version is active now.",
-  recordsHash: "The linked booking or payment records changed.",
-  decision: "The rule engine now gives a different result.",
-  workflow: "The lesson, time slot, invoice or tutor's absences changed.",
-};
+const LABEL_KEYS = ["status", "currentDecisionId", "updatedAt", "archivedAt", "hiddenAt", "draftUpdatedAt", "activePolicyId", "recordsHash", "decision", "workflow"] as const satisfies ReadonlyArray<keyof Preconditions>;
+const label = (key: keyof Preconditions) => tr(`reply.changed.${key}`);
 
 /** List what differs between the preview's preconditions and the ones read now. */
 export function diffPreconditions(before: Preconditions, now: Preconditions): string[] {
   const out: string[] = [];
-  for (const key of Object.keys(LABELS) as Array<keyof Preconditions>) {
+  for (const key of LABEL_KEYS) {
     if (!(key in before)) continue;
     const a = before[key] ?? null;
     const b = now[key] ?? null;
@@ -83,7 +74,7 @@ export function diffPreconditions(before: Preconditions, now: Preconditions): st
       : key === "archivedAt" || key === "hiddenAt"
         ? (a === null) === (b === null)
         : canonicalJson(a) === canonicalJson(b);
-    if (!same) out.push(LABELS[key]);
+    if (!same) out.push(label(key));
   }
   return out;
 }
@@ -91,18 +82,18 @@ export function diffPreconditions(before: Preconditions, now: Preconditions): st
 /** What the database's execute function reports as changed, in words. */
 export function describeDbChanges(changed: string[]): string[] {
   const map: Record<string, string> = {
-    status: LABELS.status,
-    decision: LABELS.currentDecisionId,
-    updated: LABELS.updatedAt,
-    archived: LABELS.archivedAt,
-    removed: LABELS.hiddenAt,
-    draft: LABELS.draftUpdatedAt,
-    lesson: "The lesson changed or is no longer scheduled.",
-    slot: "That time is no longer free.",
-    invoice: "The invoice changed.",
-    absence: "An absence was recorded for some of these dates.",
+    status: label("status"),
+    decision: label("currentDecisionId"),
+    updated: label("updatedAt"),
+    archived: label("archivedAt"),
+    removed: label("hiddenAt"),
+    draft: label("draftUpdatedAt"),
+    lesson: tr("reply.changed.db.lesson"),
+    slot: tr("reply.changed.db.slot"),
+    invoice: tr("reply.changed.db.invoice"),
+    absence: tr("reply.changed.db.absence"),
   };
-  return changed.map((c) => map[c] ?? `The ${c} changed.`);
+  return changed.map((c) => map[c] ?? tr("reply.changed.db.other", { thing: c }));
 }
 
 export function expiryFrom(now: Date): string {
@@ -111,28 +102,7 @@ export function expiryFrom(now: Date): string {
 
 /** The confirmed result in words that keep a saved record apart from a real-world action. */
 export function resultMessage(action: ProposalAction, opts: { requestType?: string; status?: string }): string {
-  switch (action) {
-    case "request.create":
-      return `Request saved in Tutor Compass${opts.status ? ` with status ${opts.status}` : ""}. Nothing has been refunded, booked or sent.`;
-    case "request.send_to_owner":
-      return "Sent to the owner. The request is now Waiting for Owner. Nothing was sent to the family.";
-    case "request.approve":
-      return opts.requestType === "refund"
-        ? "Owner decision recorded: Approved by Owner. No money has been transferred. The admin team still needs to process the refund and record the outcome."
-        : "Owner decision recorded: Approved by Owner. Nothing has been changed outside Tutor Compass yet. The admin team still needs to act and record the outcome.";
-    case "request.decline":
-      return "Owner decision recorded: Declined by Owner. The admin team still needs to tell the family and record the outcome.";
-    case "request.request_info":
-      return "Owner decision recorded: Ask for Information. The request is back with the admin team.";
-    case "request.record_outcome":
-      return "Outcome recorded and the request is closed. This records what staff did; Tutor Compass did not carry out the action.";
-    case "draft.save":
-      return "Draft saved on the request. It has not been sent to anyone.";
-    case "booking.reschedule":
-      return "Lesson moved on Tutor Compass's timetable and the request is closed. Nothing has been sent to the family or the tutor.";
-    case "invoice.extend_due_date":
-      return "Due date changed on Tutor Compass's record of the invoice, the reminder schedule replaced and the request closed. No reminder has been sent and no payment system was changed.";
-    case "tutor.record_absence":
-      return "Absence recorded. Compass will no longer offer this tutor's times on these dates. No lesson has been moved yet.";
-  }
+  if (action === "request.create") return tr(opts.status ? "reply.result.request_create_status" : "reply.result.request_create", { status: opts.status });
+  if (action === "request.approve") return tr(opts.requestType === "refund" ? "reply.result.request_approve_refund" : "reply.result.request_approve");
+  return tr(`reply.result.${action.replace(".", "_") as "draft_save"}`);
 }

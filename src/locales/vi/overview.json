@@ -1,0 +1,130 @@
+{
+  "eyebrow": "Ngày của bạn, rõ ràng hơn",
+  "greeting": {
+    "morning": "Chào buổi sáng, {{name}}",
+    "afternoon": "Chào buổi chiều, {{name}}",
+    "evening": "Chào buổi tối, {{name}}"
+  },
+  "subheading": "Một cái nhìn nhẹ nhàng hơn về doanh nghiệp dạy kèm của bạn. Hãy giải quyết từng quyết định một.",
+  "removed": "Yêu cầu đã được gỡ khỏi danh sách. Bạn có thể tìm lại trong",
+  "removedLink": "Yêu cầu đã gỡ",
+  "filterLabel": "Lọc yêu cầu tổng quan theo trạng thái",
+  "showing": "Đang hiện",
+  "viewRequests": "Xem yêu cầu",
+  "overToYou": "Đến lượt bạn",
+  "humanTouch": "Vài việc cần đến bàn tay con người",
+  "showAllRequests": "Hiện tất cả yêu cầu",
+  "student": "Học sinh: {{name}}",
+  "studentLabel": "Học sinh {{name}}",
+  "allCaughtUp": "Bạn đã xử lý xong hết.",
+  "chooseAnother": "Chọn trạng thái khác hoặc hiện tất cả yêu cầu.",
+  "everyDealtWith": "Mọi yêu cầu đều đã được xử lý. Hãy tận hưởng chút thảnh thơi.",
+  "viewAll": "Xem tất cả yêu cầu",
+  "capacity": {
+    "heading": "Còn chỗ để phát triển",
+    "caption": "Buổi học đã đặt so với số giờ gia sư còn trống",
+    "periodLabel": "Khoảng thời gian của biểu đồ công suất",
+    "booked": "Đã đặt",
+    "available": "Còn trống",
+    "thisWeek": "Tuần này",
+    "nextWeek": "Tuần sau",
+    "thisMonth": "Tháng này",
+    "thisWeekLower": "tuần này",
+    "nextWeekLower": "tuần sau",
+    "thisMonthLower": "tháng này",
+    "nothingToCompare": {
+      "lastWeek": "Tuần trước không mở giờ nào để so sánh",
+      "thisWeek": "Tuần này không mở giờ nào để so sánh"
+    },
+    "same": {
+      "lastWeek": "Bằng tuần trước",
+      "thisWeek": "Bằng tuần này"
+    },
+    "percentBooked": "Đã đặt {{percent}}%",
+    "noHoursOffered": "Không mở giờ nào",
+    "noTutorHours": "Gia sư không mở giờ nào",
+    "ofCapacity": "công suất gia sư đã được đặt",
+    "tipLine": "{{label}} · {{booked}}/{{offered}} giờ",
+    "chartLabel": "Công suất gia sư, {{period}}. {{summary}} Di chuột hoặc chọn từng điểm để xem số giờ.",
+    "chartNone": "Không mở giờ nào.",
+    "chartPercent": "Đã đặt {{percent}}% số giờ còn trống.",
+    "pointLabel": "{{label}}: đã đặt {{booked}} trên {{offered}} giờ",
+    "pointTitle": "{{label}}: {{booked}} / {{offered}} giờ",
+    "hours": "{{n}} giờ",
+    "weekShort": "Tuần {{n}}",
+    "note": "Từ lịch gia sư · di chuột lên biểu đồ để xem",
+    "acrossWeeks_other": "Trong {{count}} tuần của tháng này",
+    "more": {
+      "lastWeek_other": "Cao hơn tuần trước {{count}} điểm",
+      "thisWeek_other": "Cao hơn tuần này {{count}} điểm"
+    },
+    "fewer": {
+      "lastWeek_other": "Thấp hơn tuần trước {{count}} điểm",
+      "thisWeek_other": "Thấp hơn tuần này {{count}} điểm"
+    }
+  },
+  "today": {
+    "headingToday": "Sắp diễn ra hôm nay",
+    "headingNext": "Sắp diễn ra",
+    "snapshot": {
+      "morning": "Tóm tắt buổi sáng của bạn",
+      "afternoon": "Tóm tắt buổi chiều của bạn",
+      "evening": "Tóm tắt buổi tối của bạn"
+    },
+    "nothingToday": "Hôm nay không có lịch. Đây là các buổi học tiếp theo.",
+    "openSchedule": "Mở toàn bộ lịch",
+    "notSetUp": "Thời khóa biểu chưa được thiết lập trong cơ sở dữ liệu này.",
+    "noLessons": "Không có buổi học nào trong thời khóa biểu.",
+    "coverNeeded": "Cần người dạy thay",
+    "confirmed": "Đã xác nhận"
+  },
+  "rules": {
+    "heading": "Doanh nghiệp của bạn, quy tắc của bạn",
+    "caption": "Compass làm theo giới hạn bạn đặt ra",
+    "open": "Mở quy tắc kinh doanh",
+    "exceptions": "Ngoại lệ cần chủ duyệt",
+    "none": "Chưa có quy tắc nào đang áp dụng",
+    "bottom": "Bạn luôn kiểm soát mọi quyết định quan trọng.",
+    "refunds": "Hoàn tiền dưới {{amount}} do nhóm xử lý",
+    "lessonChanges": "Đổi buổi học được kiểm tra theo quy tắc của bạn",
+    "extensions_other": "Gia hạn thanh toán tối đa {{count}} ngày"
+  },
+  "activity": {
+    "heading": "Lặng lẽ hoàn thành công việc",
+    "none": "Chưa có hoạt động nào trên các yêu cầu.",
+    "updated": "Đã cập nhật",
+    "event": {
+      "sent_to_owner": {
+        "lead": "Đã gửi cho chủ",
+        "rest": "để quyết định"
+      },
+      "owner_approved": {
+        "lead": "Chủ đã duyệt",
+        "rest": "và chuyển lại cho nhóm"
+      },
+      "owner_declined": {
+        "lead": "Chủ đã từ chối",
+        "rest": "kèm lý do được ghi lại"
+      },
+      "owner_requested_info": {
+        "lead": "Chủ đã hỏi",
+        "rest": "thêm vài chi tiết"
+      },
+      "admin_replied": {
+        "lead": "Đã gửi lại chi tiết",
+        "rest": "cho chủ"
+      },
+      "closed": {
+        "lead": "Đã ghi nhận kết quả",
+        "rest": "và đóng yêu cầu"
+      },
+      "reevaluated": {
+        "lead": "Đã kiểm tra lại quy tắc",
+        "rest": "với thông tin mới"
+      }
+    }
+  },
+  "cardLabel_other": "{{group}}: {{count}} yêu cầu. Lọc tổng quan",
+  "groupCount_other": "{{group}} · {{count}} yêu cầu",
+  "viewAllCount_other": "Xem tất cả {{count}} yêu cầu"
+}

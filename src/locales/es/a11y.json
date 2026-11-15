@@ -1,0 +1,35 @@
+{
+  "title": "Pantalla y accesibilidad",
+  "intro": "Adapta Tutor Compass a tu manera de trabajar.",
+  "closeLabel": "Cerrar pantalla y accesibilidad",
+  "focusView": "Vista enfocada",
+  "focusBar": "La vista enfocada está activada. Se oculta parte del detalle extra.",
+  "showFullView": "Mostrar vista completa",
+  "comfort": "Enfoque y comodidad",
+  "focusViewHelp": "Oculta los detalles extra para que destaquen las tareas principales. Los avisos y las acciones se mantienen.",
+  "reduceMotion": "Reducir movimiento",
+  "reduceMotionHelp": "Desactiva las animaciones y los cambios de diseño en movimiento en todo el sitio.",
+  "largerControls": "Controles más grandes",
+  "largerControlsHelp": "Usa botones y controles de formulario más grandes, con más espacio alrededor.",
+  "reading": "Lectura",
+  "textSize": "Tamaño del texto",
+  "decrease": "Reducir el tamaño del texto",
+  "increase": "Aumentar el tamaño del texto",
+  "percent": "{{n}} %",
+  "theme": "Tema de color",
+  "themes": {
+    "device": "Igual que el dispositivo",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "contrast": "Alto contraste"
+  },
+  "previewNote": "Los cambios se ven al momento. Guarda para conservar tus preferencias.",
+  "save": "Guardar preferencias",
+  "reset": "Restablecer",
+  "msg": {
+    "saveFailed": "No se pudieron guardar las preferencias en este navegador. Puedes seguir viéndolas mientras este panel esté abierto.",
+    "saved": "Se han guardado tus preferencias de pantalla.",
+    "defaultsRestored": "Se han restablecido las preferencias de pantalla predeterminadas.",
+    "defaultsThisVisit": "Valores predeterminados restablecidos para esta visita."
+  }
+}

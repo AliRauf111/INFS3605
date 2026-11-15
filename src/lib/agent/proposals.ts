@@ -8,13 +8,15 @@ import { decide, decisionColumns, requestColumns } from "@/lib/actions/requests"
 import { findUnsupportedPromises } from "@/lib/actions/drafts-logic";
 import { getActivePolicy, liveRecordsForBooking } from "@/lib/context/retrieve";
 import { formatAud } from "@/lib/domain/money";
-import { DRAFT_KINDS, DRAFT_LABELS, REQUEST_TYPE_LABELS, STATUS_LABELS, type DraftKind, type RequestStatus, type RequestType } from "@/lib/domain/types";
+import { DRAFT_KINDS, type DraftKind, type RequestStatus, type RequestType } from "@/lib/domain/types";
+import { tr } from "@/lib/i18n/reply";
+import { formatStamp } from "@/lib/workflows/dates";
 import { canonicalJson, hashDecisionInput } from "@/lib/engine/hash";
 import type { EvidenceSnapshot } from "@/lib/engine/evidence";
 import { policyVersionLabel } from "@/lib/engine/policy";
 import { validateFactsForm, type FactsForm } from "@/lib/validation/facts";
 import { countMissing } from "@/lib/workflow/next-step";
-import { ACTION_RULES, PROPOSAL_ACTIONS, canConfirm, canPrepare, type ProposalAction } from "./permissions";
+import { ACTION_RULES, PROPOSAL_ACTIONS, actionLabel, actionOutcome, canConfirm, canPrepare, type ProposalAction } from "./permissions";
 import {
   describeDbChanges,
   diffPreconditions,
@@ -100,7 +102,12 @@ type RequestRow = {
   confirmed_facts: { proposedSlotId?: string | null; extensionDays?: number | null } | null;
 };
 
-const fmtTime = (iso: string) => new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Sydney", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
+// Previews and messages follow the reader's language. Activity summaries, notes and the
+// stored inputs stay in English, so the audit trail reads the same for everyone.
+const fmtTime = (iso: string) => formatStamp(iso);
+const statusLabel = (s: RequestStatus) => tr(`domain.status.${s}`);
+const typeLabel = (t: RequestType) => tr(`domain.requestType.${t}`);
+const draftLabel = (k: DraftKind) => tr(`domain.draft.${k}`);
 
 function recordsHash(evidence: { booking: unknown; payments: unknown; slot?: unknown }): string {
   return hashDecisionInput(evidence);
@@ -126,7 +133,7 @@ function evidenceHash(e: EvidenceSnapshot): string {
 async function loadRequest(id: string): Promise<RequestRow> {
   const { data, error } = await db().from("requests").select("*").eq("id", id).maybeSingle();
   if (error) throw toDbError(error);
-  if (!data) throw new ApiError(404, "That request could not be found.");
+  if (!data) throw new ApiError(404, tr("reply.prop.requestNotFound"));
   return data as RequestRow;
 }
 
@@ -140,17 +147,17 @@ async function missingFor(decisionId: string | null): Promise<number> {
 
 function targetOf(r: RequestRow) {
   return {
-    reference: r.reference_id ?? r.booking_id ?? "No reference",
+    reference: r.reference_id ?? r.booking_id ?? tr("reply.prop.noReference"),
     shortId: shortId(r.id),
     href: `/requests/${r.id}`,
-    typeLabel: REQUEST_TYPE_LABELS[r.request_type],
-    statusLabel: STATUS_LABELS[r.status],
+    typeLabel: typeLabel(r.request_type),
+    statusLabel: statusLabel(r.status),
   };
 }
 
-const COLOUR_WORD = { green: "Green", amber: "Yellow", red: "Red" } as const;
+const colourWord = (c: "green" | "amber" | "red") => tr(`reply.colour.${c}`);
 
-const ROLE_TEXT = { staff: "You (an admin or the owner) can confirm this.", owner: "Only the owner can confirm this." } as const;
+const roleText = (r: "staff" | "owner") => tr(`reply.prop.role.${r}`);
 
 /** Build the plan for an action from its inputs and the records as they are now. Throws ApiError if it isn't allowed. */
 async function buildPlan(user: SessionUser, action: ProposalAction, requestId: string | null, raw: PrepareInput | StoredInputs, sessionKey: string | null): Promise<Plan> {
@@ -160,16 +167,25 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
     const r = raw as Partial<PrepareInput & { form: FactsForm; activityKey: string }>;
     const form = (("form" in r && r.form) || r.facts) as FactsForm | undefined;
     const v = validateFactsForm(form);
-    if (!v.ok) throw new ApiError(400, "Some answers need fixing before this can be saved.", v.errors);
+    if (!v.ok) throw new ApiError(400, tr("reply.prop.fixAnswers"), v.errors);
     const activityKey = ("activityKey" in r && r.activityKey) || crypto.randomUUID();
     const { evidence, policy, result, inputHash: decisionHash } = await decide(user, activityKey, v.facts);
     const procedures = await approvedProcedures().catch(() => []);
     const findings = procedureChecks(policy, procedures);
     const gaps = [...result.missing.map((m) => m.message), ...result.blockers];
     const changes: Change[] = [
-      { field: "Request", current: "Not saved", proposed: `${REQUEST_TYPE_LABELS[v.facts.requestType]}${v.facts.amountCents !== null ? ` of ${formatAud(v.facts.amountCents)}` : ""}${v.facts.extensionDays ? `, ${v.facts.extensionDays} extra days` : ""} on ${v.facts.referenceId ?? v.facts.bookingId ?? "no reference"}` },
-      { field: "Rule result", current: "None", proposed: `${COLOUR_WORD[result.colour]}: ${policy?.definition.rules.find((x) => x.id === result.matchedRuleId)?.label ?? result.outcomeLabel} (${result.policyVersion})` },
-      { field: "Status", current: "None", proposed: STATUS_LABELS[result.suggestedStatus] },
+      {
+        field: tr("reply.plan.request"),
+        current: tr("reply.prop.notSaved"),
+        proposed: tr("reply.prop.newRequest", {
+          type: typeLabel(v.facts.requestType),
+          amount: v.facts.amountCents !== null ? tr("reply.prop.ofAmount", { amount: formatAud(v.facts.amountCents) }) : "",
+          days: v.facts.extensionDays ? tr("reply.prop.extraDays", { count: Number(v.facts.extensionDays) }) : "",
+          reference: v.facts.referenceId ?? v.facts.bookingId ?? tr("reply.prop.noReferenceLower"),
+        }),
+      },
+      { field: tr("reply.prop.ruleResult"), current: tr("reply.wf.none"), proposed: `${colourWord(result.colour)}: ${policy?.definition.rules.find((x) => x.id === result.matchedRuleId)?.label ?? result.outcomeLabel} (${result.policyVersion})` },
+      { field: tr("reply.prop.status"), current: tr("reply.wf.none"), proposed: statusLabel(result.suggestedStatus) },
     ];
     return {
       action, targetId: null, targetType: "new_request", requestId: null, requestType: v.facts.requestType,
@@ -180,20 +196,20 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
         decision: { colour: result.colour, matchedRuleId: result.matchedRuleId, policyVersionId: result.policyVersionId, suggestedStatus: result.suggestedStatus, gaps },
       },
       preview: {
-        title: "Save this request",
-        target: { reference: v.facts.referenceId ?? v.facts.bookingId ?? "No reference", shortId: null, href: null, typeLabel: REQUEST_TYPE_LABELS[v.facts.requestType], statusLabel: null },
+        title: tr("reply.prop.saveTitle"),
+        target: { reference: v.facts.referenceId ?? v.facts.bookingId ?? tr("reply.prop.noReference"), shortId: null, href: null, typeLabel: typeLabel(v.facts.requestType), statusLabel: null },
         changes,
         note: null,
         body: null,
         editable: null,
-        requiredRoleText: ROLE_TEXT[rule.confirm],
-        outcome: rule.outcome,
+        requiredRoleText: roleText(rule.confirm),
+        outcome: actionOutcome(action),
         warnings: [
-          ...gaps.map((g) => `Still to confirm: ${g}`),
+          ...gaps.map((g) => tr("reply.prop.stillToConfirm", { gap: g })),
           ...findings.map((f) => f.text),
         ],
-        policyRefs: policy ? [`${policy.definition.title} (${policyVersionLabel(policy)})`] : ["No active policy for this type"],
-        versions: [`Records read ${fmtTime(evidence.retrievedAt)}`],
+        policyRefs: policy ? [`${policy.definition.title} (${policyVersionLabel(policy)})`] : [tr("reply.prop.noPolicy")],
+        versions: [tr("reply.prop.recordsRead", { time: fmtTime(evidence.retrievedAt) })],
       },
       payload: {
         session_key: activityKey,
@@ -208,7 +224,7 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
   const workflowInputs = (raw as { inputs?: unknown }).inputs ?? raw;
 
   if (action === "tutor.record_absence") {
-    if (!rule.prepare.includes(user.role)) throw new ApiError(403, "You can't record absences.");
+    if (!rule.prepare.includes(user.role)) throw new ApiError(403, tr("reply.prop.cantRecordAbsence"));
     const part = await absencePlan(workflowInputs);
     return {
       action, targetId: null, targetType: "tutor", requestId: null, requestType: null,
@@ -218,13 +234,13 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
         title: part.title,
         target: { reference: part.target!.reference, shortId: null, href: null, typeLabel: part.target!.typeLabel, statusLabel: null },
         changes: part.changes, note: null, body: null, editable: null,
-        requiredRoleText: ROLE_TEXT[rule.confirm], outcome: rule.outcome, warnings: part.warnings, policyRefs: [], versions: part.versions,
+        requiredRoleText: roleText(rule.confirm), outcome: actionOutcome(action), warnings: part.warnings, policyRefs: [], versions: part.versions,
       },
       payload: {},
     };
   }
 
-  if (!requestId || !UUID.test(requestId)) throw new ApiError(400, "Choose a request first.");
+  if (!requestId || !UUID.test(requestId)) throw new ApiError(400, tr("reply.prop.chooseRequest"));
   const req = await loadRequest(requestId);
   const allowed = canPrepare(action, user.role, req.status, await missingFor(req.current_decision_id));
   if (!allowed.ok) throw new ApiError(user.role !== "owner" && rule.prepare.length === 1 ? 403 : 409, allowed.reason);
@@ -240,13 +256,13 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
     recordsHash: await liveHash(req.booking_id),
   };
   const policyRefs = [
-    `Rule check #${req.decision_count}: ${req.decision.toUpperCase()} under ${req.matched_rule_id} (${req.policy_version})`,
-    ...(active ? [`Active policy: ${active.definition.title} (${policyVersionLabel(active)})`] : []),
+    tr("reply.prop.ruleCheck", { n: req.decision_count, colour: req.decision.toUpperCase(), rule: req.matched_rule_id, version: req.policy_version }),
+    ...(active ? [tr("reply.prop.activePolicy", { title: active.definition.title, version: policyVersionLabel(active) })] : []),
   ];
-  const versions = [`Request last updated ${fmtTime(req.updated_at)}`];
+  const versions = [tr("reply.prop.requestUpdated", { time: fmtTime(req.updated_at) })];
   const warnings: string[] = [];
   if (active && req.policy_version_id && active.id !== req.policy_version_id) {
-    warnings.push(`This request was checked under ${req.policy_version}, but ${policyVersionLabel(active)} is active now.`);
+    warnings.push(tr("reply.prop.olderPolicy", { old: req.policy_version, now: policyVersionLabel(active) }));
   }
 
   if (action === "booking.reschedule" || action === "invoice.extend_due_date") {
@@ -259,7 +275,7 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
         title: part.title,
         target: { ...target, reference: part.target?.reference ?? target.reference },
         changes: part.changes, note: null, body: null, editable: null,
-        requiredRoleText: ROLE_TEXT[rule.confirm], outcome: rule.outcome,
+        requiredRoleText: roleText(rule.confirm), outcome: actionOutcome(action),
         warnings: [...warnings, ...part.warnings],
         policyRefs, versions: [...versions, ...part.versions],
       },
@@ -271,8 +287,8 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
     const r = raw as { kind?: DraftKind; body?: string; generatedBy?: string };
     const kind = z.enum(DRAFT_KINDS).safeParse(r.kind);
     const body = z.string().trim().min(1, "The draft is empty.").max(6000, "Drafts must be under 6000 characters.").safeParse(r.body);
-    if (!kind.success) throw new ApiError(400, "Unknown draft type.");
-    if (!body.success) throw new ApiError(400, body.error.issues[0]?.message ?? "Check the draft.");
+    if (!kind.success) throw new ApiError(400, tr("reply.prop.unknownDraft"));
+    if (!body.success) throw new ApiError(400, body.error.issues[0]?.message ?? tr("reply.prop.checkDraft"));
     const { data: existing, error } = await db().from("drafts").select("body, updated_at").eq("request_id", req.id).eq("kind", kind.data).maybeSingle();
     if (error) throw toDbError(error);
     const promises = findUnsupportedPromises(body.data, req.status);
@@ -281,13 +297,13 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
       inputs: { kind: kind.data, body: body.data, generatedBy: r.generatedBy && r.generatedBy !== "edited" && r.generatedBy !== "simulated" ? r.generatedBy : "edited" },
       preconditions: { ...base, draftUpdatedAt: (existing?.updated_at as string | undefined) ?? null },
       preview: {
-        title: `Save ${DRAFT_LABELS[kind.data].toLowerCase()} draft`,
+        title: tr("reply.prop.saveDraftTitle", { kind: draftLabel(kind.data).toLowerCase() }),
         target, note: null, body: body.data,
-        changes: [{ field: `${DRAFT_LABELS[kind.data]} draft`, current: existing ? `Saved draft from ${fmtTime(existing.updated_at as string)} (will be replaced)` : "No saved draft", proposed: "The text below" }],
-        editable: { field: "body", label: "Draft text" },
-        requiredRoleText: ROLE_TEXT[rule.confirm],
-        outcome: rule.outcome,
-        warnings: [...warnings, ...promises.map((p) => `The draft says "${p}", which hasn't happened. Change it before sending it anywhere.`)],
+        changes: [{ field: tr("reply.prop.draftField", { kind: draftLabel(kind.data) }), current: existing ? tr("reply.prop.savedDraftFrom", { time: fmtTime(existing.updated_at as string) }) : tr("reply.prop.noSavedDraft"), proposed: tr("reply.prop.textBelow") }],
+        editable: { field: "body", label: tr("reply.prop.draftText") },
+        requiredRoleText: roleText(rule.confirm),
+        outcome: actionOutcome(action),
+        warnings: [...warnings, ...promises.map((p) => tr("reply.prop.unsupportedPromise", { phrase: p }))],
         policyRefs, versions,
       },
       payload: {},
@@ -295,29 +311,29 @@ async function buildPlan(user: SessionUser, action: ProposalAction, requestId: s
   }
 
   const note = NOTE.safeParse((raw as { note?: string }).note);
-  if (!note.success) throw new ApiError(400, note.error.issues[0]?.message ?? "Add a note.");
+  if (!note.success) throw new ApiError(400, note.error.issues[0]?.message ?? tr("reply.prop.addNote"));
   if (action === "request.approve" && req.request_type === "refund") {
-    warnings.push("Approving records your decision. It does not transfer money. The admin team processes the refund outside Tutor Compass.");
+    warnings.push(tr("reply.prop.approveNoMoney"));
   }
   if (action === "request.record_outcome" && /\b(refunded|processed|paid|moved|rescheduled|extended)\b/i.test(note.data) === false) {
-    warnings.push("Say what was actually done, for example the amount refunded and where, so the record is useful later.");
+    warnings.push(tr("reply.prop.sayWhatWasDone"));
   }
   if (req.welfare_status === "yes" && action === "request.send_to_owner") {
-    warnings.push("Welfare concern: also phone the owner, as the welfare procedure (KB-01) says.");
+    warnings.push(tr("reply.prop.welfarePhone"));
   }
   return {
     action, targetId: req.id, targetType: "request", requestId: req.id, requestType: req.request_type,
     inputs: { note: note.data },
     preconditions: base,
     preview: {
-      title: `${rule.label}: ${target.reference}`,
+      title: `${actionLabel(action)}: ${target.reference}`,
       target,
-      changes: [{ field: "Status", current: STATUS_LABELS[req.status], proposed: rule.to ? STATUS_LABELS[rule.to] : STATUS_LABELS[req.status] }],
+      changes: [{ field: tr("reply.prop.status"), current: statusLabel(req.status), proposed: statusLabel(rule.to ?? req.status) }],
       note: note.data,
       body: null,
-      editable: { field: "note", label: action === "request.record_outcome" ? "What was done" : "Note" },
-      requiredRoleText: ROLE_TEXT[rule.confirm],
-      outcome: rule.outcome,
+      editable: { field: "note", label: tr(action === "request.record_outcome" ? "reply.prop.whatWasDone" : "reply.prop.note") },
+      requiredRoleText: roleText(rule.confirm),
+      outcome: actionOutcome(action),
       warnings,
       policyRefs,
       versions,
@@ -361,9 +377,9 @@ function notSetUp(error: { message?: string; code?: string } | null): boolean {
   return Boolean(error && (error.code === "42P01" || error.code === "PGRST205" || /agent_proposals|execute_agent_proposal/.test(error.message ?? "")));
 }
 
-export const WORKFLOW_SETUP_MESSAGE = "Compass workflows aren't set up in the database yet. Run sql/compass-workflows.sql in Supabase (see the setup note), then try again.";
+export const workflowSetupMessage = () => tr("reply.prop.workflowSetup");
 
-const SETUP_MESSAGE = "Compass approvals aren't set up in the database yet. Run sql/compass-assistant.sql in Supabase (see the setup note), then try again.";
+const setupMessage = () => tr("reply.prop.setup");
 
 async function store(user: SessionUser, plan: Plan, sessionKey: string | null, replaces: string | null): Promise<ProposalRow> {
   const rule = ACTION_RULES[plan.action];
@@ -386,8 +402,8 @@ async function store(user: SessionUser, plan: Plan, sessionKey: string | null, r
     })
     .select("*")
     .single();
-  if (notSetUp(error)) throw new ApiError(503, SETUP_MESSAGE);
-  if (error && error.code === "23514" && /action_type|target_type/.test(error.message ?? "")) throw new ApiError(503, WORKFLOW_SETUP_MESSAGE);
+  if (notSetUp(error)) throw new ApiError(503, setupMessage());
+  if (error && error.code === "23514" && /action_type|target_type/.test(error.message ?? "")) throw new ApiError(503, workflowSetupMessage());
   if (error) throw toDbError(error);
   await logActivity({
     sessionKey: sessionKey ?? data.id, requestId: plan.requestId, actorId: user.id, mode: "system",
@@ -401,19 +417,19 @@ async function store(user: SessionUser, plan: Plan, sessionKey: string | null, r
 /** Validate and preview an action, and store the proposal. Nothing about the request changes. */
 export async function prepareProposal(user: SessionUser, body: unknown): Promise<ProposalView> {
   const parsed = PrepareSchema.safeParse(body);
-  if (!parsed.success) throw new ApiError(400, parsed.error.issues[0]?.message ?? "That action wasn't in the expected format.");
+  if (!parsed.success) throw new ApiError(400, parsed.error.issues[0]?.message ?? tr("reply.prop.badFormat"));
   const p = parsed.data;
   const plan = await buildPlan(user, p.action, p.requestId ?? null, p, p.sessionKey ?? null);
   return view(await store(user, plan, p.sessionKey ?? null, null), user);
 }
 
 async function loadProposal(id: string, user: SessionUser): Promise<ProposalRow> {
-  if (!UUID.test(id)) throw new ApiError(404, "That proposal could not be found.");
+  if (!UUID.test(id)) throw new ApiError(404, tr("reply.prop.proposalNotFound"));
   const { data, error } = await db().from("agent_proposals").select("*").eq("id", id).maybeSingle();
-  if (notSetUp(error)) throw new ApiError(503, SETUP_MESSAGE);
+  if (notSetUp(error)) throw new ApiError(503, setupMessage());
   if (error) throw toDbError(error);
-  if (!data) throw new ApiError(404, "That proposal could not be found.");
-  if (data.created_by !== user.id) throw new ApiError(403, "Only the person who prepared this can confirm, edit or cancel it.");
+  if (!data) throw new ApiError(404, tr("reply.prop.proposalNotFound"));
+  if (data.created_by !== user.id) throw new ApiError(403, tr("reply.prop.onlyPreparer"));
   return data as ProposalRow;
 }
 
@@ -434,13 +450,9 @@ export type ConfirmOutcome =
   | { outcome: "changed"; message: string; reasons: string[]; proposal: ProposalView | null }
   | { outcome: "expired" | "cancelled" | "superseded" | "failed" | "stale"; message: string };
 
-const STATUS_MESSAGES: Record<string, string> = {
-  expired: "This preview has expired. Prepare it again to see the current records.",
-  cancelled: "This was cancelled, so nothing was changed.",
-  superseded: "This preview was replaced by an edited one. Confirm the newer preview instead.",
-  stale: "The records changed after this preview, so it can't be used. Prepare it again.",
-  failed: "This didn't go through earlier. Prepare it again.",
-};
+const MESSAGE_STATUSES = ["expired", "cancelled", "superseded", "stale", "failed"] as const;
+const statusMessage = (s: string | undefined, fallback: string): string =>
+  (MESSAGE_STATUSES as readonly string[]).includes(s ?? "") ? tr(`reply.prop.statusMessage.${s as (typeof MESSAGE_STATUSES)[number]}`) : fallback;
 
 async function replan(user: SessionUser, row: ProposalRow): Promise<{ plan: Plan | null; refusal: string | null }> {
   try {
@@ -461,16 +473,16 @@ export async function confirmProposal(user: SessionUser, id: string): Promise<Co
   if (row.status === "succeeded") {
     return { outcome: "succeeded", duplicate: true, message: resultMessage(row.action_type, {}), requestId: (row.result?.id as string) ?? row.target_id, status: (row.result?.status as string) ?? null };
   }
-  if (row.status !== "pending") return { outcome: row.status, message: STATUS_MESSAGES[row.status] ?? "This can no longer be confirmed." } as ConfirmOutcome;
+  if (row.status !== "pending") return { outcome: row.status, message: statusMessage(row.status, tr("reply.prop.noLongerConfirm")) } as ConfirmOutcome;
   if (new Date(row.expires_at).getTime() <= Date.now()) {
     await settle(row.id, "expired");
-    return { outcome: "expired", message: STATUS_MESSAGES.expired };
+    return { outcome: "expired", message: statusMessage("expired", "") };
   }
-  if (!canConfirm(row.required_role, user.role)) throw new ApiError(403, "Only the owner can confirm this decision.");
+  if (!canConfirm(row.required_role, user.role)) throw new ApiError(403, tr("reply.prop.ownerConfirms"));
 
   // Revalidate against the records as they are now.
   const { plan, refusal } = await replan(user, row);
-  const reasons = plan ? diffPreconditions(row.preconditions, plan.preconditions) : [refusal ?? "This action is no longer allowed."];
+  const reasons = plan ? diffPreconditions(row.preconditions, plan.preconditions) : [refusal ?? tr("reply.prop.noLongerAllowed")];
   if (!plan || reasons.length) {
     if (!(await settle(row.id, "stale", { changed: reasons }))) return confirmProposal(user, id);
     const fresh = plan ? view(await store(user, plan, row.session_key, row.id), user) : null;
@@ -478,12 +490,12 @@ export async function confirmProposal(user: SessionUser, id: string): Promise<Co
       outcome: "changed",
       reasons,
       proposal: fresh,
-      message: fresh ? "Something changed since you looked. Check the updated preview before confirming." : "Something changed since you looked, and this action is no longer available.",
+      message: tr(fresh ? "reply.prop.changedCheck" : "reply.prop.changedGone"),
     };
   }
 
   const { data, error } = await db().rpc("execute_agent_proposal", { p_id: row.id, p_actor: user.id, p_payload: plan.payload });
-  if (notSetUp(error)) throw new ApiError(503, SETUP_MESSAGE);
+  if (notSetUp(error)) throw new ApiError(503, setupMessage());
   if (error) throw toDbError(error);
   const res = data as { ok: boolean; duplicate?: boolean; code?: string; changed?: string[]; error?: string; result?: Record<string, unknown> };
 
@@ -505,20 +517,20 @@ export async function confirmProposal(user: SessionUser, id: string): Promise<Co
       duplicate: Boolean(res.duplicate),
       requestId,
       status,
-      message: resultMessage(row.action_type, { requestType: plan.requestType ?? undefined, status: status ? STATUS_LABELS[status as RequestStatus] ?? status : undefined }),
+      message: resultMessage(row.action_type, { requestType: plan.requestType ?? undefined, status: status ? statusLabel(status as RequestStatus) || status : undefined }),
     };
   }
   if (res.code === "stale") {
     const changed = describeDbChanges(res.changed ?? []);
     const again = await replan(user, row);
     const fresh = again.plan ? view(await store(user, again.plan, row.session_key, row.id), user) : null;
-    return { outcome: "changed", reasons: changed, proposal: fresh, message: fresh ? "Something changed since you looked. Check the updated preview before confirming." : "Something changed since you looked, and this action is no longer available." };
+    return { outcome: "changed", reasons: changed, proposal: fresh, message: tr(fresh ? "reply.prop.changedCheck" : "reply.prop.changedGone") };
   }
   if (res.code === "failed") {
     const clean = (res.error ?? "").replace(/^[a-z_]+:\s*/, "");
-    return { outcome: "failed", message: `Nothing was changed. ${clean || "The database refused the change."}` };
+    return { outcome: "failed", message: `${tr("reply.common.nothingChanged")} ${clean || tr("reply.wf.dbRefused")}` };
   }
-  return { outcome: (res.code as "expired") ?? "failed", message: STATUS_MESSAGES[res.code ?? "failed"] ?? "Nothing was changed." };
+  return { outcome: (res.code as "expired") ?? "failed", message: statusMessage(res.code ?? "failed", tr("reply.common.nothingChanged")) };
 }
 
 const EditSchema = z.object({ note: z.string().max(4000).optional(), body: z.string().max(6000).optional() }).strict();
@@ -526,13 +538,13 @@ const EditSchema = z.object({ note: z.string().max(4000).optional(), body: z.str
 /** Editing never changes a stored proposal. It replaces it with a new preview. */
 export async function editProposal(user: SessionUser, id: string, body: unknown): Promise<ProposalView> {
   const parsed = EditSchema.safeParse(body);
-  if (!parsed.success) throw new ApiError(400, "That edit wasn't in the expected format.");
+  if (!parsed.success) throw new ApiError(400, tr("reply.prop.badEdit"));
   const row = await loadProposal(id, user);
-  if (row.status !== "pending") throw new ApiError(409, STATUS_MESSAGES[row.status] ?? "This can no longer be edited.");
+  if (row.status !== "pending") throw new ApiError(409, statusMessage(row.status, tr("reply.prop.noLongerEdit")));
   const inputs = { ...(row.inputs as object), ...(parsed.data.note !== undefined ? { note: parsed.data.note } : {}), ...(parsed.data.body !== undefined ? { body: parsed.data.body } : {}) } as StoredInputs;
   if (canonicalJson(inputs) === canonicalJson(row.inputs)) return view(row, user);
   const plan = await buildPlan(user, row.action_type, row.target_id, inputs, row.session_key);
-  if (!(await settle(row.id, "superseded"))) throw new ApiError(409, "This changed while you were editing. Open it again.");
+  if (!(await settle(row.id, "superseded"))) throw new ApiError(409, tr("reply.prop.changedWhileEditing"));
   return view(await store(user, plan, row.session_key, row.id), user);
 }
 
@@ -543,11 +555,11 @@ export async function proposalView(user: SessionUser, id: string): Promise<Propo
 
 export async function cancelProposal(user: SessionUser, id: string): Promise<{ status: ProposalStatus; message: string }> {
   const row = await loadProposal(id, user);
-  if (row.status !== "pending") return { status: row.status, message: STATUS_MESSAGES[row.status] ?? "This is already finished." };
+  if (row.status !== "pending") return { status: row.status, message: statusMessage(row.status, tr("reply.prop.alreadyFinished")) };
   await settle(row.id, "cancelled");
   await logActivity({
     sessionKey: row.session_key ?? row.id, requestId: row.target_id, actorId: user.id, mode: "system",
     eventType: "proposal_cancelled", state: "completed", summary: `Cancelled "${ACTION_RULES[row.action_type].label}". Nothing was changed.`,
   });
-  return { status: "cancelled", message: "Cancelled. Nothing was changed." };
+  return { status: "cancelled", message: tr("reply.prop.cancelled") };
 }

@@ -9,6 +9,7 @@ import {
   type YearLevel,
 } from "@/lib/catalogue/hsc";
 import type { Block } from "./logic";
+import { tr } from "@/lib/i18n/reply";
 
 // Compass AI answers "who teaches X" and "do we offer X" from the HSC catalogue and the
 // tutors' recorded courses. This is a lookup, not AI, and it uses the same exact-match
@@ -56,14 +57,14 @@ function areaIn(text: string) {
 
 export function courseAnswer(text: string, facts: CourseFacts): Block[] {
   const blocks: Block[] = [];
-  const link = { label: "Open Subjects", href: "/subjects" };
+  const link = { label: tr("reply.course.openSubjects"), href: "/subjects" };
   const found = findCourses(text).slice(0, 2);
   const code = codeIn(text);
 
   // A category code on its own covers several courses, so it can't say who can teach.
   if (found.length === 0 && code) {
     const names = COURSES.filter((c) => c.areaId === code.area.id && c.years.includes(code.year)).map((c) => c.name);
-    blocks.push({ kind: "text", text: `${code.code} is the Year ${code.year} ${code.area.name} code. It covers ${names.length} courses, so a tutor who teaches one of them can't be assumed to teach the others. Which course do you mean?` });
+    blocks.push({ kind: "text", text: tr("reply.course.code", { code: code.code, year: code.year, area: code.area.name, count: names.length }) });
     blocks.push({ kind: "found", items: names, links: [link] });
     return blocks;
   }
@@ -73,20 +74,20 @@ export function courseAnswer(text: string, facts: CourseFacts): Block[] {
   const broad = found.length === 0 ? areaIn(text) : null;
   if (broad) {
     const names = COURSES.filter((c) => c.areaId === broad.id && (!year || c.years.includes(year))).map((c) => `${c.name} (Year ${year ?? c.years.join(" and ")})`);
-    blocks.push({ kind: "text", text: `${broad.name} has ${names.length} courses${year ? ` in Year ${year}` : ""}, and tutors are matched course by course. Which one do you mean?` });
+    blocks.push({ kind: "text", text: tr(year ? "reply.course.broadYear" : "reply.course.broad", { area: broad.name, count: names.length, year }) });
     blocks.push({ kind: "found", items: names, links: [link] });
     return blocks;
   }
   const level = levelIn(text);
   if (!facts.ready) {
-    blocks.push({ kind: "notice", tone: "warning", text: "Tutors' courses aren't set up in the database yet, so I can't say who teaches it. The owner can run the subject catalogue update in Supabase." });
+    blocks.push({ kind: "notice", tone: "warning", text: tr("reply.course.notSetUp") });
   }
   const items: string[] = [];
   for (const crs of found) {
     const years = year ? [year] : [...crs.years];
     for (const y of years) {
       if (!crs.years.includes(y)) {
-        items.push(`${crs.name} isn't a Year ${y} course. It runs in Year ${crs.years.join(" and ")} only.`);
+        items.push(tr("reply.course.wrongYear", { course: crs.name, year: y, years: crs.years.join(` ${tr("reply.course.and")} `) }));
         continue;
       }
       const lvl = crs.kind === "language" ? (level === "extension" && y === 11 ? null : level) : null;
@@ -108,18 +109,18 @@ export function courseAnswer(text: string, facts: CourseFacts): Block[] {
           )
           .map((t) => t.name);
       }
-      const offerText = offered ? "offered." : "not offered by the business yet.";
-      const whoText = who.length ? `Taught by ${who.join(", ")}.` : "No tutor is recorded as teaching it.";
+      const offerText = tr(offered ? "reply.course.offered" : "reply.course.notOffered");
+      const whoText = who.length ? tr("reply.course.taughtBy", { tutors: who.join(", ") }) : tr("reply.course.noTutor");
       items.push(facts.ready ? `${label}: ${offerText} ${whoText}` : label);
     }
   }
   const lang = found.find((c) => c.kind === "language");
-  blocks.push({ kind: "text", text: found.length > 1 ? "Here's what the subject catalogue says about those courses." : "Here's what the subject catalogue says." });
+  blocks.push({ kind: "text", text: tr(found.length > 1 ? "reply.course.saysMany" : "reply.course.says") });
   blocks.push({
     kind: "found",
     items,
     links: [link],
-    note: lang && !level ? "Languages also have a level. Say Beginners, Continuers or Extension for an exact match." : !year ? "Say Year 11 or Year 12 for one year only." : undefined,
+    note: lang && !level ? tr("reply.course.levelNote") : !year ? tr("reply.course.yearNote") : undefined,
   });
   return blocks;
 }

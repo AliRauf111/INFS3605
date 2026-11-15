@@ -4,39 +4,41 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { Logo } from "./Logo";
 import { motionReduced } from "@/lib/a11y/motion";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 // The site footer, shown to signed-in staff. Every link goes to a page or section that
 // exists; nothing points to "#".
 
-type FooterLink = { label: string; href?: string; assistant?: boolean };
+type FooterLink = { label: FooterKey; href?: string; assistant?: boolean };
+type FooterKey = `shell.footer.${"guidedWizard" | "quickCapture" | "compassAi" | "schedule" | "knowledgeHub" | "approvalAlley" | "businessOwners" | "adminTeams" | "dashboard" | "ownerRules" | "staffProcedures" | "coverage" | "integrations" | "product" | "forYourTeam" | "rulesSupport"}`;
 
-const GROUPS: { title: string; links: FooterLink[] }[] = [
+const GROUPS: { title: FooterKey; links: FooterLink[] }[] = [
   {
-    title: "Product",
+    title: "shell.footer.product",
     links: [
-      { label: "Guided Wizard", href: "/requests/new/wizard" },
-      { label: "Quick Capture", href: "/requests/new/intake" },
-      { label: "Compass AI", assistant: true },
-      { label: "Schedule", href: "/schedule" },
-      { label: "Knowledge Hub", href: "/knowledge" },
-      { label: "Approval Alley", href: "/owner" },
+      { label: "shell.footer.guidedWizard", href: "/requests/new/wizard" },
+      { label: "shell.footer.quickCapture", href: "/requests/new/intake" },
+      { label: "shell.footer.compassAi", assistant: true },
+      { label: "shell.footer.schedule", href: "/schedule" },
+      { label: "shell.footer.knowledgeHub", href: "/knowledge" },
+      { label: "shell.footer.approvalAlley", href: "/owner" },
     ],
   },
   {
-    title: "For Your Team",
+    title: "shell.footer.forYourTeam",
     links: [
-      { label: "Business Owners", href: "/owner" },
-      { label: "Admin Teams", href: "/requests" },
-      { label: "Dashboard", href: "/" },
+      { label: "shell.footer.businessOwners", href: "/owner" },
+      { label: "shell.footer.adminTeams", href: "/requests" },
+      { label: "shell.footer.dashboard", href: "/" },
     ],
   },
   {
-    title: "Rules and Support",
+    title: "shell.footer.rulesSupport",
     links: [
-      { label: "Owner Rules", href: "/knowledge#rules" },
-      { label: "Staff Procedures", href: "/knowledge#procedures" },
-      { label: "Coverage", href: "/coverage" },
-      { label: "Integrations", href: "/coverage#integrations" },
+      { label: "shell.footer.ownerRules", href: "/knowledge#rules" },
+      { label: "shell.footer.staffProcedures", href: "/knowledge#procedures" },
+      { label: "shell.footer.coverage", href: "/coverage" },
+      { label: "shell.footer.integrations", href: "/coverage#integrations" },
     ],
   },
 ];
@@ -44,6 +46,7 @@ const GROUPS: { title: string; links: FooterLink[] }[] = [
 export function SiteFooter() {
   const ref = useRef<HTMLElement>(null);
   const pathname = usePathname();
+  const { t } = useI18n();
 
   // A soft entrance each time the footer comes into view: the brand, then the link
   // columns, then the copyright row fade up (see globals.css), the compass needle settles
@@ -97,22 +100,22 @@ export function SiteFooter() {
             <Link href="/" className="footer-logo">
               <Logo />
             </Link>
-            <p className="footer-tagline">A clearer direction for your tutoring business.</p>
-            <p className="footer-about">Bring your business knowledge together, support your team and keep everyday decisions moving, with you in control.</p>
+            <p className="footer-tagline">{t("shell.footer.tagline")}</p>
+            <p className="footer-about">{t("shell.footer.about")}</p>
           </div>
 
           {GROUPS.map((g) => (
-              <nav key={g.title} className="footer-col" aria-label={g.title} data-compass-avoid>
-                <h2>{g.title}</h2>
+              <nav key={g.title} className="footer-col" aria-label={t(g.title)} data-compass-avoid>
+                <h2>{t(g.title)}</h2>
                 <ul>
                   {g.links.map((l) => (
                     <li key={l.label}>
                       {l.assistant ? (
                         <button type="button" className="footer-link" onClick={() => window.dispatchEvent(new Event("compass:open"))}>
-                          {l.label}
+                          {t(l.label)}
                         </button>
                       ) : (
-                        <Link className="footer-link" href={l.href!}>{l.label}</Link>
+                        <Link className="footer-link" href={l.href!}>{t(l.label)}</Link>
                       )}
                     </li>
                   ))}
@@ -123,10 +126,10 @@ export function SiteFooter() {
 
         <div className="footer-bottom" data-compass-avoid>
           <p>
-            © {new Date().getFullYear()} Tutor Compass. All rights reserved.
-            <span className="footer-legal"> <Link href="/privacy">Privacy</Link> · <Link href="/terms">Terms</Link> · <Link href="/support">Support</Link></span>
+            {t("shell.footer.copyright", { year: new Date().getFullYear() })}
+            <span className="footer-legal"> <Link href="/privacy">{t("shell.footer.privacy")}</Link> · <Link href="/terms">{t("shell.footer.terms")}</Link> · <Link href="/support">{t("shell.footer.support")}</Link></span>
           </p>
-          <p className="footer-motto">A clearer direction. Every day.</p>
+          <p className="footer-motto">{t("shell.footer.motto")}</p>
         </div>
       </div>
     </footer>

@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { RequestRow } from "@/lib/data/queries";
-import { formatAud } from "@/lib/domain/money";
-import { REQUEST_TYPE_LABELS } from "@/lib/domain/types";
-import { ColourBadge, EmptyState, StatusBadge, formatDateTime } from "./ui";
+import { ColourBadge, EmptyState, StatusBadge } from "./ui";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import type { Translate } from "@/lib/i18n/core";
+import type { Format } from "@/lib/i18n/format";
+import { textDirection } from "@/lib/i18n/languages";
 
 // The saved requests list on the Requests page. People can tick requests and archive or
 // remove them together, or use the menu at the end of a row for one request. Archiving
@@ -21,18 +23,19 @@ export type TableRow = Pick<RequestRow, "id" | "request_type" | "amount_cents" |
 export type ListView = "active" | "archived" | "removed";
 type Action = "archive" | "unarchive" | "remove" | "restore";
 type Outcome = { done: string[]; failed: Array<{ id: string; reason: string }> };
-type Message = { text: string; undo?: { action: Action; ids: string[] }; failures: Array<{ label: string; reason: string }> };
+// Messages are worded when shown, so they follow a change of language while they're on screen.
+type Message = { text: (t: Translate) => string; undo?: { action: Action; ids: string[] }; failures: Array<{ row: TableRow | null; reason: string }> };
 
 const UNDO: Record<Action, Action> = { archive: "unarchive", unarchive: "archive", remove: "restore", restore: "remove" };
-const PAST: Record<Action, string> = { archive: "archived", unarchive: "restored", remove: "removed", restore: "put back in the list" };
-const VERB: Record<Action, string> = { archive: "archive", unarchive: "restore", remove: "remove", restore: "put back" };
-const OWNER_ONLY = "Only the owner can do this to a request that is waiting for them or raises a welfare concern.";
 
-const plural = (n: number) => `${n} request${n === 1 ? "" : "s"}`;
-const label = (r: TableRow) => `${r.reference_id ?? "No reference"}, ${REQUEST_TYPE_LABELS[r.request_type]}, ${formatDateTime(r.created_at)}`;
+function rowLabel(r: TableRow, t: Translate, fmt: Format): string {
+  return t("requests.table.rowLabel", { reference: r.reference_id ?? t("requests.table.noReference"), type: t(`domain.requestType.${r.request_type}`), date: fmt.dateTime(r.created_at) });
+}
 
 export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView }) {
   const router = useRouter();
+  const { t, fmt } = useI18n();
+  const label = (r: TableRow) => rowLabel(r, t, fmt);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
@@ -86,13 +89,14 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
         });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setMessage({ text: body.error ?? "That didn't work. Nothing was changed. Try again.", failures: [] });
+          const error: string | undefined = body.error;
+          setMessage({ text: (tr) => error ?? tr("requests.table.didntWork"), failures: [] });
           setBusy(false);
           return;
         }
         outcome = body as Outcome;
       } catch {
-        setMessage({ text: "The app couldn't be reached. Nothing was changed. Check your connection and try again.", failures: [] });
+        setMessage({ text: (tr) => tr("requests.table.unreachable"), failures: [] });
         setBusy(false);
         return;
       }
@@ -100,18 +104,15 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
       // Only the requests that worked leave the selection, so failed ones can be retried.
       setSelected((prev) => new Set([...prev].filter((id) => !done.has(id))));
       const n = outcome.done.length;
-      const text = n === 0
-        ? `No requests were ${PAST[action]}.`
+      const text = (tr: Translate) => n === 0
+        ? tr(`requests.table.noneDone.${action}`)
         : opts.isUndo
-          ? `Undone. ${plural(n)} ${n === 1 ? "is" : "are"} back where ${n === 1 ? "it was" : "they were"}.`
-          : `${plural(n)} ${PAST[action]}.`;
+          ? tr("requests.table.undone", { count: n })
+          : tr(`requests.table.done.${action}`, { count: n });
       setMessage({
         text,
         undo: n > 0 && !opts.isUndo ? { action: UNDO[action], ids: outcome.done } : undefined,
-        failures: outcome.failed.map((f) => {
-          const r = byId.get(f.id);
-          return { label: r ? label(r) : "A request", reason: f.reason };
-        }),
+        failures: outcome.failed.map((f) => ({ row: byId.get(f.id) ?? null, reason: f.reason })),
       });
       setBusy(false);
       router.refresh();
@@ -124,18 +125,18 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
       <>
         {message && <ActionMessage message={message} busy={busy} onUndo={run} onClose={() => setMessage(null)} />}
         {view === "active" && (
-          <EmptyState title="No requests yet">
-            <p>Requests appear here once they are saved. <Link href="/requests/new/wizard">Create the first one</Link>.</p>
+          <EmptyState title={t("requests.table.emptyActive")}>
+            <p>{t("requests.table.emptyActiveText")} <Link href="/requests/new/wizard">{t("requests.table.createFirst")}</Link>.</p>
           </EmptyState>
         )}
         {view === "archived" && (
-          <EmptyState title="No archived requests">
-            <p>Archived requests show here and can be restored at any time.</p>
+          <EmptyState title={t("requests.table.emptyArchived")}>
+            <p>{t("requests.table.emptyArchivedText")}</p>
           </EmptyState>
         )}
         {view === "removed" && (
-          <EmptyState title="No removed requests">
-            <p>Requests taken off the lists show here and can be put back.</p>
+          <EmptyState title={t("requests.table.emptyRemoved")}>
+            <p>{t("requests.table.emptyRemovedText")}</p>
           </EmptyState>
         )}
       </>
@@ -144,7 +145,7 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
 
   const ids = [...selected];
   const primary: Action = view === "active" ? "archive" : view === "archived" ? "unarchive" : "restore";
-  const primaryLabel = view === "active" ? "Archive Selected" : view === "archived" ? "Restore Selected" : "Put Back Selected";
+  const primaryLabel = view === "active" ? t("requests.table.archiveSelected") : view === "archived" ? t("requests.table.restoreSelected") : t("requests.table.putBackSelected");
   const canRemove = view !== "removed";
 
   function openConfirm(confirmIds: string[], single: boolean, returnTo: HTMLElement | null) {
@@ -166,8 +167,8 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
       {message && <ActionMessage message={message} busy={busy} onUndo={run} onClose={() => setMessage(null)} />}
 
       {count > 0 && (
-        <div className="bulk-bar" role="region" aria-label="Actions for selected requests">
-          <span className="bulk-count" aria-live="polite">{count} selected</span>
+        <div className="bulk-bar" role="region" aria-label={t("requests.table.bulkLabel")}>
+          <span className="bulk-count" aria-live="polite">{t("requests.table.selected", { count })}</span>
           <button type="button" className="btn small bulk-btn" disabled={busy} onClick={() => run(primary, ids)}>
             {primary === "archive" ? <ArchiveIcon /> : <RestoreIcon />}
             {primaryLabel}
@@ -175,24 +176,24 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
           {canRemove && (
             <button type="button" className="btn small bulk-btn danger-outline" disabled={busy} onClick={(e) => openConfirm(ids, false, e.currentTarget)}>
               <BinIcon />
-              Remove Selected
+              {t("requests.table.removeSelected")}
             </button>
           )}
-          <button type="button" className="link-btn" disabled={busy} onClick={() => setSelected(new Set())}>Clear Selection</button>
+          <button type="button" className="link-btn" disabled={busy} onClick={() => setSelected(new Set())}>{t("requests.table.clearSelection")}</button>
         </div>
       )}
 
       {/* Phones get cards; wider screens get the full table. */}
-      <ul className="request-cards" aria-label="Requests, newest first">
+      <ul className="request-cards" aria-label={t("requests.table.caption")}>
         {rows.map((r) => (
           <li key={r.id} className={`card${selected.has(r.id) ? " is-selected" : ""}`}>
             <div className="rc-top">
-              <input type="checkbox" className="sel-box" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={`Select request ${label(r)}`} />
-              <Link href={`/requests/${r.id}`} className="rc-title"><strong>{REQUEST_TYPE_LABELS[r.request_type]}{r.amount_cents === null ? "" : `, ${formatAud(r.amount_cents)}`}</strong></Link>
+              <input type="checkbox" className="sel-box" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={t("requests.table.selectRow", { label: label(r) })} />
+              <Link href={`/requests/${r.id}`} className="rc-title"><strong>{t(`domain.requestType.${r.request_type}`)}{r.amount_cents === null ? "" : `, ${fmt.money(r.amount_cents)}`}</strong></Link>
               <ColourBadge colour={r.decision} />
-              <MenuButton row={r} open={menu?.id === r.id} onOpen={(button) => setMenu(menu?.id === r.id ? null : { id: r.id, button })} />
+              <MenuButton row={r} label={label(r)} open={menu?.id === r.id} onOpen={(button) => setMenu(menu?.id === r.id ? null : { id: r.id, button })} />
             </div>
-            <p className="hint">{r.reference_id ?? "No reference"} · {formatDateTime(r.created_at)}</p>
+            <p className="hint"><bdi>{r.reference_id ?? t("requests.table.noReference")}</bdi> · {fmt.dateTime(r.created_at)}</p>
             <StatusBadge status={r.status} />
           </li>
         ))}
@@ -200,19 +201,19 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
 
       <div className="table-wrap request-table">
         <table>
-          <caption className="sr-only">Requests, newest first</caption>
+          <caption className="sr-only">{t("requests.table.caption")}</caption>
           <thead>
             <tr>
               <th scope="col" className="sel-cell">
-                <input ref={allRef} type="checkbox" className="sel-box" checked={allChecked} onChange={toggleAll} aria-label={allChecked ? "Unselect all requests shown" : "Select all requests shown"} />
+                <input ref={allRef} type="checkbox" className="sel-box" checked={allChecked} onChange={toggleAll} aria-label={allChecked ? t("requests.table.unselectAll") : t("requests.table.selectAll")} />
               </th>
-              <th scope="col">Created</th>
-              <th scope="col">Type</th>
-              <th scope="col">Amount</th>
-              <th scope="col">Reference</th>
-              <th scope="col">Decision</th>
-              <th scope="col">Status</th>
-              <th scope="col" className="menu-cell"><span className="sr-only">Actions</span></th>
+              <th scope="col">{t("requests.table.created")}</th>
+              <th scope="col">{t("requests.table.type")}</th>
+              <th scope="col">{t("requests.table.amount")}</th>
+              <th scope="col">{t("requests.table.reference")}</th>
+              <th scope="col">{t("requests.table.decision")}</th>
+              <th scope="col">{t("requests.table.status")}</th>
+              <th scope="col" className="menu-cell"><span className="sr-only">{t("requests.table.actions")}</span></th>
             </tr>
           </thead>
           <tbody>
@@ -220,17 +221,17 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
               <tr key={r.id} className={`clickable-row${selected.has(r.id) ? " is-selected" : ""}`} onClick={(e) => rowClick(e, r.id)}>
                 <td className="sel-cell">
                   <label className="sel-hit">
-                    <input type="checkbox" className="sel-box" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={`Select request ${label(r)}`} />
+                    <input type="checkbox" className="sel-box" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={t("requests.table.selectRow", { label: label(r) })} />
                   </label>
                 </td>
-                <td><Link href={`/requests/${r.id}`}>{formatDateTime(r.created_at)}</Link></td>
-                <td>{REQUEST_TYPE_LABELS[r.request_type]}</td>
-                <td>{r.amount_cents === null ? <span className="muted">None</span> : formatAud(r.amount_cents)}</td>
-                <td>{r.reference_id ?? <span className="muted">None</span>}</td>
+                <td><Link href={`/requests/${r.id}`}>{fmt.dateTime(r.created_at)}</Link></td>
+                <td>{t(`domain.requestType.${r.request_type}`)}</td>
+                <td>{r.amount_cents === null ? <span className="muted">{t("common.none")}</span> : fmt.money(r.amount_cents)}</td>
+                <td>{r.reference_id ? <bdi>{r.reference_id}</bdi> : <span className="muted">{t("common.none")}</span>}</td>
                 <td><ColourBadge colour={r.decision} /></td>
                 <td><StatusBadge status={r.status} /></td>
                 <td className="menu-cell">
-                  <MenuButton row={r} open={menu?.id === r.id} onOpen={(button) => setMenu(menu?.id === r.id ? null : { id: r.id, button })} />
+                  <MenuButton row={r} label={label(r)} open={menu?.id === r.id} onOpen={(button) => setMenu(menu?.id === r.id ? null : { id: r.id, button })} />
                 </td>
               </tr>
             ))}
@@ -280,21 +281,22 @@ export function RequestsTable({ rows, view }: { rows: TableRow[]; view: ListView
 }
 
 function ActionMessage({ message, busy, onUndo, onClose }: { message: Message; busy: boolean; onUndo: (a: Action, ids: string[], o: { isUndo: boolean }) => void; onClose: () => void }) {
+  const { t, fmt } = useI18n();
   const failed = message.failures.length > 0;
   return (
     <div className={`notice ${failed ? "warning" : "success"} action-msg`} role="status">
       <div className="action-msg-line">
-        <span>{message.text}</span>
+        <span>{message.text(t)}</span>
         {message.undo && (
-          <button type="button" className="link-btn" disabled={busy} onClick={() => onUndo(message.undo!.action, message.undo!.ids, { isUndo: true })}>Undo</button>
+          <button type="button" className="link-btn" disabled={busy} onClick={() => onUndo(message.undo!.action, message.undo!.ids, { isUndo: true })}>{t("requests.table.undo")}</button>
         )}
-        <button type="button" className="link-btn action-msg-close" onClick={onClose} aria-label="Dismiss message">Dismiss</button>
+        <button type="button" className="link-btn action-msg-close" onClick={onClose} aria-label={t("requests.table.dismissLabel")}>{t("requests.table.dismiss")}</button>
       </div>
       {failed && (
         <>
-          <p className="action-msg-sub">{message.failures.length === 1 ? "This request wasn't changed and is still selected:" : `These ${message.failures.length} requests weren't changed and are still selected:`}</p>
+          <p className="action-msg-sub">{t("requests.table.notChanged", { count: message.failures.length })}</p>
           <ul>
-            {message.failures.map((f, i) => <li key={i}><strong>{f.label}</strong>: {f.reason}</li>)}
+            {message.failures.map((f, i) => <li key={i}><strong>{f.row ? rowLabel(f.row, t, fmt) : t("requests.table.aRequest")}</strong>: {f.reason}</li>)}
           </ul>
         </>
       )}
@@ -302,7 +304,8 @@ function ActionMessage({ message, busy, onUndo, onClose }: { message: Message; b
   );
 }
 
-function MenuButton({ row, open, onOpen }: { row: TableRow; open: boolean; onOpen: (b: HTMLButtonElement) => void }) {
+function MenuButton({ row, label, open, onOpen }: { row: TableRow; label: string; open: boolean; onOpen: (b: HTMLButtonElement) => void }) {
+  const { t } = useI18n();
   return (
     <button
       type="button"
@@ -310,7 +313,7 @@ function MenuButton({ row, open, onOpen }: { row: TableRow; open: boolean; onOpe
       aria-haspopup="menu"
       aria-expanded={open}
       aria-controls={open ? `row-menu-${row.id}` : undefined}
-      aria-label={`More actions for request ${label(row)}`}
+      aria-label={t("requests.table.moreActions", { label })}
       onClick={(e) => onOpen(e.currentTarget)}
     >
       <DotsIcon />
@@ -329,6 +332,8 @@ function RowMenu({ row, view, anchor, busy, onClose, onAction }: {
   onAction: (a: Action) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const { t, fmt, lang } = useI18n();
+  const rtl = textDirection(lang) === "rtl";
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
   // Place the menu under its button, or above it near the bottom of the screen, and
@@ -342,9 +347,10 @@ function RowMenu({ row, view, anchor, busy, onClose, onAction }: {
     let top = b.bottom + gap;
     if (top + h > window.innerHeight - 8 && b.top - gap - h > 8) top = b.top - gap - h;
     top = Math.max(8, Math.min(top, window.innerHeight - h - 8));
-    const left = Math.max(8, Math.min(b.right - MENU_WIDTH, window.innerWidth - MENU_WIDTH - 8));
+    // Lined up with the button's end edge: its right in left-to-right text, its left in right-to-left.
+    const left = Math.max(8, Math.min(rtl ? b.left : b.right - MENU_WIDTH, window.innerWidth - MENU_WIDTH - 8));
     setPos({ top, left });
-  }, [anchor, onClose]);
+  }, [anchor, onClose, rtl]);
 
   useLayoutEffect(place, [place]);
 
@@ -388,7 +394,7 @@ function RowMenu({ row, view, anchor, busy, onClose, onAction }: {
     }
   }
 
-  const lockedNote = row.locked ? "Owner only" : undefined;
+  const lockedNote = row.locked ? t("requests.table.ownerOnlyShort") : undefined;
   const item = (action: Action, text: string, icon: React.ReactNode, opts: { danger?: boolean; ownerOnly?: boolean } = {}) => {
     const disabled = busy || (opts.ownerOnly && row.locked);
     return (
@@ -398,7 +404,7 @@ function RowMenu({ row, view, anchor, busy, onClose, onAction }: {
         tabIndex={-1}
         className={`menu-item${opts.danger ? " danger" : ""}`}
         aria-disabled={disabled || undefined}
-        title={opts.ownerOnly && row.locked ? OWNER_ONLY : undefined}
+        title={opts.ownerOnly && row.locked ? t("requests.table.ownerOnly") : undefined}
         onClick={() => !disabled && onAction(action)}
       >
         {icon}
@@ -413,22 +419,22 @@ function RowMenu({ row, view, anchor, busy, onClose, onAction }: {
       ref={ref}
       id={`row-menu-${row.id}`}
       role="menu"
-      aria-label={`Actions for request ${label(row)}`}
+      aria-label={t("requests.table.actionsFor", { label: rowLabel(row, t, fmt) })}
       className="row-menu"
       style={{ top: pos?.top ?? -9999, left: pos?.left ?? -9999, width: MENU_WIDTH }}
       onKeyDown={onKeyDown}
     >
       <Link role="menuitem" tabIndex={-1} className="menu-item" href={`/requests/${row.id}`} onClick={() => onClose(false)}>
         <EyeIcon />
-        <span>View Details</span>
+        <span>{t("requests.table.viewDetails")}</span>
       </Link>
-      {view === "active" && item("archive", "Archive Request", <ArchiveIcon />, { ownerOnly: true })}
-      {view === "archived" && item("unarchive", "Restore Request", <RestoreIcon />)}
-      {view === "removed" && item("restore", "Put Back in List", <RestoreIcon />)}
+      {view === "active" && item("archive", t("requests.table.archiveRequest"), <ArchiveIcon />, { ownerOnly: true })}
+      {view === "archived" && item("unarchive", t("requests.table.restoreRequest"), <RestoreIcon />)}
+      {view === "removed" && item("restore", t("requests.table.putBack"), <RestoreIcon />)}
       {view !== "removed" && (
         <>
           <div role="separator" className="menu-sep" />
-          {item("remove", "Delete Request", <BinIcon />, { danger: true, ownerOnly: true })}
+          {item("remove", t("requests.table.deleteRequest"), <BinIcon />, { danger: true, ownerOnly: true })}
         </>
       )}
     </div>,
@@ -438,6 +444,7 @@ function RowMenu({ row, view, anchor, busy, onClose, onAction }: {
 
 function ConfirmRemove({ rows, single, busy, onCancel, onConfirm }: { rows: TableRow[]; single: boolean; busy: boolean; onCancel: () => void; onConfirm: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const { t, fmt } = useI18n();
   useEffect(() => {
     const d = ref.current;
     if (d && !d.open) d.showModal();
@@ -458,23 +465,23 @@ function ConfirmRemove({ rows, single, busy, onCancel, onConfirm }: { rows: Tabl
         if (e.target === e.currentTarget) onCancel(); // a click on the dimmed backdrop
       }}
     >
-      <h2 id="confirm-remove-title">Remove {plural(rows.length)}?</h2>
+      <h2 id="confirm-remove-title">{t("requests.table.confirmTitle", { count: rows.length })}</h2>
       <ul className="confirm-list">
         {shown.map((r) => (
           <li key={r.id}>
-            <strong>{r.reference_id ?? "No reference"}</strong> · {REQUEST_TYPE_LABELS[r.request_type]}
-            {r.amount_cents === null ? "" : ` · ${formatAud(r.amount_cents)}`} · {formatDateTime(r.created_at)}
+            <strong><bdi>{r.reference_id ?? t("requests.table.noReference")}</bdi></strong> · {t(`domain.requestType.${r.request_type}`)}
+            {r.amount_cents === null ? "" : ` · ${fmt.money(r.amount_cents)}`} · {fmt.dateTime(r.created_at)}
           </li>
         ))}
-        {rows.length > shown.length && <li className="muted">and {rows.length - shown.length} more</li>}
+        {rows.length > shown.length && <li className="muted">{t("requests.table.andMore", { count: rows.length - shown.length })}</li>}
       </ul>
       <p id="confirm-remove-text">
-        Details, decisions and history are kept, and you can put {rows.length === 1 ? "it" : "them"} back from Removed Requests.
+        {t("requests.table.confirmText", { count: rows.length })}
       </p>
       <div className="confirm-actions">
-        <button type="button" className="btn secondary confirm-cancel" onClick={onCancel}>Cancel</button>
+        <button type="button" className="btn secondary confirm-cancel" onClick={onCancel}>{t("common.cancel")}</button>
         <button type="button" className="btn danger" disabled={busy} onClick={onConfirm}>
-          {single ? "Remove Request" : "Remove Selected"}
+          {single ? t("requests.table.removeRequest") : t("requests.table.removeSelected")}
         </button>
       </div>
     </dialog>

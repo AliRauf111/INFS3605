@@ -1,4 +1,5 @@
 import type { Colour, RequestStatus, Role } from "@/lib/domain/types";
+import { enT, type Translate } from "@/lib/i18n/core";
 
 // The one place that decides what someone can do next on a request. The dashboard, the
 // request page, Approval Alley and Compass all ask this module, and the database
@@ -86,9 +87,8 @@ export function allowedTransitions(input: Pick<WorkflowInput, "role" | "status" 
   return out;
 }
 
-const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
-
-export function workflowFor(input: WorkflowInput): Workflow {
+/** What this person can do next. The wording is in the reader's language; the rules are the same in every language. */
+export function workflowFor(input: WorkflowInput, t: Translate = enT): Workflow {
   const { role, status, missing } = input;
   const owner = role === "owner";
   const allowed = allowedTransitions(input);
@@ -106,24 +106,20 @@ export function workflowFor(input: WorkflowInput): Workflow {
     handlingNote: reviewable && sensitive,
     recordOutcome: allowed.has("record_and_close"),
   };
-  const approveBlocked = owner && reviewable && !can.approve ? "Approve is not available until the missing details are complete." : null;
-  const detailsLine = `${missing} required ${plural(missing, "detail is", "details are")} missing`;
+  const approveBlocked = owner && reviewable && !can.approve ? t("workflow.approveBlocked") : null;
+  const detailsLine = t("workflow.detailsMissing", { count: missing });
   const base = { missingDetails, reviewStarted, can, approveBlocked };
-  const primary = (kind: PrimaryKind, disabled = false) => ({ kind, label: PRIMARY_LABELS[kind], disabled });
+  const label = (kind: PrimaryKind) => t(`workflow.primary.${kind}`);
+  const primary = (kind: PrimaryKind, disabled = false) => ({ kind, label: label(kind), disabled });
 
   if (status === "closed") {
-    return { ...base, queue: "done", title: "Done", detail: "Recorded and closed", pending: "", whatNext: "Nothing more to do. The full record stays on this page.", primary: null };
+    return { ...base, queue: "done", title: t("workflow.done"), detail: t("workflow.recordedClosed"), pending: "", whatNext: t("workflow.nothingMore"), primary: null };
   }
 
   if (RECORD_STATUSES.includes(status)) {
-    const detail = status === "ready" ? "Inside the rules" : status === "approved" ? "Approved by Owner" : "Declined by Owner";
-    const whatNext =
-      status === "ready"
-        ? "This is inside the rules. Do it in your own systems, then record what you did here. Tutor Compass doesn't move money or change bookings."
-        : status === "approved"
-          ? "The owner approved this request. Do it in your own systems, then record what you did here."
-          : "The owner declined this request. Let the family know, then record what you did here.";
-    return { ...base, queue: "record", title: "Record Outcome", detail, pending: "Not recorded yet. Use Record Outcome above.", whatNext, primary: primary("record_outcome") };
+    const detail = status === "ready" ? t("workflow.insideRules") : status === "approved" ? t("domain.status.approved") : t("domain.status.declined");
+    const whatNext = status === "ready" ? t("workflow.whatNext.ready") : status === "approved" ? t("workflow.whatNext.approved") : t("workflow.whatNext.declined");
+    return { ...base, queue: "record", title: label("record_outcome"), detail, pending: t("workflow.pending.notRecorded"), whatNext, primary: primary("record_outcome") };
   }
 
   // Missing details come first for everyone. Nothing goes to the owner, and nothing is
@@ -132,10 +128,10 @@ export function workflowFor(input: WorkflowInput): Workflow {
     return {
       ...base,
       queue: "clarify",
-      title: "Complete Missing Details",
+      title: label("complete_details"),
       detail: detailsLine,
-      pending: `Waiting for the missing details. ${detailsLine}. Use Complete Missing Details above.`,
-      whatNext: `${detailsLine} before a decision can be made. Add them with Complete Missing Details and the rules will check the request again.${owner && reviewable ? " You can still start a review, but you can't approve it yet." : ""}`,
+      pending: t("workflow.pending.waitingDetails", { details: detailsLine }),
+      whatNext: owner && reviewable ? t("workflow.whatNext.detailsOwner", { details: detailsLine }) : t("workflow.whatNext.details", { details: detailsLine }),
       primary: primary("complete_details"),
     };
   }
@@ -143,34 +139,29 @@ export function workflowFor(input: WorkflowInput): Workflow {
   if (owner) {
     if (reviewable) {
       const detail =
-        status === "awaiting_owner" ? "Sent by the admin team" : status === "more_info_requested" ? "You asked for information" : status === "needs_clarification" ? "Details complete" : "Not sent by the admin team yet";
+        status === "awaiting_owner" ? t("workflow.detail.sentByAdmin") : status === "more_info_requested" ? t("workflow.detail.youAsked") : status === "needs_clarification" ? t("workflow.detail.detailsComplete") : t("workflow.detail.notSentYet");
       return {
         ...base,
         queue: "review",
-        title: "Review and Handle",
+        title: t("workflow.reviewAndHandle"),
         detail,
-        pending: reviewStarted
-          ? "Review started. Use Continue Review above to approve, decline or ask for information."
-          : "Waiting for your review. Use Start Review above. Opening this page doesn't start it.",
+        pending: reviewStarted ? t("workflow.pending.reviewStarted") : t("workflow.pending.waitingReview"),
         whatNext: reviewStarted
-          ? `Continue your review and record your decision. ${sensitive ? "You can also add handling notes and next steps as you go. " : ""}The admin team then records what was done.`
-          : "Start the review when you're ready. Starting it records that you're handling this. It doesn't approve, close or change anything else.",
+          ? sensitive ? t("workflow.whatNext.continueSensitive") : t("workflow.whatNext.continue")
+          : t("workflow.whatNext.start"),
         primary: primary(reviewStarted ? "continue_review" : "start_review"),
       };
     }
   } else {
     if (allowed.has("send_to_owner")) {
-      const detail = status === "more_info_requested" ? "Owner asked for more" : status === "needs_clarification" ? "Records need checking" : "Owner Review Required";
+      const detail = status === "more_info_requested" ? t("workflow.detail.ownerAskedMore") : status === "needs_clarification" ? t("workflow.detail.recordsNeedChecking") : t("domain.status.review_required");
       return {
         ...base,
         queue: "send",
-        title: "Send to Owner",
+        title: label("send_to_owner"),
         detail,
-        pending: status === "more_info_requested" ? "The owner needs more information. Update the facts if needed, then use Send to Owner above." : "Not sent yet. Use Send to Owner above.",
-        whatNext:
-          status === "more_info_requested"
-            ? "The owner needs more information. Update the facts if needed, then send it back to the owner."
-            : "Send this to the owner. Once the owner decides, you record the outcome here. That is the last step.",
+        pending: status === "more_info_requested" ? t("workflow.pending.ownerNeedsMore") : t("workflow.pending.notSent"),
+        whatNext: status === "more_info_requested" ? t("workflow.whatNext.ownerNeedsMore") : t("workflow.whatNext.send"),
         primary: primary("send_to_owner"),
       };
     }
@@ -178,10 +169,10 @@ export function workflowFor(input: WorkflowInput): Workflow {
       return {
         ...base,
         queue: "owner",
-        title: "Awaiting Owner Decision",
-        detail: "Owner decides first",
-        pending: "Sent. Waiting for the owner's decision.",
-        whatNext: "The owner is looking at this. You'll see their decision here, then you record the outcome.",
+        title: label("awaiting_owner"),
+        detail: t("workflow.detail.ownerDecidesFirst"),
+        pending: t("workflow.pending.sent"),
+        whatNext: t("workflow.whatNext.ownerLooking"),
         primary: primary("awaiting_owner", true),
       };
     }
@@ -191,10 +182,10 @@ export function workflowFor(input: WorkflowInput): Workflow {
   return {
     ...base,
     queue: "clarify",
-    title: "Complete Missing Details",
+    title: label("complete_details"),
     detail: detailsLine,
-    pending: `${detailsLine}.`,
-    whatNext: `${detailsLine}. Add them before a decision is made.`,
+    pending: t("workflow.pending.detailsOnly", { details: detailsLine }),
+    whatNext: t("workflow.whatNext.detailsBefore", { details: detailsLine }),
     primary: can.completeDetails ? primary("complete_details") : null,
   };
 }

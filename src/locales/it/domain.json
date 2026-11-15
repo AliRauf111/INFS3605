@@ -1,0 +1,136 @@
+{
+  "role": {
+    "owner": "Titolare",
+    "admin": "Amministratore"
+  },
+  "requestType": {
+    "refund": "Rimborso",
+    "lesson_change": "Cambio lezione",
+    "payment_extension": "Proroga di pagamento",
+    "other": "Altro"
+  },
+  "triState": {
+    "yes": "Sì",
+    "no": "No",
+    "unsure": "Non so"
+  },
+  "colour": {
+    "green": "Verde: puoi seguire i passaggi approvati",
+    "amber": "Giallo: serve un chiarimento o l'approvazione del titolare",
+    "red": "Rosso: fermati e passa al titolare"
+  },
+  "colourShort": {
+    "green": "Verde",
+    "amber": "Giallo",
+    "red": "Rosso"
+  },
+  "decisionLabel": "Decisione: {{colour}}",
+  "status": {
+    "ready": "Pronta per l'amministrazione",
+    "needs_clarification": "Da chiarire",
+    "review_required": "Serve la revisione del titolare",
+    "awaiting_owner": "In attesa del titolare",
+    "more_info_requested": "Il titolare ha chiesto informazioni",
+    "approved": "Approvata dal titolare",
+    "declined": "Rifiutata dal titolare",
+    "closed": "Chiusa"
+  },
+  "action": {
+    "prepare_parent_response": "Prepara una risposta per la famiglia",
+    "prepare_tutor_message": "Prepara un messaggio per il tutor",
+    "prepare_escalation_summary": "Prepara un riepilogo di escalation per il titolare",
+    "prepare_reschedule_proposal": "Prepara una proposta di nuovo orario",
+    "prepare_admin_checklist": "Prepara una checklist per l'amministrazione",
+    "send_to_owner": "Invia al titolare per la revisione"
+  },
+  "draft": {
+    "parent_response": "Risposta alla famiglia",
+    "tutor_message": "Messaggio al tutor",
+    "escalation_summary": "Riepilogo di escalation per il titolare",
+    "reschedule_proposal": "Proposta di nuovo orario",
+    "admin_checklist": "Checklist per l'amministrazione"
+  },
+  "dataLabel": {
+    "live_connected": "Collegato in tempo reale",
+    "imported": "Importato",
+    "fictional_demo": "Dati dimostrativi fittizi"
+  },
+  "group": {
+    "owner": "Serve la revisione del titolare",
+    "info": "Servono altre informazioni",
+    "ready": "Pronta per l'amministrazione"
+  },
+  "groupText": {
+    "ownerForOwner": "Serve il tuo giudizio",
+    "ownerForAdmin": "In attesa della decisione del titolare",
+    "info": "Qualche dettaglio da chiarire",
+    "readyForOwner": "Spetta all'amministrazione confermare",
+    "readyForAdmin": "Pronta da rivedere e confermare"
+  },
+  "groupEmpty": {
+    "owner": "Nessuna richiesta richiede la revisione del titolare.",
+    "info": "Nessuna richiesta è in attesa di altre informazioni.",
+    "ready": "Al momento nessuna richiesta è pronta per l'amministrazione."
+  },
+  "card": {
+    "refundAmount": "Un rimborso di {{amount}}",
+    "refund": "Una richiesta di rimborso",
+    "extension": "Più tempo per pagare",
+    "lessonChange": "Spostare una lezione",
+    "request": "Una richiesta",
+    "welfareLine": "È stata segnalata una preoccupazione per il benessere. Se ne occupa personalmente il titolare.",
+    "typeFor": "{{type}} per {{reference}}.",
+    "typeOnly": "{{type}}.",
+    "extensionDays_many": "{{count}} giorni in più per pagare",
+    "extensionDays_one": "{{count}} giorno in più per pagare",
+    "extensionDays_other": "{{count}} giorni in più per pagare"
+  },
+  "step": {
+    "submitted": "Inviata",
+    "ruleCheck": "Controllo delle regole",
+    "ownerReview": "Revisione del titolare",
+    "recorded": "Registrata",
+    "reviewStarted": "Revisione avviata",
+    "notNeeded": "Non necessario",
+    "needsMoreFacts": "Servono più dati",
+    "allDone": "Tutti i passaggi completati",
+    "nothingLeft": "Non resta nulla da fare",
+    "lastStep": "Questo è l'ultimo passaggio",
+    "heading": "Passaggio {{n}} di {{total}}: {{label}}",
+    "stepsAfter_many": "{{count}} passaggi dopo questo",
+    "stepsAfter_one": "Un passaggio dopo questo",
+    "stepsAfter_other": "{{count}} passaggi dopo questo"
+  },
+  "stepInSentence": {
+    "submitted": "inviata",
+    "ruleCheck": "controllo delle regole",
+    "ownerReview": "revisione del titolare",
+    "recorded": "registrata"
+  },
+  "ruleHeading": {
+    "missing": "Mancano alcuni dati",
+    "ownerWelfare": "Preoccupazione per il benessere. Te ne occupi personalmente",
+    "ownerRed": "Serve la tua revisione prima di qualsiasi altra cosa",
+    "adminWelfare": "Fermati. Deve occuparsene personalmente il titolare",
+    "adminRed": "Il titolare deve rivederla prima di qualsiasi altra cosa",
+    "ownerAmber": "Serve la tua approvazione prima di procedere",
+    "adminAmber": "Verifica con il titolare prima di procedere",
+    "green": "Puoi procedere"
+  },
+  "ruleName": {
+    "safety_complaint": "Reclamo di sicurezza",
+    "safety_welfare": "Preoccupazione per il benessere",
+    "default_unsupported": "Nessuna politica per questo caso",
+    "default_missing_policy": "Nessuna politica attiva",
+    "default_missing_information": "Informazioni mancanti",
+    "default_no_matching_rule": "Nessuna regola corrispondente",
+    "refund_under_50": "Rimborso sotto i 50 $",
+    "refund_50_to_200": "Rimborso da 50 $ a 200 $",
+    "refund_over_200": "Rimborso oltre i 200 $",
+    "lesson_change_no_fee": "Nessun cambio di tariffa",
+    "lesson_change_fee_impact": "Incide sulle tariffe",
+    "payment_extension_up_to_7": "Proroga fino a 7 giorni",
+    "payment_extension_8_to_30": "Proroga da 8 a 30 giorni",
+    "payment_extension_over_30": "Proroga oltre i 30 giorni"
+  }
+}

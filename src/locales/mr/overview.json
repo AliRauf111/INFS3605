@@ -1,0 +1,139 @@
+{
+  "eyebrow": "तुमचा दिवस, एका नजरेत",
+  "greeting": {
+    "morning": "सुप्रभात, {{name}}",
+    "afternoon": "नमस्कार, {{name}}",
+    "evening": "शुभ संध्याकाळ, {{name}}"
+  },
+  "subheading": "तुमच्या शिकवणी व्यवसायाचे शांत चित्र. एक एक निर्णय घेऊया.",
+  "removed": "विनंती यादीतून काढली. ती पुन्हा येथे सापडेल:",
+  "removedLink": "काढलेल्या विनंत्या",
+  "filterLabel": "सारांशातील विनंत्या स्थितीनुसार गाळा",
+  "showing": "दाखवत आहे",
+  "viewRequests": "विनंत्या पाहा",
+  "overToYou": "आता तुमच्याकडे",
+  "humanTouch": "माणसाचे लक्ष हवे असलेल्या काही गोष्टी",
+  "showAllRequests": "सर्व विनंत्या दाखवा",
+  "student": "विद्यार्थी: {{name}}",
+  "studentLabel": "विद्यार्थी {{name}}",
+  "allCaughtUp": "सर्व काम पूर्ण झाले आहे.",
+  "chooseAnother": "दुसरी स्थिती निवडा किंवा सर्व विनंत्या दाखवा.",
+  "everyDealtWith": "प्रत्येक विनंती हाताळली आहे. थोडा निवांत वेळ घ्या.",
+  "viewAll": "सर्व विनंत्या पाहा",
+  "capacity": {
+    "heading": "वाढीसाठी थोडी जागा",
+    "caption": "उपलब्ध शिक्षक तासांच्या तुलनेत बुक झालेले तास",
+    "periodLabel": "क्षमता आलेखाचा कालावधी",
+    "booked": "बुक",
+    "available": "उपलब्ध",
+    "thisWeek": "हा आठवडा",
+    "nextWeek": "पुढचा आठवडा",
+    "thisMonth": "हा महिना",
+    "thisWeekLower": "हा आठवडा",
+    "nextWeekLower": "पुढचा आठवडा",
+    "thisMonthLower": "हा महिना",
+    "nothingToCompare": {
+      "lastWeek": "तुलना करण्यासाठी मागील आठवड्यात काहीही देऊ केले नव्हते",
+      "thisWeek": "तुलना करण्यासाठी या आठवड्यात काहीही देऊ केलेले नाही"
+    },
+    "same": {
+      "lastWeek": "मागील आठवड्याइतकेच",
+      "thisWeek": "या आठवड्याइतकेच"
+    },
+    "percentBooked": "{{percent}}% बुक",
+    "noHoursOffered": "कोणतेही तास देऊ केलेले नाहीत",
+    "noTutorHours": "शिक्षकांचे कोणतेही तास देऊ केलेले नाहीत",
+    "ofCapacity": "शिक्षक क्षमता बुक झाली",
+    "tipLine": "{{label}} · {{offered}} ता पैकी {{booked}}",
+    "chartLabel": "शिक्षक क्षमता, {{period}}. {{summary}} प्रत्येक बिंदूचे तास पाहण्यासाठी त्यावर माउस न्या किंवा फोकस करा.",
+    "chartNone": "कोणतेही तास देऊ केलेले नाहीत.",
+    "chartPercent": "उपलब्ध तासांपैकी {{percent}}% बुक झाले.",
+    "pointLabel": "{{label}}: {{offered}} तासांपैकी {{booked}} बुक",
+    "pointTitle": "{{label}}: {{booked}} / {{offered}} ता",
+    "hours": "{{n}} ता",
+    "weekShort": "आ {{n}}",
+    "note": "शिक्षक दिनदर्शिकेतून · तपशीलासाठी आलेखावर माउस न्या",
+    "acrossWeeks_one": "या महिन्यातील {{count}} आठवड्यात",
+    "acrossWeeks_other": "या महिन्यातील {{count}} आठवड्यांत",
+    "more": {
+      "lastWeek_one": "मागील आठवड्यापेक्षा {{count}} अंक जास्त",
+      "lastWeek_other": "मागील आठवड्यापेक्षा {{count}} अंक जास्त",
+      "thisWeek_one": "या आठवड्यापेक्षा {{count}} अंक जास्त",
+      "thisWeek_other": "या आठवड्यापेक्षा {{count}} अंक जास्त"
+    },
+    "fewer": {
+      "lastWeek_one": "मागील आठवड्यापेक्षा {{count}} अंक कमी",
+      "lastWeek_other": "मागील आठवड्यापेक्षा {{count}} अंक कमी",
+      "thisWeek_one": "या आठवड्यापेक्षा {{count}} अंक कमी",
+      "thisWeek_other": "या आठवड्यापेक्षा {{count}} अंक कमी"
+    }
+  },
+  "today": {
+    "headingToday": "आज पुढे येणारे",
+    "headingNext": "पुढे येणारे",
+    "snapshot": {
+      "morning": "तुमच्या सकाळची झलक",
+      "afternoon": "तुमच्या दुपारची झलक",
+      "evening": "तुमच्या संध्याकाळची झलक"
+    },
+    "nothingToday": "आज वेळापत्रकात काहीही नाही. हे पुढचे तास आहेत.",
+    "openSchedule": "पूर्ण वेळापत्रक उघडा",
+    "notSetUp": "या डेटाबेसमध्ये तासांचे वेळापत्रक अजून सेट केलेले नाही.",
+    "noLessons": "वेळापत्रकात तास नाहीत.",
+    "coverNeeded": "बदली शिक्षक हवा",
+    "confirmed": "निश्चित"
+  },
+  "rules": {
+    "heading": "तुमचा व्यवसाय, तुमचे नियम",
+    "caption": "तुम्ही ठरवलेल्या मर्यादा Compass पाळते",
+    "open": "व्यवसायाचे नियम उघडा",
+    "exceptions": "अपवादांसाठी मालकाची मंजुरी",
+    "none": "अजून सक्रिय नियम नाहीत",
+    "bottom": "महत्त्वाचा प्रत्येक निर्णय तुमच्याच हातात राहतो.",
+    "refunds": "{{amount}} पेक्षा कमी परतावे टीम हाताळते",
+    "lessonChanges": "तासांतील बदल तुमच्या नियमांशी तपासले जातात",
+    "extensions_one": "{{count}} दिवसापर्यंत पेमेंट मुदतवाढ",
+    "extensions_other": "{{count}} दिवसांपर्यंत पेमेंट मुदतवाढ"
+  },
+  "activity": {
+    "heading": "शांतपणे कामे होत आहेत",
+    "none": "अजून कोणत्याही विनंतीवर काहीही झालेले नाही.",
+    "updated": "अद्ययावत",
+    "event": {
+      "sent_to_owner": {
+        "lead": "मालकाकडे पाठवली",
+        "rest": "निर्णयासाठी"
+      },
+      "owner_approved": {
+        "lead": "मालकाने मंजूर केली",
+        "rest": "आणि पुन्हा टीमकडे आली"
+      },
+      "owner_declined": {
+        "lead": "मालकाने नाकारली",
+        "rest": "कारण नोंदवले आहे"
+      },
+      "owner_requested_info": {
+        "lead": "मालकाने मागितले",
+        "rest": "आणखी काही तपशील"
+      },
+      "admin_replied": {
+        "lead": "तपशील परत पाठवले",
+        "rest": "मालकाकडे"
+      },
+      "closed": {
+        "lead": "निकाल नोंदवला",
+        "rest": "आणि विनंती बंद झाली"
+      },
+      "reevaluated": {
+        "lead": "नियम पुन्हा तपासले",
+        "rest": "नव्या तपशिलांसह"
+      }
+    }
+  },
+  "cardLabel_one": "{{group}}: {{count}} विनंती. सारांश गाळा",
+  "cardLabel_other": "{{group}}: {{count}} विनंत्या. सारांश गाळा",
+  "groupCount_one": "{{group}} · {{count}} विनंती",
+  "groupCount_other": "{{group}} · {{count}} विनंत्या",
+  "viewAllCount_one": "{{count}} विनंती पाहा",
+  "viewAllCount_other": "सर्व {{count}} विनंत्या पाहा"
+}

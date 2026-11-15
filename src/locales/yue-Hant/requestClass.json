@@ -1,0 +1,11 @@
+{
+  "saveFailed": "儲存唔到班。再試吓。",
+  "fromBooking": "嚟自預約 {{id}}",
+  "none": "冇連住任何班",
+  "notSetUp": "揀班之前要先簡單更新一下資料庫。",
+  "legend": "呢個請求關於邊一班",
+  "save": "儲存班",
+  "change": "改班",
+  "choose": "揀班",
+  "remove": "移走班"
+}

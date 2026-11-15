@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef } from "react";
 import { Icon } from "@/components/Icons";
 import { THEMES, TEXT_SIZES, stepTextSize, type DisplayPrefs } from "@/lib/a11y/prefs";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { clearToast, getA11y, resetPrefs, saveOne, savePrefs, setOpen, updatePrefs, useA11y } from "./store";
 
 // The Display and Accessibility drawer, as in the Studio design: it slides in from the
@@ -15,6 +16,7 @@ let lastTrigger: HTMLElement | null = null;
 /** The Display and Accessibility button. Each page has one, in its page header's action area (see PageHeader). */
 export function A11yTrigger() {
   const s = useA11y();
+  const { t } = useI18n();
   return (
     <button
       type="button"
@@ -29,17 +31,18 @@ export function A11yTrigger() {
       }}
     >
       <Icon name="accessibility" />
-      <span>Display and Accessibility</span>
+      <span>{t("a11y.title")}</span>
     </button>
   );
 }
 
 /** Shown at the top of every page while Focus View is on, with a clear way back. */
 export function FocusViewBar() {
+  const { t } = useI18n();
   return (
-    <div className="focus-bar" role="region" aria-label="Focus View">
-      <p>Focus View is on. Some extra detail is hidden.</p>
-      <button type="button" className="btn secondary small" onClick={() => saveOne({ focusView: false })}>Show Full View</button>
+    <div className="focus-bar" role="region" aria-label={t("a11y.focusView")}>
+      <p>{t("a11y.focusBar")}</p>
+      <button type="button" className="btn secondary small" onClick={() => saveOne({ focusView: false })}>{t("a11y.showFullView")}</button>
     </div>
   );
 }
@@ -70,6 +73,7 @@ const BACKGROUND = [".skip-link", ".rail", ".workspace", ".compass-root"];
 
 export function A11yPanel() {
   const s = useA11y();
+  const { t } = useI18n();
   const uid = useId();
   const panelRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -162,37 +166,37 @@ export function A11yPanel() {
         >
           <header className="accessibility-header">
             <div>
-              <h2 id={`${uid}-title`} ref={titleRef} tabIndex={-1}>Display and Accessibility</h2>
-              <p id={`${uid}-intro`}>Make Tutor Compass work for you.</p>
+              <h2 id={`${uid}-title`} ref={titleRef} tabIndex={-1}>{t("a11y.title")}</h2>
+              <p id={`${uid}-intro`}>{t("a11y.intro")}</p>
             </div>
-            <button type="button" className="accessibility-close" onClick={() => setOpen(false)} aria-label="Close display and accessibility">
-              Close <Icon name="close" />
+            <button type="button" className="accessibility-close" onClick={() => setOpen(false)} aria-label={t("a11y.closeLabel")}>
+              {t("common.close")} <Icon name="close" />
             </button>
           </header>
 
           <div className="accessibility-options">
             <section className="accessibility-section" aria-labelledby={`${uid}-comfort`}>
-              <h2 id={`${uid}-comfort`}>Focus and comfort</h2>
-              <DisplaySwitch id={`${uid}-fv`} title="Focus View" description="Hide extra details so the main tasks stand out. Warnings and actions stay." checked={p.focusView} onChange={(v) => set({ focusView: v })} />
-              <DisplaySwitch id={`${uid}-rm`} title="Reduce Motion" description="Turn off animation and moving layout changes across the site." checked={p.reduceMotion} onChange={(v) => set({ reduceMotion: v })} />
-              <DisplaySwitch id={`${uid}-lc`} title="Larger Controls" description="Use bigger buttons and form controls with more space around them." checked={p.largerControls} onChange={(v) => set({ largerControls: v })} />
+              <h2 id={`${uid}-comfort`}>{t("a11y.comfort")}</h2>
+              <DisplaySwitch id={`${uid}-fv`} title={t("a11y.focusView")} description={t("a11y.focusViewHelp")} checked={p.focusView} onChange={(v) => set({ focusView: v })} />
+              <DisplaySwitch id={`${uid}-rm`} title={t("a11y.reduceMotion")} description={t("a11y.reduceMotionHelp")} checked={p.reduceMotion} onChange={(v) => set({ reduceMotion: v })} />
+              <DisplaySwitch id={`${uid}-lc`} title={t("a11y.largerControls")} description={t("a11y.largerControlsHelp")} checked={p.largerControls} onChange={(v) => set({ largerControls: v })} />
             </section>
             <section className="accessibility-section" aria-labelledby={`${uid}-reading`}>
-              <h2 id={`${uid}-reading`}>Reading</h2>
+              <h2 id={`${uid}-reading`}>{t("a11y.reading")}</h2>
               <div className="text-size-setting">
-                <h3 id={`${uid}-ts`}>Text Size</h3>
+                <h3 id={`${uid}-ts`}>{t("a11y.textSize")}</h3>
                 <div className="text-size-controls" role="group" aria-labelledby={`${uid}-ts`}>
-                  <button type="button" aria-label="Decrease text size" onClick={() => set({ textSize: stepTextSize(p.textSize, -1) })} disabled={minSize}>A−</button>
-                  <output aria-live="polite">{p.textSize}%</output>
-                  <button type="button" aria-label="Increase text size" onClick={() => set({ textSize: stepTextSize(p.textSize, 1) })} disabled={maxSize}>A+</button>
+                  <button type="button" aria-label={t("a11y.decrease")} onClick={() => set({ textSize: stepTextSize(p.textSize, -1) })} disabled={minSize}>A−</button>
+                  <output aria-live="polite">{t("a11y.percent", { n: p.textSize })}</output>
+                  <button type="button" aria-label={t("a11y.increase")} onClick={() => set({ textSize: stepTextSize(p.textSize, 1) })} disabled={maxSize}>A+</button>
                 </div>
               </div>
               <fieldset className="theme-setting">
-                <legend>Colour Theme</legend>
+                <legend>{t("a11y.theme")}</legend>
                 <div className="theme-options">
-                  {THEMES.map((t) => (
-                    <button key={t.value} type="button" aria-pressed={p.theme === t.value} onClick={() => set({ theme: t.value })}>
-                      {p.theme === t.value && <Icon name="check" />}{t.label}
+                  {THEMES.map((th) => (
+                    <button key={th.value} type="button" aria-pressed={p.theme === th.value} onClick={() => set({ theme: th.value })}>
+                      {p.theme === th.value && <Icon name="check" />}{t(`a11y.themes.${th.value}`)}
                     </button>
                   ))}
                 </div>
@@ -202,16 +206,16 @@ export function A11yPanel() {
 
           <footer className="accessibility-footer">
             <p role="status" className={s.message?.tone === "error" ? "error" : undefined}>
-              {s.message ? s.message.text : "Changes preview immediately. Save to keep your preferences."}
+              {s.message ? t(`a11y.msg.${s.message.text}`) : t("a11y.previewNote")}
             </p>
             <div>
-              <button type="button" className="btn dark" onClick={savePrefs}>Save Preferences</button>
-              <button type="button" ref={resetRef} className="btn outline" onClick={() => { resetPrefs(); resetRef.current?.focus({ preventScroll: true }); }}>Reset</button>
+              <button type="button" className="btn dark" onClick={savePrefs}>{t("a11y.save")}</button>
+              <button type="button" ref={resetRef} className="btn outline" onClick={() => { resetPrefs(); resetRef.current?.focus({ preventScroll: true }); }}>{t("a11y.reset")}</button>
             </div>
           </footer>
         </aside>
       </div>
-      <div className={`studio-toast${s.toast ? " show" : ""}`} role="status">{s.toast}</div>
+      <div className={`studio-toast${s.toast ? " show" : ""}`} role="status">{s.toast ? t(`a11y.msg.${s.toast}`) : null}</div>
     </>
   );
 }

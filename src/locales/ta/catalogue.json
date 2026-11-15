@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "ஆங்கிலம்",
+    "mathematics": "கணிதம்",
+    "science": "அறிவியல்",
+    "business_humanities": "வணிகமும் மானுடவியலும்",
+    "history": "வரலாறு",
+    "technology_design": "தொழில்நுட்பமும் வடிவமைப்பும்",
+    "creative_arts": "படைப்புக் கலைகள்",
+    "health_community": "சுகாதாரமும் சமூகமும்",
+    "languages": "மொழிகள்",
+    "vocational": "தொழிற்கல்வி"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "heading": "Integrations",
+  "intro": "What this deployment is really connected to. Checked when the page loads.",
+  "service": "Service",
+  "state": "State",
+  "meaning": "What it means",
+  "states": {
+    "live": "Live",
+    "keySet": "Key set, not yet used",
+    "simulated": "Simulated",
+    "notConnected": "Not connected",
+    "error": "Error"
+  },
+  "claude": "Claude (Anthropic API)",
+  "aiSimulated": "No ANTHROPIC_API_KEY is set. Intake and rule proposals use clearly labelled keyword rules instead, and drafts use templates.",
+  "aiLive": "The last AI call worked ({{when}}). Model: {{model}}. Used for message extraction, drafting and rule proposals. It never decides the colour.",
+  "aiFailed": "The last AI call failed ({{when}}): {{summary}} The simulated mode was used instead.",
+  "aiKeySet": "A key is set on the server (model {{model}}), but no AI call has been made yet. Try the AI intake to confirm it works.",
+  "database": "Supabase database",
+  "databaseError": "The server could not read the database: {{message}}",
+  "databaseLive": "All records are read and written by the Next.js server using the secret key. The browser never connects to Supabase.",
+  "auth": "Supabase Auth (sign-in)",
+  "authLive": "Passwords are checked by Supabase Auth from the server. Roles come from the app_users table.",
+  "booking": "Booking system",
+  "bookingDetail": "Bookings come from fictional demonstration rows in Supabase, shown in the Knowledge Hub. No real booking system is changed.",
+  "payment": "Payment system",
+  "paymentDetail": "Payments are fictional demonstration rows. Tutor Compass never processes or refunds payments.",
+  "calendar": "Tutor calendar",
+  "calendarDetail": "Availability slots are fictional demonstration rows.",
+  "email": "Email and SMS",
+  "emailDetail": "Drafts are prepared for a person to copy and send. Nothing is sent by the app."
+}

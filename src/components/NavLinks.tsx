@@ -3,19 +3,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/lib/domain/types";
 import { Icon, type IconName } from "@/components/Icons";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 // The main navigation: the round icon buttons down the rail. Each name shows in a tooltip
 // on hover and focus, and is the link's text for screen readers.
-const LINKS: Array<{ href: string; label: string; icon: IconName }> = [
-  { href: "/", label: "Overview", icon: "overview" },
-  { href: "/requests", label: "Requests", icon: "requests" },
-  { href: "/owner", label: "Approval Alley", icon: "approval" },
-  { href: "/schedule", label: "Schedule", icon: "calendar" },
-  { href: "/knowledge", label: "Knowledge Hub", icon: "knowledge" },
-  { href: "/subjects", label: "Subjects", icon: "subjects" },
-  { href: "/insights", label: "Insights", icon: "insights" },
-  { href: "/coverage", label: "Rules and Coverage", icon: "sliders" },
-];
+const LINKS = [
+  { href: "/", label: "nav.overview", icon: "overview" },
+  { href: "/requests", label: "nav.requests", icon: "requests" },
+  { href: "/owner", label: "nav.approvalAlley", icon: "approval" },
+  { href: "/schedule", label: "nav.schedule", icon: "calendar" },
+  { href: "/knowledge", label: "nav.knowledgeHub", icon: "knowledge" },
+  { href: "/subjects", label: "nav.subjects", icon: "subjects" },
+  { href: "/insights", label: "nav.insights", icon: "insights" },
+  { href: "/coverage", label: "nav.rulesCoverage", icon: "sliders" },
+] as const satisfies ReadonlyArray<{ href: string; label: string; icon: IconName }>;
 
 export function isCurrent(path: string, href: string): boolean {
   if (href === "/") return path === "/";
@@ -25,14 +26,15 @@ export function isCurrent(path: string, href: string): boolean {
 
 export function NavLinks({ role }: { role: Role }) {
   const path = usePathname();
+  const { t } = useI18n();
   return (
-    <nav className="rail-links" aria-label="Main">
+    <nav className="rail-links" aria-label={t("shell.mainNav")}>
       {LINKS.map((l) => {
         const on = isCurrent(path, l.href);
         return (
           <Link key={l.href} href={l.href} className={`rail-btn${on ? " active" : ""}`} aria-current={on ? "page" : undefined}>
             <Icon name={l.icon} />
-            <span>{l.label}{l.href === "/owner" && role !== "owner" ? " (view only)" : ""}</span>
+            <span>{l.href === "/owner" && role !== "owner" ? t("nav.viewOnly", { page: t(l.label) }) : t(l.label)}</span>
           </Link>
         );
       })}

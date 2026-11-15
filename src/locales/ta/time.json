@@ -1,0 +1,12 @@
+{
+  "todayAt": "இன்று, {{time}}",
+  "yesterdayAt": "நேற்று, {{time}}",
+  "todayAtInSentence": "இன்று, {{time}}",
+  "yesterdayAtInSentence": "நேற்று, {{time}}",
+  "dateAt": "{{date}}, {{time}}",
+  "partOfDay": {
+    "morning": "காலை",
+    "afternoon": "மதியம்",
+    "evening": "மாலை"
+  }
+}

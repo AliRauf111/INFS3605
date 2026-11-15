@@ -1,0 +1,12 @@
+{
+  "todayAt": "ఈరోజు, {{time}}",
+  "yesterdayAt": "నిన్న, {{time}}",
+  "todayAtInSentence": "ఈరోజు, {{time}}",
+  "yesterdayAtInSentence": "నిన్న, {{time}}",
+  "dateAt": "{{date}}, {{time}}",
+  "partOfDay": {
+    "morning": "ఉదయం",
+    "afternoon": "మధ్యాహ్నం",
+    "evening": "సాయంత్రం"
+  }
+}

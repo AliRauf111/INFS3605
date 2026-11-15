@@ -5,7 +5,7 @@ export const MAX_AMOUNT_CENTS = 10_000_000; // $100,000. Anything above this is 
 
 export type AmountParse =
   | { ok: true; cents: number | null }
-  | { ok: false; error: string };
+  | { ok: false; error: string; code: "negative" | "format" | "tooLarge" };
 
 /**
  * Turn what a person typed ("49.99", "$1,200", "75") into cents.
@@ -16,19 +16,19 @@ export function parseAmountToCents(input: string | null | undefined): AmountPars
   const raw = String(input).trim();
   if (raw === "") return { ok: true, cents: null };
   if (raw.startsWith("-") || raw.includes("-")) {
-    return { ok: false, error: "Amounts cannot be negative." };
+    return { ok: false, error: "Amounts cannot be negative.", code: "negative" };
   }
   const cleaned = raw.replace(/^\$/, "").replace(/^AUD\s*/i, "");
   // Optional thousands separators, then up to two decimal places.
   const match = /^(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d{1,2}))?$/.exec(cleaned);
   if (!match) {
-    return { ok: false, error: "Enter an amount in dollars and cents, for example 49.99." };
+    return { ok: false, error: "Enter an amount in dollars and cents, for example 49.99.", code: "format" };
   }
   const dollars = Number(match[1].replace(/,/g, ""));
   const centsPart = match[2] ? Number(match[2].padEnd(2, "0")) : 0;
   const cents = dollars * 100 + centsPart;
   if (!Number.isSafeInteger(cents) || cents > MAX_AMOUNT_CENTS) {
-    return { ok: false, error: "That amount is too large for this alpha (limit $100,000)." };
+    return { ok: false, error: "That amount is too large for this alpha (limit $100,000).", code: "tooLarge" };
   }
   return { ok: true, cents };
 }

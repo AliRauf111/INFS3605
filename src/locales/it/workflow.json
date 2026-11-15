@@ -1,0 +1,52 @@
+{
+  "primary": {
+    "complete_details": "Completa i dati mancanti",
+    "send_to_owner": "Invia al titolare",
+    "awaiting_owner": "In attesa della decisione del titolare",
+    "start_review": "Avvia revisione",
+    "continue_review": "Continua la revisione",
+    "record_outcome": "Registra l'esito"
+  },
+  "approveBlocked": "Non puoi approvare finché i dati mancanti non sono completi.",
+  "done": "Fatto",
+  "recordedClosed": "Registrata e chiusa",
+  "nothingMore": "Non c'è altro da fare. Il registro completo resta in questa pagina.",
+  "insideRules": "Dentro le regole",
+  "reviewAndHandle": "Rivedi e gestisci",
+  "detail": {
+    "sentByAdmin": "Inviata dall'amministrazione",
+    "youAsked": "Hai chiesto informazioni",
+    "detailsComplete": "Dati completi",
+    "notSentYet": "Non ancora inviata dall'amministrazione",
+    "ownerAskedMore": "Il titolare ha chiesto altro",
+    "recordsNeedChecking": "I record vanno controllati",
+    "ownerDecidesFirst": "Prima decide il titolare"
+  },
+  "pending": {
+    "notRecorded": "Non ancora registrato. Usa «Registra l'esito» qui sopra.",
+    "waitingDetails": "In attesa dei dati mancanti. {{details}}. Usa «Completa i dati mancanti» qui sopra.",
+    "reviewStarted": "Revisione avviata. Usa «Continua la revisione» qui sopra per approvare, rifiutare o chiedere informazioni.",
+    "waitingReview": "In attesa della tua revisione. Usa «Avvia revisione» qui sopra. Aprire questa pagina non la avvia.",
+    "ownerNeedsMore": "Il titolare ha bisogno di altre informazioni. Aggiorna i dati se serve, poi usa «Invia al titolare» qui sopra.",
+    "notSent": "Non ancora inviata. Usa «Invia al titolare» qui sopra.",
+    "sent": "Inviata. In attesa della decisione del titolare.",
+    "detailsOnly": "{{details}}."
+  },
+  "whatNext": {
+    "ready": "Questa richiesta è dentro le regole. Eseguila nei tuoi sistemi, poi registra qui cosa hai fatto. Tutor Compass non sposta denaro e non modifica prenotazioni.",
+    "approved": "Il titolare ha approvato questa richiesta. Eseguila nei tuoi sistemi, poi registra qui cosa hai fatto.",
+    "declined": "Il titolare ha rifiutato questa richiesta. Avvisa la famiglia, poi registra qui cosa hai fatto.",
+    "details": "{{details}} prima di poter decidere. Aggiungili con «Completa i dati mancanti» e le regole ricontrolleranno la richiesta.",
+    "detailsOwner": "{{details}} prima di poter decidere. Aggiungili con «Completa i dati mancanti» e le regole ricontrolleranno la richiesta. Puoi comunque avviare una revisione, ma non puoi ancora approvarla.",
+    "continue": "Continua la revisione e registra la tua decisione. Poi l'amministrazione registra cosa è stato fatto.",
+    "continueSensitive": "Continua la revisione e registra la tua decisione. Puoi anche aggiungere note di gestione e prossimi passi strada facendo. Poi l'amministrazione registra cosa è stato fatto.",
+    "start": "Avvia la revisione quando sei pronto. Avviarla registra che te ne stai occupando. Non approva, non chiude e non cambia nient'altro.",
+    "ownerNeedsMore": "Il titolare ha bisogno di altre informazioni. Aggiorna i dati se serve, poi rimandala al titolare.",
+    "send": "Invia questa richiesta al titolare. Quando avrà deciso, registri qui l'esito. È l'ultimo passaggio.",
+    "ownerLooking": "Il titolare la sta esaminando. Vedrai qui la sua decisione, poi registri l'esito.",
+    "detailsBefore": "{{details}}. Aggiungili prima che venga presa una decisione."
+  },
+  "detailsMissing_many": "Mancano {{count}} dati obbligatori",
+  "detailsMissing_one": "Manca {{count}} dato obbligatorio",
+  "detailsMissing_other": "Mancano {{count}} dati obbligatori"
+}

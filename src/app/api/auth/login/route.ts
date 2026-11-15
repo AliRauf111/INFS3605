@@ -3,6 +3,7 @@ import { z } from "zod";
 import { signInWithPassword } from "@/lib/auth/session";
 import { ACCESS_COOKIE, REFRESH_COOKIE, REFRESH_MAX_AGE, cookieOptions } from "@/lib/auth/cookies";
 import { db, supabaseConfigured } from "@/lib/db/supabase";
+import { getI18n } from "@/lib/i18n/server";
 
 const Login = z.object({ email: z.email().max(200), password: z.string().min(1).max(200) }).strict();
 
@@ -12,13 +13,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Requests must come from the Tutor Compass app." }, { status: 403 });
   }
   if (!supabaseConfigured()) return NextResponse.json({ error: "The server is not configured yet. See README.md." }, { status: 503 });
+  const { t } = await getI18n();
   const parsed = Login.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Enter your email and password." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: t("auth.api.enterDetails") }, { status: 400 });
   const result = await signInWithPassword(parsed.data.email, parsed.data.password);
   if (!result.ok) {
     // The same message for a wrong email or a wrong password, so accounts cannot be guessed.
     const messages = {
-      wrong_details: "That email and password do not match.",
+      wrong_details: t("auth.api.wrongDetails"),
       not_confirmed: "This account has not been confirmed yet. In Supabase, delete the user and add it again with Auto Confirm User ticked.",
       server_setup: "Sign-in is not working on the server. Check SUPABASE_URL and SUPABASE_SECRET_KEY in the hosting settings.",
     };
@@ -30,7 +32,7 @@ export async function POST(req: NextRequest) {
     console.warn("[auth] could not read app_users", profileError.code ?? "unknown");
     return NextResponse.json({ error: "Sign-in is not working on the server. Check SUPABASE_URL and SUPABASE_SECRET_KEY in the hosting settings, and that the setup SQL has been run." }, { status: 503 });
   }
-  if (!profile) return NextResponse.json({ error: "This account doesn't have access yet. The owner can give it access in Approval Alley." }, { status: 403 });
+  if (!profile) return NextResponse.json({ error: t("auth.api.noAccess") }, { status: 403 });
   const res = NextResponse.json({ ok: true, role: profile.role });
   res.cookies.set(ACCESS_COOKIE, session.access_token, cookieOptions(session.expires_in));
   res.cookies.set(REFRESH_COOKIE, session.refresh_token, cookieOptions(REFRESH_MAX_AGE));

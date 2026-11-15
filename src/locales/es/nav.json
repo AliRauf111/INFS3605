@@ -1,0 +1,12 @@
+{
+  "overview": "Resumen",
+  "requests": "Solicitudes",
+  "approvalAlley": "Bandeja de aprobaciones",
+  "schedule": "Horario",
+  "knowledgeHub": "Centro de conocimiento",
+  "subjects": "Asignaturas",
+  "insights": "Análisis",
+  "rulesCoverage": "Reglas y cobertura",
+  "viewOnly": "{{page}} (solo lectura)",
+  "settings": "Ajustes"
+}

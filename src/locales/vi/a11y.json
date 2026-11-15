@@ -1,0 +1,35 @@
+{
+  "title": "Hiển thị và trợ năng",
+  "intro": "Điều chỉnh Tutor Compass cho phù hợp với bạn.",
+  "closeLabel": "Đóng hiển thị và trợ năng",
+  "focusView": "Chế độ tập trung",
+  "focusBar": "Chế độ tập trung đang bật. Một số chi tiết phụ được ẩn.",
+  "showFullView": "Hiện đầy đủ",
+  "comfort": "Tập trung và thoải mái",
+  "focusViewHelp": "Ẩn chi tiết phụ để các việc chính nổi bật hơn. Cảnh báo và thao tác vẫn được giữ.",
+  "reduceMotion": "Giảm chuyển động",
+  "reduceMotionHelp": "Tắt hiệu ứng động và thay đổi bố cục có chuyển động trên toàn trang.",
+  "largerControls": "Nút điều khiển lớn hơn",
+  "largerControlsHelp": "Dùng nút và ô nhập lớn hơn, có nhiều khoảng trống xung quanh.",
+  "reading": "Đọc",
+  "textSize": "Cỡ chữ",
+  "decrease": "Giảm cỡ chữ",
+  "increase": "Tăng cỡ chữ",
+  "percent": "{{n}}%",
+  "theme": "Chủ đề màu",
+  "themes": {
+    "device": "Theo thiết bị",
+    "light": "Sáng",
+    "dark": "Tối",
+    "contrast": "Độ tương phản cao"
+  },
+  "previewNote": "Thay đổi được xem trước ngay. Bấm Lưu để giữ lựa chọn của bạn.",
+  "save": "Lưu tùy chọn",
+  "reset": "Đặt lại",
+  "msg": {
+    "saveFailed": "Không thể lưu tùy chọn trong trình duyệt này. Bạn vẫn có thể xem trước khi bảng này đang mở.",
+    "saved": "Đã lưu tùy chọn hiển thị của bạn.",
+    "defaultsRestored": "Đã khôi phục tùy chọn hiển thị mặc định.",
+    "defaultsThisVisit": "Đã khôi phục mặc định cho lần truy cập này."
+  }
+}

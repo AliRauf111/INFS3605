@@ -1,0 +1,24 @@
+{
+  "didNotWork": "做唔到。",
+  "unreachable": "連唔到伺服器。",
+  "checkWording": "儲存咗，但係檢查吓呢段字眼：{{words}}。佢可能承諾咗未發生嘅嘢。",
+  "saved": "草稿儲存咗。",
+  "source": {
+    "template": "範本",
+    "live_ai": "即時 AI 寫嘅",
+    "simulated": "模擬",
+    "edited": "有人改過"
+  },
+  "textLabel": "{{kind}}內容",
+  "noDraft": "未有草稿。",
+  "replace": "換返範本",
+  "prepare": "準備草稿",
+  "withAi": "用 AI 擬稿",
+  "saveEdits": "儲存修改",
+  "copied": "複製咗。貼落你嘅電郵或者通訊程式。",
+  "copy": "複製",
+  "heading": "草稿",
+  "hint": "草稿係畀你自己檢查、修改同發送。Tutor Compass 從來唔會發訊息。",
+  "welfareHint": "福利個案只會提供一份有限制嘅事實交接，而且永遠唔會傳畀 AI。",
+  "languageHint": "草稿範本用英文寫。改介面語言唔會改草稿內容。"
+}

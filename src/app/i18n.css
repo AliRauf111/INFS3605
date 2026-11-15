@@ -1,0 +1,148 @@
+/* Language selector, the Language setting and right-to-left (Arabic) adjustments.
+   Uses the Studio palette from studio.css. Logical properties (inline-start/end) mean the
+   same rules work for left-to-right and right-to-left pages. */
+
+/* ---- Header language menu ---- */
+.lang-menu { position: relative; }
+.lang-button {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 37px; padding-block: 6px; padding-inline: 12px 10px;
+  border-radius: 999px; background: #fff8; color: #4f4a63;
+  font-size: 0.75rem; font-weight: 550; white-space: nowrap;
+  border: 1px solid #ffffffce;
+}
+.lang-button:hover { background: #fff; }
+.lang-button[aria-expanded="true"] { background: #fff; box-shadow: 0 3px 10px #8475ac1a; }
+.lang-button svg { width: 18px; height: 18px; color: #7d68b8; }
+.lang-button .lang-chevron { width: 14px; height: 14px; color: #8b879a; transition: transform .18s; }
+.lang-button[aria-expanded="true"] .lang-chevron { transform: rotate(180deg); }
+.lang-short { display: none; }
+
+.lang-panel {
+  position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 75;
+  inline-size: max-content; min-inline-size: 16rem; max-inline-size: min(22rem, calc(100vw - 32px));
+  max-block-size: min(70vh, 34rem); overflow-y: auto;
+  padding: 10px; border-radius: 18px; background: #fffffff7; color: #272b40;
+  border: 1px solid #eeedf3; box-shadow: 0 16px 40px rgba(31, 35, 71, 0.16);
+}
+.lang-panel[hidden] { display: none; }
+.lang-panel-title { margin: 4px 8px 8px; font-size: 0.6875rem; font-weight: 650; letter-spacing: .4px; color: #858597; }
+.lang-panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.lang-panel button {
+  inline-size: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 9px 10px; border-radius: 12px; background: transparent; color: inherit;
+  text-align: start; font: inherit; border: 0; cursor: pointer;
+}
+.lang-panel button:hover, .lang-panel button:focus-visible { background: #f2edfc; }
+.lang-panel button:focus-visible { outline: 3px solid #8871d7; outline-offset: 1px; }
+.lang-panel button[aria-checked="true"] { background: #e4dafa; }
+.lang-panel button svg { width: 18px; height: 18px; color: #6d5a93; }
+.lang-option-text { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.lang-native { font-size: 0.875rem; font-weight: 600; color: #272b40; overflow-wrap: anywhere; }
+.lang-english { font-size: 0.6875rem; color: #858597; }
+.lang-error {
+  position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 74;
+  inline-size: max-content; max-inline-size: min(18rem, calc(100vw - 32px));
+  margin: 0; padding: 8px 12px; border-radius: 12px; font-size: 0.75rem;
+  background: #f9ebed; color: #8b3a45; border: 1px solid #efcfd4;
+}
+.lang-menu:has(.lang-panel:not([hidden])) .lang-error { display: none; }
+
+/* Narrow screens: the button keeps its globe and a short tag so it stays easy to find. */
+@media (max-width: 900px) {
+  .topbar .lang-name { display: none; }
+  .topbar .lang-short { display: inline; font-weight: 650; }
+  .topbar .lang-button { padding-inline: 10px 8px; }
+}
+
+/* ---- Sign-in and info pages ---- */
+.landing-top {
+  position: absolute; inset-block-start: 1rem; inset-inline-end: 1.5rem;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: flex-end;
+}
+.landing-top .landing-help { position: static; }
+.landing-top .lang-button, .info-top .lang-button { background: #fff; border-color: #dfe4ee; color: #233b63; }
+@media (max-width: 680px) {
+  .landing-top { inset-inline-end: 16px; gap: 10px; }
+}
+
+/* ---- Settings ---- */
+.lang-settings { border: 0; margin: 0; padding: 0; min-inline-size: 0; }
+.lang-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr)); gap: 10px; margin-block: 12px; }
+.lang-choice {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  border: 1px solid var(--border, #e3e1ec); border-radius: 14px; background: var(--paper, #fff); cursor: pointer;
+}
+.lang-choice:hover { border-color: #b9a8e6; }
+.lang-choice.selected { border-color: #8c74d4; background: #f4effd; box-shadow: 0 0 0 1px #8c74d4 inset; }
+.lang-choice input { inline-size: 18px; block-size: 18px; accent-color: #6d5a93; flex-shrink: 0; margin: 0; }
+.lang-choice:has(input:focus-visible) { outline: 3px solid #8871d7; outline-offset: 2px; }
+.settings-page .card h2 { margin-block-start: 0; }
+.um-link { display: flex; align-items: center; gap: 8px; margin-block-end: 0.75rem; padding: 8px 10px; border-radius: 10px; color: var(--heading, #272b40); text-decoration: none; font-weight: 550; }
+.um-link:hover { background: #f2edfc; }
+
+/* ---- Dark and high-contrast themes ---- */
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-button { background: #302a40; border-color: #554766; color: var(--ink, #f0ecf8); }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-button svg { color: #d7c2fa; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-panel { background: #262334; border-color: #4b405d; color: #f0ecf8; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-native { color: #f0ecf8; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-english,
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-panel-title { color: #c1b3d1; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-panel button:hover,
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-panel button:focus-visible,
+:root:is([data-theme="dark"], [data-theme="contrast"]) .um-link:hover { background: #3a3150; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-panel button[aria-checked="true"],
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-choice.selected { background: #423155; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .lang-choice { background: #262334; border-color: #4b405d; }
+
+/* ---- Right-to-left (Arabic) ----
+   Most layout flips by itself through logical properties and dir="rtl". These rules cover
+   what can't: directional icons and the few places drawn with left/right on purpose. */
+[dir="rtl"] svg[data-flip] { transform: scaleX(-1); }
+/* Charts, calendars of numbers and amounts read left to right in every language. */
+[dir="rtl"] :is(.capacity-chart, .bars, .chart, .cp-figures dd, .money, .num) { direction: ltr; }
+[dir="rtl"] .bars .bar-label { direction: rtl; }
+/* Typed codes, references and emails stay left to right inside right-to-left text. */
+[dir="rtl"] :is(code, kbd, input[type="email"], input[type="url"], input[inputmode="decimal"]) { direction: ltr; unicode-bidi: isolate; }
+[dir="rtl"] input[type="email"]::placeholder { text-align: end; }
+/* Arabic script doesn't use letter spacing or forced capitals. */
+[dir="rtl"] :is(.eyebrow, .kicker, .edition, .studio .eyebrow, .lang-panel-title) { letter-spacing: 0; text-transform: none; }
+/* Arabic glyphs need a little more line height. */
+:root[lang="ar"] body { line-height: 1.7; }
+/* The robot and other drawings are pictures, not text: keep them as drawn. */
+[dir="rtl"] :is(.bot, .bot-scene, .launcher-bot, .compass-avatar) { direction: ltr; }
+/* Movements drawn with translateX run the other way. */
+[dir="rtl"] .cl-launcher.is-compact .cl-pill, [dir="rtl"] .cl-launcher.is-tucked .cl-pill, [dir="rtl"] .cl-launcher.is-open .cl-pill { transform: translateX(-8px); }
+[dir="rtl"] .cl-launcher.is-tucked { transform: translateX(calc(-1 * (var(--cl-size) + var(--cl-right) - 20px))); }
+[dir="rtl"] .cp-toggle input:checked + .cp-switch::after { transform: translateX(-18px); }
+/* Colour washes start from the coloured edge. */
+[dir="rtl"] .cp-decision.green { background: linear-gradient(270deg, var(--green-bg), var(--paper, #fff) 55%); }
+[dir="rtl"] .cp-decision.amber { background: linear-gradient(270deg, var(--amber-bg), var(--paper, #fff) 55%); }
+[dir="rtl"] .cp-decision.red { background: linear-gradient(270deg, var(--red-bg), var(--paper, #fff) 55%); }
+
+/* ---- Longer translations ----
+   Some languages need more words than English. Badges with a sentence in them, and status
+   badges in tables, wrap onto a second line instead of pushing the page sideways. */
+.badge.entry-note { white-space: normal; max-inline-size: 100%; }
+td .badge { white-space: normal; }
+/* On phones the status filter can wrap under the heading and its menu can shrink. */
+@media (max-width: 640px) {
+  :root .workspace > main .filter-form { flex-wrap: wrap; min-inline-size: 0; max-inline-size: 100%; }
+  :root .workspace > main .filter-form select { min-width: 0; flex: 1 1 9rem; }
+}
+
+/* ---- Indian scripts ----
+   The Noto fonts (see src/app/fonts.ts) come after the Latin fonts, so English words keep
+   Inter or the system font and each script uses its own Noto font. The variables are only
+   defined when the fonts load, and an undefined variable falls back to the next font. */
+:root body, :root body.app-shell {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial,
+    var(--font-tamil, "Noto Sans Tamil"), var(--font-telugu, "Noto Sans Telugu"),
+    var(--font-devanagari, "Noto Sans Devanagari"), var(--font-bengali, "Noto Sans Bengali"), sans-serif;
+}
+/* Letter spacing pulls apart the joined letters of these scripts and of Arabic, so it is
+   switched off for them. Their vowel marks also sit above and below the line, so lines get
+   a little more room. */
+:root:is(:lang(ar), :lang(hi), :lang(pa), :lang(ta), :lang(te), :lang(mr), :lang(bn)) * { letter-spacing: normal !important; }
+:root:is(:lang(hi), :lang(pa), :lang(ta), :lang(te), :lang(mr), :lang(bn)) body { line-height: 1.6; }
+:root:is(:lang(hi), :lang(pa), :lang(ta), :lang(te), :lang(mr), :lang(bn)) :is(h1, h2, h3) { line-height: 1.4; }

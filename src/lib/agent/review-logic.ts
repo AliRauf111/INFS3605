@@ -1,5 +1,6 @@
 import { formatAud } from "@/lib/domain/money";
-import { REQUEST_TYPE_LABELS, TRI_STATE_LABELS, type RequestType, type TriState } from "@/lib/domain/types";
+import { REQUEST_TYPE_LABELS, type RequestType, type TriState } from "@/lib/domain/types";
+import { tr } from "@/lib/i18n/reply";
 import type { DecisionResult } from "@/lib/engine/evaluate";
 import type { BookingRecord, EvidenceSnapshot, PaymentRecord } from "@/lib/engine/evidence";
 import { policyVersionLabel, type PolicySnapshot } from "@/lib/engine/policy";
@@ -10,6 +11,9 @@ import type { ProposalAction } from "./permissions";
 // against the executable rules, what is known and what is missing, and what has changed
 // since the rule check ran. Nothing here decides anything. It only lays the evidence out
 // so the owner can decide, and says plainly when the evidence isn't enough.
+//
+// Text shown to the reader uses tr(), so it follows their language. The notes saved with
+// a decision (infoRequestNote, defaultNote) stay in English for the audit trail.
 
 export type Figure = { label: string; value: string; source: "record" | "request" | "calculated" };
 
@@ -32,30 +36,32 @@ export function financialFigures(opts: {
 }): { figures: Figure[]; note: string | null } {
   const { requestType, amountCents, booking, payments } = opts;
   const figures: Figure[] = [];
-  if (requestType === "refund") figures.push({ label: "Refund requested", value: amountCents === null ? "Not recorded" : formatAud(amountCents), source: "request" });
-  if (requestType === "payment_extension") figures.push({ label: "Extra days requested", value: opts.extensionDays ? `${opts.extensionDays} days` : "Not recorded", source: "request" });
+  if (requestType === "refund") figures.push({ label: tr("reply.review.fig.refund"), value: amountCents === null ? tr("reply.review.notRecorded") : formatAud(amountCents), source: "request" });
+  if (requestType === "payment_extension") figures.push({ label: tr("reply.review.fig.days"), value: opts.extensionDays ? tr("reply.review.days", { count: opts.extensionDays }) : tr("reply.review.notRecorded"), source: "request" });
   if (payments) {
     const paid = sum(payments, "paid");
     const refunded = sum(payments, "refunded");
-    figures.push({ label: "Paid on this booking", value: formatAud(paid), source: "calculated" });
-    if (refunded) figures.push({ label: "Already refunded", value: formatAud(refunded), source: "calculated" });
-    if (requestType === "refund") figures.push({ label: "Paid and not yet refunded", value: formatAud(Math.max(0, paid - refunded)), source: "calculated" });
+    figures.push({ label: tr("reply.review.fig.paid"), value: formatAud(paid), source: "calculated" });
+    if (refunded) figures.push({ label: tr("reply.review.fig.refunded"), value: formatAud(refunded), source: "calculated" });
+    if (requestType === "refund") figures.push({ label: tr("reply.review.fig.notRefunded"), value: formatAud(Math.max(0, paid - refunded)), source: "calculated" });
     const unpaid = payments.filter((p) => p.status === "pending" || p.status === "overdue");
     if (unpaid.length) {
       figures.push({
-        label: "Unpaid invoices",
-        value: unpaid.map((p) => `${p.invoiceRef} ${formatAud(p.amountCents)} ${p.status}${p.dueDate ? `, due ${p.dueDate}` : ""}`).join("; "),
+        label: tr("reply.review.fig.unpaid"),
+        value: unpaid.map((p) => p.dueDate
+          ? tr("reply.review.invoiceDue", { invoice: p.invoiceRef, amount: formatAud(p.amountCents), status: payStatus(p.status), due: p.dueDate })
+          : `${p.invoiceRef} ${formatAud(p.amountCents)} ${payStatus(p.status)}`).join("; "),
         source: "record",
       });
     }
     const disputed = payments.filter((p) => p.status === "disputed");
-    if (disputed.length) figures.push({ label: "Disputed", value: disputed.map((p) => `${p.id} ${formatAud(p.amountCents)}`).join(", "), source: "record" });
+    if (disputed.length) figures.push({ label: tr("reply.review.fig.disputed"), value: disputed.map((p) => `${p.id} ${formatAud(p.amountCents)}`).join(", "), source: "record" });
   }
   if (booking) {
-    figures.push({ label: "Package price", value: formatAud(booking.priceCents), source: "record" });
+    figures.push({ label: tr("reply.review.fig.price"), value: formatAud(booking.priceCents), source: "record" });
     figures.push({
-      label: "Lessons",
-      value: `${booking.lessonsUsed} of ${booking.lessonsPurchased} used, ${booking.lessonsPurchased - booking.lessonsUsed} left`,
+      label: tr("reply.review.fig.lessons"),
+      value: tr("reply.review.lessonsUsed", { used: booking.lessonsUsed, bought: booking.lessonsPurchased, left: booking.lessonsPurchased - booking.lessonsUsed }),
       source: "record",
     });
   }
@@ -99,20 +105,26 @@ export function procedureChecks(policy: PolicySnapshot | null, articles: Procedu
     const edges = boundaries(policy);
     if (nums.length && edges.length) {
       const near = (x: number, list: number[]) => list.some((y) => Math.abs(x - y) <= 1);
-      const fmt = (v: number) => (policy.category === "refund" ? formatAud(v) : `${v} days`);
+      const fmt = (v: number) => (policy.category === "refund" ? formatAud(v) : tr("reply.review.days", { count: v }));
       const unmatched = [...new Set(nums.filter((n) => !near(n, edges)))];
       const unmentioned = [...new Set(edges.filter((e) => e > 0 && !near(e, nums)))];
       if (unmatched.length || unmentioned.length) {
         found.push({
           kind: "conflict",
           articleId: a.id,
-          text: `${a.id} ${a.title} (version ${a.version}) and ${label} disagree: the procedure ${unmatched.length ? `mentions ${unmatched.map(fmt).join(", ")}` : "uses different limits"}${unmentioned.length ? ` but the rules change at ${unmentioned.map(fmt).join(", ")}` : ""}. The owner needs to say which is right.`,
+          text: tr(unmentioned.length ? "reply.review.conflictEdges" : "reply.review.conflict", {
+            article: `${a.id} ${a.title}`,
+            version: a.version,
+            policy: label,
+            what: unmatched.length ? tr("reply.review.mentions", { values: unmatched.map(fmt).join(", ") }) : tr("reply.review.differentLimits"),
+            edges: unmentioned.map(fmt).join(", "),
+          }),
         });
       }
     }
     const notice = /(\d{1,3})\s*hours?'?\s*notice/i.exec(a.body);
     if (policy.category === "lesson_change" && notice) {
-      found.push({ kind: "not_enforced", articleId: a.id, text: `${a.id} requires ${notice[1]} hours' notice for a free reschedule. ${label} doesn't check notice, so confirm it by hand.` });
+      found.push({ kind: "not_enforced", articleId: a.id, text: tr("reply.review.notice", { article: a.id, hours: notice[1], policy: label }) });
     }
   }
   return found;
@@ -123,32 +135,33 @@ export function procedureChecks(policy: PolicySnapshot | null, articles: Procedu
 
 export type FactSources = { retrieved: string[]; supplied: string[]; missing: string[] };
 
-const tri = (v: TriState | null) => (v ? TRI_STATE_LABELS[v] : "Not answered");
+const tri = (v: TriState | null) => (v ? tr(`domain.triState.${v}`) : tr("reply.tri.unanswered"));
+const payStatus = (s: string) => tr(`reply.pay.status.${s as "pending"}`) || s;
 
 export function factSources(facts: ConfirmedFacts, evidence: EvidenceSnapshot | null, result: Pick<DecisionResult, "missing" | "blockers"> | null, policy: { label: string } | null): FactSources {
   const retrieved: string[] = [];
   if (evidence?.booking.status === "found") {
     const b = evidence.booking.record;
-    retrieved.push(`Booking ${b.id}: ${b.subject} for ${b.studentName} with ${b.tutorName} (${b.status})${b.stale ? ", may be out of date" : ""}`);
+    retrieved.push(tr(b.stale ? "reply.review.src.bookingStale" : "reply.review.src.booking", { booking: b.id, subject: b.subject, student: b.studentName, tutor: b.tutorName, status: b.status }));
   } else if (evidence?.booking.status === "multiple") {
-    retrieved.push(`${evidence.booking.candidates.length} bookings match ${evidence.booking.reference}`);
+    retrieved.push(tr("reply.review.src.multiple", { count: evidence.booking.candidates.length, reference: evidence.booking.reference }));
   }
   if (evidence?.payments.status === "checked") {
     retrieved.push(
       evidence.payments.records.length
-        ? `Payments: ${evidence.payments.records.map((p) => `${p.id} ${formatAud(p.amountCents)} ${p.status}`).join(", ")}`
-        : "Payments: none on record",
+        ? tr("reply.review.src.payments", { list: evidence.payments.records.map((p) => `${p.id} ${formatAud(p.amountCents)} ${payStatus(p.status)}`).join(", ") })
+        : tr("reply.review.src.paymentsNone"),
     );
   }
-  if (evidence?.availability.status === "found") retrieved.push(`Time slot ${evidence.availability.record.id} (${evidence.availability.record.status})`);
-  if (policy) retrieved.push(`Policy: ${policy.label}`);
+  if (evidence?.availability.status === "found") retrieved.push(tr("reply.review.src.slot", { slot: evidence.availability.record.id, status: tr(`reply.turn.slotStatus.${evidence.availability.record.status as "free"}`) || evidence.availability.record.status }));
+  if (policy) retrieved.push(tr("reply.review.src.policy", { policy: policy.label }));
 
-  const supplied: string[] = [`Request type: ${REQUEST_TYPE_LABELS[facts.requestType]}`];
-  if (facts.referenceId) supplied.push(`Reference: ${facts.referenceId}`);
-  if (facts.requestType === "refund") supplied.push(`Amount: ${facts.amountCents === null ? "Not given" : formatAud(facts.amountCents)}`);
-  if (facts.requestType === "payment_extension") supplied.push(`Extra days: ${facts.extensionDays ?? "Not given"}`);
-  if (facts.requestType === "lesson_change") supplied.push(`Fees affected: ${tri(facts.financialImpact)}`);
-  supplied.push(`Complaint: ${tri(facts.complaint)}`, `Welfare concern: ${tri(facts.welfare)}`);
+  const supplied: string[] = [tr("reply.review.src.type", { value: tr(`domain.requestType.${facts.requestType}`) })];
+  if (facts.referenceId) supplied.push(tr("reply.review.src.reference", { value: facts.referenceId }));
+  if (facts.requestType === "refund") supplied.push(tr("reply.turn.sumAmount", { value: facts.amountCents === null ? tr("reply.review.notGiven") : formatAud(facts.amountCents) }));
+  if (facts.requestType === "payment_extension") supplied.push(tr("reply.turn.sumDays", { value: facts.extensionDays ?? tr("reply.review.notGiven") }));
+  if (facts.requestType === "lesson_change") supplied.push(tr("reply.turn.sumFees", { value: tri(facts.financialImpact) }));
+  supplied.push(tr("reply.turn.sumComplaint", { value: tri(facts.complaint) }), tr("reply.turn.sumWelfare", { value: tri(facts.welfare) }));
 
   const missing = result ? [...result.missing.map((m) => m.message), ...result.blockers] : [];
   return { retrieved, supplied, missing };
@@ -158,29 +171,29 @@ export function factSources(facts: ConfirmedFacts, evidence: EvidenceSnapshot | 
 // What changed since the rule check ran
 
 export function recordChanges(snapshot: EvidenceSnapshot | null, live: { booking: BookingRecord | null; payments: PaymentRecord[] | null }): string[] {
-  if (!snapshot) return ["There is no evidence snapshot for the latest rule check."];
+  if (!snapshot) return [tr("reply.review.chg.noSnapshot")];
   const changes: string[] = [];
   const then = snapshot.booking.status === "found" ? snapshot.booking.record : null;
-  if (then && !live.booking) changes.push(`Booking ${then.id} can no longer be found.`);
+  if (then && !live.booking) changes.push(tr("reply.review.chg.bookingGone", { booking: then.id }));
   if (then && live.booking) {
-    if (then.status !== live.booking.status) changes.push(`Booking ${then.id} is now ${live.booking.status} (it was ${then.status}).`);
-    if (then.lessonsUsed !== live.booking.lessonsUsed) changes.push(`Booking ${then.id} now shows ${live.booking.lessonsUsed} lessons used (it was ${then.lessonsUsed}).`);
-    if (then.priceCents !== live.booking.priceCents) changes.push(`Booking ${then.id} price is now ${formatAud(live.booking.priceCents)} (it was ${formatAud(then.priceCents)}).`);
+    if (then.status !== live.booking.status) changes.push(tr("reply.review.chg.bookingStatus", { booking: then.id, now: live.booking.status, was: then.status }));
+    if (then.lessonsUsed !== live.booking.lessonsUsed) changes.push(tr("reply.review.chg.lessonsUsed", { booking: then.id, now: live.booking.lessonsUsed, was: then.lessonsUsed }));
+    if (then.priceCents !== live.booking.priceCents) changes.push(tr("reply.review.chg.price", { booking: then.id, now: formatAud(live.booking.priceCents), was: formatAud(then.priceCents) }));
   }
-  if (live.booking?.stale) changes.push(`Booking ${live.booking.id} hasn't been synced for over 30 days, so it may be out of date.`);
+  if (live.booking?.stale) changes.push(tr("reply.review.chg.bookingStale", { booking: live.booking.id }));
   if (snapshot.payments.status === "checked" && live.payments) {
     const before = new Map(snapshot.payments.records.map((p) => [p.id, p]));
     for (const p of live.payments) {
       const old = before.get(p.id);
-      if (!old) changes.push(`Payment ${p.id} (${formatAud(p.amountCents)} ${p.status}) has appeared since the rule check.`);
+      if (!old) changes.push(tr("reply.review.chg.paymentNew", { payment: p.id, amount: formatAud(p.amountCents), status: payStatus(p.status) }));
       else if (old.status !== p.status || old.amountCents !== p.amountCents) {
-        changes.push(`Payment ${p.id} is now ${formatAud(p.amountCents)} ${p.status} (it was ${formatAud(old.amountCents)} ${old.status}).`);
+        changes.push(tr("reply.review.chg.paymentChanged", { payment: p.id, now: `${formatAud(p.amountCents)} ${payStatus(p.status)}`, was: `${formatAud(old.amountCents)} ${payStatus(old.status)}` }));
       }
       before.delete(p.id);
     }
-    for (const gone of before.values()) changes.push(`Payment ${gone.id} is no longer on record.`);
+    for (const gone of before.values()) changes.push(tr("reply.review.chg.paymentGone", { payment: gone.id }));
     const stale = live.payments.filter((p) => p.stale);
-    if (stale.length) changes.push(`Payment ${stale.map((p) => p.id).join(", ")} hasn't been synced for over 30 days.`);
+    if (stale.length) changes.push(tr("reply.review.chg.paymentStale", { payment: stale.map((p) => p.id).join(", ") }));
   }
   return changes;
 }
@@ -188,8 +201,8 @@ export function recordChanges(snapshot: EvidenceSnapshot | null, live: { booking
 /** Was the request checked under the policy version that is active now? */
 export function policyCurrency(usedVersionId: string | null, usedLabel: string, active: PolicySnapshot | null): string | null {
   if (!usedVersionId) return null; // system rules (welfare, complaint, unsupported) don't depend on a version
-  if (!active) return `Checked under ${usedLabel}, but there is no active policy for this type now.`;
-  if (active.id !== usedVersionId) return `Checked under ${usedLabel}, but ${policyVersionLabel(active)} is active now. The result may be different under the current rules.`;
+  if (!active) return tr("reply.review.policyGone", { used: usedLabel });
+  if (active.id !== usedVersionId) return tr("reply.review.policyNewer", { used: usedLabel, now: policyVersionLabel(active) });
   return null;
 }
 
@@ -214,17 +227,19 @@ export function readiness(opts: { missing: string[]; changes: string[]; policyNo
 // Wording
 
 export function parentWants(opts: { requestType: RequestType; amountCents: number | null; extensionDays: number | null; reference: string; context: string; restricted: boolean }): string {
+  const reference = opts.reference;
   const base =
     opts.requestType === "refund"
-      ? `A refund${opts.amountCents !== null ? ` of ${formatAud(opts.amountCents)}` : ""} on ${opts.reference}.`
+      ? opts.amountCents !== null ? tr("reply.review.wants.refundOf", { amount: formatAud(opts.amountCents), reference }) : tr("reply.review.wants.refund", { reference })
       : opts.requestType === "payment_extension"
-        ? `${opts.extensionDays ? `${opts.extensionDays} extra days` : "More time"} to pay on ${opts.reference}.`
+        ? opts.extensionDays ? tr("reply.review.wants.days", { count: opts.extensionDays, reference }) : tr("reply.review.wants.moreTime", { reference })
         : opts.requestType === "lesson_change"
-          ? `To move a lesson on ${opts.reference}.`
-          : `Something not covered by the rules, on ${opts.reference}.`;
-  if (opts.restricted) return `${base} Details are restricted because a welfare concern is recorded.`;
+          ? tr("reply.review.wants.lesson", { reference })
+          : tr("reply.review.wants.other", { reference });
+  if (opts.restricted) return `${base} ${tr("reply.review.wants.restricted")}`;
+  // The staff note is quoted as written.
   const first = opts.context.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/)[0] ?? "";
-  return first ? `${base} Staff noted: "${first.slice(0, 220)}"` : base;
+  return first ? `${base} ${tr("reply.review.wants.staffNoted", { note: first.slice(0, 220) })}` : base;
 }
 
 /** A targeted information request listing exactly what prevents a decision. */

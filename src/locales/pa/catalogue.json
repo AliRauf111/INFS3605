@@ -1,0 +1,14 @@
+{
+  "area": {
+    "english": "ਅੰਗਰੇਜ਼ੀ",
+    "mathematics": "ਗਣਿਤ",
+    "science": "ਵਿਗਿਆਨ",
+    "business_humanities": "ਕਾਰੋਬਾਰ ਅਤੇ ਮਨੁੱਖੀ ਵਿਸ਼ੇ",
+    "history": "ਇਤਿਹਾਸ",
+    "technology_design": "ਤਕਨਾਲੋਜੀ ਅਤੇ ਡਿਜ਼ਾਈਨ",
+    "creative_arts": "ਰਚਨਾਤਮਕ ਕਲਾਵਾਂ",
+    "health_community": "ਸਿਹਤ ਅਤੇ ਭਾਈਚਾਰਾ",
+    "languages": "ਭਾਸ਼ਾਵਾਂ",
+    "vocational": "ਕਿੱਤਾਮੁਖੀ ਸਿੱਖਿਆ"
+  }
+}

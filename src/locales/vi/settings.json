@@ -1,0 +1,9 @@
+{
+  "title": "Cài đặt",
+  "intro": "Tùy chọn ngôn ngữ và hiển thị của bạn.",
+  "savedToAccount": "Ngôn ngữ của bạn được lưu vào tài khoản, nên sẽ theo bạn khi bạn đăng nhập trên thiết bị khác.",
+  "savedToDevice": "Ngôn ngữ của bạn được ghi nhớ trên thiết bị này. Hãy chọn ở đây để lưu vào tài khoản nữa.",
+  "displayText": "Cỡ chữ, chủ đề màu, Chế độ tập trung, giảm chuyển động và nút lớn hơn nằm trong bảng Hiển thị và trợ năng. Dùng nút ở đầu trang này. Các cài đặt này được lưu trong trình duyệt này.",
+  "integrationsText": "Những gì bản triển khai này kết nối được liệt kê ở trang Quy tắc và bao phủ.",
+  "integrationsLink": "Xem tích hợp"
+}
