@@ -9,11 +9,13 @@ export type ProgressStep = { label: string; state: StepState; note?: string };
 
 export const STEP_LABELS = ["Submitted", "Rule check", "Owner review", "Recorded"] as const;
 
-export function requestProgress(status: RequestStatus, ownerInvolved: boolean): ProgressStep[] {
-  const ruleCheck: StepState = status === "needs_clarification" ? "current" : "done";
+export function requestProgress(status: RequestStatus, ownerInvolved: boolean, opts: { missing?: number; reviewStarted?: boolean } = {}): ProgressStep[] {
+  const missing = (opts.missing ?? 0) > 0 && ["needs_clarification", "review_required", "more_info_requested"].includes(status);
+  const ruleCheck: StepState = status === "needs_clarification" || missing ? "current" : "done";
   let owner: ProgressStep = { label: "Owner review", state: "upcoming" };
-  if (["review_required", "awaiting_owner", "more_info_requested"].includes(status)) owner = { ...owner, state: "current" };
-  else if (status === "approved" || status === "declined") owner = { ...owner, state: "done" };
+  if (ruleCheck !== "current" && ["review_required", "awaiting_owner", "more_info_requested", "needs_clarification"].includes(status)) {
+    owner = { ...owner, state: "current", note: opts.reviewStarted ? "Review started" : undefined };
+  } else if (status === "approved" || status === "declined") owner = { ...owner, state: "done" };
   else if (status === "ready") owner = { ...owner, state: "skipped", note: "Not needed" };
   else if (status === "closed") owner = ownerInvolved ? { ...owner, state: "done" } : { ...owner, state: "skipped", note: "Not needed" };
   const recorded: StepState = status === "closed" ? "done" : ["ready", "approved", "declined"].includes(status) ? "current" : "upcoming";
@@ -33,59 +35,22 @@ export function progressHeading(steps: ProgressStep[]): { title: string; aside: 
   return { title: `Step ${i + 1} of ${steps.length}: ${steps[i].label.toLowerCase()}`, aside };
 }
 
-/** The next thing someone has to do, as shown in tables and the activity list. */
-export function nextStep(status: RequestStatus): { title: string; detail: string; pending: string } {
-  switch (status) {
-    case "needs_clarification":
-      return { title: "Needs Clarification", detail: "Missing details", pending: "Waiting for the missing facts. Use Update facts above." };
-    case "review_required":
-      return { title: "Send to Owner", detail: "Owner Review Required", pending: "Not sent yet. Use Send to Owner above." };
-    case "awaiting_owner":
-      return { title: "Waiting for Owner", detail: "Owner decides first", pending: "Sent. Waiting for the owner's decision." };
-    case "more_info_requested":
-      return { title: "Reply to owner", detail: "Owner asked for more", pending: "The owner needs more information. Update the facts, then send it back." };
-    case "ready":
-      return { title: "Record Outcome", detail: "Inside the rules", pending: "Not recorded yet. Use Record what you did above." };
-    case "approved":
-      return { title: "Record Outcome", detail: "Approved by Owner", pending: "Not recorded yet. Use Record what you did above." };
-    case "declined":
-      return { title: "Record Outcome", detail: "Declined by owner", pending: "Not recorded yet. Use Record what you did above." };
-    case "closed":
-      return { title: "Done", detail: "Recorded and closed", pending: "" };
-  }
-}
-
-export function whatHappensNext(status: RequestStatus, role: Role): string {
-  switch (status) {
-    case "needs_clarification":
-      return "Some facts are missing. Add them with Update facts and the rules will check the request again.";
-    case "review_required":
-      return "Send this to the owner. Once the owner decides, you record the outcome here. That is the last step.";
-    case "awaiting_owner":
-      return role === "owner"
-        ? "Make your decision. The admin then records what was done, and the request is finished."
-        : "The owner is looking at this. You'll see their decision here, then you record the outcome.";
-    case "more_info_requested":
-      return "The owner needs more information. Update the facts, then send it back to the owner.";
-    case "ready":
-      return "This is inside the rules. Do it in your own systems, then record what you did here. Tutor Compass doesn't move money or change bookings.";
-    case "approved":
-      return "The owner approved this request. Do it in your own systems, then record what you did here.";
-    case "declined":
-      return "The owner declined this request. Let the family know, then record what you did here.";
-    case "closed":
-      return "Nothing more to do. The full record stays on this page.";
-  }
-}
-
 /** Only the owner can take these off the lists, so nothing they need to see disappears. */
 export function removalNeedsOwner(status: RequestStatus, welfare: string | null): boolean {
   return status === "awaiting_owner" || (welfare === "yes" && status !== "closed");
 }
 
-export function ruleHeading(colour: Colour, status: RequestStatus, welfare: boolean): string {
-  if (colour === "red") return welfare ? "Stop. The owner must handle this personally" : "Send this to the owner before doing anything else";
-  if (colour === "amber") return status === "needs_clarification" ? "Some facts are missing" : "Check with the owner before going ahead";
+export function ruleHeading(colour: Colour, status: RequestStatus, welfare: boolean, role: Role = "admin", missing = 0): string {
+  const owner = role === "owner";
+  if (missing > 0 && ["needs_clarification", "review_required", "more_info_requested"].includes(status)) return "Some facts are missing";
+  if (colour === "red") {
+    if (owner) return welfare ? "Welfare concern. You handle this personally" : "This needs your review before anything else happens";
+    return welfare ? "Stop. The owner must handle this personally" : "The owner must review this before anything else happens";
+  }
+  if (colour === "amber") {
+    if (status === "needs_clarification") return "Some facts are missing";
+    return owner ? "This needs your approval before going ahead" : "Check with the owner before going ahead";
+  }
   return "You can go ahead";
 }
 

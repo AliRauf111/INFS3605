@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db/supabase";
-import type { Colour, DraftKind, RequestStatus, RequestType, TriState } from "@/lib/domain/types";
+import type { Colour, DraftKind, RequestStatus, RequestType, Role, TriState } from "@/lib/domain/types";
+import { countMissing, workflowFor } from "@/lib/workflow/next-step";
 import type { DecisionResult } from "@/lib/engine/evaluate";
 import type { EvidenceSnapshot } from "@/lib/engine/evidence";
 import type { PolicyDefinition, PolicySnapshot } from "@/lib/engine/policy";
@@ -40,6 +41,11 @@ export type RequestRow = {
   created_at: string;
   updated_at: string;
   created_by: string | null;
+  /** Filled in by withWorkflowState: required details missing in the latest rule check. */
+  missing_count?: number;
+  /** Filled in by withWorkflowState: when the owner started reviewing, if they have. */
+  owner_review_started_at?: string | null;
+  owner_review_started_by?: string | null;
 };
 
 const REQUEST_COLUMNS =
@@ -83,6 +89,52 @@ export async function listRequests(opts: { status?: RequestStatus[]; limit?: num
     return check(await build(false, false), "requests") as RequestRow[];
   }
   return check(res, "requests") as RequestRow[];
+}
+
+/**
+ * Add what the shared next-step rules need: how many required details the latest rule
+ * check says are missing, and whether the owner has started a review. Works before the
+ * owner review database update too (no review is then recorded).
+ */
+export async function withWorkflowState<T extends RequestRow>(rows: T[]): Promise<T[]> {
+  if (rows.length === 0) return rows;
+  const decisionIds = [...new Set(rows.map((r) => r.current_decision_id).filter((x): x is string => Boolean(x)))];
+  const missingBy = new Map<string, number>();
+  for (let i = 0; i < decisionIds.length; i += 150) {
+    const chunk = decisionIds.slice(i, i + 150);
+    const res = await db().from("decisions").select("id, missing:result->missing").in("id", chunk);
+    for (const d of (check(res, "rule checks") ?? []) as Array<{ id: string; missing: Array<{ fact: string }> | null }>) missingBy.set(d.id, countMissing(d.missing));
+  }
+  const reviewBy = new Map<string, { at: string | null; by: string | null }>();
+  const ids = rows.map((r) => r.id);
+  for (let i = 0; i < ids.length; i += 150) {
+    const res = await db().from("requests").select("id, owner_review_started_at, owner_review_started_by").in("id", ids.slice(i, i + 150));
+    if (res.error) {
+      if (/owner_review_started/.test(res.error.message ?? "") || res.error.code === "42703") break;
+      throw new Error(`Could not load review state: ${res.error.message}`);
+    }
+    for (const r of res.data as Array<{ id: string; owner_review_started_at: string | null; owner_review_started_by: string | null }>) {
+      reviewBy.set(r.id, { at: r.owner_review_started_at, by: r.owner_review_started_by });
+    }
+  }
+  return rows.map((r) => ({
+    ...r,
+    missing_count: r.current_decision_id ? missingBy.get(r.current_decision_id) ?? 0 : 0,
+    owner_review_started_at: reviewBy.get(r.id)?.at ?? null,
+    owner_review_started_by: reviewBy.get(r.id)?.by ?? null,
+  }));
+}
+
+/** The shared next step for a row that went through withWorkflowState. */
+export function rowWorkflow(row: RequestRow, role: Role) {
+  return workflowFor({
+    role,
+    status: row.status,
+    missing: row.missing_count ?? 0,
+    reviewStartedAt: row.owner_review_started_at ?? null,
+    colour: row.decision,
+    welfare: row.welfare_status === "yes",
+  });
 }
 
 export type ListVisibility = { hiddenAt: string | null; hiddenBy: string | null; archivedAt: string | null } | "not_set_up";
@@ -140,8 +192,9 @@ export type DraftRow = { kind: DraftKind; body: string; generated_by: string; up
 
 export async function getRequestDetail(id: string) {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
-  const request = check(await db().from("requests").select(REQUEST_COLUMNS).eq("id", id).maybeSingle(), "request") as RequestRow | null;
-  if (!request) return null;
+  const found = check(await db().from("requests").select(REQUEST_COLUMNS).eq("id", id).maybeSingle(), "request") as RequestRow | null;
+  if (!found) return null;
+  const [request] = await withWorkflowState([found]);
   const [decisions, evidence, events, drafts, activity, names] = await Promise.all([
     db().from("decisions").select("id, sequence, colour, matched_rule_id, policy_version, policy_version_id, policy_snapshot, facts, result, input_hash, engine_version, reason, created_by, created_at").eq("request_id", id).order("sequence"),
     db().from("evidence_snapshots").select("decision_id, records").eq("request_id", id),
@@ -164,7 +217,7 @@ export async function getRequestDetail(id: string) {
 }
 
 export async function ownerQueue() {
-  const rows = await listRequests({ status: ["awaiting_owner", "review_required", "more_info_requested"], limit: 200 });
+  const rows = await withWorkflowState(await listRequests({ status: ["awaiting_owner", "review_required", "more_info_requested", "needs_clarification"], limit: 200 }));
   const ids = rows.map((r) => r.id);
   const events = ids.length
     ? ((check(await db().from("request_events").select("request_id, event_type, note, created_at, actor_role").in("request_id", ids).order("created_at"), "events") ?? []) as Array<EventRow & { request_id: string }>)

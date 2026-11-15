@@ -56,9 +56,9 @@ export const STATUS_LABELS: Record<RequestStatus, string> = {
   needs_clarification: "Needs Clarification",
   review_required: "Owner Review Required",
   awaiting_owner: "Waiting for Owner",
-  more_info_requested: "Owner asked for more information",
+  more_info_requested: "Owner Asked for Information",
   approved: "Approved by Owner",
-  declined: "Declined by owner",
+  declined: "Declined by Owner",
   closed: "Closed",
 };
 

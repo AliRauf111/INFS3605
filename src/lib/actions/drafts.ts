@@ -8,12 +8,13 @@ import { logActivity } from "@/lib/agent/activity";
 import { DRAFT_KINDS, DRAFT_LABELS, type DraftKind, type RequestStatus } from "@/lib/domain/types";
 import type { DecisionResult } from "@/lib/engine/evaluate";
 import type { EvidenceSnapshot } from "@/lib/engine/evidence";
+import { aiAllowedFor } from "@/lib/agent/sensitive";
 import { findUnsupportedPromises, templateDraft, type DraftContext } from "./drafts-logic";
 
 const GenerateSchema = z.object({ kind: z.enum(DRAFT_KINDS), useAi: z.boolean().optional() }).strict();
 const SaveSchema = z.object({ kind: z.enum(DRAFT_KINDS), body: z.string().trim().min(1).max(6000) }).strict();
 
-async function draftContext(requestId: string): Promise<DraftContext> {
+export async function draftContext(requestId: string): Promise<DraftContext> {
   const { data: r } = await db()
     .from("requests")
     .select("id, request_type, amount_cents, complaint_status, welfare_status, booking_id, context, decision, status, matched_rule_id, policy_version, decision_reason, current_decision_id")
@@ -61,10 +62,11 @@ async function draftContext(requestId: string): Promise<DraftContext> {
 
 const AiDraftSchema = z.object({ body: z.string() });
 
-export async function generateDraft(user: SessionUser, requestId: string, body: unknown) {
-  const parsed = GenerateSchema.safeParse(body);
-  if (!parsed.success) throw new ApiError(400, "Unknown draft type.");
-  const { kind } = parsed.data;
+/**
+ * Write a draft without saving it. Used by Compass, which shows the text for the person
+ * to edit and only saves it once they confirm. Welfare cases never go to the AI provider.
+ */
+export async function composeDraft(user: SessionUser, requestId: string, kind: DraftKind, useAi: boolean, sessionKey: string = crypto.randomUUID()) {
   const ctx = await draftContext(requestId);
   const template = templateDraft(kind, ctx);
   let text = template;
@@ -73,9 +75,10 @@ export async function generateDraft(user: SessionUser, requestId: string, body: 
   let state: "completed" | "blocked" | "failed" = "completed";
 
   // Welfare cases never go to the AI provider: the restricted handover stays on our server.
-  const aiAllowed = parsed.data.useAi && aiConfigured() && ctx.welfare !== "yes";
-  if (parsed.data.useAi && ctx.welfare === "yes") note = "AI drafting is switched off for welfare cases. Template used.";
-  if (parsed.data.useAi && !aiConfigured()) note = "AI is not configured. Template used.";
+  const sensitive = !aiAllowedFor({ welfare: ctx.welfare, texts: [ctx.context] });
+  const aiAllowed = useAi && aiConfigured() && !sensitive;
+  if (useAi && sensitive) note = "AI drafting is switched off for welfare cases. Template used.";
+  if (useAi && !aiConfigured()) note = "AI is not configured. Template used.";
 
   if (aiAllowed) {
     const ai = await callStructured({
@@ -102,7 +105,18 @@ export async function generateDraft(user: SessionUser, requestId: string, body: 
       state = "failed";
     }
   }
+  await logActivity({
+    sessionKey, requestId, actorId: user.id,
+    mode: generatedBy === "live_ai" ? "live_ai" : "system",
+    eventType: "draft_prepared", state, summary: `${DRAFT_LABELS[kind]}: ${note}`,
+  });
+  return { kind, body: text, generatedBy, note, context: ctx };
+}
 
+export async function generateDraft(user: SessionUser, requestId: string, body: unknown) {
+  const parsed = GenerateSchema.safeParse(body);
+  if (!parsed.success) throw new ApiError(400, "Unknown draft type.");
+  const { kind, body: text, generatedBy, note } = await composeDraft(user, requestId, parsed.data.kind, Boolean(parsed.data.useAi));
   const { error } = await db()
     .from("drafts")
     .upsert(
@@ -110,11 +124,6 @@ export async function generateDraft(user: SessionUser, requestId: string, body: 
       { onConflict: "request_id,kind" },
     );
   if (error) throw toDbError(error);
-  await logActivity({
-    sessionKey: crypto.randomUUID(), requestId, actorId: user.id,
-    mode: generatedBy === "live_ai" ? "live_ai" : "system",
-    eventType: "draft_prepared", state, summary: `${DRAFT_LABELS[kind]}: ${note}`,
-  });
   return { kind, body: text, generatedBy, note };
 }
 

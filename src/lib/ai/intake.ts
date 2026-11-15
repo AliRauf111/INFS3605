@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SessionUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/handler";
 import { logActivity } from "@/lib/agent/activity";
+import { SENSITIVE_NOTE, screenSensitive } from "@/lib/agent/sensitive";
 import { aiConfigured, callStructured, redactForAi } from "./client";
 import { EXTRACTION_SYSTEM, ExtractionSchema, groundExtraction, simulatedExtraction } from "./intake-logic";
 
@@ -21,7 +22,14 @@ export async function extractFromMessage(user: SessionUser, body: unknown) {
   let modeNote = "Simulated extraction: keyword rules, no AI. Set ANTHROPIC_API_KEY to use live AI.";
   let raw = simulatedExtraction(message);
 
-  if (aiConfigured()) {
+  // A message that may describe a welfare concern never leaves our server.
+  const sensitive = screenSensitive(message).sensitive;
+  if (sensitive && aiConfigured()) {
+    modeNote = SENSITIVE_NOTE;
+    await logActivity({ sessionKey, actorId: user.id, mode: "system", eventType: "sensitive_case_routed", state: "completed", summary: "Quick Capture: the message may describe a welfare concern, so it was read by keyword rules and not sent to the AI service." });
+  }
+
+  if (aiConfigured() && !sensitive) {
     const ai = await callStructured({
       schema: ExtractionSchema,
       system: EXTRACTION_SYSTEM,

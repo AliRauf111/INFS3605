@@ -1,27 +1,67 @@
 "use client";
 import "./assistant.css";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { EMPTY_STATE, type AssistantState, type Block, type Choice, type TaskField, type TurnResponse } from "@/lib/assistant/logic";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
+import { EMPTY_STATE, type AssistantState, type Block, type Choice, type Command, type TaskField, type TurnResponse } from "@/lib/assistant/logic";
+import { SHORTCUTS, type ShortcutId } from "@/lib/assistant/shortcuts";
 import { CompassAvatar, type AvatarState } from "./CompassAvatar";
 import { AssistantMessage, type ActionState, type ChatItem } from "./Messages";
 import { useSpeech, useVoice } from "./useVoice";
 import { motionReduced } from "@/lib/a11y/motion";
+import { isNearBottom, lockPageScroll, makeSiblingsInert, scrollTargetForNew, stopMedia, workspaceGeometry, type WorkspaceGeometry } from "@/lib/assistant/workspace";
 
 // Compass AI: the floating assistant on every signed-in page. This component owns the
-// panel, the conversation and the voice controls. The server decides what to ask and
+// workspace, the conversation and the voice controls. The server decides what to ask and
 // runs the owner's rules; nothing here can change a decision.
+//
+// Opening the launcher expands Compass into a frosted workspace over almost the whole
+// screen, with a narrow column on the right kept for the launcher. The layer is portalled
+// to <body> so no page container can clip it. While it is open the page underneath is
+// blurred, inert and can't scroll; the layer itself is the modal dialog, and the launcher
+// stays inside it as a second close control.
 
-type SendInput = { message?: string; answer?: { field: TaskField; value: string }; start?: "refund" | "lesson_change" | "policy" };
+type SendInput = {
+  message?: string;
+  answer?: { field: TaskField; value: string };
+  start?: ShortcutId;
+  command?: Command;
+};
 type Stored = { items: ChatItem[]; state: AssistantState; sessionKey: string; readAloud: boolean; draft: string };
 
-const STORE = "compass.chat.v1";
+const STORE = "compass.chat.v2";
 const GREETED = "compass.greeted";
 
 const uid = () => crypto.randomUUID();
 
+/** What the welcome screen says about AI. It only changes with the server's AI setting. */
+function welcomeMode(aiLive: boolean): string {
+  return aiLive
+    ? "Live AI is on. It only reads your messages and words summaries. Records, permissions and the owner's rules decide everything. The four shortcuts use no AI."
+    : "Demo mode: no AI service is connected. Keyword rules, current records and the owner's rules run everything, and every workflow works in full.";
+}
+
 function spokenText(blocks: Block[]): string {
   return blocks
-    .map((b) => (b.kind === "text" ? b.text : b.kind === "decision" ? `${b.title}. ${b.explanation}` : b.kind === "policy" ? b.answer : b.kind === "notice" ? b.text : ""))
+    .map((b) => {
+      switch (b.kind) {
+        case "text":
+        case "notice":
+          return b.text;
+        case "decision":
+          return `${b.title}. ${b.explanation}`;
+        case "policy":
+          return b.answer;
+        case "review":
+          return `Review of ${b.request.reference}. ${b.request.statusLabel}. ${b.readiness.ready ? "Ready for a decision." : "Not ready for a clean decision."}`;
+        case "proposal":
+          return `${b.proposal.preview.title}. Prepared, not saved. Awaiting your confirmation.`;
+        case "draft":
+          return `${b.title} prepared. Not saved and not sent.`;
+        default:
+          return "";
+      }
+    })
     .filter(Boolean)
     .join(" ");
 }
@@ -31,8 +71,8 @@ const Icon = {
   send: <path d="M5 12h12M13 6l6 6-6 6" />,
   clip: <path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8" />,
   stop: <rect x="7" y="7" width="10" height="10" rx="2" />,
-  minus: <path d="M6 12h12" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
+  plus: <path d="M12 5v14M5 12h14" />,
   more: <path d="M5 12h.01M12 12h.01M19 12h.01" />,
   keyboard: <path d="M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M7 14h10" />,
   speaker: <path d="M4 10v4h4l5 4V6L8 10zM16 9a4 4 0 0 1 0 6" />,
@@ -66,7 +106,8 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const [attachNote, setAttachNote] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [modeNote, setModeNote] = useState(aiLive ? "Live AI reads your words. Owner rules decide." : "Demo mode: keyword rules, no live AI.");
+  const [modeNote, setModeNote] = useState(() => welcomeMode(aiLive));
+  const [geom, setGeom] = useState<WorkspaceGeometry | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
   const lastSend = useRef<{ input: SendInput; label: string } | null>(null);
@@ -74,8 +115,13 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
   const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const pathname = usePathname();
 
   const voice = useVoice();
   const speech = useSpeech();
@@ -134,15 +180,30 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     if ((!open || mode !== "voice") && voiceActive) voiceRelease();
   }, [open, mode, voiceActive, voiceRelease]);
 
-  // Keep the panel above the on-screen keyboard on phones.
-  useEffect(() => {
+  // Size the workspace against what is actually visible, so it stays above an on-screen
+  // keyboard and follows rotation, zoom and resizing. One set of listeners per mount.
+  const measure = useCallback(() => {
     const vv = window.visualViewport;
-    if (!vv) return;
-    const f = () => document.documentElement.style.setProperty("--compass-vh", `${vv.height}px`);
-    f();
-    vv.addEventListener("resize", f);
-    return () => vv.removeEventListener("resize", f);
+    const next = workspaceGeometry({
+      width: document.documentElement.clientWidth || window.innerWidth,
+      height: vv?.height ?? window.innerHeight,
+      offsetTop: vv?.offsetTop ?? 0,
+    });
+    setGeom((g) => (g && g.mode === next.mode && g.top === next.top && g.left === next.left && g.width === next.width && g.height === next.height ? g : next));
   }, []);
+  useLayoutEffect(() => {
+    if (!hydrated) return;
+    measure();
+    const vv = window.visualViewport;
+    window.addEventListener("resize", measure);
+    vv?.addEventListener("resize", measure);
+    vv?.addEventListener("scroll", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      vv?.removeEventListener("resize", measure);
+      vv?.removeEventListener("scroll", measure);
+    };
+  }, [hydrated, measure]);
 
   const flash = useCallback((m: AvatarState, ms = 1100) => {
     if (moodTimer.current) clearTimeout(moodTimer.current);
@@ -169,21 +230,37 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     setShowNew(false);
   }, []);
 
+  // A new message only moves the conversation if the person was already at the bottom.
+  // Anyone reading further up stays where they are and gets a "New message" button. A long
+  // reply is shown from its top rather than its last line.
   useEffect(() => {
-    if (!open) return;
-    if (nearBottom.current) requestAnimationFrame(scrollToEnd);
-    else setShowNew(true);
-  }, [items.length, busy, open, scrollToEnd]);
+    // The welcome screen always starts at its top.
+    if (!open || (items.length === 0 && !busy)) return;
+    if (!nearBottom.current) {
+      setShowNew(true);
+      return;
+    }
+    const frame = requestAnimationFrame(() => {
+      const el = listRef.current;
+      if (!el) return;
+      const msgs = el.querySelectorAll<HTMLElement>(".cp-msg.assistant:not(.cp-pending)");
+      const last = itemsRef.current[itemsRef.current.length - 1];
+      const lastMsg = last?.role === "assistant" && !busy ? msgs[msgs.length - 1] : undefined;
+      let top: number | null = null;
+      if (lastMsg && lastMsg.offsetHeight > el.clientHeight - 24) {
+        top = lastMsg.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop;
+      }
+      el.scrollTo({ top: scrollTargetForNew(el, top), behavior: motionReduced() ? "auto" : "smooth" });
+      setShowNew(false);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [items.length, busy, open]);
 
   const openPanel = () => {
+    measure();
     setOpen(true);
     setGreeting(false);
     flash("wave", 1000);
-    nearBottom.current = true;
-    setTimeout(() => {
-      if (mode === "chat") inputRef.current?.focus();
-      scrollToEnd();
-    }, 60);
   };
   // Pages mark busy areas, like the Saved requests table, with data-compass-avoid. While
   // the launcher would sit on top of one, it hides its label and greeting, and if the
@@ -232,17 +309,108 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     window.addEventListener("compass:open", onOpen);
     return () => window.removeEventListener("compass:open", onOpen);
   }, []);
-  const minimise = () => {
-    voice.release();
+  // Closing keeps the conversation, any workflow in progress and the draft. It only stops
+  // the microphone and anything being read aloud. Words heard in voice mode go into the
+  // message box so they aren't lost. Only New conversation clears anything.
+  const closePanel = () => {
+    if (mode === "voice") {
+      const t = voice.transcript.trim();
+      if (t) setDraft((d) => (d ? `${d} ${t}` : t));
+      voice.setTranscript("");
+    }
+    stopMedia({ releaseMic: voice.release, stopSpeaking: speech.cancel });
     setOpen(false);
     setMenuOpen(false);
-    speech.cancel();
-    setTimeout(() => launcherRef.current?.focus(), 0);
-  };
-  const closePanel = () => {
-    minimise();
     setMode("chat");
+    requestAnimationFrame(() => launcherRef.current?.focus({ preventScroll: true }));
   };
+  const closeRef = useRef(closePanel);
+  closeRef.current = closePanel;
+  const menuOpenRef = useRef(menuOpen);
+  menuOpenRef.current = menuOpen;
+
+  // Following a link from the conversation (Open Request, a policy) closes the workspace
+  // so the new page is visible. The conversation is kept for when it is opened again.
+  const openStateRef = useRef(open);
+  openStateRef.current = open;
+  const lastPath = useRef(pathname);
+  useEffect(() => {
+    if (lastPath.current === pathname) return;
+    lastPath.current = pathname;
+    if (openStateRef.current) closeRef.current();
+  }, [pathname]);
+
+  // While open: the page keeps its scroll position but can't scroll, everything outside
+  // the Compass layer is inert, and focus moves in and stays in.
+  useEffect(() => {
+    if (!open) return;
+    const root = rootRef.current;
+    if (!root) return;
+    const unlock = lockPageScroll(document, window.innerWidth, CSS.supports?.("scrollbar-gutter: stable") ?? false);
+    const restore = makeSiblingsInert(document.body.children as unknown as Iterable<HTMLElement>, root);
+    // Anything the page adds to <body> while Compass is open (a toast, a menu) is inert too.
+    const mo = new MutationObserver((records) => {
+      for (const r of records) restore.add([...r.addedNodes].filter((n): n is HTMLElement => n instanceof HTMLElement));
+    });
+    mo.observe(document.body, { childList: true });
+
+    const focusables = () =>
+      [...root.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), summary, [tabindex]:not([tabindex="-1"])')]
+        .filter((el) => el.getClientRects().length > 0 && !el.closest("[inert]") && getComputedStyle(el).visibility !== "hidden");
+    // Escape closes from anywhere while open, even when focus has dropped to <body> (for
+    // example after the button that had it was removed). An open menu closes first.
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (e.isComposing) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (menuOpenRef.current) setMenuOpen(false);
+        else closeRef.current();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const list = focusables();
+      if (!list.length) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (!active || !root.contains(active)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    const onFocusIn = (e: FocusEvent) => {
+      if (e.target instanceof Node && !root.contains(e.target)) focusables()[0]?.focus();
+    };
+    document.addEventListener("keydown", onKey, true);
+    document.addEventListener("focusin", onFocusIn);
+
+    // Focus goes to the message box. On touch screens it goes to the title instead, so the
+    // keyboard doesn't jump up over the welcome screen before the person asks for it.
+    const frame = requestAnimationFrame(() => {
+      const touch = window.matchMedia("(pointer: coarse)").matches;
+      const target = !touch && inputRef.current?.offsetParent ? inputRef.current : titleRef.current;
+      target?.focus({ preventScroll: true });
+      if (nearBottom.current && itemsRef.current.length) {
+        const el = listRef.current;
+        if (el) el.scrollTop = el.scrollHeight;
+      }
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("focusin", onFocusIn);
+      mo.disconnect();
+      restore();
+      unlock();
+    };
+  }, [open]);
 
   const send = useCallback(async (input: SendInput, label: string) => {
     if (busy) return;
@@ -310,10 +478,11 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
   };
 
   const onPick = (field: TaskField, c: Choice) => void send({ answer: { field, value: c.value } }, c.label);
+  const onCommand = (command: Command, label: string) => void send({ command }, label);
 
   const onAction = (itemId: string, index: number, next: ActionState) => {
     setItems((xs) => xs.map((x) => (x.id === itemId ? { ...x, actions: { ...x.actions, [index]: next } } : x)));
-    if (next.stage === "submitted" || (next.stage === "saved" && next.status === "ready")) flash("success");
+    if (next.card?.p?.stage === "done") flash("success");
   };
 
   const newConversation = () => {
@@ -325,6 +494,7 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     setConv(EMPTY_STATE);
     setSessionKey(uid());
     setDraft("");
+    setModeNote(welcomeMode(aiLive));
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
@@ -353,6 +523,8 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
     setMode("voice");
     setAnnounce("Voice mode.");
     voice.start();
+    // The button pressed is replaced by voice mode, so put focus on its main control.
+    requestAnimationFrame(() => rootRef.current?.querySelector<HTMLElement>(".cp-mic-btn")?.focus({ preventScroll: true }));
   };
   const leaveVoice = (keepWords: boolean) => {
     voice.release();
@@ -400,9 +572,28 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
             ? "Microphone Off. Check your words, then send."
             : "Microphone Off";
 
-  return (
-    <div className="compass-root" data-paused={paused ? "true" : undefined}>
+
+  const panelStyle: CSSProperties | undefined = geom
+    ? { top: geom.top, left: geom.left, width: geom.width, height: geom.height }
+    : undefined;
+  const indicator = aiLive ? "Live AI" : "Demo mode";
+
+  // Rendered into <body> once mounted, so no page container or stacking context can clip it.
+  if (!hydrated) return null;
+  return createPortal(
+    <div
+      ref={rootRef}
+      className={`compass-root${open ? " is-open" : ""}`}
+      data-paused={paused ? "true" : undefined}
+      data-layout={geom?.mode ?? "column"}
+      role={open ? "dialog" : undefined}
+      aria-modal={open ? true : undefined}
+      aria-labelledby={open ? "compass-title" : undefined}
+    >
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announce}</div>
+
+      {/* Blurs and dims the page while Compass is open, and takes any click meant for it. */}
+      <div className="cp-backdrop" aria-hidden="true" />
 
       {greeting && !open && !dodge && (
         <div className="cl-greeting" role="status">
@@ -411,47 +602,34 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
         </div>
       )}
 
-      <div ref={launcherBoxRef} className={`cl-launcher${open ? " is-open" : ""}${dodge && !open ? ` is-${dodge}` : ""}`}>
-        <button type="button" className="cl-pill" onClick={open ? minimise : openPanel} aria-expanded={open} aria-controls="compass-panel" tabIndex={-1} aria-hidden="true">
-          Ask Compass
-        </button>
-        <button
-          ref={launcherRef}
-          type="button"
-          className="cl-avatar-btn"
-          onClick={open ? minimise : openPanel}
-          aria-expanded={open}
-          aria-controls="compass-panel"
-          aria-label={open ? "Minimise Compass AI" : `Ask Compass, the AI assistant${available ? "" : ". Having trouble connecting"}`}
-        >
-          <CompassAvatar state={open ? (busy ? "thinking" : "idle") : avatarState} size={72} />
-          <span className={`cl-dot ${available ? "on" : "off"}`} aria-hidden="true" />
-        </button>
-      </div>
-
       <div
         id="compass-panel"
         className={`cp-panel${open ? " open" : ""} mode-${mode}`}
-        role="dialog"
-        aria-label="Compass AI assistant"
+        style={panelStyle}
         aria-hidden={!open}
         inert={!open}
-        onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); if (menuOpen) setMenuOpen(false); else minimise(); } }}
       >
         <header className="cp-header">
           <CompassAvatar state={avatarState} size={40} />
           <div className="cp-title">
-            <h2>Compass AI</h2>
-            <p>{mode === "voice" ? "Voice mode" : "AI assistant"}</p>
+            <h2 id="compass-title" ref={titleRef} tabIndex={-1}>Compass AI</h2>
+            <p>
+              <span className={`cp-indicator ${aiLive ? "live" : "demo"}`} title={modeNote}>
+                <span className="cp-indicator-dot" aria-hidden="true" />{indicator}
+              </span>
+              {mode === "voice" && <span className="cp-subtitle">Voice mode</span>}
+            </p>
           </div>
           {speech.speaking && (
-            <button type="button" className="cp-icon-btn" onClick={speech.cancel} aria-label="Stop reading aloud"><Svg name="stop" /></button>
+            <button type="button" className="cp-icon-btn" onClick={speech.cancel} aria-label="Stop reading aloud" title="Stop reading aloud"><Svg name="stop" /></button>
           )}
+          <button type="button" className="cp-icon-btn cp-new-chat" onClick={newConversation} aria-label="New conversation" title="New conversation">
+            <Svg name="plus" /><span className="cp-btn-text" aria-hidden="true">New conversation</span>
+          </button>
           <div className="cp-menu-wrap">
-            <button type="button" className="cp-icon-btn" aria-label="Compass settings" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><Svg name="more" /></button>
+            <button type="button" className="cp-icon-btn" aria-label="Compass settings" title="Compass settings" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}><Svg name="more" /></button>
             {menuOpen && (
               <div className="cp-menu" role="menu">
-                <button type="button" role="menuitem" onClick={newConversation}>New conversation</button>
                 <button type="button" role="menuitemcheckbox" aria-checked={readAloud} disabled={!speech.available} onClick={() => { setReadAloud((v) => !v); speech.cancel(); }}>
                   <span className={`cp-check${readAloud ? " on" : ""}`} aria-hidden="true">{readAloud ? "✓" : ""}</span> Read replies aloud
                 </button>
@@ -459,94 +637,112 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
               </div>
             )}
           </div>
-          <button type="button" className="cp-icon-btn" onClick={minimise} aria-label="Minimise Compass AI"><Svg name="minus" /></button>
-          <button type="button" className="cp-icon-btn" onClick={closePanel} aria-label="Close Compass AI"><Svg name="close" /></button>
+          <button type="button" className="cp-icon-btn" onClick={closePanel} aria-label="Close Compass AI" title="Close Compass AI"><Svg name="close" /></button>
         </header>
 
         {mode === "chat" ? (
           <>
-            <div
-              className="cp-list"
-              ref={listRef}
-              onScroll={(e) => {
-                const el = e.currentTarget;
-                nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 90;
-                if (nearBottom.current) setShowNew(false);
-              }}
-            >
-              {showWelcome && (
-                <div className="cp-welcome">
-                  <div className="cp-msg assistant">
-                    <CompassAvatar size={28} className="cp-msg-avatar" />
-                    <div className="cp-msg-body"><div className="cp-bubble">Hi {firstName}. What would you like to sort out?</div></div>
-                  </div>
-                  <div className="cp-chips cp-starters">
-                    <button type="button" className="cp-chip" onClick={() => void send({ start: "refund" }, "Check a refund")}>Check a refund</button>
-                    <button type="button" className="cp-chip" onClick={() => void send({ start: "lesson_change" }, "Change a lesson")}>Change a lesson</button>
-                    <button type="button" className="cp-chip" onClick={() => void send({ start: "policy" }, "Find a policy")}>Find a policy</button>
-                  </div>
-                  <div className="cp-trust">
-                    <span className="cp-shield" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" /><path d="M9 12l2 2 4-4" /></svg>
-                    </span>
-                    <div>
-                      <strong>Uses owner-approved rules</strong>
-                      <p>I check requests against your organisation&apos;s policies before suggesting anything.</p>
+            <div className="cp-body">
+              <div
+                className="cp-list"
+                ref={listRef}
+                onScroll={(e) => {
+                  nearBottom.current = isNearBottom(e.currentTarget);
+                  if (nearBottom.current) setShowNew(false);
+                }}
+              >
+                <div className="cp-col">
+                  {showWelcome && (
+                    <div className="cp-welcome">
+                      <div className="cp-hero">
+                        <h3 className="cp-hero-title">Let us take something off your plate.</h3>
+                        <p className="cp-hero-greeting">Hi {firstName}. What would you like to sort out?</p>
+                      </div>
+                      <nav className="cp-shortcuts" aria-label="Shortcuts">
+                        {SHORTCUTS.filter((x) => x.layout === "wide").map((x) => (
+                          <button key={x.id} type="button" className="cp-shortcut wide" data-shortcut={x.id} aria-describedby={`cp-hint-${x.id}`} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
+                            <span className="cp-shortcut-label">{x.label}</span>
+                            <span className="cp-shortcut-hint" id={`cp-hint-${x.id}`} aria-hidden="true">{x.hint}</span>
+                          </button>
+                        ))}
+                        <div className="cp-shortcut-row" role="group" aria-label="Workflows">
+                          {SHORTCUTS.filter((x) => x.layout === "workflow").map((x) => (
+                            <button key={x.id} type="button" className="cp-shortcut" data-shortcut={x.id} aria-describedby={`cp-hint-${x.id}`} disabled={busy} onClick={() => void send({ start: x.id }, x.label)}>
+                              <span className="cp-shortcut-label">{x.label}</span>
+                              <span className="cp-shortcut-hint" id={`cp-hint-${x.id}`} aria-hidden="true">{x.hint}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </nav>
+                      <div className="cp-trust">
+                        <span className="cp-shield" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" /><path d="M9 12l2 2 4-4" /></svg>
+                        </span>
+                        <div>
+                          <strong>Uses owner-approved rules</strong>
+                          <p>I check requests against your organisation&apos;s policies before suggesting anything.</p>
+                        </div>
+                      </div>
+                      <p className={`cp-mode ${aiLive ? "live" : "demo"}`}>{welcomeMode(aiLive)}</p>
                     </div>
-                  </div>
-                  <p className={`cp-mode ${aiLive ? "live" : "demo"}`}>{modeNote}</p>
+                  )}
+                  {items.map((item, i) =>
+                    item.role === "user" ? (
+                      <div key={item.id} className="cp-msg user"><div className="cp-bubble user">{item.text}</div></div>
+                    ) : (
+                      <AssistantMessage
+                        key={item.id}
+                        item={item}
+                        last={i === items.length - 1}
+                        busy={busy}
+                        sessionKey={sessionKey}
+                        onPick={onPick}
+                        onAction={onAction}
+                        onCommand={onCommand}
+                        onAnnounce={setAnnounce}
+                        onRetry={() => lastSend.current && void send(lastSend.current.input, lastSend.current.label)}
+                      />
+                    ),
+                  )}
+                  {busy && (
+                    <div className="cp-msg assistant cp-pending">
+                      <CompassAvatar size={28} state="thinking" className="cp-msg-avatar" />
+                      <div className="cp-msg-body">
+                        <div className="cp-bubble cp-typing" role="status"><span className="cp-dots" aria-hidden="true"><i /><i /><i /></span> Compass is checking…</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-              {items.map((item, i) =>
-                item.role === "user" ? (
-                  <div key={item.id} className="cp-msg user"><div className="cp-bubble user">{item.text}</div></div>
-                ) : (
-                  <AssistantMessage
-                    key={item.id}
-                    item={item}
-                    last={i === items.length - 1}
-                    busy={busy}
-                    onPick={onPick}
-                    onAction={onAction}
-                    onRetry={() => lastSend.current && void send(lastSend.current.input, lastSend.current.label)}
-                  />
-                ),
-              )}
-              {busy && (
-                <div className="cp-msg assistant">
-                  <CompassAvatar size={28} state="thinking" className="cp-msg-avatar" />
-                  <div className="cp-msg-body">
-                    <div className="cp-bubble cp-typing" role="status"><span className="cp-dots" aria-hidden="true"><i /><i /><i /></span> Compass is checking…</div>
-                  </div>
-                </div>
-              )}
+              </div>
+              {showNew && <button type="button" className="cp-new" onClick={scrollToEnd}>New message ↓</button>}
             </div>
-            {showNew && <button type="button" className="cp-new" onClick={scrollToEnd}>New message ↓</button>}
 
             <form className="cp-composer" onSubmit={(e) => { e.preventDefault(); submitDraft(); }}>
-              {attachNote && <p className="cp-attach-note" role="status">{attachNote}</p>}
-              <div className="cp-input">
-                <button type="button" className="cp-icon-btn" aria-label="Attach a text file" onClick={() => fileRef.current?.click()}><Svg name="clip" /></button>
-                <input ref={fileRef} type="file" accept=".txt,text/plain" hidden onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = ""; }} />
-                <label htmlFor="compass-input" className="sr-only">Message Compass</label>
-                <textarea
-                  id="compass-input"
-                  ref={inputRef}
-                  rows={1}
-                  value={draft}
-                  placeholder="Ask Compass…"
-                  maxLength={4000}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={onKeyDown}
-                />
-                <button type="button" className="cp-icon-btn" aria-label="Start Voice Input" title="Start Voice Input" onClick={enterVoice} disabled={busy}><Svg name="mic" /></button>
-                {busy ? (
-                  <button type="button" className="cp-send stop" aria-label="Stop the reply" onClick={() => abortRef.current?.abort()}><Svg name="stop" /></button>
-                ) : (
-                  <button type="submit" className="cp-send" aria-label="Send message" disabled={!draft.trim()}><Svg name="send" /></button>
-                )}
+              <div className="cp-col">
+                {attachNote && <p className="cp-attach-note" role="status">{attachNote}</p>}
+                <div className="cp-input">
+                  <button type="button" className="cp-icon-btn" aria-label="Attach a text file" title="Attach a text file" onClick={() => fileRef.current?.click()}><Svg name="clip" /></button>
+                  <input ref={fileRef} type="file" accept=".txt,text/plain" hidden onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = ""; }} />
+                  <label htmlFor="compass-input" className="sr-only">Message Compass</label>
+                  <textarea
+                    id="compass-input"
+                    ref={inputRef}
+                    rows={1}
+                    value={draft}
+                    placeholder="Ask Compass…"
+                    maxLength={4000}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={onKeyDown}
+                  />
+                  <button type="button" className="cp-icon-btn" aria-label="Start Voice Input" title="Start Voice Input" onClick={enterVoice} disabled={busy}><Svg name="mic" /></button>
+                  {busy ? (
+                    <button type="button" className="cp-send stop" aria-label="Stop the reply" title="Stop the reply" onClick={() => abortRef.current?.abort()}><Svg name="stop" /></button>
+                  ) : (
+                    <button type="submit" className="cp-send" aria-label="Send message" title="Send message" disabled={!draft.trim()}><Svg name="send" /></button>
+                  )}
+                </div>
+                <p className="cp-footnote">AI suggests. Owner rules decide.</p>
               </div>
-              <p className="cp-footnote">AI suggests. Owner rules decide.</p>
             </form>
           </>
         ) : (
@@ -600,6 +796,26 @@ export function Assistant({ firstName, aiLive }: { firstName: string; aiLive: bo
           </div>
         )}
       </div>
-    </div>
+
+      {/* After the workspace in the DOM, so Tab goes from the composer to the launcher and back round. */}
+      <div ref={launcherBoxRef} className={`cl-launcher${open ? " is-open" : ""}${dodge && !open ? ` is-${dodge}` : ""}`}>
+        <button type="button" className="cl-pill" onClick={open ? closePanel : openPanel} tabIndex={-1} aria-hidden="true">
+          Ask Compass
+        </button>
+        <button
+          ref={launcherRef}
+          type="button"
+          className="cl-avatar-btn"
+          onClick={open ? closePanel : openPanel}
+          aria-expanded={open}
+          aria-controls="compass-panel"
+          aria-label={open ? "Close Compass AI" : `Ask Compass, the AI assistant${available ? "" : ". Having trouble connecting"}`}
+        >
+          <CompassAvatar state={open ? (busy ? "thinking" : "idle") : avatarState} size={72} />
+          <span className={`cl-dot ${available ? "on" : "off"}`} aria-hidden="true" />
+        </button>
+      </div>
+    </div>,
+    document.body,
   );
 }

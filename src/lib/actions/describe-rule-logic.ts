@@ -1,7 +1,7 @@
 import { CATEGORY_CONFIG, type PolicyCategory, type PolicyDefinition, formatNumeric } from "@/lib/engine/policy";
 import type { Colour } from "@/lib/domain/types";
 
-// Simulated "Describe a rule": a small pattern reader used when no AI key is set.
+// Simulated "Describe a Rule": a small pattern reader used when no AI key is set.
 // It is honest about what it guessed by listing every assumption as an ambiguity.
 
 export function describeRuleSimulated(

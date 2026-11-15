@@ -138,7 +138,7 @@ export function testPolicy(body: unknown) {
   return evaluate({ facts: merged, evidence: sampleEvidence(def.data, merged), policy: snapshot });
 }
 
-// "Describe a rule" -----------------------------------------------------------------
+// "Describe a Rule" -----------------------------------------------------------------
 
 // A looser shape for the model's answer. The server tidies it and the full validator
 // checks it, so the AI cannot produce an activatable rule on its own.

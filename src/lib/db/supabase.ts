@@ -96,7 +96,7 @@ export async function enabledProviders(): Promise<Record<string, boolean>> {
 export class DbError extends Error {
   constructor(
     message: string,
-    public code: "forbidden" | "not_found" | "invalid_transition" | "stale_update" | "reason_required" | "invalid_input" | "policy_frozen" | "unknown",
+    public code: "forbidden" | "not_found" | "invalid_transition" | "stale_update" | "reason_required" | "invalid_input" | "policy_frozen" | "missing_details" | "unknown",
   ) {
     super(message);
   }
@@ -104,7 +104,7 @@ export class DbError extends Error {
 
 export function toDbError(error: { message?: string } | null): DbError {
   const msg = error?.message ?? "Database error";
-  const code = (["forbidden", "not_found", "invalid_transition", "stale_update", "reason_required", "invalid_input", "policy_frozen"] as const).find(
+  const code = (["forbidden", "not_found", "invalid_transition", "stale_update", "reason_required", "invalid_input", "policy_frozen", "missing_details"] as const).find(
     (c) => msg.startsWith(c),
   );
   const clean = msg.includes(":") ? msg.slice(msg.indexOf(":") + 1).trim() : msg;

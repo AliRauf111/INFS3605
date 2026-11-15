@@ -6,6 +6,11 @@ import { db } from "@/lib/db/supabase";
 import { aiConfigured, callStructured, redactForAi } from "@/lib/ai/client";
 import { ExtractionSchema, groundExtraction, looksLikeInjection, simulatedExtraction } from "@/lib/ai/intake-logic";
 import { logActivity } from "@/lib/agent/activity";
+import { detectIntent, numberWordsToDigits, refersToFocus, type DetectedIntent } from "@/lib/agent/intents";
+import type { ProposalAction } from "@/lib/agent/permissions";
+import { approvedProcedures } from "@/lib/agent/reads";
+import { factSources, procedureChecks } from "@/lib/agent/review-logic";
+import { SENSITIVE_NOTE, screenSensitive } from "@/lib/agent/sensitive";
 import { toolEvaluate, toolRetrievePolicy, toolRetrieveRecords } from "@/lib/agent/tools";
 import { freeSlotsForBooking, resolveBooking } from "@/lib/context/retrieve";
 import { formatAud } from "@/lib/domain/money";
@@ -14,8 +19,16 @@ import { policyVersionLabel } from "@/lib/engine/policy";
 import { validateFactsForm } from "@/lib/validation/facts";
 import { catalogueData } from "@/lib/data/catalogue";
 import { courseAnswer, isCourseQuestion } from "./courses";
+import { briefingTurn, decideTurn, followupTurn, policyOverviewTurn, requirementsTurn, resolveRequest, reviewTurn, type TurnCtx } from "./owner";
+import { loadState, saveState } from "./session-store";
+import { SHORTCUT_IDS, isWorkflowId, type WorkflowId } from "./shortcuts";
+import { attentionTurn } from "@/lib/workflows/attention";
+import { detectWorkflow } from "@/lib/workflows/logic";
+import { runWorkflow, type WorkflowInput } from "@/lib/workflows/runner";
+import { proposalView } from "@/lib/agent/proposals";
 import {
   AssistantStateSchema,
+  CommandSchema,
   TASK_FIELDS,
   applyAnswer,
   dayName,
@@ -42,7 +55,7 @@ import {
   topicMissing,
   type Article,
   type AssistantState,
-  type Block,
+  type Command,
   type Extracted,
   type Mood,
   type Step,
@@ -50,10 +63,12 @@ import {
   type TurnResponse,
 } from "./logic";
 
-// One turn of a conversation with Compass AI. The browser sends the conversation state
-// and what the person said; the server works out what is still missing, looks up real
-// records and, once every fact is answered, runs the same rule engine as the wizard.
-// The AI only reads the person's words. It never chooses the colour or takes an action.
+// One turn of a conversation with Compass AI. The browser sends what the person said or
+// which card button they pressed. The conversation state lives on the server. The server
+// works out what is still missing, looks up real records and, once every fact is
+// answered, runs the same rule engine as the wizard. The AI only reads the person's
+// words. It never chooses the colour, a record or an action, and it never sees a message
+// that may describe a welfare concern.
 
 const TurnSchema = z
   .object({
@@ -61,7 +76,8 @@ const TurnSchema = z
     state: AssistantStateSchema,
     message: z.string().trim().min(1).max(4000).optional(),
     answer: z.object({ field: z.enum(TASK_FIELDS), value: z.string().trim().min(1).max(60) }).strict().optional(),
-    start: z.enum(["refund", "lesson_change", "policy"]).optional(),
+    start: z.enum(SHORTCUT_IDS).optional(),
+    command: CommandSchema.optional(),
   })
   .strict();
 
@@ -89,7 +105,14 @@ const PolicyAnswerSchema = z.object({
   answer: z.string().describe("Two or three short sentences in British English, using only the procedure text"),
 });
 
-type Ctx = { user: SessionUser; sessionKey: string; live: boolean; steps: Step[]; blocks: Block[]; mood: Mood; modeNote: string };
+type Ctx = TurnCtx & {
+  sensitive: boolean;
+  /** The workflow this conversation is in, if any. */
+  run: AssistantState["run"];
+  /** True when this reply used no AI at all, so the mode label must not say it did. */
+  noAi: boolean;
+};
+type Next = Pick<AssistantState, "task" | "awaiting">;
 
 const say = (ctx: Ctx, text: string) => ctx.blocks.push({ kind: "text", text });
 
@@ -97,38 +120,79 @@ const typeWords = (text: string): RequestType | null => {
   const t = text.toLowerCase();
   if (/refund|money back/.test(t)) return "refund";
   if (/lesson|reschedul|move/.test(t)) return "lesson_change";
-  if (/time to pay|extension|pay later/.test(t)) return "payment_extension";
+  if (/time to pay|days to pay|extension|pay later/.test(t)) return "payment_extension";
   if (/something else|other/.test(t)) return "other";
   return null;
+};
+
+const DECISIONS: Record<NonNullable<NonNullable<DetectedIntent>["decision"]>, ProposalAction> = {
+  approve: "request.approve",
+  decline: "request.decline",
+  request_info: "request.request_info",
 };
 
 export async function assistantTurn(user: SessionUser, body: unknown): Promise<TurnResponse> {
   const parsed = TurnSchema.safeParse(body);
   if (!parsed.success) throw new ApiError(400, "Compass could not read that message.");
-  const { sessionKey, message, answer, start } = parsed.data;
-  if ([message, answer, start].filter(Boolean).length !== 1) throw new ApiError(400, "Send one message at a time.");
+  const { sessionKey, message, answer, start, command } = parsed.data;
+  if ([message, answer, start, command].filter(Boolean).length !== 1) throw new ApiError(400, "Send one message at a time.");
+
+  let stored;
+  try {
+    stored = await loadState(sessionKey, user, parsed.data.state);
+  } catch (e) {
+    if (e instanceof Error && e.message === "conversation_owner_mismatch") throw new ApiError(403, "This conversation belongs to someone else. Start a new chat.");
+    throw new ApiError(503, "Compass couldn't load this conversation from the database. Nothing was changed. Try again shortly.");
+  }
 
   const live = aiConfigured();
   const ctx: Ctx = {
-    user, sessionKey, live, steps: [], blocks: [], mood: "neutral",
+    user, sessionKey, live, steps: [], blocks: [], mood: "neutral", focus: stored.state.focus, sensitive: false, run: stored.state.run, noAi: false,
     modeNote: live ? "Live AI reads your words. Owner rules decide." : "Demo mode: keyword rules, no live AI.",
   };
-  let state: AssistantState = parsed.data.state;
+  const response = await route(ctx, stored.state, { message, answer, start, command });
+  await saveState(sessionKey, user, response.state);
+  return response;
+}
 
-  if (start === "policy") {
-    say(ctx, "Which policy would you like to find? For example refunds, rescheduling, complaints or payment extensions.");
-    return finish(ctx, { task: null, awaiting: "policy_query" }, "clarify");
-  }
-  if (start) {
-    state = { task: { ...emptyTask(), requestType: start }, awaiting: null };
-    return advance(ctx, state.task!);
-  }
+async function route(
+  ctx: Ctx,
+  state: AssistantState,
+  input: { message?: string; answer?: { field: (typeof TASK_FIELDS)[number]; value: string }; start?: (typeof SHORTCUT_IDS)[number]; command?: Command },
+): Promise<TurnResponse> {
+  const keep: Next = { task: state.task, awaiting: state.awaiting };
+  const { message, answer, start, command } = input;
+
+  if (command || start === "attention") recordsMode(ctx);
+  if (command?.type === "workflow") return workflow(ctx, keep, { runId: command.runId, op: command.op, value: command.value });
+  if (command) return finish(ctx, keep, await runCommand(ctx, command));
+  if (start === "attention") return finish(ctx, keep, await attention(ctx));
+  if (start && isWorkflowId(start)) return workflow(ctx, { task: null, awaiting: null }, { start });
   if (answer) {
+    // Lesson changes and payment extensions always use their workflow, never a second path.
+    if (answer.field === "requestType" && !state.task?.referenceId && isWorkflowId(answer.value)) return workflow(ctx, { task: null, awaiting: null }, { start: answer.value });
     const task = applyAnswer(state.task ?? emptyTask(), answer.field, answer.value);
     return advance(ctx, task);
   }
 
   const text = message!;
+  // Inside a workflow, a typed message answers its question. Asking what needs attention
+  // still works, and the workflow stays where it was.
+  if (ctx.run && !state.task) {
+    const i = detectIntent(text);
+    if (i && (i.intent === "briefing" || i.intent === "owner_queue" || i.intent === "pending_outcomes")) {
+      recordsMode(ctx);
+      return finish(ctx, keep, await attention(ctx));
+    }
+    return workflow(ctx, keep, { runId: ctx.run.id, text });
+  }
+  const screen = screenSensitive(text);
+  if (screen.sensitive) {
+    ctx.sensitive = true;
+    ctx.modeNote = "Possible welfare concern: this message stayed on our server. Keyword rules and the owner's escalation rules were used, not the AI service.";
+    ctx.blocks.push({ kind: "notice", tone: "warning", text: `${SENSITIVE_NOTE} If a child may be at risk, tell the owner straight away, as KB-01 says.` });
+    await logActivity({ sessionKey: ctx.sessionKey, actorId: ctx.user.id, mode: "system", eventType: "sensitive_case_routed", state: "completed", summary: "A Compass message may describe a welfare concern. It was not sent to the AI service." });
+  }
   if (state.awaiting === "policy_query") return answerPolicy(ctx, text);
 
   // A short reply to the question Compass just asked.
@@ -137,22 +201,143 @@ export async function assistantTurn(user: SessionUser, body: unknown): Promise<T
     if (direct !== null) return advance(ctx, applyAnswer(state.task, state.awaiting as Exclude<typeof state.awaiting, "policy_query">, direct));
   }
 
+  // Owner and enquiry tools: the briefing, reviews, decisions, follow-ups and policy checks.
+  const intent = detectIntent(text);
+  if (intent) {
+    if (!ctx.sensitive) recordsMode(ctx);
+    const mood = await runIntent(ctx, intent, text);
+    if (mood) return finish(ctx, keep, mood);
+  }
+
+  // A lesson change, payment extension or tutor absence typed in the chat starts its
+  // workflow, read with keyword rules only.
+  const typed = !state.task ? detectWorkflow(text) : null;
+  if (typed) return workflow(ctx, { task: null, awaiting: null }, { start: typed, text });
+
   // "Who teaches Maths Advanced Year 12?" is answered from the subject catalogue.
   if (!state.task && isCourseQuestion(text)) return answerCourses(ctx, text);
 
-  const understood = await understand(ctx, text);
+  const understood = await understand(ctx, numberWordsToDigits(text));
   if (understood.intent === "policy_question" && !state.task) return answerPolicy(ctx, text);
   if (understood.warning) ctx.blocks.push({ kind: "notice", tone: "warning", text: understood.warning });
 
   const x = understood.extracted;
-  const hasRequest = x.requestType || x.referenceId || x.amount || x.studentHint;
+  if (!state.task && (x.requestType === "lesson_change" || x.requestType === "payment_extension")) {
+    const aiRead = ctx.live && !ctx.sensitive && !ctx.modeNote.startsWith("Live AI was unavailable");
+    const out = await workflow(ctx, { task: null, awaiting: null }, { start: x.requestType, text });
+    if (aiRead) {
+      out.mode = "live_ai";
+      out.modeNote = "Live AI only read your words to choose the workflow. Records and the owner's rules decide every step.";
+    }
+    return out;
+  }
+  // "Can this family have seven extra days?" right after a review: reuse that booking.
+  if (!x.referenceId && !state.task?.referenceId && ctx.focus?.bookingId && refersToFocus(text) && (x.requestType || x.amount || x.extensionDays)) {
+    x.referenceId = ctx.focus.bookingId;
+    ctx.steps.push({ label: `Using booking ${ctx.focus.bookingId} from the request we were looking at`, state: "done" });
+  }
+  const hasRequest = x.requestType || x.referenceId || x.amount || x.extensionDays || x.studentHint;
   if (!state.task && !hasRequest) {
-    if (understood.intent === "greeting") say(ctx, "Hello. I can check refunds, lesson changes and payment extensions against the owner's rules, or find a policy for you.");
-    else say(ctx, "I can help with refunds, lesson changes, payment extensions and finding policies. What would you like to sort out?");
+    if (understood.intent === "greeting") say(ctx, "Hello. I can brief you on what needs attention, review a saved request, check refunds, lesson changes and payment extensions against the owner's rules, or find a policy.");
+    else say(ctx, "I can brief you on what needs attention, review a saved request, check refunds, lesson changes and payment extensions, or find a policy. What would you like to sort out?");
     ctx.blocks.push({ kind: "choices", field: "requestType", options: questionFor("requestType", emptyTask()).choices });
     return finish(ctx, { task: null, awaiting: null }, "clarify");
   }
   return advance(ctx, mergeTask(state.task ?? emptyTask(), x));
+}
+
+/** Reviews and briefings come from the records. Any AI wording inside them is labelled where it appears. */
+function recordsMode(ctx: Ctx) {
+  ctx.modeNote = ctx.live
+    ? "Built from current records and the owner's rules. Live AI only words summaries and drafts, and they're labelled."
+    : "Built from current records and the owner's rules. Demo mode: no live AI.";
+}
+
+/** Runs a Compass workflow step. Workflows use records and rules only, never the AI. */
+async function workflow(ctx: Ctx, next: Next, input: WorkflowInput): Promise<TurnResponse> {
+  const { mood, run } = await runWorkflow(ctx, input, ctx.run);
+  ctx.run = run;
+  ctx.noAi = true;
+  return finish(ctx, next, mood);
+}
+
+async function attention(ctx: Ctx): Promise<Mood> {
+  ctx.noAi = true;
+  ctx.modeNote = ctx.live
+    ? "Built from current records, your permissions and the owner's rules. No AI was used for this reply."
+    : "Built from current records, your permissions and the owner's rules. Demo mode: no live AI.";
+  return attentionTurn(ctx);
+}
+
+async function showProposal(ctx: Ctx, id: string): Promise<Mood> {
+  try {
+    const proposal = await proposalView(ctx.user, id);
+    ctx.blocks.push({ kind: "proposal", proposal, intro: proposal.status === "pending" ? "This preview is waiting for your confirmation. Nothing changes until you confirm." : null });
+    return proposal.status === "failed" ? "error" : "neutral";
+  } catch (e) {
+    ctx.blocks.push({ kind: "notice", tone: "warning", text: e instanceof ApiError ? e.message : "I couldn't open that preview. Nothing was changed." });
+    return "clarify";
+  }
+}
+
+async function runCommand(ctx: Ctx, c: Exclude<Command, { type: "workflow" }>): Promise<Mood> {
+  switch (c.type) {
+    case "attention":
+      return attention(ctx);
+    case "proposal":
+      return showProposal(ctx, c.proposalId);
+    case "briefing":
+      return briefingTurn(ctx, { bucket: c.bucket, page: c.page });
+    case "review":
+    case "explain":
+      return reviewTurn(ctx, c.requestId, c.type);
+    case "followup":
+      return followupTurn(ctx, c.requestId);
+    case "decide":
+      return decideTurn(ctx, c.requestId, c.action);
+    case "requirements":
+      return requirementsTurn(ctx, { requestId: c.requestId, requestType: c.requestType });
+    case "policy_overview":
+      return policyOverviewTurn(ctx, c.requestType);
+  }
+}
+
+/** Returns null when the message turns out to be a new request after all. */
+async function runIntent(ctx: Ctx, d: NonNullable<DetectedIntent>, text: string) {
+  switch (d.intent) {
+    case "briefing":
+      return attention(ctx);
+    case "owner_queue":
+      return briefingTurn(ctx, { bucket: "owner_decision" });
+    case "pending_outcomes":
+      return briefingTurn(ctx, { bucket: "pending_outcome" });
+    case "review":
+    case "explain":
+    case "followup": {
+      const kind = d.intent;
+      const id = await resolveRequest(ctx, text, (requestId) => ({ type: kind, requestId }));
+      if (!id) return "clarify" as const;
+      return kind === "followup" ? followupTurn(ctx, id) : reviewTurn(ctx, id, kind);
+    }
+    case "decide": {
+      const action = DECISIONS[d.decision ?? "request_info"];
+      const id = await resolveRequest(ctx, text, (requestId) => ({ type: "decide", requestId, action }));
+      if (!id) return "clarify" as const;
+      return decideTurn(ctx, id, action);
+    }
+    case "requirements": {
+      const ref = parseReference(text);
+      if (ref || (ctx.focus && refersToFocus(text))) {
+        const id = await resolveRequest(ctx, text, (requestId) => ({ type: "requirements", requestId }));
+        if (!id) return "clarify" as const;
+        return requirementsTurn(ctx, { requestId: id });
+      }
+      const t = typeWords(text);
+      return requirementsTurn(ctx, { requestType: t ?? undefined });
+    }
+    case "policy_overview":
+      return policyOverviewTurn(ctx, typeWords(text) ?? undefined);
+  }
 }
 
 function directAnswer(field: AssistantState["awaiting"], text: string): string | null {
@@ -189,7 +374,7 @@ async function understand(ctx: Ctx, text: string): Promise<{ intent: "request" |
   let part = parsePartHint(text);
   let mode: "live_ai" | "simulated" = "simulated";
 
-  if (ctx.live) {
+  if (ctx.live && !ctx.sensitive) {
     const ai = await callStructured({
       schema: UnderstandSchema,
       system: UNDERSTAND_SYSTEM,
@@ -215,7 +400,7 @@ async function understand(ctx: Ctx, text: string): Promise<{ intent: "request" |
   ctx.steps.push({ label: "Understanding your request", state: "done" });
   await logActivity({
     sessionKey: ctx.sessionKey, actorId: ctx.user.id, mode, eventType: "details_extracted", state: "completed",
-    summary: `Compass AI (${mode === "live_ai" ? "live AI" : "keyword rules"}) read a chat message: ${g.suggestion.requestType ?? "type unclear"}${g.suggestion.referenceId ? `, ${g.suggestion.referenceId}` : ""}.`,
+    summary: `Compass AI (${mode === "live_ai" ? "live AI" : ctx.sensitive ? "keyword rules, possible welfare concern kept off the AI service" : "keyword rules"}) read a chat message: ${g.suggestion.requestType ?? "type unclear"}${g.suggestion.referenceId ? `, ${g.suggestion.referenceId}` : ""}.`,
   });
   return {
     intent,
@@ -356,6 +541,10 @@ async function decide(ctx: Ctx, task: Task): Promise<TurnResponse> {
   items.push(policy ? `Relevant policy: ${policy.definition.title}, version ${policy.version}.` : "Relevant policy: none active for this request type.");
   items.push(`Complaint: ${facts.complaint ? TRI_STATE_LABELS[facts.complaint] : "not answered"}. Welfare concern: ${facts.welfare ? TRI_STATE_LABELS[facts.welfare] : "not answered"}.`);
   const policyLink = result.policyVersionId ? { label: "View policy", href: `/rules/${result.policyVersionId}` } : null;
+  const procedures = await approvedProcedures().catch(() => []);
+  const checks = procedureChecks(policy, procedures);
+  const findings = checks.map((f) => f.text);
+  const sources = factSources(facts, evidence, result, policy ? { label: `${policy.definition.title} (${policyVersionLabel(policy)})` } : null);
   ctx.blocks.push({ kind: "found", items, links: policyLink ? [policyLink] : [], note: demoData ? "Fictional demonstration data. Nothing here is a real booking or payment." : undefined });
 
   const needsInfo = result.missing.length + result.blockers.length > 0;
@@ -390,7 +579,12 @@ async function decide(ctx: Ctx, task: Task): Promise<TurnResponse> {
     requestType: facts.requestType,
     facts: form,
     summary,
+    sources,
+    findings,
   });
+  if (checks.some((f) => f.kind === "conflict")) {
+    ctx.blocks.push({ kind: "notice", tone: "warning", text: "A written procedure disagrees with the owner's rules. The rule result above follows the rules, but ask the owner which is right before acting." });
+  }
   return finish(ctx, { task: null, awaiting: null }, result.colour === "green" ? "success" : needsInfo ? "clarify" : "neutral");
 }
 
@@ -410,7 +604,7 @@ async function answerPolicy(ctx: Ctx, question: string): Promise<TurnResponse> {
   const articles = (data ?? []) as Article[];
   ctx.steps.push({ label: "Searching approved procedures", state: articles.length ? "done" : "blocked" });
 
-  if (ctx.live && articles.length) {
+  if (ctx.live && !ctx.sensitive && articles.length) {
     const ai = await callStructured({
       schema: PolicyAnswerSchema,
       maxTokens: 1200,
@@ -450,6 +644,7 @@ function noPolicy(ctx: Ctx, articles: Article[]): TurnResponse {
   return finish(ctx, { task: null, awaiting: null }, "clarify");
 }
 
-function finish(ctx: Ctx, state: AssistantState, mood: Mood): TurnResponse {
-  return { mode: ctx.live && !ctx.modeNote.startsWith("Live AI was unavailable") ? "live_ai" : "demo", modeNote: ctx.modeNote, steps: ctx.steps, blocks: ctx.blocks, state, mood };
+function finish(ctx: Ctx, next: Next, mood: Mood): TurnResponse {
+  const usedAi = ctx.live && !ctx.sensitive && !ctx.noAi && !ctx.modeNote.startsWith("Live AI was unavailable");
+  return { mode: usedAi ? "live_ai" : "demo", modeNote: ctx.modeNote, steps: ctx.steps, blocks: ctx.blocks, state: { ...next, focus: ctx.focus, run: ctx.run }, mood };
 }

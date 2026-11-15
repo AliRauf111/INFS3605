@@ -16,7 +16,7 @@ export function RulesSection({ user, versions }: { user: Pick<SessionUser, "role
           <h2 id="rules-heading">Rules</h2>
           <p className="muted">The owner&apos;s policies, by request type. Complaints and welfare concerns are always red, before these rules are checked.</p>
         </div>
-        {user.role === "owner" && <Link className="btn" href="/rules/describe">Describe a rule</Link>}
+        {user.role === "owner" && <Link className="btn" href="/rules/describe">Describe a Rule</Link>}
       </div>
       {user.role !== "owner" && <p className="notice info">You can read the rules. Only the owner can edit or activate them.</p>}
       {POLICY_CATEGORIES.map((cat) => {

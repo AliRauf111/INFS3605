@@ -280,6 +280,7 @@ details > summary { cursor: pointer; color: var(--accent); font-weight: 500; }
 .rule-tag.amber .rule-tag-icon { width: 0; height: 0; border-radius: 0; background: none; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid currentColor; }
 .rule-tag.red { background: var(--red-bg); color: var(--red-fg); }
 .rule-missing { margin: 0.5rem 0 0; }
+.field-needed { border-left: 4px solid var(--amber-edge); background: var(--amber-bg); padding: 0.6rem 0.8rem; border-radius: 0.5rem; }
 .rule-foot { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--muted); }
 .rule-foot a { margin-left: auto; font-weight: 600; }
 .rule-foot code { color: var(--text); }
@@ -337,6 +338,7 @@ details > summary { cursor: pointer; color: var(--accent); font-weight: 500; }
    makes room for the Display and Accessibility panel, the background can grow or shrink smoothly
    while the text inside stays the same size. */
 .queue { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
+.queue.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .queue-tile { position: relative; isolation: isolate; display: block; padding: 1.1rem 1.25rem 1.2rem; color: var(--text); text-decoration: none; border-radius: var(--radius); }
 .qt-bg {
   position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
@@ -419,7 +421,7 @@ details > summary { cursor: pointer; color: var(--accent); font-weight: 500; }
 .rule-tag-icon.lg.amber { width: 0; height: 0; background: none; border-radius: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 11px solid var(--amber-edge); }
 
 @media (max-width: 900px) {
-  .queue { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .queue, .queue.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .queue-tile { padding: 0.9rem 1rem 1rem; }
   .qt-badge { display: none; }
 }
@@ -428,7 +430,7 @@ details > summary { cursor: pointer; color: var(--accent); font-weight: 500; }
   .queue-cards { display: block; }
 }
 @media (max-width: 420px) {
-  .queue { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+  .queue, .queue.three { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
 }
 
 /* ---------------------------------------------------------------------------
@@ -891,14 +893,22 @@ html[data-controls="large"] .a11y-segment span { min-height: 52px; }
 /* Focus View: extra detail is hidden; actions, warnings and decisions stay */
 html[data-focus="on"] :is(.demo-strip, .legend, .footer-tagline, .footer-about, .footer-motto, .queue-tile p, .page-head p.muted, .cl-greeting, [data-secondary]) { display: none !important; }
 
-/* Compass AI in the dark theme */
-:root[data-theme="dark"] .compass-root { --cp-blue: #1f6fc4; --cp-pale: #1c3358; --cp-line: var(--border); }
-:root[data-theme="dark"] .compass-root :is(.cp-header, .cp-list) { background: var(--paper); }
-:root[data-theme="dark"] .compass-root .cp-voice { background: radial-gradient(120% 60% at 50% 0%, #1c3358, var(--paper) 70%); }
+/* Compass AI in the dark theme: the same workspace as dark navy glass with light text. */
+:root[data-theme="dark"] .compass-root { --cp-blue: #1f6fc4; --cp-pale: #1c3358; --cp-line: var(--border); --cp-navy: var(--heading); --cp-surface: var(--paper); --cp-field-edge: rgba(116, 184, 255, 0.35); }
+:root[data-theme="dark"] .compass-root .cp-panel { background: linear-gradient(165deg, rgba(24, 38, 63, 0.88), rgba(15, 26, 45, 0.84)); border-color: rgba(196, 216, 255, 0.16); box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45); }
+:root[data-theme="dark"] .compass-root .cp-backdrop { background: rgba(3, 8, 18, 0.5); }
+:root[data-theme="dark"] .compass-root :is(.cp-input, .cp-new-chat) { background: var(--paper); }
+:root[data-theme="dark"] .compass-root .cp-hero-title { color: var(--heading); }
+:root[data-theme="dark"] .compass-root .cp-voice { background: radial-gradient(60% 45% at 50% 0%, rgba(28, 51, 88, 0.8), rgba(21, 34, 56, 0) 70%); }
 :root[data-theme="dark"] .compass-root .cl-avatar-btn { background: radial-gradient(circle at 50% 45%, #dce9fb 55%, rgba(220, 233, 251, 0) 72%); }
 :root[data-theme="dark"] .compass-root .cp-chip { border-color: var(--border); color: var(--accent); }
-:root[data-theme="contrast"] .compass-root { --cp-line: #000000; --cp-pale: #eef0f4; }
 :root[data-theme="dark"] .compass-root .cp-btn.secondary { color: var(--accent); border-color: var(--accent); }
+/* High Contrast: solid white, black edges, no blur. */
+:root[data-theme="contrast"] .compass-root { --cp-line: #000000; --cp-pale: #eef0f4; --cp-navy: #000000; --cp-surface: #ffffff; --cp-field-edge: #000000; }
+:root[data-theme="contrast"] .compass-root .cp-panel { background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; border: 2px solid #000000; box-shadow: none; }
+:root[data-theme="contrast"] .compass-root .cp-backdrop { background: rgba(0, 0, 0, 0.6); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme="contrast"] .compass-root :is(.cp-input, .cp-new-chat) { background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme="contrast"] .compass-root .cp-hero-title { color: #000000; }
 /* While a new filter loads, the previous choice stops looking selected. */
 #recent[aria-busy="true"] .tab[aria-current]:not([data-pending]) { color: var(--muted); border-bottom-color: transparent; }
 .queue:has([data-pending]) .queue-tile[aria-current]:not([data-pending]) .qt-bg { border-color: var(--border); box-shadow: var(--shadow); }

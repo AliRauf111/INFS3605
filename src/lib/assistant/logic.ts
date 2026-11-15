@@ -1,6 +1,11 @@
 import { z } from "zod";
-import { REQUEST_TYPES, TRI_STATES, type Colour, type RequestType, type TriState } from "@/lib/domain/types";
+import { REQUEST_TYPES, TRI_STATES, type Colour, type RequestStatus, type RequestType, type Role, type TriState } from "@/lib/domain/types";
 import type { FactsForm } from "@/lib/validation/facts";
+import { BUCKET_KEYS, COLOURS, type BucketKey } from "@/lib/agent/briefing-logic";
+import { PROPOSAL_ACTIONS, type ProposalAction } from "@/lib/agent/permissions";
+import type { ProposalView } from "@/lib/agent/proposal-logic";
+import type { FactSources, Figure, Readiness } from "@/lib/agent/review-logic";
+import { ActiveRunSchema } from "@/lib/workflows/logic";
 
 // Pure logic for Compass AI, the chat assistant. It decides what to ask next, merges
 // what the person said into the request being built and searches approved procedures.
@@ -44,15 +49,50 @@ export const TaskSchema = z
   .strict();
 export type Task = z.infer<typeof TaskSchema>;
 
+/** The saved request the conversation is about, so "this request" works across turns. */
+export const FocusSchema = z
+  .object({
+    requestId: z.uuid(),
+    reference: z.string().max(40),
+    bookingId: z.string().max(40).nullable(),
+  })
+  .strict();
+export type Focus = z.infer<typeof FocusSchema>;
+
 export const AssistantStateSchema = z
   .object({
     task: TaskSchema.nullable(),
     awaiting: z.enum([...TASK_FIELDS, "policy_query"]).nullable(),
+    focus: FocusSchema.nullable().default(null),
+    /** The Lesson Change, Payment Extension or Tutor Absence workflow this chat is running. */
+    run: ActiveRunSchema.nullable().default(null),
   })
   .strict();
 export type AssistantState = z.infer<typeof AssistantStateSchema>;
 
-export const EMPTY_STATE: AssistantState = { task: null, awaiting: null };
+export const EMPTY_STATE: AssistantState = { task: null, awaiting: null, focus: null, run: null };
+
+/** Card buttons that read or prepare, sent back to the server as a structured command. */
+export const CommandSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("briefing"), bucket: z.enum([...BUCKET_KEYS, ...COLOURS]).optional(), page: z.number().int().min(1).max(500).optional() }).strict(),
+  z.object({ type: z.literal("review"), requestId: z.uuid() }).strict(),
+  z.object({ type: z.literal("explain"), requestId: z.uuid() }).strict(),
+  z.object({ type: z.literal("followup"), requestId: z.uuid() }).strict(),
+  z.object({ type: z.literal("decide"), requestId: z.uuid(), action: z.enum(PROPOSAL_ACTIONS) }).strict(),
+  z.object({ type: z.literal("requirements"), requestId: z.uuid().optional(), requestType: z.enum(REQUEST_TYPES).optional() }).strict(),
+  z.object({ type: z.literal("policy_overview"), requestType: z.enum(REQUEST_TYPES).optional() }).strict(),
+  z.object({ type: z.literal("attention") }).strict(),
+  z.object({ type: z.literal("proposal"), proposalId: z.uuid() }).strict(),
+  z
+    .object({
+      type: z.literal("workflow"),
+      runId: z.uuid(),
+      op: z.enum(["continue", "pick", "decide", "cancel"]),
+      value: z.string().trim().max(80).optional(),
+    })
+    .strict(),
+]);
+export type Command = z.infer<typeof CommandSchema>;
 
 export function emptyTask(): Task {
   return {
@@ -97,9 +137,129 @@ export type Block =
       requestType: RequestType;
       facts: FactsForm;
       summary: string[];
+      sources?: FactSources;
+      findings?: string[];
     }
   | { kind: "policy"; title: string; answer: string; details: string; link: Link; approved: boolean }
-  | { kind: "notice"; tone: "info" | "warning" | "error"; text: string };
+  | { kind: "notice"; tone: "info" | "warning" | "error"; text: string }
+  | { kind: "options"; label: string; options: Array<{ label: string; command: Command }> }
+  | ReviewBlock
+  | BriefingBlock
+  | DraftBlock
+  | { kind: "proposal"; proposal: ProposalView; intro: string | null; next?: { label: string; command: Command } }
+  | AttentionBlock
+  | { kind: "result"; title: string; rows: Array<{ label: string; before: string; after: string }>; notes: string[]; verifiedAt: string }
+  | { kind: "simulated"; title: string; to: string; body: string; note: string }
+  | { kind: "checklist"; title: string; items: Array<{ label: string; state: "have" | "missing" | "check"; detail?: string }>; refs: string[]; notes: string[]; link?: Link }
+  | RulesBlock;
+
+export type ReviewAction = { label: string; action?: ProposalAction; note?: string; command?: Command; href?: string; primary?: boolean };
+
+export type ReviewBlock = {
+  kind: "review";
+  mode: "review" | "explain";
+  request: {
+    id: string;
+    shortId: string;
+    reference: string;
+    bookingId: string | null;
+    typeLabel: string;
+    status: RequestStatus;
+    statusLabel: string;
+    colour: Colour;
+    created: string;
+    waiting: string;
+    href: string;
+    student: string | null;
+    tutor: string | null;
+    subject: string | null;
+    classCode: string | null;
+  };
+  summary: string;
+  summarySource: "live_ai" | "records";
+  figures: Figure[];
+  figuresNote: string | null;
+  rule: { colour: Colour; ruleLabel: string; matchedRuleId: string; explanation: string; escalation: string | null; policyLabel: string; policyHref: string | null; checkedAt: string; activePolicyLabel: string | null };
+  sources: FactSources;
+  issues: Array<{ tone: "warning" | "error" | "info"; text: string }>;
+  procedures: Array<{ id: string; title: string; version: number; href: string }>;
+  history: Array<{ when: string; who: string; what: string; note: string }>;
+  readiness: Readiness;
+  restricted: boolean;
+  roleNote: string | null;
+  actions: ReviewAction[];
+  /** The primary next step from the shared next-step rules, for example Complete Missing Details. */
+  nextStep?: string | null;
+};
+
+export type BriefingItem = {
+  id: string;
+  shortId: string;
+  reference: string;
+  description: string;
+  statusLabel: string;
+  colour: Colour;
+  waiting: string;
+  since: string;
+  why: string;
+  flag: string | null;
+  href: string;
+  next: { label: string; command: Command };
+};
+
+export type BriefingBlock = {
+  kind: "briefing";
+  generatedAt: string;
+  role: Role;
+  scope: "all" | BucketKey | Colour;
+  ordering: string;
+  total: number;
+  /** Decided requests still waiting for an outcome, for the Show Pending Outcomes button. */
+  pendingOutcomes: number;
+  sections: Array<{ key: BucketKey | Colour; title: string; count: number; items: BriefingItem[]; page: number; pageSize: number; orderedAll: boolean }>;
+};
+
+export type DraftBlock = {
+  kind: "draft";
+  requestId: string;
+  reference: string;
+  draftKind: "parent_response" | "tutor_message" | "escalation_summary" | "reschedule_proposal" | "admin_checklist";
+  title: string;
+  body: string;
+  note: string;
+  generatedBy: "template" | "live_ai";
+  staffChecks: string[];
+  restricted: boolean;
+};
+
+export type AttentionKey = "failed" | "approval" | "workflows" | "clarification" | "outcomes";
+
+export type AttentionItem = {
+  key: string;
+  category: AttentionKey;
+  title: string;
+  reason: string;
+  colour: Colour | null;
+  meta: string;
+  action: { label: string; command?: Command; href?: string };
+  href: string | null;
+};
+
+export type AttentionBlock = {
+  kind: "attention";
+  generatedAt: string;
+  role: Role;
+  total: number;
+  counts: Array<{ key: AttentionKey; label: string; count: number }>;
+  items: AttentionItem[];
+  notes: string[];
+};
+
+export type RulesBlock = {
+  kind: "rules";
+  sections: Array<{ title: string; policyLabel: string; href: string; rules: Array<{ label: string; when: string; colour: Colour; who: string }>; notes: string[] }>;
+  systemRules: string[];
+};
 
 export type Mood = "neutral" | "success" | "clarify" | "error";
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db, supabaseConfigured } from "@/lib/db/supabase";
-import { aiConfigured } from "@/lib/ai/client";
+import { checkAi } from "@/lib/ai/client";
 
 export const dynamic = "force-dynamic";
 
@@ -47,5 +47,16 @@ export async function GET() {
       signIn = `error: ${e instanceof Error ? e.message : "unknown"}`;
     }
   }
-  return NextResponse.json({ app: "ok", database, signIn, settings, ai: aiConfigured() ? "configured" : "simulated" });
+  // Compass's tables, so a missing database update shows up here rather than mid-task.
+  let compass = "not_configured";
+  if (supabaseConfigured()) {
+    const { error } = await db().from("agent_proposals").select("id", { head: true, count: "exact" });
+    compass = !error ? "ok" : error.code === "42P01" || error.code === "PGRST205" ? "database update not run (sql/compass-assistant.sql)" : `error: ${error.message}`;
+  }
+  const ai = await checkAi();
+  return NextResponse.json({
+    app: "ok", database, signIn, settings, compass,
+    ai: !ai.configured ? "simulated" : ai.available ? "configured" : "configured_but_unavailable",
+    aiDetail: ai.detail,
+  });
 }

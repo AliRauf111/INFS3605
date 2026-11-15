@@ -184,7 +184,7 @@ export function simulatedExtraction(message: string): Extraction {
     ? "refund"
     : has("reschedule", "move the lesson", "move her lesson", "move his lesson", "change the time", "different time", "swap the lesson")
       ? "lesson_change"
-      : has("extension", "more time to pay", "pay later", "extra time to pay")
+      : has("extension", "more time to pay", "pay later", "extra time to pay", "days to pay", "time to pay", "extra days", "more days")
         ? "payment_extension"
         : "unclear";
   const welfareWords = ["unsafe", "scared", "frightened", "afraid", "hurt", "bullied", "abuse", "self-harm", "harm"];

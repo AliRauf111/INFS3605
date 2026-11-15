@@ -28,6 +28,8 @@ In a small tutoring business the owner makes most decisions, so staff wait for a
 | Owner rule builder with draft, active and archived versions, validation and a test area | Done |
 | "Describe a rule": AI proposes a draft, owner edits, tests and activates | Done (simulated without an API key) |
 | Activity panel built from real saved events | Done |
+| Compass owner briefing, decision-ready reviews and routine enquiries, with every saved change going through a server-side proposal (preview, confirm, recheck, execute once, audit) | Done |
+| Welfare narratives never sent to the AI service (Quick Capture, Compass, drafts and summaries); welfare cases follow the fixed escalation | Done |
 | Editable drafts that never claim an action happened | Done |
 | Coverage dashboard and rule suggestions from repeated exceptions | Done |
 | Lesson change and payment extension categories | Done |

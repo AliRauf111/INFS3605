@@ -29,6 +29,38 @@ function getClient(): Anthropic {
   return client;
 }
 
+export type AiCheck = { configured: boolean; available: boolean; model: string; detail: string };
+
+let lastCheck: { at: number; result: AiCheck } | null = null;
+
+/**
+ * Check that the key works and the configured model exists, without sending any of our
+ * data. The answer is kept for ten minutes so the health page doesn't call out each time.
+ */
+export async function checkAi(): Promise<AiCheck> {
+  const model = aiModel();
+  if (!aiConfigured()) return { configured: false, available: false, model, detail: "No ANTHROPIC_API_KEY is set, so Compass runs in demo mode." };
+  if (lastCheck && Date.now() - lastCheck.at < 600_000 && lastCheck.result.model === model) return lastCheck.result;
+  let result: AiCheck;
+  try {
+    const info = await getClient().models.retrieve(model);
+    result = { configured: true, available: true, model: info.id, detail: "The key works and the model is available." };
+  } catch (error) {
+    const detail = error instanceof Anthropic.AuthenticationError
+      ? "The AI key was rejected."
+      : error instanceof Anthropic.NotFoundError
+        ? `The model ${model} isn't available to this key. Check ANTHROPIC_MODEL.`
+        : error instanceof Anthropic.APIConnectionError
+          ? "Could not reach the AI service."
+          : error instanceof Anthropic.APIError
+            ? `The AI service returned an error (${error.status}).`
+            : "The AI check failed unexpectedly.";
+    result = { configured: true, available: false, model, detail };
+  }
+  lastCheck = { at: Date.now(), result };
+  return result;
+}
+
 export type AiCallResult<T> =
   | { ok: true; data: T; model: string }
   | { ok: false; reason: string };
