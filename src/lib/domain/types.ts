@@ -6,8 +6,8 @@ export type RequestType = (typeof REQUEST_TYPES)[number];
 
 export const REQUEST_TYPE_LABELS: Record<RequestType, string> = {
   refund: "Refund",
-  lesson_change: "Lesson change",
-  payment_extension: "Payment extension",
+  lesson_change: "Lesson Change",
+  payment_extension: "Payment Extension",
   other: "Something else",
 };
 
@@ -52,12 +52,12 @@ export const STATUSES = [
 export type RequestStatus = (typeof STATUSES)[number];
 
 export const STATUS_LABELS: Record<RequestStatus, string> = {
-  ready: "Ready for admin",
-  needs_clarification: "Needs clarification",
-  review_required: "Owner review required",
-  awaiting_owner: "Waiting for owner",
+  ready: "Ready for Admin",
+  needs_clarification: "Needs Clarification",
+  review_required: "Owner Review Required",
+  awaiting_owner: "Waiting for Owner",
   more_info_requested: "Owner asked for more information",
-  approved: "Approved by owner",
+  approved: "Approved by Owner",
   declined: "Declined by owner",
   closed: "Closed",
 };
@@ -108,7 +108,7 @@ export const DATA_LABELS = ["live_connected", "imported", "fictional_demo"] as c
 export type DataLabel = (typeof DATA_LABELS)[number];
 
 export const DATA_LABEL_TEXT: Record<DataLabel, string> = {
-  live_connected: "Live connected",
+  live_connected: "Live Connected",
   imported: "Imported",
-  fictional_demo: "Fictional demonstration data",
+  fictional_demo: "Fictional Demonstration Data",
 };

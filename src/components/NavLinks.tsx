@@ -5,19 +5,17 @@ import type { Role } from "@/lib/domain/types";
 
 const LINKS: Array<{ href: string; label: string; owner?: boolean }> = [
   { href: "/", label: "Dashboard" },
-  { href: "/requests/new", label: "New request" },
-  { href: "/requests", label: "Request log" },
-  { href: "/owner", label: "Owner queue" },
-  { href: "/knowledge", label: "Knowledge hub" },
-  { href: "/rules", label: "Rules" },
+  { href: "/requests", label: "Requests" },
+  { href: "/owner", label: "Approval Alley" },
+  { href: "/knowledge", label: "Knowledge Hub" },
+  { href: "/subjects", label: "Subjects" },
   { href: "/coverage", label: "Coverage" },
-  { href: "/settings/integrations", label: "Integrations" },
 ];
 
 export function NavLinks({ role }: { role: Role }) {
   const path = usePathname();
   const current = (href: string) =>
-    href === "/" ? path === "/" : href === "/requests" ? path === "/requests" || /^\/requests\/[0-9a-f-]{36}/.test(path) : path.startsWith(href);
+    href === "/" ? path === "/" : href === "/requests" ? path.startsWith("/requests") : href === "/knowledge" ? path.startsWith("/knowledge") || path.startsWith("/rules") : path.startsWith(href);
   return (
     <nav className="nav" aria-label="Main">
       {LINKS.map((l) => (

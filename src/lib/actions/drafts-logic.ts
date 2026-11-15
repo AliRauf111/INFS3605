@@ -76,7 +76,7 @@ export function templateDraft(kind: DraftKind, c: DraftContext): string {
           `Booking: ${c.bookingId ?? "not confirmed"}`,
           "What was reported (as recorded by the admin):",
           c.context || "(no detail recorded)",
-          "Procedure: follow KB-01 Welfare escalation procedure. Phone the owner as well as sending this.",
+          "Procedure: follow KB-01 Welfare Escalation Procedure. Phone the owner as well as sending this.",
         ].join("\n");
       }
       return [

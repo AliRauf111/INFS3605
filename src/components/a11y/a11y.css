@@ -1,0 +1,161 @@
+/* Display and Accessibility panel.
+   Wide screens: the panel sits on the right, below the header, and the page makes room for it.
+   Smaller screens: a drawer over the page, with a backdrop.
+   <html> carries data-a11y-open and data-a11y-mode="side|modal"; the store sets them. */
+
+:root { --a11y-width: 360px; --a11y-room: 392px; --a11y-ease: cubic-bezier(0.22, 1, 0.36, 1); --a11y-ms: 560ms; }
+
+/* ---------- The Accessibility button ---------- */
+.a11y-trigger svg { flex: none; }
+/* Page headers (src/components/PageHeader.tsx): heading on the left, actions on the right edge of
+   the main content, with Accessibility last. On the dashboard it comes before New Request. */
+.page-title { flex: 1 1 18rem; min-width: 0; }
+.page-title > :last-child { margin-bottom: 0; }
+.page-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0.5rem; margin-left: auto; }
+.page-title + .page-actions { align-self: flex-start; }
+.stack:not(.dash) > .page-head { margin-bottom: 0; }
+.dash .page-title + .page-actions { align-self: auto; }
+.page-actions .btn { width: auto; }
+.page-actions-solo { margin-bottom: 1rem; }
+@media (max-width: 600px) {
+  .page-actions { width: 100%; }
+  .page-actions .btn { flex: 0 1 auto; }
+  .dash .page-actions .btn { flex: 1 1 auto; }
+}
+.a11y-trigger[aria-expanded="true"] { background: var(--info-bg); border-color: var(--accent); color: var(--info-fg); }
+
+/* ---------- Panel ---------- */
+.a11y-panel {
+  position: fixed; z-index: 30; right: 16px; top: calc(var(--a11y-top, 64px) + 16px); bottom: 16px;
+  width: var(--a11y-width); max-width: calc(100vw - 24px);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--paper); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 24px 60px rgba(10, 42, 102, 0.18), 0 2px 6px rgba(10, 42, 102, 0.06);
+  opacity: 0; visibility: hidden; transform: translateX(calc(100% + 24px));
+  transition: transform var(--a11y-ms) var(--a11y-ease), opacity 0.3s ease, visibility 0s linear var(--a11y-ms);
+}
+html[data-a11y-open] .a11y-panel {
+  opacity: 1; visibility: visible; transform: none;
+  transition: transform var(--a11y-ms) var(--a11y-ease), opacity 0.3s ease, visibility 0s;
+}
+
+/* As a drawer: full height on the right, over everything, with a backdrop behind it. */
+html[data-a11y-mode="modal"] .a11y-panel { z-index: 71; top: 0; right: 0; bottom: 0; width: min(400px, 100vw); max-width: none; border-radius: var(--radius) 0 0 var(--radius); border-right: none; }
+.a11y-backdrop {
+  position: fixed; inset: 0; z-index: 70; background: rgba(6, 26, 64, 0.38);
+  opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+html[data-a11y-open][data-a11y-mode="modal"] .a11y-backdrop { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s; }
+html[data-a11y-open][data-a11y-mode="modal"] { overflow: hidden; }
+@media (max-width: 480px) {
+  html[data-a11y-mode="modal"] .a11y-panel { width: 100vw; border-radius: 0; border: none; }
+}
+
+.a11y-head { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1.1rem 1rem 0.9rem 1.25rem; border-bottom: 1px solid var(--border); }
+.a11y-head > div { flex: 1; min-width: 0; }
+.a11y-head h2 { margin: 0; font-size: 1.15rem; }
+.a11y-head h2:focus { outline: none; }
+.a11y-head h2:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.a11y-head p { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.92rem; }
+.a11y-close {
+  display: inline-flex; align-items: center; gap: 0.3rem; min-height: 40px; padding: 0.3rem 0.7rem; flex: none;
+  border: 1px solid var(--border); border-radius: 999px; background: none; color: var(--accent); font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.a11y-close:hover { background: var(--info-bg); }
+
+.a11y-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0.4rem 1.25rem 1.25rem; }
+.a11y-group { padding: 0.8rem 0 0.4rem; }
+.a11y-group + .a11y-group { border-top: 1px solid var(--border); }
+.a11y-group h3 { margin: 0 0 0.3rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; }
+
+.a11y-row { display: flex; align-items: center; justify-content: space-between; gap: 0.9rem; padding: 0.55rem 0; }
+.a11y-row-text { display: grid; gap: 0.1rem; margin: 0; cursor: pointer; font-weight: 400; min-width: 0; }
+.a11y-row-label { font-weight: 600; color: var(--heading); }
+.a11y-row-desc { font-size: 0.86rem; color: var(--muted); line-height: 1.4; }
+
+/* A native checkbox drawn as a switch. It keeps its checked state, label and keyboard behaviour. */
+.a11y-switch {
+  appearance: none; -webkit-appearance: none; flex: none; position: relative; margin: 0; cursor: pointer;
+  width: 48px; height: 28px; border-radius: 999px; border: 1px solid var(--field-border); background: var(--surface-2);
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+.a11y-switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--paper); border: 1px solid var(--field-border); transition: transform 0.18s ease;
+}
+.a11y-switch:checked { background: var(--accent); border-color: var(--accent); }
+.a11y-switch:checked::after { transform: translateX(20px); border-color: var(--accent); }
+.a11y-switch:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.a11y-stepper { display: inline-flex; align-items: center; border: 1px solid var(--field-border); border-radius: 999px; overflow: hidden; flex: none; }
+.a11y-stepper button {
+  min-width: 44px; min-height: 40px; border: none; background: none; color: var(--accent); font: inherit; font-weight: 700; cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.a11y-stepper button:hover:not(:disabled) { background: var(--info-bg); }
+.a11y-stepper button:disabled { color: var(--muted); opacity: 0.55; cursor: not-allowed; }
+.a11y-stepper button:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; border-radius: 999px; }
+.a11y-stepper output { min-width: 3.6rem; text-align: center; font-weight: 650; color: var(--heading); border-inline: 1px solid var(--border); padding: 0.45rem 0.2rem; }
+
+.a11y-theme { border: none; padding: 0.55rem 0 0.2rem; margin: 0; }
+.a11y-theme legend { padding: 0; margin-bottom: 0.45rem; }
+.a11y-segments { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+.a11y-segment { position: relative; margin: 0; font-weight: 500; }
+.a11y-segment input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.a11y-segment span {
+  display: flex; align-items: center; justify-content: center; text-align: center; min-height: 44px; padding: 0.35rem 0.5rem;
+  border: 1px solid var(--field-border); border-radius: var(--radius-small); color: var(--text); font-size: 0.92rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.a11y-segment:hover span { border-color: var(--accent); }
+.a11y-segment input:checked + span { background: var(--info-bg); color: var(--info-fg); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 650; }
+.a11y-segment input:checked + span::before { content: "✓"; margin-right: 0.35rem; }
+.a11y-segment input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.a11y-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 0.4rem; }
+.a11y-actions .btn { flex: 1 1 auto; width: auto; }
+.a11y-status { min-height: 1.4em; margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--green-fg); }
+.a11y-status:empty { min-height: 0; }
+.a11y-status.error { color: var(--red-fg); }
+.a11y-note { margin: 0.5rem 0 0; font-size: 0.82rem; color: var(--muted); }
+
+/* ---------- Focus View bar ---------- */
+.focus-bar { display: none; }
+html[data-focus="on"] .focus-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem;
+  margin-bottom: 1rem; padding: 0.6rem 0.9rem; border-radius: var(--radius-small); background: var(--info-bg); color: var(--info-fg);
+}
+.focus-bar p { margin: 0; }
+html[data-focus="on"] .focus-bar .btn { width: auto; }
+
+/* ---------- The page makes room beside the panel ---------- */
+/* Content keeps its own width up to 1100px and sits in the space left of the panel. */
+html[data-a11y-open][data-a11y-mode="side"] :is(main, .footer-inner) {
+  max-width: min(1100px, calc(100% - var(--a11y-room)));
+  margin-left: max(0px, calc((100% - var(--a11y-room) - 1100px) / 2));
+  margin-right: auto;
+}
+html[data-a11y-open][data-a11y-mode="side"] .queue { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* Compass AI moves left with the page, so it never sits under the panel. Its own transitions are
+   repeated here with translate added (the .compass-root prefix makes these win over assistant.css). */
+.compass-root .cl-launcher { transition: transform 0.25s ease, translate var(--a11y-ms) var(--a11y-ease); }
+.compass-root .cl-greeting { transition: translate var(--a11y-ms) var(--a11y-ease); }
+.compass-root .cp-panel { transition: opacity 0.24s ease, transform 0.24s ease, visibility 0s linear 0.24s, translate var(--a11y-ms) var(--a11y-ease); }
+.compass-root .cp-panel.open { transition: opacity 0.26s ease, transform 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.1), visibility 0s, translate var(--a11y-ms) var(--a11y-ease); }
+html[data-a11y-open][data-a11y-mode="side"] .compass-root :is(.cl-launcher, .cl-greeting, .cp-panel) { translate: calc(-1 * var(--a11y-room)) 0; }
+
+/* ---------- Reduced motion, from the device or the panel ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .a11y-panel, .a11y-backdrop, html[data-a11y-open] .a11y-panel, html[data-a11y-open][data-a11y-mode="modal"] .a11y-backdrop { transition: none !important; }
+  .compass-root :is(.cl-launcher, .cl-greeting, .cp-panel, .cp-panel.open) { transition: none !important; }
+}
+html[data-motion="reduce"] :is(.a11y-panel, .a11y-backdrop, .cl-launcher, .cl-greeting, .cp-panel) { transition: none !important; }
+
+/* Beside the panel there is no room to tuck the launcher off the right edge (it would slide under
+   the panel), so it stays fully in view. */
+html[data-a11y-open][data-a11y-mode="side"] .compass-root .cl-launcher.is-tucked { transform: none; }
+html[data-a11y-open][data-a11y-mode="side"] .footer-inner { padding-bottom: 104px; }
+.info-top { margin-bottom: 2rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.info-top .info-logo { margin-bottom: 0; }

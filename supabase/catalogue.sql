@@ -1,0 +1,222 @@
+-- Generated from src/lib/catalogue/hsc.ts by npm run catalogue:generate. Do not edit by hand.
+-- NSW HSC subject catalogue for Years 11 and 12. Safe to run more than once.
+
+-- Subject areas and their Tutor Compass category codes (not NESA course numbers).
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('english', 'English', 'ENG1011', 'ENG1012', 1) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('mathematics', 'Mathematics', 'MTH1011', 'MTH1012', 2) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('science', 'Science', 'SCI1011', 'SCI1012', 3) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('business_humanities', 'Business and humanities', 'BHU1011', 'BHU1012', 4) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('history', 'History', 'HIS1011', 'HIS1012', 5) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('technology_design', 'Technology and design', 'TDE1011', 'TDE1012', 6) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('creative_arts', 'Creative arts', 'CAR1011', 'CAR1012', 7) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('health_community', 'Health and community', 'HCO1011', 'HCO1012', 8) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('languages', 'Languages', 'LAN1011', 'LAN1012', 9) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+insert into public.hsc_subject_areas (id, name, year11_code, year12_code, sort_order) values ('vocational', 'Vocational education', 'VET1011', 'VET1012', 10) on conflict (id) do update set name = excluded.name, year11_code = excluded.year11_code, year12_code = excluded.year12_code, sort_order = excluded.sort_order;
+
+-- Courses. Each keeps its own id, separate from the shared category code.
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('english_studies', 'english', 'English Studies', 'course', '', 1) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('english_standard', 'english', 'English Standard', 'course', '', 2) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('english_advanced', 'english', 'English Advanced', 'course', '', 3) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('english_eald', 'english', 'English EAL/D', 'course', '', 4) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('english_extension', 'english', 'English Extension', 'course', 'Year 11 course. Leads into English Extension 1 in Year 12.', 5) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('english_extension_1', 'english', 'English Extension 1', 'course', 'Year 12 course. Follows Year 11 English Extension.', 6) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('english_extension_2', 'english', 'English Extension 2', 'course', 'Year 12 only.', 7) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('maths_standard', 'mathematics', 'Mathematics Standard', 'course', 'Year 11 common course. Leads into Mathematics Standard 1 or Standard 2 in Year 12.', 8) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('maths_standard_1', 'mathematics', 'Mathematics Standard 1', 'course', 'Year 12 course. Follows Year 11 Mathematics Standard.', 9) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('maths_standard_2', 'mathematics', 'Mathematics Standard 2', 'course', 'Year 12 course. Follows Year 11 Mathematics Standard.', 10) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('maths_advanced', 'mathematics', 'Mathematics Advanced', 'course', '', 11) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('maths_extension_1', 'mathematics', 'Mathematics Extension 1', 'course', '', 12) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('maths_extension_2', 'mathematics', 'Mathematics Extension 2', 'course', 'Year 12 only.', 13) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('biology', 'science', 'Biology', 'course', '', 14) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('chemistry', 'science', 'Chemistry', 'course', '', 15) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('physics', 'science', 'Physics', 'course', '', 16) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('earth_environmental_science', 'science', 'Earth and Environmental Science', 'course', '', 17) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('investigating_science', 'science', 'Investigating Science', 'course', '', 18) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('science_extension', 'science', 'Science Extension', 'course', 'Year 12 only.', 19) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('business_studies', 'business_humanities', 'Business Studies', 'course', '', 20) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('economics', 'business_humanities', 'Economics', 'course', '', 21) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('legal_studies', 'business_humanities', 'Legal Studies', 'course', '', 22) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('geography', 'business_humanities', 'Geography', 'course', '', 23) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('aboriginal_studies', 'business_humanities', 'Aboriginal Studies', 'course', '', 24) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('society_culture', 'business_humanities', 'Society and Culture', 'course', '', 25) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('studies_of_religion', 'business_humanities', 'Studies of Religion', 'course', 'NESA runs this as Studies of Religion I (1 unit) and II (2 units). Not split here yet.', 26) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('ancient_history', 'history', 'Ancient History', 'course', '', 27) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('modern_history', 'history', 'Modern History', 'course', '', 28) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('history_extension', 'history', 'History Extension', 'course', 'Year 12 only.', 29) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('software_engineering', 'technology_design', 'Software Engineering', 'course', '', 30) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('enterprise_computing', 'technology_design', 'Enterprise Computing', 'course', '', 31) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('engineering_studies', 'technology_design', 'Engineering Studies', 'course', '', 32) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('design_technology', 'technology_design', 'Design and Technology', 'course', '', 33) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('industrial_technology', 'technology_design', 'Industrial Technology', 'course', '', 34) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('food_technology', 'technology_design', 'Food Technology', 'course', '', 35) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('agriculture', 'technology_design', 'Agriculture', 'course', '', 36) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('textiles_design', 'technology_design', 'Textiles and Design', 'course', '', 37) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('visual_arts', 'creative_arts', 'Visual Arts', 'course', '', 38) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('drama', 'creative_arts', 'Drama', 'course', '', 39) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('dance', 'creative_arts', 'Dance', 'course', '', 40) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('music_1', 'creative_arts', 'Music 1', 'course', '', 41) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('music_2', 'creative_arts', 'Music 2', 'course', '', 42) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('music_extension', 'creative_arts', 'Music Extension', 'course', 'Year 12 only.', 43) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('health_movement_science', 'health_community', 'Health and Movement Science', 'course', 'Replaced PDHPE. Taught from 2025; first HSC exam in 2026.', 44) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('community_family_studies', 'health_community', 'Community and Family Studies', 'course', '', 45) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_arabic', 'languages', 'Arabic', 'language', '', 46) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_chinese', 'languages', 'Chinese', 'language', '', 47) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_french', 'languages', 'French', 'language', '', 48) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_german', 'languages', 'German', 'language', '', 49) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_hindi', 'languages', 'Hindi', 'language', '', 50) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_italian', 'languages', 'Italian', 'language', '', 51) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_japanese', 'languages', 'Japanese', 'language', '', 52) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_korean', 'languages', 'Korean', 'language', '', 53) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('lang_spanish', 'languages', 'Spanish', 'language', '', 54) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('vet_hospitality', 'vocational', 'Hospitality', 'vet', 'Broad VET stream. Record the specific qualification separately.', 55) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('vet_construction', 'vocational', 'Construction', 'vet', 'Broad VET stream. Record the specific qualification separately.', 56) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('vet_business_services', 'vocational', 'Business Services', 'vet', 'Broad VET stream. Record the specific qualification separately.', 57) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('vet_retail_services', 'vocational', 'Retail Services', 'vet', 'Broad VET stream. Record the specific qualification separately.', 58) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+insert into public.hsc_courses (id, area_id, name, kind, note, sort_order) values ('vet_information_and_digital_technology', 'vocational', 'Information and Digital Technology', 'vet', 'Broad VET stream. Record the specific qualification separately.', 59) on conflict (id) do update set area_id = excluded.area_id, name = excluded.name, kind = excluded.kind, note = excluded.note, sort_order = excluded.sort_order;
+
+-- The years each course runs in.
+insert into public.hsc_course_years (course_id, year_level) values ('english_studies', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_studies', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_standard', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_standard', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_advanced', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_advanced', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_eald', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_eald', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_extension', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_extension_1', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('english_extension_2', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('maths_standard', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('maths_standard_1', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('maths_standard_2', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('maths_advanced', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('maths_advanced', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('maths_extension_1', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('maths_extension_1', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('maths_extension_2', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('biology', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('biology', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('chemistry', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('chemistry', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('physics', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('physics', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('earth_environmental_science', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('earth_environmental_science', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('investigating_science', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('investigating_science', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('science_extension', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('business_studies', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('business_studies', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('economics', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('economics', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('legal_studies', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('legal_studies', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('geography', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('geography', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('aboriginal_studies', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('aboriginal_studies', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('society_culture', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('society_culture', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('studies_of_religion', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('studies_of_religion', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('ancient_history', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('ancient_history', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('modern_history', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('modern_history', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('history_extension', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('software_engineering', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('software_engineering', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('enterprise_computing', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('enterprise_computing', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('engineering_studies', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('engineering_studies', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('design_technology', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('design_technology', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('industrial_technology', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('industrial_technology', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('food_technology', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('food_technology', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('agriculture', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('agriculture', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('textiles_design', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('textiles_design', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('visual_arts', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('visual_arts', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('drama', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('drama', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('dance', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('dance', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('music_1', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('music_1', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('music_2', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('music_2', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('music_extension', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('health_movement_science', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('health_movement_science', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('community_family_studies', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('community_family_studies', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_arabic', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_arabic', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_chinese', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_chinese', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_french', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_french', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_german', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_german', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_hindi', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_hindi', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_italian', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_italian', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_japanese', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_japanese', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_korean', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_korean', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_spanish', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('lang_spanish', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_hospitality', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_hospitality', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_construction', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_construction', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_business_services', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_business_services', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_retail_services', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_retail_services', 12) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_information_and_digital_technology', 11) on conflict do nothing;
+insert into public.hsc_course_years (course_id, year_level) values ('vet_information_and_digital_technology', 12) on conflict do nothing;
+-- Remove year pairs the catalogue no longer has, unless something still uses them.
+delete from public.hsc_course_years y where (y.course_id, y.year_level) not in (values ('english_studies', 11), ('english_studies', 12), ('english_standard', 11), ('english_standard', 12), ('english_advanced', 11), ('english_advanced', 12), ('english_eald', 11), ('english_eald', 12), ('english_extension', 11), ('english_extension_1', 12), ('english_extension_2', 12), ('maths_standard', 11), ('maths_standard_1', 12), ('maths_standard_2', 12), ('maths_advanced', 11), ('maths_advanced', 12), ('maths_extension_1', 11), ('maths_extension_1', 12), ('maths_extension_2', 12), ('biology', 11), ('biology', 12), ('chemistry', 11), ('chemistry', 12), ('physics', 11), ('physics', 12), ('earth_environmental_science', 11), ('earth_environmental_science', 12), ('investigating_science', 11), ('investigating_science', 12), ('science_extension', 12), ('business_studies', 11), ('business_studies', 12), ('economics', 11), ('economics', 12), ('legal_studies', 11), ('legal_studies', 12), ('geography', 11), ('geography', 12), ('aboriginal_studies', 11), ('aboriginal_studies', 12), ('society_culture', 11), ('society_culture', 12), ('studies_of_religion', 11), ('studies_of_religion', 12), ('ancient_history', 11), ('ancient_history', 12), ('modern_history', 11), ('modern_history', 12), ('history_extension', 12), ('software_engineering', 11), ('software_engineering', 12), ('enterprise_computing', 11), ('enterprise_computing', 12), ('engineering_studies', 11), ('engineering_studies', 12), ('design_technology', 11), ('design_technology', 12), ('industrial_technology', 11), ('industrial_technology', 12), ('food_technology', 11), ('food_technology', 12), ('agriculture', 11), ('agriculture', 12), ('textiles_design', 11), ('textiles_design', 12), ('visual_arts', 11), ('visual_arts', 12), ('drama', 11), ('drama', 12), ('dance', 11), ('dance', 12), ('music_1', 11), ('music_1', 12), ('music_2', 11), ('music_2', 12), ('music_extension', 12), ('health_movement_science', 11), ('health_movement_science', 12), ('community_family_studies', 11), ('community_family_studies', 12), ('lang_arabic', 11), ('lang_arabic', 12), ('lang_chinese', 11), ('lang_chinese', 12), ('lang_french', 11), ('lang_french', 12), ('lang_german', 11), ('lang_german', 12), ('lang_hindi', 11), ('lang_hindi', 12), ('lang_italian', 11), ('lang_italian', 12), ('lang_japanese', 11), ('lang_japanese', 12), ('lang_korean', 11), ('lang_korean', 12), ('lang_spanish', 11), ('lang_spanish', 12), ('vet_hospitality', 11), ('vet_hospitality', 12), ('vet_construction', 11), ('vet_construction', 12), ('vet_business_services', 11), ('vet_business_services', 12), ('vet_retail_services', 11), ('vet_retail_services', 12), ('vet_information_and_digital_technology', 11), ('vet_information_and_digital_technology', 12))
+  and not exists (select 1 from public.course_offerings o where o.course_id = y.course_id and o.year_level = y.year_level and o.offered)
+  and not exists (select 1 from public.tutor_courses t where t.course_id = y.course_id and t.year_level = y.year_level)
+  and not exists (select 1 from public.student_courses s where s.course_id = y.course_id and s.year_level = y.year_level)
+  and not exists (select 1 from public.bookings b where b.course_id = y.course_id and b.year_level = y.year_level);
+delete from public.course_offerings o where not exists (select 1 from public.hsc_course_years y where y.course_id = o.course_id and y.year_level = o.year_level);
+
+-- What the business offers. Existing choices are kept; new courses start switched off.
+insert into public.course_offerings (course_id, year_level, offered) select course_id, year_level, (course_id || '|' || year_level) in ('maths_standard|11', 'maths_standard_2|12', 'maths_advanced|11', 'maths_advanced|12', 'maths_extension_1|11', 'maths_extension_1|12', 'english_standard|11', 'english_standard|12', 'english_advanced|11', 'english_advanced|12', 'english_extension|11', 'english_extension_1|12', 'biology|11', 'biology|12', 'chemistry|11', 'chemistry|12', 'physics|11') from public.hsc_course_years on conflict do nothing;
+
+-- Demo tutors' exact courses and years. Added only if the tutor exists and doesn't have it yet.
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-01', 'maths_standard', 11 where exists (select 1 from public.tutors where id = 'T-01') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-01', 'maths_standard_2', 12 where exists (select 1 from public.tutors where id = 'T-01') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-01', 'maths_advanced', 11 where exists (select 1 from public.tutors where id = 'T-01') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-01', 'maths_advanced', 12 where exists (select 1 from public.tutors where id = 'T-01') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-01', 'maths_extension_1', 11 where exists (select 1 from public.tutors where id = 'T-01') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-01', 'maths_extension_1', 12 where exists (select 1 from public.tutors where id = 'T-01') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-02', 'english_standard', 11 where exists (select 1 from public.tutors where id = 'T-02') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-02', 'english_standard', 12 where exists (select 1 from public.tutors where id = 'T-02') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-02', 'english_advanced', 11 where exists (select 1 from public.tutors where id = 'T-02') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-02', 'english_advanced', 12 where exists (select 1 from public.tutors where id = 'T-02') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-02', 'english_extension', 11 where exists (select 1 from public.tutors where id = 'T-02') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-02', 'english_extension_1', 12 where exists (select 1 from public.tutors where id = 'T-02') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-03', 'biology', 11 where exists (select 1 from public.tutors where id = 'T-03') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-03', 'biology', 12 where exists (select 1 from public.tutors where id = 'T-03') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-03', 'chemistry', 11 where exists (select 1 from public.tutors where id = 'T-03') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-03', 'chemistry', 12 where exists (select 1 from public.tutors where id = 'T-03') on conflict do nothing;
+insert into public.tutor_courses (tutor_id, course_id, year_level) select 'T-03', 'physics', 11 where exists (select 1 from public.tutors where id = 'T-03') on conflict do nothing;
+
+-- Demo students' courses.
+insert into public.student_courses (family_id, student_name, course_id, year_level) select 'FAM-02', 'Amara Okafor', 'english_standard', 11 where exists (select 1 from public.families where id = 'FAM-02') on conflict do nothing;
+insert into public.student_courses (family_id, student_name, course_id, year_level) select 'FAM-04', 'Ravi Patel', 'maths_advanced', 12 where exists (select 1 from public.families where id = 'FAM-04') on conflict do nothing;
+
+-- Link the demo Year 11 and 12 bookings to an exact course, only if not set already.
+update public.bookings set course_id = 'english_standard', year_level = 11 where id = 'BK-1043' and course_id is null;
+update public.bookings set course_id = 'maths_advanced', year_level = 12 where id = 'BK-1045' and course_id is null;

@@ -70,15 +70,15 @@ const slots = [
 ] as const;
 
 const articles = [
-  ["KB-01", "Welfare escalation procedure", "welfare", true,
+  ["KB-01", "Welfare Escalation Procedure", "welfare", true,
     "1. If a child may be in immediate danger, call 000 first.\n2. Write down only what you were told, in the words used, with the date and time.\n3. Do not investigate, question the child or contact the tutor about the concern.\n4. Send the restricted handover to the owner straight away and phone the owner.\n5. Share details only with the owner. Do not discuss it with other families or staff.\n(Fictional demonstration procedure. A real business must use its own child safe policy.)"],
-  ["KB-02", "Refund procedure", "refund", true,
+  ["KB-02", "Refund Procedure", "refund", true,
     "Refunds are calculated on unused lessons. Under $50 the admin team may process the refund once the booking and payment are confirmed. From $50 to $200 the owner approves. Above $200 the owner decides personally. Never promise a refund before it is processed. (Fictional.)"],
-  ["KB-03", "Rescheduling procedure", "lesson_change", true,
+  ["KB-03", "Rescheduling Procedure", "lesson_change", true,
     "A lesson can be moved without a fee when the same tutor is free at the new time and the family gives at least 24 hours notice. Any fee change needs the owner. (Fictional.)"],
-  ["KB-04", "Complaints handling", "complaint", true,
+  ["KB-04", "Complaints Handling", "complaint", true,
     "All complaints go to the owner. Acknowledge the message politely, do not admit fault or offer compensation, and tell the family the owner will be in touch. (Fictional.)"],
-  ["KB-05", "Payment extension procedure", "payment_extension", true,
+  ["KB-05", "Payment Extension Procedure", "payment_extension", true,
     "Admin may agree to extend an unpaid invoice by up to 7 days. Longer extensions need the owner. Extensions over 30 days are payment plans and are handled by the owner. (Fictional.)"],
 ] as const;
 

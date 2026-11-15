@@ -1,17 +1,19 @@
 import { requirePageUser } from "@/lib/auth/page";
-import { knowledgeHub } from "@/lib/data/queries";
+import { knowledgeHub, listPolicyVersions } from "@/lib/data/queries";
 import { formatAud } from "@/lib/domain/money";
 import { isStale } from "@/lib/context/mappers";
 import { DataBadge, LoadError, formatDateTime } from "@/components/ui";
+import { RulesSection } from "@/app/rules/RulesSection";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Knowledge hub" };
+export const metadata = { title: "Knowledge Hub" };
 
 export default async function KnowledgePage() {
-  await requirePageUser();
-  let k;
+  const user = await requirePageUser();
+  let k, versions;
   try {
-    k = await knowledgeHub();
+    [k, versions] = await Promise.all([knowledgeHub(), listPolicyVersions()]);
   } catch (e) {
     return <LoadError error={e} />;
   }
@@ -21,8 +23,12 @@ export default async function KnowledgePage() {
   const stale = (iso: string) => isStale(iso, now) ? <span className="badge amber">! May be out of date</span> : null;
   return (
     <div className="stack">
-      <h1>Knowledge hub</h1>
-      <p className="muted">Bookings, payments, tutor availability and procedures in one place. The rule engine reads these records by confirmed ID. Every record here is fictional demonstration data; no outside system is connected.</p>
+      <PageHeader>
+        <h1>Knowledge Hub</h1>
+        <p className="muted">The owner's rules, bookings, payments, tutor availability and procedures in one place.</p>
+      </PageHeader>
+
+      <RulesSection user={user} versions={versions} />
 
       <section>
         <h2>Bookings</h2>
@@ -48,20 +54,20 @@ export default async function KnowledgePage() {
       </section>
 
       <section>
-        <h2>Tutor availability</h2>
+        <h2>Tutor Availability</h2>
         <div className="table-wrap"><table>
           <thead><tr><th>Slot</th><th>Tutor</th><th>Starts</th><th>Status</th><th>Source</th></tr></thead>
           <tbody>{k.slots.map((s) => (
-            <tr key={s.id}><td>{s.id}</td><td>{tutor(s.tutor_id)}</td><td>{formatDateTime(s.starts_at)}</td><td>{s.status}</td><td><DataBadge label={s.data_label} /> {stale(s.last_synced_at)}</td></tr>
+            <tr key={s.id}><td>{s.id}</td><td>{tutor(s.tutor_id)}</td><td>{formatDateTime(s.starts_at)}</td><td>{s.status.charAt(0).toUpperCase() + s.status.slice(1)}</td><td><DataBadge label={s.data_label} /> {stale(s.last_synced_at)}</td></tr>
           ))}</tbody>
         </table></div>
       </section>
 
-      <section className="stack">
+      <section id="procedures" className="stack">
         <h2>Procedures</h2>
         {k.articles.map((a) => (
-          <details key={a.id} className="card">
-            <summary><strong>{a.title}</strong> ({a.id}, v{a.version}) {a.owner_approved && <span className="badge green">Owner approved</span>} <DataBadge label={a.data_label} /></summary>
+          <details key={a.id} id={`article-${a.id}`} className="card">
+            <summary><strong>{a.title}</strong> ({a.id}, v{a.version}) {a.owner_approved && <span className="badge green">Owner Approved</span>} <DataBadge label={a.data_label} /></summary>
             <pre>{a.body}</pre>
           </details>
         ))}

@@ -8,6 +8,7 @@ import { validatePolicy } from "@/lib/engine/validate-policy";
 import { ColourBadge, formatDateTime } from "@/components/ui";
 import { NewDraftButton, RuleEditor } from "../RulesClient";
 import { ReadOnlyTest } from "./ReadOnlyTest";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Rule version" };
@@ -23,18 +24,15 @@ export default async function RuleVersionPage({ params }: { params: Promise<{ id
   const editable = v.status === "draft" && user.role === "owner";
   return (
     <div className="stack">
-      <div className="page-head">
-        <div>
-          <h1>{def.title}</h1>
-          <p className="muted">
-            {CATEGORY_CONFIG[cat].label}, version {v.version} <span className="badge">{v.status}</span> · created {formatDateTime(v.created_at)}{v.created_by ? ` by ${names.get(v.created_by)}` : ""}
-            {v.activated_at && ` · activated ${formatDateTime(v.activated_at)}${v.activated_by ? ` by ${names.get(v.activated_by)}` : ""}`}
-            {v.archived_at && ` · archived ${formatDateTime(v.archived_at)}`}
-          </p>
-          {v.change_note && <p>Note: {v.change_note}</p>}
-        </div>
-        <Link className="btn secondary small" href="/rules">All rules</Link>
-      </div>
+      <PageHeader actions={<Link className="btn secondary" href="/knowledge#rules">All rules</Link>}>
+        <h1>{def.title}</h1>
+        <p className="muted">
+          {CATEGORY_CONFIG[cat].label}, version {v.version} <span className="badge">{v.status}</span> · created {formatDateTime(v.created_at)}{v.created_by ? ` by ${names.get(v.created_by)}` : ""}
+          {v.activated_at && ` · activated ${formatDateTime(v.activated_at)}${v.activated_by ? ` by ${names.get(v.activated_by)}` : ""}`}
+          {v.archived_at && ` · archived ${formatDateTime(v.archived_at)}`}
+        </p>
+        {v.change_note && <p>Note: {v.change_note}</p>}
+      </PageHeader>
       {editable ? (
         <RuleEditor versionId={v.id} initial={def} version={v.version} />
       ) : (

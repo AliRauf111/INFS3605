@@ -6,6 +6,7 @@ import {
   type DataLabel,
   type RequestStatus,
 } from "@/lib/domain/types";
+import { PageActions } from "@/components/PageHeader";
 
 // Small presentational pieces shared by many pages.
 
@@ -63,10 +64,14 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
 
 export function LoadError({ error }: { error: unknown }) {
   return (
-    <div className="notice error" role="alert">
-      <p><strong>This page could not load its data.</strong></p>
-      <p>{error instanceof Error ? error.message : "Unknown error"}</p>
-      <p><a href="">Try again</a></p>
-    </div>
+    <>
+      {/* The page's own header didn't render, so keep its Accessibility button here. */}
+      <PageActions className="page-actions-solo" />
+      <div className="notice error" role="alert">
+        <p><strong>This page could not load its data.</strong></p>
+        <p>{error instanceof Error ? error.message : "Unknown error"}</p>
+        <p><a href="">Try again</a></p>
+      </div>
+    </>
   );
 }
