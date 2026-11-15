@@ -59,14 +59,17 @@ const payments: P[] = [
   { id: "PAY-2007", booking_id: "BK-1047", invoice_ref: "INV-506", amount_cents: 40000, status: "paid", paidDaysAgo: 20, dueInDays: null, method: "Card", note: "" },
 ];
 
-// Times are relative to the day the seed runs, in Sydney time, so the demo always has
-// upcoming slots.
+// Times are worked out in Sydney when the seed runs (public.demo_at), so the demo always
+// has upcoming slots on the weekdays the class demo script uses. "next_monday" is the
+// Monday of next week. SLOT-3002 holds Leo's lesson LSN-4001 (next week's Thursday) and
+// SLOT-3001 is Priya's free Tuesday afternoon that week. The other demo lessons and free
+// times are in supabase/demo-workflows.sql.
 const slots = [
-  ["SLOT-3001", "T-01", 5, "16:00", "free"],
-  ["SLOT-3002", "T-01", 6, "17:00", "booked"],
-  ["SLOT-3003", "T-02", 7, "16:00", "free"],
-  ["SLOT-3004", "T-03", 8, "15:30", "free"],
-  ["SLOT-3005", "T-01", 9, "16:30", "free"],
+  ["SLOT-3001", "T-01", "next_monday", 1, "16:00", "free"],
+  ["SLOT-3002", "T-01", "next_monday", 3, "17:00", "booked"],
+  ["SLOT-3003", "T-02", "next_thursday", 5, "16:00", "free"],
+  ["SLOT-3004", "T-03", "next_monday", 3, "15:30", "free"],
+  ["SLOT-3005", "T-01", "next_monday", 2, "16:30", "free"],
 ] as const;
 
 const articles = [
@@ -246,8 +249,8 @@ const seed = [
   ...families.map(([id, parent, student]) => `insert into public.families (id, parent_name, student_name) values (${q(id)}, ${q(parent)}, ${q(student)});`),
   ...tutors.map(([id, name, subjects]) => `insert into public.tutors (id, name, subjects) values (${q(id)}, ${q(name)}, array[${subjects.map(q).join(", ")}]);`),
   ...bookings.map((b) => `insert into public.bookings (id, family_id, tutor_id, subject, lessons_purchased, lessons_used, price_cents, status, last_synced_at) values (${q(b.id)}, ${q(b.family_id)}, ${q(b.tutor_id)}, ${q(b.subject)}, ${b.lessons_purchased}, ${b.lessons_used}, ${b.price_cents}, ${q(b.status)}, now());`),
-  ...payments.map((p) => `insert into public.payments (id, booking_id, invoice_ref, amount_cents, status, paid_at, due_date, method, last_synced_at) values (${q(p.id)}, ${q(p.booking_id)}, ${q(p.invoice_ref)}, ${p.amount_cents}, ${q(p.status)}, ${p.paidDaysAgo === null ? "null" : `now() - interval '${p.paidDaysAgo} days'`}, ${p.dueInDays === null ? "null" : `current_date + ${p.dueInDays}`}, ${q(p.method)}, now() - interval '${p.staleDays ?? 0} days'); -- ${p.note}`),
-  ...slots.map(([id, tutor, days, time, status]) => `insert into public.tutor_availability (id, tutor_id, starts_at, ends_at, status) values (${q(id)}, ${q(tutor)}, ((current_date + ${days}) + time '${time}') at time zone 'Australia/Sydney', ((current_date + ${days}) + time '${time}' + interval '1 hour') at time zone 'Australia/Sydney', ${q(status)});`),
+  ...payments.map((p) => `insert into public.payments (id, booking_id, invoice_ref, amount_cents, status, paid_at, due_date, method, last_synced_at) values (${q(p.id)}, ${q(p.booking_id)}, ${q(p.invoice_ref)}, ${p.amount_cents}, ${q(p.status)}, ${p.paidDaysAgo === null ? "null" : `now() - interval '${p.paidDaysAgo} days'`}, ${p.dueInDays === null ? "null" : `public.demo_today() + ${p.dueInDays}`}, ${q(p.method)}, now() - interval '${p.staleDays ?? 0} days'); -- ${p.note}`),
+  ...slots.map(([id, tutor, anchor, days, time, status]) => `insert into public.tutor_availability (id, tutor_id, starts_at, ends_at, status) values (${q(id)}, ${q(tutor)}, public.demo_at('${anchor}', ${days}, time '${time}'), public.demo_at('${anchor}', ${days}, time '${time}') + interval '1 hour', ${q(status)});`),
   ...articles.map(([id, title, category, approved, body]) => `insert into public.knowledge_articles (id, title, category, body, owner_approved) values (${q(id)}, ${q(title)}, ${q(category)}, ${q(body)}, ${approved});`),
   "",
   "-- Policies: version 1 of each, active, from the fictional demonstration rules",

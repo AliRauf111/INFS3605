@@ -4,7 +4,7 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const migrations = readdirSync("supabase/migrations").filter((f) => f.endsWith(".sql")).sort().map((f) => `supabase/migrations/${f}`);
-const files = [...migrations, "supabase/seed.sql", "supabase/catalogue.sql", "supabase/demo-history.sql", "supabase/demo-classes.sql", "supabase/demo-workflows.sql"];
+const files = [...migrations, "supabase/seed.sql", "supabase/catalogue.sql", "supabase/demo-history.sql", "supabase/demo-classes.sql", "supabase/demo-workflows.sql", "supabase/demo-dataset.sql"];
 const roles = `-- Give the two demo logins their roles. Create them first in Authentication > Users.
 insert into public.app_users (id, display_name, role)
 select id, 'Sarah Mitchell', 'admin' from auth.users where email = 'sarah@tutorcompass.example'

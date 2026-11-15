@@ -15,7 +15,8 @@
     "check:secrets": "node scripts/check-secrets.mjs",
     "seed:generate": "tsx scripts/generate-seed.ts",
     "sql:bundle": "node scripts/bundle-sql.mjs",
-    "catalogue:generate": "tsx scripts/generate-catalogue.ts"
+    "catalogue:generate": "tsx scripts/generate-catalogue.ts",
+    "demo:generate": "node scripts/build-demo-dataset.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.134.0",
