@@ -1,0 +1,449 @@
+{
+  "eyebrow": "Weekly Owner Briefing",
+  "title": "Your Weekly Owner Briefing",
+  "subheading": "What happened in your business this week, what needs you and what Compass suggests next.",
+  "period": "{{start}} to {{end}}",
+  "periodLabel": "Reporting period",
+  "generatedLabel": "Generated",
+  "sourcesLabel": "Information sources",
+  "statusLabel": "Overall status",
+  "refresh": "Refresh Briefing",
+  "refreshing": "Refreshing…",
+  "refreshed": "Briefing refreshed from the latest records.",
+  "resetDemo": "Reset Demo",
+  "resetDone": "The briefing demo is back to its starting state.",
+  "loading": "Preparing your briefing from the latest records…",
+  "loadFailed": "The briefing couldn't be loaded just now. Nothing was changed.",
+  "retry": "Try Again",
+  "notSetUp": "The Weekly Briefing isn't set up in this database yet. Run weekly-briefing.sql in Supabase, then refresh this page.",
+  "ownerOnlyFinance": "Financial figures are for the owner only. The owner can share them with admins in the briefing settings.",
+  "ownerOnly": "Owner only",
+  "mode": {
+    "demo": "Demo mode: fictional records",
+    "live": "Live records"
+  },
+  "demoNote": "Every figure here comes from fictional demo records labelled as simulated data. No real families, invoices or messages are shown.",
+  "overall": {
+    "action_required": "Action Required",
+    "attention": "Briefing Ready",
+    "up_to_date": "Up to Date"
+  },
+  "overallHelp": {
+    "action_required": "At least one red item needs you this week.",
+    "attention": "Some amber items are worth checking this week.",
+    "up_to_date": "Nothing urgent. Everything is green."
+  },
+  "source": {
+    "xero": "Xero",
+    "gmail": "Gmail",
+    "sms": "SMS",
+    "compass": "Tutor Compass",
+    "retention": "Student Retention"
+  },
+  "sourceState": {
+    "demo": "Demo",
+    "live": "Connected",
+    "not_connected": "Not connected",
+    "error": "Couldn't read"
+  },
+  "warning": {
+    "demo": "{{source}}: fictional demo records.",
+    "not_connected": "{{source}} isn't connected for the briefing yet, so its figures aren't included.",
+    "stale": "{{source}} was last synced {{when}}. Figures may be out of date.",
+    "unavailable": "{{source}} couldn't be read just now, so its figures aren't included.",
+    "conflict": "{{source}} has records that disagree with each other. Check them before acting.",
+    "partial": "{{source}} lesson records don't go back to last week, so some comparisons aren't available."
+  },
+  "metric": {
+    "activeStudents": "Active students",
+    "overdueInvoices": "Overdue invoices",
+    "outstanding": "Total outstanding balance",
+    "unanswered": "Unresolved parent enquiries",
+    "upcomingLessons": "Upcoming lessons",
+    "tasksCompleted": "Administrative tasks completed",
+    "upcomingNote": "Next 7 days",
+    "completedNote": "Verified in the records"
+  },
+  "finance": {
+    "heading": "Financial Overview",
+    "caption": "Invoices and payments from Xero.",
+    "outstanding": "Total outstanding invoices",
+    "outstandingNote_one": "{{count}} unpaid invoice",
+    "outstandingNote_other": "{{count}} unpaid invoices",
+    "overdue": "Overdue invoices",
+    "overdueBalance": "Total overdue balance",
+    "overDays": "Over {{days}} days overdue",
+    "received": "Payments received this week",
+    "receivedNote_one": "{{count}} payment matched in Xero",
+    "receivedNote_other": "{{count}} payments matched in Xero",
+    "vsLastWeek": "Change since last week",
+    "families": "Families with overdue invoices",
+    "state": {
+      "eligible": "Can get a reminder",
+      "protected": "Protected by an agreement",
+      "not_yet": "Not yet due a reminder",
+      "not_enrolled": "No longer enrolled",
+      "unchecked": "Not checked"
+    },
+    "notConnected": "Xero isn't connected for the briefing, so invoices aren't included."
+  },
+  "aiLabel": "Compass Recommendation",
+  "aiNote": "Written by Compass from the records using fixed rules. It doesn't invent figures, and nothing is sent without approval.",
+  "says": {
+    "finance": "Compass found {{count}} overdue invoices worth {{amount}}. {{over}} are more than {{days}} days overdue. {{families}} families can get a personalised reminder now. The rest are held back by your payment rules.",
+    "financeNone": "No invoices are overdue. Nothing needs chasing this week.",
+    "comms": "{{count}} parent enquiries are waiting for a reply. {{lessonChanges}} relate to lesson changes and {{billing}} to billing. Start with the oldest, which has waited {{hours}} hours.",
+    "commsNone": "Every parent enquiry has been answered.",
+    "lessons": "{{upcoming}} lessons are booked for the next 7 days. {{cover}} need cover and {{changes}} schedule changes are still open.",
+    "lessonsQuiet": "{{upcoming}} lessons are booked for the next 7 days and none need cover."
+  },
+  "actions": {
+    "viewRecords": "View Supporting Records",
+    "hideRecords": "Hide Supporting Records",
+    "reviewRecommendation": "Review Recommendation",
+    "prepareReminders": "Prepare Payment Reminders",
+    "openApprovalAlley": "Open Approval Alley",
+    "openRequests": "Open Requests",
+    "openRequest": "Open the Request",
+    "startLessonChange": "Start Lesson Change",
+    "startTutorAbsence": "Start Tutor Absence",
+    "openSchedule": "Open Schedule",
+    "openRetention": "Open Student Retention",
+    "approvalNote": "Reminders go through the Payments approval step. Nothing is sent until you approve it."
+  },
+  "comms": {
+    "heading": "Parent Communications",
+    "caption": "Emails from Gmail and text messages.",
+    "unanswered": "Unanswered enquiries",
+    "awaitingOwner": "Waiting for your decision",
+    "lessonChanges": "Pending lesson changes",
+    "billing": "Billing questions",
+    "followUp": "Needs follow-up",
+    "followUpNote_one": "{{count}} text wasn't delivered",
+    "followUpNote_other": "{{count}} texts weren't delivered",
+    "urgency": {
+      "red": "Urgent",
+      "amber": "Soon",
+      "green": "Recent"
+    },
+    "category": {
+      "lesson_change": "Lesson change",
+      "billing": "Billing",
+      "enrolment": "Enrolment",
+      "tutor_absence": "Tutor message",
+      "general": "General",
+      "reminder": "Reminder"
+    },
+    "waited": "Waiting {{hours}} h",
+    "waitedDays": "Waiting {{days}} d",
+    "none": "No enquiries are waiting for a reply.",
+    "notConnected": "Gmail and SMS aren't connected for the briefing yet, so enquiries aren't counted.",
+    "openRequest": "Open request",
+    "startChange": "Start Lesson Change",
+    "linked": "Linked to a saved request"
+  },
+  "lessons": {
+    "heading": "Lessons and Tutor Operations",
+    "caption": "From the Tutor Compass timetable, requests and workflows.",
+    "held": "Lessons held this week",
+    "upcoming": "Upcoming lessons",
+    "confirmation": "Awaiting tutor confirmation",
+    "notTracked": "Not tracked yet",
+    "absences": "Tutor absences",
+    "pendingChanges": "Pending schedule changes",
+    "intervention": "Tasks needing a person",
+    "interventionNote": "{{clarifications}} need more details, {{tasks}} payment follow-ups",
+    "cover": "Lessons needing cover",
+    "noAbsences": "No tutor absences are recorded for the next two weeks.",
+    "away": "{{name}} away {{start}} to {{end}}"
+  },
+  "completed": {
+    "heading": "What Compass Completed This Week",
+    "caption": "Only actions confirmed in the records. Drafts and checks are listed separately.",
+    "requestsProcessed": "Requests received",
+    "requestsClosed": "Requests closed",
+    "lessonChanges": "Lesson changes completed",
+    "availability": "Tutor availability checks",
+    "drafted": "Communications drafted",
+    "draftedNote": "Prepared, not sent",
+    "adminTasks": "Administrative tasks completed",
+    "ownerApprovals": "Owner approvals processed",
+    "who": {
+      "heading": "Who completed the work",
+      "rules": "Automatically under your rules",
+      "admin": "By administrators",
+      "owner": "Approved by you",
+      "compass": "Assisted by Compass AI"
+    },
+    "compassNote": "Compass-assisted actions were prepared by Compass and confirmed by a person.",
+    "total_one": "{{count}} verified action",
+    "total_other": "{{count}} verified actions"
+  },
+  "recs": {
+    "heading": "Compass Recommends",
+    "caption": "In priority order. Every recommendation links to the records behind it.",
+    "why": "Why am I seeing this?",
+    "evidence": "Evidence",
+    "nextStep": "Recommended next step",
+    "impact": "Estimated impact",
+    "whyMatters": "Why it matters"
+  },
+  "priority": {
+    "red": "High priority",
+    "amber": "Medium priority",
+    "green": "Low priority"
+  },
+  "rec": {
+    "overdue": {
+      "title_one": "Chase {{count}} overdue invoice",
+      "title_other": "Chase {{count}} overdue invoices",
+      "why": "Overdue invoices hold back cash and get harder to collect the longer they wait.",
+      "next": "Prepare personalised payment reminders for the {{families}} eligible families and approve them in Payments.",
+      "explain": "Compass read every unpaid invoice from Xero and checked it against your payment rules. {{over}} invoices are more than {{days}} days overdue. {{held}} families are held back because of an agreed extension, a dispute, their enrolment or your minimum rules.",
+      "impact_one": "Up to {{amount}} could come in from {{count}} family",
+      "impact_other": "Up to {{amount}} could come in from {{count}} families"
+    },
+    "enquiries": {
+      "title_one": "Reply to {{count}} parent enquiry",
+      "title_other": "Reply to {{count}} parent enquiries",
+      "why": "Families who wait more than a day for a reply are more likely to look elsewhere.",
+      "next": "Answer the oldest enquiries first. {{red}} have waited more than {{hours}} hours.",
+      "explain": "Compass counted every email and text from a parent or new family that has no reply yet. The oldest has waited {{oldest}} hours."
+    },
+    "decisions": {
+      "title_one": "Decide {{count}} request waiting for you",
+      "title_other": "Decide {{count}} requests waiting for you",
+      "why": "Admins can't finish these until you decide, and the family is waiting too.",
+      "next": "Open Approval Alley and review the oldest request first.",
+      "explain": "These requests are marked Owner Review Required or Waiting for Owner. {{welfare}} involve a welfare concern, which only you should handle."
+    },
+    "cover": {
+      "title_one": "Find cover for {{count}} lesson",
+      "title_other": "Find cover for {{count}} lessons",
+      "why": "A lesson without a tutor means a disappointed family and a likely refund.",
+      "next": "Start the Tutor Absence workflow to find cover with the right subject and free time.",
+      "explain": "These lessons fall on days when {{tutor}} is recorded as away. The first one starts in {{hours}} hours.",
+      "impact_one": "{{count}} lesson kept on the timetable",
+      "impact_other": "{{count}} lessons kept on the timetable"
+    },
+    "tutor_message": {
+      "title": "Check {{tutor}}'s message about being away",
+      "why": "A tutor said they may miss lessons, but no absence is recorded yet, so nobody is finding cover.",
+      "next": "Record the absence with the Tutor Absence workflow. Compass will find the affected lessons and suggest cover.",
+      "explain": "Compass found {{count}} unanswered message from a tutor about an absence."
+    },
+    "lesson_changes": {
+      "title_one": "Sort out {{count}} lesson change request",
+      "title_other": "Sort out {{count}} lesson change requests",
+      "why": "Lesson changes left open can clash with other bookings and confuse families.",
+      "next": "Start the Lesson Change workflow for each message. It checks the tutor's free times and your rules.",
+      "explain": "{{messages}} parent messages ask to move a lesson and {{requests}} saved lesson changes are still open."
+    },
+    "retention": {
+      "title_one": "Check in with {{count}} student showing signs of leaving",
+      "title_other": "Check in with {{count}} students showing signs of leaving",
+      "why": "Missed lessons and concerns are early signs a family may stop.",
+      "next": "Open Student Retention to review the findings and prepare a check-in.",
+      "explain": "The Student Retention Agent flagged {{high}} high and {{medium}} medium of {{monitored}} students. These are prompts, not predictions."
+    },
+    "failed_texts": {
+      "title_one": "Resend {{count}} text that wasn't delivered",
+      "title_other": "Resend {{count}} texts that weren't delivered",
+      "why": "The family didn't get the message, so they may miss a lesson.",
+      "next": "Check the phone number for {{name}} and send the reminder again.",
+      "explain": "The SMS provider reported that this text failed."
+    },
+    "all_clear": {
+      "title": "Nothing urgent this week",
+      "why": "Everything Compass checked is on track.",
+      "next": "Have a quick look at What Needs My Attention? for anything new.",
+      "explain": "No overdue invoices, waiting enquiries, cover gaps or owner decisions passed your thresholds."
+    }
+  },
+  "recShort": {
+    "overdue": "Overdue invoices",
+    "enquiries": "Parent enquiries",
+    "decisions": "Owner decisions",
+    "cover": "Lessons needing cover",
+    "tutor_message": "Tutor message",
+    "lesson_changes": "Lesson changes",
+    "retention": "Student retention",
+    "failed_texts": "Undelivered text",
+    "all_clear": "Nothing urgent"
+  },
+  "evidence": {
+    "family": "{{name}}: {{refs}}, {{amount}}, up to {{days}} days overdue ({{state}})",
+    "message": "{{ref}} from {{name}}: \"{{text}}\", waiting {{hours}} h",
+    "messageSent": "{{ref}} to {{name}}, {{when}}",
+    "request": "{{ref}}: {{text}}, saved {{when}}",
+    "lesson": "{{ref}}: {{text}} with {{name}}, {{when}}",
+    "retention": "Student Retention Agent findings"
+  },
+  "compare": {
+    "heading": "How Did My Business Perform This Week?",
+    "caption": "This week compared with the seven days before.",
+    "insufficient": "Insufficient historical data",
+    "same": "No change",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "better": "Better",
+    "worse": "Worse",
+    "neutral": "Changed",
+    "fromSnapshot": "Compared with the briefing from {{date}}",
+    "fromRecords": "Counted from the records for both weeks",
+    "key": {
+      "outstandingCents": "Outstanding payments",
+      "overdueInvoices": "Overdue invoices",
+      "unanswered": "Unresolved enquiries",
+      "tasksCompleted": "Completed administrative tasks",
+      "cancellations": "Lesson cancellations",
+      "upcomingLessons": "Upcoming workload",
+      "avgResponseHours": "Average response time",
+      "enquiriesReceived": "Enquiries received"
+    },
+    "hours": "{{n}} h",
+    "sentence": {
+      "down": "{{metric}} decreased from {{from}} to {{to}} this week.",
+      "up": "{{metric}} increased from {{from}} to {{to}} this week.",
+      "same": "{{metric}} stayed at {{to}} this week."
+    }
+  },
+  "history": {
+    "heading": "Previous Briefings",
+    "caption": "Saved as they were, so you can look back without working them out again.",
+    "none": "No earlier briefings yet.",
+    "current": "This week",
+    "trigger": {
+      "page": "Opened",
+      "manual": "Refreshed",
+      "schedule": "Scheduled",
+      "compass": "From Compass",
+      "seed": "Demo history"
+    },
+    "figures": "{{overdue}} overdue · {{unanswered}} enquiries · {{done}} completed",
+    "items_one": "{{count}} recommendation",
+    "items_other": "{{count}} recommendations",
+    "viewing": "You're looking at the saved briefing for {{period}}.",
+    "back": "Back to this week",
+    "summaryOnly": "This earlier briefing was saved as a summary, so only its headline figures and recommendations are shown."
+  },
+  "schedule": {
+    "heading": "Briefing Schedule and Email",
+    "caption": "Get this briefing by email, sent from the server even when Tutor Compass is closed.",
+    "enabled": "Send me a weekly briefing email",
+    "day": "Day",
+    "time": "Time (Sydney)",
+    "sections": "Sections to include",
+    "recipient": "Send to",
+    "recipientHelp": "Only owner accounts with a confirmed email address can receive the briefing.",
+    "noRecipient": "No confirmed owner email found",
+    "adminFinance": "Let admins see financial figures in the briefing",
+    "thresholds": "Priority thresholds",
+    "overdueRedDays": "Invoice seriously overdue after (days)",
+    "overdueRedCount": "Red when this many are seriously overdue",
+    "enquiryAmberHours": "Enquiry amber after (hours)",
+    "enquiryRedHours": "Enquiry red after (hours)",
+    "coverRedHours": "Cover red when the lesson is within (hours)",
+    "save": "Save Settings",
+    "saving": "Saving…",
+    "saved": "Briefing settings saved.",
+    "next": "Next briefing: {{when}}",
+    "off": "Scheduled emails are off.",
+    "suggested": "Suggested: every Monday at 8:00 am, Sydney time.",
+    "preview": "Preview Email",
+    "sendNow": "Send Now",
+    "simulate": "Simulate Delivery",
+    "sending": "Sending…",
+    "simulated": "Demo mode: the email was simulated. Nothing was sent.",
+    "accepted": "Gmail accepted the email for {{to}}. Gmail doesn't confirm when it reaches the inbox.",
+    "alreadySent": "This briefing was already sent to {{to}}, so it wasn't sent again.",
+    "gmailNotConnected": "Gmail isn't connected, so emails can't be sent yet. In demo mode you can still simulate delivery.",
+    "gmailConnected": "Gmail is connected for sending.",
+    "ownerOnly": "Only the owner can change the briefing settings.",
+    "days": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    },
+    "section": {
+      "summary": "Weekly summary",
+      "finance": "Financial indicators",
+      "communications": "Parent enquiries",
+      "lessons": "Upcoming lessons",
+      "completed": "Completed work",
+      "recommendations": "Top recommendations"
+    }
+  },
+  "email": {
+    "previewHeading": "Email Preview",
+    "to": "To",
+    "subject": "Subject",
+    "close": "Close Preview",
+    "frameTitle": "Preview of the weekly briefing email"
+  },
+  "deliveries": {
+    "heading": "Delivery History",
+    "none": "No briefing emails yet.",
+    "status": {
+      "sending": "Sending",
+      "simulated": "Simulated",
+      "accepted": "Accepted by Gmail",
+      "failed": "Failed",
+      "skipped": "Not sent"
+    },
+    "kind": {
+      "scheduled": "Scheduled",
+      "manual": "Sent by you"
+    },
+    "attempts": "{{n}} attempts"
+  },
+  "card": {
+    "heading": "Your Weekly Briefing",
+    "caption": "Your week at a glance.",
+    "status": {
+      "generating": "Generating Briefing",
+      "action_required": "Action Required",
+      "ready": "Briefing Ready",
+      "up_to_date": "Up to Date"
+    },
+    "generated": "Generated {{when}}",
+    "overdue": "Overdue invoices",
+    "enquiries": "Unresolved enquiries",
+    "completed": "Tasks completed",
+    "recommended": "Recommended actions",
+    "view": "View Full Briefing",
+    "failed": "The briefing couldn't be prepared just now.",
+    "hidden": "Owner only"
+  },
+  "compass": {
+    "step": "Read this week's invoices, enquiries, lessons and completed work",
+    "note": "From the Weekly Briefing, worked out from the records. Nothing here was sent to an AI service.",
+    "noteDemo": "From the Weekly Briefing, using fictional demo records. Nothing here was sent to an AI service.",
+    "intro": "Here's your weekly briefing for {{period}}. Overall: {{status}}.",
+    "headline": "{{students}} active students, {{lessons}} lessons in the next 7 days and {{done}} verified tasks completed this week.",
+    "headlineFinance": "{{overdue}} invoices are overdue, worth {{amount}}. {{outstanding}} is outstanding in total.",
+    "lastWeek": "Here's what happened in your business from {{period}}.",
+    "problems": "These are the biggest administrative problems this week, in priority order.",
+    "noProblems": "Nothing passed your thresholds this week. Everything Compass checked is on track.",
+    "overdueIntro": "{{count}} families have overdue invoices. {{eligible}} can get a reminder now. The others are protected by an agreement or held back by your payment rules.",
+    "noOverdue": "No families have overdue invoices right now.",
+    "financeHidden": "Overdue payments are part of the owner's financial figures, so I can't show them to you. The owner can share them in the briefing settings.",
+    "financeMissing": "Xero isn't connected for the briefing, so I can't see invoices.",
+    "commsMissing": "Gmail and SMS aren't connected for the briefing, so I can't see enquiries.",
+    "completedIntro": "The records show {{count}} verified actions this week. Drafts and checks aren't counted as completed.",
+    "compareIntro": "Here's how this week compares with the week before.",
+    "why": "Here's why I recommended \"{{title}}\".",
+    "first": "I'd start with \"{{title}}\". {{next}}",
+    "unavailable": "I couldn't read the Weekly Briefing just now, so I haven't changed anything.",
+    "notSetUp": "The Weekly Briefing isn't set up in this database yet. Run weekly-briefing.sql in Supabase first.",
+    "followHint": "Ask me why, what to do first, or about payments, enquiries, lessons or last week.",
+    "link": "View Full Briefing",
+    "openRecs": "Open Compass Recommends",
+    "openPayments": "Prepare Payment Reminders",
+    "openApproval": "Open Approval Alley"
+  }
+}

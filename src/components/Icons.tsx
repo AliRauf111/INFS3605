@@ -26,6 +26,7 @@ const SHAPES = {
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6m0-11v1" /></>,
   accessibility: <><circle cx="12" cy="4" r="2" /><path d="M4 8h16m-8 0v6m0 0-5 7m5-7 5 7M8 8l1 6m7-6-1 6" /></>,
   // Pages the Studio demo doesn't have, drawn in the same style.
+  briefing: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M7 3v5m10-5v5M3 11h18M7.5 15h5m-5 3h8" /><path d="m17.5 14 .6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4Z" /></>,
   approval: <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6zM9 12l2 2 4-4" />,
   knowledge: <path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5zM5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7h6M9 10.5h4" />,
   subjects: <path d="M2.5 9L12 4.5 21.5 9 12 13.5zM6 11v4.5c0 1.5 2.7 3 6 3s6-1.5 6-3V11M21.5 9v5" />,

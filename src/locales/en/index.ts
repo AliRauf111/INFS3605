@@ -3,6 +3,7 @@ import a11y from "./a11y.json";
 import actions from "./actions.json";
 import activity from "./activity.json";
 import auth from "./auth.json";
+import briefing from "./briefing.json";
 import catalogue from "./catalogue.json";
 import common from "./common.json";
 import compass from "./compass.json";
@@ -36,5 +37,5 @@ import time from "./time.json";
 import wizard from "./wizard.json";
 import workflow from "./workflow.json";
 
-const en = { a11y, actions, activity, auth, catalogue, common, compass, coverage, domain, drafts, errors, info, insights, intake, integrations, knowledge, language, nav, overview, owner, payments, picker, remove, reply, request, requestClass, requests, retention, rules, schedule, settings, shell, subjects, time, wizard, workflow };
+const en = { a11y, actions, activity, auth, briefing, catalogue, common, compass, coverage, domain, drafts, errors, info, insights, intake, integrations, knowledge, language, nav, overview, owner, payments, picker, remove, reply, request, requestClass, requests, retention, rules, schedule, settings, shell, subjects, time, wizard, workflow };
 export default en;

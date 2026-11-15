@@ -46,12 +46,12 @@ body.app-shell { font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .rail .brand { width:44px; height:44px; border-radius:15px; background:#2c2c40; color:white; box-shadow:0 5px 12px #25253a13; }
 .rail .brand svg { width:28px; height:28px; }
 .rail-line { width:23px; height:1px; background:#d8d4e5; margin:29px 0; }
-.rail-links { display:flex; flex-direction:column; gap:14px; background:#ffffff65; padding:8px; border-radius:28px; }
+.rail-links { display:flex; flex-direction:column; gap:14px; background:#ffffff65; padding:8px; border-radius:28px; margin-block:auto; } /* centred in the space between the divider and the buttons at the bottom */
 .rail-btn { position:relative; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:transparent; color:#777589; }
 .rail-btn.active { background:#2d2d42; color:white; box-shadow:0 4px 7px #30304b20; }
 .rail-btn span { position:absolute; inset-inline-start:54px; white-space:nowrap; background:var(--ink); color:white; padding:7px 12px; border-radius:9px; opacity:0; pointer-events:none; transition:opacity .15s; font-size:var(--fs-meta); z-index:70; }
 .rail-btn:hover span, .rail-btn:focus-visible span { opacity:1; }
-.rail-bottom { margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:16px; }
+.rail-bottom { display:flex; flex-direction:column; align-items:center; gap:16px; }
 .ai-rail { background:#e0d5f9; color:#66529e; }
 .avatar { display:inline-flex; align-items:center; justify-content:center; border:2px solid white; font-size:0.6875rem; font-weight:650; letter-spacing:.1px; border-radius:50%; width:36px; height:36px; }
 .avatar.owner { background:linear-gradient(140deg,#ddc8a8,#b79774); color:#4b3d31; }
@@ -608,10 +608,9 @@ html[data-motion="reduce"] :where(.rail, .topbar, .studio-foot, .studio, .access
 
 /* Compass AI: the existing workspace (assistant.css) drawn as the demo's AI layer. The page
    layer is .cp-backdrop.ai-layer; the panel, placed by Assistant.tsx, is .cp-panel.ai-shell. */
-/* The floating Ask Compass launcher shows on the Overview only (the rail has Compass AI on
-   every page). Its greeting bubble stays off. */
+/* The floating Ask Compass launcher shows on every signed-in page. Its greeting bubble stays off. */
 .compass-root .cl-greeting { display: none !important; }
-:root:not(:has(.overview-dashboard)) .compass-root .cl-launcher, .compass-root .cl-launcher.is-open { display: none !important; }
+.compass-root .cl-launcher.is-open { display: none !important; }
 .compass-root .cp-backdrop.ai-layer { inset-inline-start: var(--cp-rail, 0px); padding: 0; animation: none; }
 .compass-root .cp-panel.ai-shell {
   clip-path: none; transform: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--ink);
@@ -778,18 +777,18 @@ html[data-controls="large"] .studio .month-day { min-height:108px; padding:12px 
 .workspace > main .filter-form { flex-wrap:nowrap; align-items:center; gap:10px; }
 .workspace > main .filter-form select { width:auto; min-width:11rem; }
 
-/* Overview: the floating launcher, a navy "Ask Compass" pill beside the Studio robot. The
-   page keeps room at the bottom so the last cards scroll clear of it. */
-.studio:has(.overview-dashboard) { padding-bottom: 88px; }
+/* The floating launcher, a navy "Ask Compass" pill beside the Studio robot. Every page keeps
+   room at the bottom so the last cards and the footer scroll clear of it. */
+.studio:has(.overview-dashboard) { padding-bottom: 100px; }
 .compass-root .cl-launcher { inset-inline-end: 24px; bottom: calc(24px + env(safe-area-inset-bottom)); gap: 12px; }
 .compass-root .cl-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 30px; background: #2e2d43; color: #fff; font-size: 0.8125rem; font-weight: 500; box-shadow: 0 8px 20px #2e2d4333; transition: transform .18s ease, box-shadow .18s ease, opacity .2s ease; }
 .compass-root .cl-pill svg { width: 16px; height: 16px; }
 .compass-root .cl-pill:hover { background: #2e2d43; transform: translateY(-2px); box-shadow: 0 12px 26px #2e2d4340; }
-.compass-root .cl-avatar-btn { width: 72px; height: 72px; padding: 0; background: #fff; border-radius: 50%; filter: none; box-shadow: 0 10px 26px #6c5a9a33; transition: transform .18s ease, box-shadow .18s ease; }
+.compass-root .cl-avatar-btn { width: 86px; height: 86px; padding: 0; background: #fff; border-radius: 50%; filter: none; box-shadow: 0 10px 26px #6c5a9a33; transition: transform .18s ease, box-shadow .18s ease; }
 .compass-root .cl-avatar-btn:hover, .compass-root .cl-avatar-btn:focus-visible { transform: translateY(-3px); box-shadow: 0 14px 32px #6c5a9a47; }
 .compass-root .cl-avatar-btn:focus-visible { outline: 3px solid #8871d7; outline-offset: 3px; }
 .compass-root .cl-launcher:has(.cl-avatar-btn:focus-visible) .cl-pill { box-shadow: 0 0 0 3px #8871d7; }
-.compass-root .launcher-bot { display: block; transform: scale(.62); animation: none; }
+.compass-root .launcher-bot { display: block; transform: scale(.74); animation: none; }
 .compass-root .cl-dot { inset-inline-end: 4px; top: 4px; width: 14px; height: 14px; border: 2.5px solid #fff; }
 .compass-root .cl-dot.on { background: #3fb67a; }
 html[data-motion="reduce"] .compass-root :is(.cl-pill, .cl-avatar-btn, .cl-avatar-btn:hover, .cl-avatar-btn:focus-visible, .cl-pill:hover) { transform: none; transition: none; }
@@ -799,13 +798,55 @@ html[data-motion="reduce"] .compass-root :is(.cl-pill, .cl-avatar-btn, .cl-avata
 @media (max-width: 680px) {
   .compass-root .cl-pill { display: none; }
   .compass-root .cl-launcher { inset-inline-end: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); }
-  .compass-root .cl-avatar-btn { width: 60px; height: 60px; }
-  .compass-root .launcher-bot { transform: scale(.52); }
-  .studio:has(.overview-dashboard) { padding-bottom: 76px; }
+  .compass-root .cl-avatar-btn { width: 72px; height: 72px; }
+  .compass-root .launcher-bot { transform: scale(.62); }
+  .studio:has(.overview-dashboard) { padding-bottom: 88px; }
 }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .compass-root .cl-pill { background: #d5c1f3; color: #292035; }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .compass-root .cl-avatar-btn { background: #302a40; box-shadow: 0 10px 26px #0006; }
 :root:is([data-theme="dark"], [data-theme="contrast"]) .compass-root .cl-dot { border-color: #302a40; }
 :root[data-theme="contrast"] .compass-root .cl-pill { background: #fff; color: #000; }
 :root[data-theme="contrast"] .compass-root .cl-avatar-btn { background: #08080c; border: 1px solid #c3b7d2; }
-:root:has(.overview-dashboard) .site-footer { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+:root:has(.compass-root) .site-footer { padding-bottom: calc(118px + env(safe-area-inset-bottom)); }
+
+/* Your Weekly Briefing: a compact card under Over to You, in the same column. */
+.studio .left-column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+html[data-focus="on"] .studio .overview-dashboard .left-column { grid-row: 1 / 3; }
+@media (max-width: 680px) { .studio .left-column { order: 1; } }
+.studio .weekly-card { display: flex; flex-direction: column; gap: 12px; padding: 21px 17px; background: linear-gradient(155deg, #f3edfe 0%, #fbf9ff 70%); border-color: #e7ddfa; }
+.studio .weekly-card .card-head { margin-bottom: 0; padding: 0 5px; }
+.studio .weekly-card .caption { font-size: var(--fs-meta); }
+.studio .wb-status { display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; margin: 0 5px; padding: 5px 11px; border-radius: 20px; font-size: var(--fs-meta); font-weight: 650; color: #6a42c2; background: #ece4fc; }
+.studio .wb-status i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.studio .wb-status.action_required { color: #b3263e; background: #fcebee; }
+.studio .wb-status.ready { color: #8a5a00; background: #fdf3dc; }
+.studio .wb-status.up_to_date { color: #15803d; background: #e8f6ec; }
+.studio .wb-status.generating i { animation: wb-pulse 1.2s ease-in-out infinite; }
+@keyframes wb-pulse { 50% { opacity: .3; } }
+html[data-motion="reduce"] .studio .wb-status.generating i { animation: none; }
+@media (prefers-reduced-motion: reduce) { .studio .wb-status.generating i { animation: none; } }
+.studio .wb-generated { margin: 0 5px; font-size: var(--fs-label); color: #7a6b83; }
+.studio .wb-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.studio .wb-tile { display: flex; flex-direction: column; gap: 3px; padding: 10px 11px; border-radius: 15px; background: #fff; border: 1px solid #eee8f8; min-height: 64px; min-width: 0; }
+.studio .wb-tile strong { font-size: 1.375rem; font-weight: 650; letter-spacing: -.6px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.studio .wb-tile span { font-size: var(--fs-label); color: #6b6478; line-height: 1.3; }
+.studio .wb-tile.red strong { color: #b3263e; }
+.studio .wb-tile.amber strong { color: #8a5a00; }
+.studio .wb-tile.green strong { color: #15803d; }
+.studio .wb-tile .wb-hidden { font-size: var(--fs-label); font-weight: 600; letter-spacing: 0; color: #6b6478; }
+.studio .wb-sk { background: linear-gradient(90deg, #f1ecfa 0%, #faf8fe 50%, #f1ecfa 100%); background-size: 200% 100%; animation: wb-shimmer 1.4s ease-in-out infinite; border: 0; }
+@keyframes wb-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+html[data-motion="reduce"] .studio .wb-sk { animation: none; }
+@media (prefers-reduced-motion: reduce) { .studio .wb-sk { animation: none; } }
+.studio .weekly-card .wb-view { justify-content: center; width: 100%; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .weekly-card { background: linear-gradient(155deg, #3a2f52, #2b2540); border-color: #4d4260; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-tile { background: #262334; border-color: #443a55; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio :is(.wb-tile span, .wb-tile .wb-hidden, .wb-generated) { color: #bdb4cc; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-tile.red strong { color: #ff9aab; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-tile.amber strong { color: #f2c86b; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-tile.green strong { color: #6fd796; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status { background: #3a2f52; color: #c9b3f5; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.action_required { background: #46242c; color: #ff9aab; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.ready { background: #3d3220; color: #f2c86b; }
+:root:is([data-theme="dark"], [data-theme="contrast"]) .studio .wb-status.up_to_date { background: #1d3a29; color: #6fd796; }
+:root[data-theme="contrast"] .studio .wb-tile { background: #08080c; border-color: #c3b7d2; }

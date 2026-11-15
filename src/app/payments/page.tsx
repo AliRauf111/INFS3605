@@ -53,10 +53,12 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
           <p className="subheading">{t("payments.subheading")}</p>
         </div>
         <PageActions className="head-actions">
-          <span className={`pay-env ${data.mode}`}>
-            <i aria-hidden="true" />
-            {data.mode === "live" ? t("payments.mode.live") : t("payments.mode.demo")}
-          </span>
+          {data.mode === "live" && (
+            <span className="pay-env live">
+              <i aria-hidden="true" />
+              {t("payments.mode.live")}
+            </span>
+          )}
         </PageActions>
       </div>
       <PaymentsModule data={data} role={user.role} initialTab={tab} />

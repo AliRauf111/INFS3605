@@ -90,7 +90,7 @@
     "confirmed": "Confirmed"
   },
   "rules": {
-    "heading": "Your business, your rules",
+    "heading": "Your Business, Your Rules",
     "caption": "Compass follows the boundaries you set",
     "open": "Open business rules",
     "exceptions": "Owner approval for exceptions",
@@ -102,7 +102,7 @@
     "lessonChanges": "Lesson changes checked against your rules"
   },
   "activity": {
-    "heading": "Quietly getting things done",
+    "heading": "Quietly Getting Things Done",
     "none": "Nothing has happened on a request yet.",
     "updated": "Updated",
     "event": {

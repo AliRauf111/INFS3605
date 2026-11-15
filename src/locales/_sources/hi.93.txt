@@ -1,0 +1,2 @@
+# Weekly Briefing navigation label. First draft, needs review by a fluent speaker.
+nav.weeklyBriefing=साप्ताहिक ब्रीफ़िंग

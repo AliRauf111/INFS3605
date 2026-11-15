@@ -27,12 +27,14 @@ const GROUP_ICON: Record<StatusGroup, IconName> = { owner: "people", info: "info
 const AVATAR: Record<Tile["colour"], string> = { lavender: "lilac", blue: "blue", rose: "rose" };
 const SHOW = 3;
 
-export function OverviewBoard({ tiles, counts, texts, initial, children }: {
+export function OverviewBoard({ tiles, counts, texts, initial, children, below }: {
   tiles: Tile[];
   counts: Record<StatusGroup, number>;
   texts: Record<StatusGroup, string>;
   initial: StatusGroup | null;
   children: React.ReactNode;
+  /** Shown under Over to You, in the same column (the Weekly Briefing card). */
+  below?: React.ReactNode;
 }) {
   const { t } = useI18n();
   const label = (g: StatusGroup) => t(`domain.group.${g}`);
@@ -80,6 +82,7 @@ export function OverviewBoard({ tiles, counts, texts, initial, children }: {
       </section>
 
       <div className="dashboard-grid overview-dashboard">
+        <div className="left-column">
         <section className="card attention-card" id="overviewRequests" aria-labelledby="overviewRequestsHeading">
           <div className="card-head">
             <div>
@@ -119,6 +122,8 @@ export function OverviewBoard({ tiles, counts, texts, initial, children }: {
             {list.length > shown.length ? t("overview.viewAllCount", { count: list.length }) : t("overview.viewAll")} <Icon name="arrow" />
           </Link>
         </section>
+        {below}
+        </div>
         {children}
       </div>
     </>
