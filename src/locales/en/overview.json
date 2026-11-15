@@ -1,9 +1,9 @@
 {
   "eyebrow": "Your day, in focus",
   "greeting": {
-    "morning": "Good morning, {{name}}",
-    "afternoon": "Good afternoon, {{name}}",
-    "evening": "Good evening, {{name}}"
+    "morning": "Good Morning, {{name}}",
+    "afternoon": "Good Afternoon, {{name}}",
+    "evening": "Good Evening, {{name}}"
   },
   "subheading": "A calmer view of your tutoring business. Let us take it one decision at a time.",
   "removed": "Request removed from the list. You can find it again under",
